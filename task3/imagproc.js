@@ -101,7 +101,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
     //}
 
     // Figure out if all images are all the same size and prepare to rescale them.
-    const extend = 200 // The number of pixels we want in the largest dimension.
+    const extend = 1000 //The number of pixels we want in the largest dimension.
     // We know there is at least one image because of the assert above...
     const w_orig = imgs_metas[0].width
     const h_orig = imgs_metas[0].height
@@ -121,6 +121,17 @@ async function doImgDiff(imgs, demand_same_size=false) {
     // Return buffers of pixel data (single channel gray scale, rescaled, apply filters).
     const imgs_buffs_promises = imgs_data.map( sharp_img => {
         return sharp_img
+                 .toColorspace('lab')
+                 .resize(new_size)
+                 .normalize()
+                 .blur() // note: blur after resize...
+                 .raw()
+                 .toBuffer()
+    })
+	
+    // Return buffers of pixel data (single channel gray scale, rescaled, apply filters).
+    const tempResult_promises = imgs_data.map( sharp_img => {
+        return sharp_img
                  .grayscale()
                  .toColorspace('b-w')
                  .resize(new_size)
@@ -129,31 +140,38 @@ async function doImgDiff(imgs, demand_same_size=false) {
                  .raw()
                  .toBuffer()
     })
+	
     // Printing shows an array of pending promises; they run in parallel by sharp.
     if(verbose) console.log('4. imgs_buffs_promises =', imgs_buffs_promises)
+	if(verbose) console.log('4. imgs_buffs_promises =', tempResult_promises)
 
     // Barrier: 'await' will make sure all the promises have been resolved, and so all
     // pixels are available now.
     // Other code can run while sharp is dealing with the I/O to external code.
     const imgs_buffs = await Promise.all(imgs_buffs_promises)
+	const tempResult = await Promise.all(tempResult_promises)
 
     // The promises will show as resolved:
     if(verbose > 1) console.log('5. imgs_buffs_promises =', imgs_buffs_promises)
     if(verbose > 1) console.log('6. imgs_buffs =', imgs_buffs)
+	if(verbose > 1) console.log('5. imgs_buffs_promises =', tempResult_promises)
+    if(verbose > 1) console.log('6. imgs_buffs =', tempResult)
 
     // At this point we finally have all the pixel data in our buffers and so we can
     // finally call our algorithm to calculate pixel differences:
     let to_file_promises = []
     let output_meta = { raw: { width: new_size.width, height: new_size.height, channels: 1 } }
     for(let i = 0; i < imgs_buffs.length - 1; ++i) {
-        // We store the output in the array of the first image.
+		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-        image_xor(imgs_buffs[i], imgs_buffs[i+1], imgs_buffs[i])
-        assert(imgs_buffs[i].length == new_size.width * new_size.height)
+        image_xor(imgs_buffs[i], imgs_buffs[i+1], tempResult[i])
+        assert(imgs_buffs[i].length == new_size.width * new_size.height * 3)
+		assert(tempResult[i].length == new_size.width * new_size.height)
         if(verbose > 2) console.log(`7.${i+1} result buffer =`, imgs_buffs[i])
+		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
-        to_file_promises.push( sharp(imgs_buffs[i], output_meta).toFile(`diff-${i+1}.png`) )
+        to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`diff-${i+1}.png`) )
     }
     if(verbose) console.log('8. to_file_promises =', to_file_promises)
 
@@ -182,10 +200,35 @@ async function doImgDiff(imgs, demand_same_size=false) {
  */
 function image_xor(buff1, buff2, buff3) {
     assert(buff1.length == buff2.length)
-    assert(buff1.length == buff3.length)
-    for(let i = 0; i < buff1.length; ++i) {
-        // note: the following is working on Uint8 types (8-bit unsigned integers)
-        buff3[i] = (buff1[i] ^ buff2[i]) * (buff1[i] + buff2[i]) // do something interesting...
-        //buff3[i] = buff1[i] ^ buff2[i]
+    assert(buff1.length == 3 * buff3.length)
+	for(let i = 0; i < buff1.length; i += 3) {
+		lab1 = new Array(buff1[i], buff1[i+1], buff1[i+2])
+		lab2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
+		
+		// console.log(i, " ", lab1, " ", lab2, " ", colorDistance(lab1,lab2))
+		
+		precision = 20
+        buff3[i/3] = Math.round(colorDistance(lab1,lab2) / precision) * precision * 2.56
     }
+}
+
+function colorDistance(color1, color2) {
+	kl = kc = kh = 1
+	k1 = 0.045
+	k2 = 0.015
+	
+	dl = color1[0] - color2[0]
+	c1 = Math.sqrt(color1[1]**2 + color1[2]**2)
+	c2 = Math.sqrt(color2[1]**2 + color2[2]**2)
+	dc = c1 - c2
+	da = color1[1] - color2[1]
+	db = color1[2] - color2[2]
+	dh = Math.sqrt(Math.abs(da**2 + db**2 - dc**2))
+	sl = 1
+	sc = 1 + k1 * c1
+	sh = 1 + k2 * c1
+	
+	return Math.sqrt( (dl/(kl*sl))**2 + (dc/(kc*sc))**2 + (dh/(kh*sh))**2)
+	
+	
 }
