@@ -128,7 +128,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
                  .raw()
                  .toBuffer()
     })
-	
+
     // Return buffers of pixel data (single channel gray scale, rescaled, apply filters).
     const tempResult_promises = imgs_data.map( sharp_img => {
         return sharp_img
@@ -140,7 +140,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
                  .raw()
                  .toBuffer()
     })
-	
+
     // Printing shows an array of pending promises; they run in parallel by sharp.
     if(verbose) console.log('4. imgs_buffs_promises =', imgs_buffs_promises)
 	if(verbose) console.log('4. imgs_buffs_promises =', tempResult_promises)
@@ -165,7 +165,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
         image_xor(imgs_buffs[i], imgs_buffs[i+1], tempResult[i])
-        assert(imgs_buffs[i].length == new_size.width * new_size.height * 3)
+        assert(imgs_buffs[i].length == new_size.width * new_size.height * 4)
 		assert(tempResult[i].length == new_size.width * new_size.height)
         if(verbose > 2) console.log(`7.${i+1} result buffer =`, imgs_buffs[i])
 		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
@@ -200,15 +200,15 @@ async function doImgDiff(imgs, demand_same_size=false) {
  */
 function image_xor(buff1, buff2, buff3) {
     assert(buff1.length == buff2.length)
-    assert(buff1.length == 3 * buff3.length)
-	for(let i = 0; i < buff1.length; i += 3) {
+    assert(buff1.length == 4 * buff3.length)
+	for(let i = 0; i < buff1.length; i += 4) {
 		lab1 = new Array(buff1[i], buff1[i+1], buff1[i+2])
 		lab2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
-		
+
 		// console.log(i, " ", lab1, " ", lab2, " ", colorDistance(lab1,lab2))
-		
+
 		precision = 20
-        buff3[i/3] = Math.round(colorDistance(lab1,lab2) / precision) * precision * 2.56
+        buff3[i/4] = Math.round(colorDistance(lab1,lab2) / precision) * precision * 2.56
     }
 }
 
@@ -216,7 +216,7 @@ function colorDistance(color1, color2) {
 	kl = kc = kh = 1
 	k1 = 0.045
 	k2 = 0.015
-	
+
 	dl = color1[0] - color2[0]
 	c1 = Math.sqrt(color1[1]**2 + color1[2]**2)
 	c2 = Math.sqrt(color2[1]**2 + color2[2]**2)
@@ -227,8 +227,8 @@ function colorDistance(color1, color2) {
 	sl = 1
 	sc = 1 + k1 * c1
 	sh = 1 + k2 * c1
-	
+
 	return Math.sqrt( (dl/(kl*sl))**2 + (dc/(kc*sc))**2 + (dh/(kh*sh))**2)
-	
-	
+
+
 }
