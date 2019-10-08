@@ -208,7 +208,7 @@ function image_xor(buff1, buff2, buff3) {
 		// console.log(i, " ", lab1, " ", lab2, " ", colorDistance(lab1,lab2))
 
 		precision = 20
-        buff3[i/3] = Math.round(colorDistance2000(lab1,lab2) / precision) * precision * 2.56
+        buff3[i/3] = Math.round(colorDistance2000(lab1,lab2) / precision * precision * 2.56)
     }
 }
 
