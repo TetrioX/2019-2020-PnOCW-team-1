@@ -71,7 +71,9 @@ if(argv._.length < 2) {
  * loop the time to do other things.
  */
 async function doImgDiff(imgs, demand_same_size=false) {
-
+	
+	version = 3;
+	
     assert(imgs.length > 0)
 
     // For every image in imgs we want to know width-by-height.
@@ -165,7 +167,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
         image_xor(imgs_buffs[i], imgs_buffs[i+1], tempResult[i])
-        assert(imgs_buffs[i].length == new_size.width * new_size.height * 4)
+        assert(imgs_buffs[i].length == new_size.width * new_size.height * version)
 		assert(tempResult[i].length == new_size.width * new_size.height)
         if(verbose > 2) console.log(`7.${i+1} result buffer =`, imgs_buffs[i])
 		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
@@ -198,22 +200,16 @@ async function doImgDiff(imgs, demand_same_size=false) {
  *
  * @see https://nodejs.org/api/buffer.html
  */
-function image_xor(buff1, buff2, buff3) {
-    assert(buff1.length == buff2.length)
-    assert(buff1.length == 4 * buff3.length)
-	for(let i = 0; i < buff1.length; i += 4) {
+function image_xor(buff1, buff2, buff3) {	
+	assert(buff1.length == buff2.length)
+    assert(buff1.length == version * buff3.length)
+	for(let i = 0; i < buff1.length; i += version) {
 		lab1 = new Array(buff1[i], buff1[i+1], buff1[i+2])
 		lab2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
 
 		// console.log(i, " ", lab1, " ", lab2, " ", colorDistance(lab1,lab2))
-
-<<<<<<< HEAD
 		precision = 20
-        buff3[i/4] = Math.round(colorDistance(lab1,lab2) / precision) * precision * 2.56
-=======
-		precision = 15
-        buff3[i/3] = precisionRound(colorDistance2000(lab1,lab2), precision) * 2.56
->>>>>>> Task3_Xander_CIEDE2000
+        buff3[i/version] = Math.round(colorDistance(lab1,lab2) / precision) * precision * 2.56
     }
 }
 
@@ -239,10 +235,6 @@ function colorDistance(color1, color2) {
 	sh = 1 + k2 * c1
 
 	return Math.sqrt( (dl/(kl*sl))**2 + (dc/(kc*sc))**2 + (dh/(kh*sh))**2)
-
-
-<<<<<<< HEAD
-=======
 }
 
 // returns positive modulo
@@ -284,5 +276,4 @@ function colorDistance2000(color1, color2) {
   Rt = -2 * Math.sqrt(difc_**2/(difc_**2 + 25**7)) * Math.sin(Math.PI/3 * Math.exp(0-((difH_ - 55/36*Math.PI)/(5/36*Math.PI))**2))
 
   return Math.sqrt((ddifl/(kl*Sl))**2 + (ddifc/(kc*Sc))**2 + (ddifH/(kh*Sh))**2 + Rt*ddifc/(kc*Sc)*ddifH/(kh*Sh))
->>>>>>> Task3_Xander_CIEDE2000
 }
