@@ -8,7 +8,16 @@ var server = app.listen(8000, function(){
 });
 
 //Static files
-app.use(express.static('public'));
+
+app.get('/master', function(req,res){
+	res.sendFile(__dirname + '/public/master.html')
+})
+
+app.get('/', function(req,res){
+	res.sendFile(__dirname + '/public/slave.html')
+})
+
+
 
 //Socket setup
 var io =socket(server);
@@ -16,8 +25,8 @@ var io =socket(server);
 io.on('connect', function(socket){
 	console.log('made socket connection with', socket.id);
 //sending who is master
-	socket.on('registerMaster', function(data){
-		io.sockets.emit('registerMaster',data);
+	socket.on('test', function(data){
+		io.sockets.emit('test',data);
 
 	});
 });

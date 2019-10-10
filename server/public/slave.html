@@ -1,4 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charsert= "uft-8">
+	<title></title>
+	<script src="/socket.io/socket.io.js"></script>
 
+</head>
 <body>
-	<h1>Ik ben een slaaf</h1>	
+	<h1>Ik ben een slaaf</h1>
+	<script>
+		
+		console.log("werkt dut?")
+		var socket = io();
+		socket.on('test', function(data){
+			console.log(data.message);
+		});
+	
+	</script>
+
 </body>
+</html>

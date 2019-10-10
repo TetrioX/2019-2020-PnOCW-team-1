@@ -1,5 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charsert= "uft-8">
+	<title></title>
+		<script src="/socket.io/socket.io.js"></script>
+
+</head>
 
 <body>
-	<h1>Ik ben een master</h1>
+	<h1 >Ik ben een master</h1>
+	<button id="testbutton" >test</button>
+	<script >
+		
 
+		// Make Connection
+
+		console.log("werkt dut?");
+		var socket = io();
+
+
+		var testbutton = document.getElementById('testbutton');
+		var message= null
+
+		testbutton.addEventListener('click', function(){
+
+			socket.emit('test',{
+				message:"test"
+			});
+		});
+	</script>
 </body>
+</html>
+
