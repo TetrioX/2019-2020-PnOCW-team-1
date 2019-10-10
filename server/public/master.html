@@ -11,23 +11,17 @@
 	<h1 >Ik ben een master</h1>
 	<button id="testbutton" >test</button>
 	<script >
-		
-
 		// Make Connection
-
-		console.log("werkt dut?");
 		var socket = io();
-
-
 		var testbutton = document.getElementById('testbutton');
-		var message= null
-
-		testbutton.addEventListener('click', function(){
-
-			socket.emit('test',{
-				message:"test"
-			});
+		
+		socket.on('registerMaster',function(data){
+			if (data.socketID != socket.id){
+				window.location.href='/';
+			}
 		});
+
+		
 	</script>
 </body>
 </html>

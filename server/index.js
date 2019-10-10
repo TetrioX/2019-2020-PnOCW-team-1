@@ -13,7 +13,7 @@ app.get('/master', function(req,res){
 	res.sendFile(__dirname + '/public/master.html')
 })
 
-app.get('/', function(req,res){
+app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
 
@@ -25,8 +25,9 @@ var io =socket(server);
 io.on('connect', function(socket){
 	console.log('made socket connection with', socket.id);
 //sending who is master
-	socket.on('test', function(data){
-		io.sockets.emit('test',data);
+	socket.on('registerMaster', function(data){
+		io.sockets.emit('registerMaster',data);
+		console.log("master is send");
 
 	});
 });
