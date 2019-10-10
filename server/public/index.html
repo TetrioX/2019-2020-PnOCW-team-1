@@ -9,8 +9,24 @@
 <body>
 	<h1>Does this work?</h1>
 	<button id="masterButton">Create master</button>
-	<script src ="webappmain.js"></script>
 
-	
+	<div id="vid-controls">
+		<video id="vid-show" autoplay></video>
+		<input id="vid-take" type="button" value="Take Photo"/>
+		<div id="vid-canvas"></div>
+	</div>
+	<script src ="webappmain.js"></script>
+	<style>
+		#vid-show, #vid-canvas, #vid-take {
+			display: block;
+			margin-bottom: 30px;
+		}
+		html, body {
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+
+
 </body>
 </html>
