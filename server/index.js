@@ -19,6 +19,7 @@ app.get('', function(req,res){
 
 
 
+
 //Socket setup
 var io =socket(server);
 
@@ -27,11 +28,18 @@ io.on('connect', function(socket){
 //sending who is master
 	socket.on('registerMaster', function(data){
 		io.sockets.emit('registerMaster',data);
+<<<<<<< HEAD
 	});
 
 	socket.on('changeBackgroundColor',function(data){
 		io.sockets.emit('changeBackgroundColor',data);
+=======
+>>>>>>> Task2
 	});
+//sending photo
+	socket.on('sendingPicture', function(data) {
+		io.sockets.emit('sendingPicture',data);
+	})
 });
 
 
