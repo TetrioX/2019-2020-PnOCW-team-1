@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charsert= "uft-8">
+	<title>
+		Master Page
+	</title>		
+	<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+	<h1 >Ik ben een master</h1>
+	<input type="color" id="color">
+	<button id="changeBackgroundColor">Change background of slave</button>
+	<div id="bcPicker"></div>
+	<script >
+
+
+		// Make Connection
+		var socket = io();
+	
+		//listen for events from server	
+		socket.on('registerMaster',function(data){
+			if (data.socketID != socket.id){
+				window.location.href='/';
+			}
+		});
+
+		//Emit events to server
+		var backgroundButton =document.getElementById('changeBackgroundColor');
+		var colorPicker = document.getElementById('color');
+		var colorValue =colorPicker.value;
+
+		colorPicker.addEventListener('input',function(){
+			colorValue = colorPicker.value
+		});
+
+		changeBackgroundColor.addEventListener('click',function(){
+			socket.emit('changeBackgroundColor',{
+				colorValue:colorValue
+			});
+		});
+	</script>
+</body>
+</html>
+

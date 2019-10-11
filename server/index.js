@@ -8,11 +8,32 @@ var server = app.listen(8000, function(){
 });
 
 //Static files
-app.use(express.static('public'));
+
+app.get('/master', function(req,res){
+	res.sendFile(__dirname + '/public/master.html')
+})
+
+app.get('', function(req,res){
+	res.sendFile(__dirname + '/public/slave.html')
+})
+
+
 
 //Socket setup
 var io =socket(server);
 
-io.on('connection', function(socket){
-	console.log('made socket connection with', socket.id)
+io.on('connect', function(socket){
+
+//sending who is master
+	socket.on('registerMaster', function(data){
+		io.sockets.emit('registerMaster',data);
+	});
+
+	socket.on('changeBackgroundColor',function(data){
+		io.sockets.emit('changeBackgroundColor',data);
+	});
+//sending photo
+	socket.on("SendingPicture", function(data) {
+		io.sockets.emit("SendingPicture", data);
+	})
 });

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charsert= "uft-8">
+	<title>
+		Slave Page
+	</title>
+	<script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body>
+	<div text-align ="center">
+	<h1>Ik ben een slaaf</h1>
+	<button id='masterButton'>Word Master</button>
+	</div>
+	<script>
+		//make connection
+		var socket = io();
+
+		//listen for events from server
+		socket.on('connect',function(){
+			socketID =socket.id;
+			console.log(socketID);
+		});
+
+		socket.on('changeBackgroundColor',function(data){
+			document.body.style.backgroundColor = data.colorValue;
+		});
+		
+
+		//listen for events from client
+		var masterButton = document.getElementById("masterButton");
+		var socketID = null;
+
+		masterButton.addEventListener('click',function(){
+			console.log("socketID is send");
+			socket.emit('registerMaster',{
+				socketID :socketID
+			});
+			window.location.href="/master";
+		});
+	</script>
+</body>
+</html>
