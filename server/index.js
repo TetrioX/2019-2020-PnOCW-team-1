@@ -13,6 +13,21 @@ app.use(express.static('public'));
 //Socket setup
 var io =socket(server);
 
-io.on('connection', function(socket){
-	console.log('made socket connection with', socket.id)
+
+io.on('connect', function(socket){
+
+//sending who is master
+	socket.on('registerMaster', function(data){
+		io.sockets.emit('registerMaster',data);
+	});
+
+	socket.on('changeBackgroundColor',function(data){
+		io.sockets.emit('changeBackgroundColor',data);
+	});
+//sending photo
+	socket.on('SendingPicture', function(data) {
+		console.log("geraak ik hier?");
+		io.sockets.emit("SendingPicture", data);
+	})
 });
+
