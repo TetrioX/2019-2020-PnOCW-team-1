@@ -77,7 +77,6 @@ if(argv._.length < 2) {
  */
 async function doImgDiff(imgs, demand_same_size=false) {
 
-    console.log("Hello")
 	version = 3
 	
     assert(imgs.length > 0)
@@ -137,8 +136,6 @@ async function doImgDiff(imgs, demand_same_size=false) {
                  .toBuffer()
     })
 
-    console.log("Hello")
-
     // Return buffers of pixel data (single channel gray scale, rescaled, apply filters).
     const tempResult_promises = imgs_data.map( sharp_img => {
         return sharp_img
@@ -175,7 +172,6 @@ async function doImgDiff(imgs, demand_same_size=false) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
         imgread.imageReading(imgs_buffs[i], imgs_buffs[i+1], tempResult[i], version)
-        console.log("Hello")
         assert(imgs_buffs[i].length == new_size.width * new_size.height * version)
 		assert(tempResult[i].length == new_size.width * new_size.height)
         if(verbose > 2) console.log(`7.${i+1} result buffer =`, imgs_buffs[i])

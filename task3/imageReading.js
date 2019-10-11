@@ -1,4 +1,6 @@
 
+
+const assert = require('assert')  // asserting pre-conditions
 const clrdis = require('./colorDistance');
 
 /**
@@ -17,7 +19,7 @@ const clrdis = require('./colorDistance');
  * @see https://nodejs.org/api/buffer.html
  */
 exports.imageReading = function(buff1, buff2, buff3, version) {
-	console.log("true")
+	console.log(version)
 	assert(buff1.length == buff2.length)
     assert(buff1.length == version * buff3.length)
 	startWhite = 0
@@ -29,7 +31,7 @@ exports.imageReading = function(buff1, buff2, buff3, version) {
 		
 		// console.log(i, " ", lab1, " ", lab2, " ", colorDistance(lab1,lab2))
 		precision = 30
-        buff3[i/version] = precisionRound(colorDistance.colorDistance2000(lab1,lab2), precision) * 5
+        buff3[i/version] = precisionRound(clrdis.colorDistance2000(lab1,lab2), precision) * 5
 		
 		if (buff3[i/version] > 50) if (!onWhite) { 
 		startWhite = i/version; 
