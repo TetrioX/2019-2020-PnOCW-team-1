@@ -80,9 +80,12 @@
 						var context2D = draw.getContext('2d');
 						context2D.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 						draw.toBlob(function(blob){
-							var data = new FormData();
-							data.append('upimage', blob);
-							socket.emit("SendingPicture", data);
+							var screenshot = new FormData();
+							console.log(screenshot);
+							screenshot.append('upimage', blob);
+							socket.emit('SendingPicture',{
+								screenshot : screenshot
+							});
 						});
 						// Put into canvas container
 						canvas.innerHTML = "";
