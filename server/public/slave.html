@@ -26,6 +26,10 @@
 		socket.on('changeBackgroundColor',function(data){
 			document.body.style.backgroundColor = data.colorValue;
 		});
+
+		socket.on('SendingPicture', function(data){
+			console.log("picture recieved");
+		});
 		
 
 		//listen for events from client

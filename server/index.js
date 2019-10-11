@@ -33,7 +33,8 @@ io.on('connect', function(socket){
 		io.sockets.emit('changeBackgroundColor',data);
 	});
 //sending photo
-	socket.on("SendingPicture", function(data) {
+	socket.on('SendingPicture', function(data) {
+		console.log("geraak ik hier?");
 		io.sockets.emit("SendingPicture", data);
 	})
 });

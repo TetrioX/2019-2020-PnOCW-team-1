@@ -12,6 +12,21 @@
 	<input type="color" id="color">
 	<button id="changeBackgroundColor">Change background of slave</button>
 	<div id="bcPicker"></div>
+	<div id="vid-controls">
+		<video id="vid-show" autoplay></video>
+		<input id="vid-take" type="button" value="Take Photo"/>
+		<div id="vid-canvas"></div>
+	</div>
+	<style>
+		#vid-show, #vid-canvas, #vid-take {
+			display: block;
+			margin-bottom: 30px;
+		}
+		html, body {
+			padding: 0;
+			margin: 0;
+		}
+	</style>
 	<script >
 
 
@@ -39,6 +54,49 @@
 				colorValue:colorValue
 			});
 		});
+
+
+		//Foto nemen
+		window.addEventListener("load", function(){
+			// [1] GET ALL THE HTML ELEMENTS
+			var video = document.getElementById("vid-show"),
+				canvas = document.getElementById("vid-canvas"),
+				take = document.getElementById("vid-take");
+
+			// [2] ASK FOR USER PERMISSION TO ACCESS CAMERA
+			// WILL FAIL IF NO CAMERA IS ATTACHED TO COMPUTER
+			navigator.mediaDevices.getUserMedia({ video : true })
+				.then(function(stream) {
+					// [3] SHOW VIDEO STREAM ON VIDEO TAG
+					video.srcObject = stream;
+					video.play();
+
+					// [4] WHEN WE CLICK ON "TAKE PHOTO" BUTTON
+					take.addEventListener('click', function(){
+						// Create snapshot from video
+						var draw = document.createElement('canvas');
+						draw.width = video.videoWidth;
+						draw.height = video.videoHeight;
+						var context2D = draw.getContext('2d');
+						context2D.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+						draw.toBlob(function(blob){
+							var screenshot = new FormData();
+							console.log(screenshot);
+							screenshot.append('upimage', blob);
+							socket.emit('SendingPicture',{
+								screenshot : screenshot
+							});
+						});
+						// Put into canvas container
+						canvas.innerHTML = "";
+						canvas.appendChild(draw);
+					});
+				})
+				.catch(function(err) {
+					document.getElementById("vid-controls").innerHTML = "Please enable access and attach a camera";
+				});
+	});
+
 	</script>
 </body>
 </html>
