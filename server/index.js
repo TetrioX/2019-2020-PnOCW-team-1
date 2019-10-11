@@ -10,7 +10,6 @@ var server = app.listen(8000, function(){
 //Static files
 app.use(express.static('public'));
 
-
 //Socket setup
 var io =socket(server);
 
@@ -21,15 +20,7 @@ io.on('connect', function(socket){
 		io.sockets.emit('registerMaster',data);
 	});
 //sending photo
-	socket.on('sendingPicture', function(data) {
-		io.sockets.emit('sendingPicture',data);
+	socket.on("SendingPicture", function(data) {
+		io.sockets.emit("SendingPicture", data);
 	})
 });
-
-
-
-
-
-
-
-

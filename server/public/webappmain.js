@@ -29,13 +29,14 @@ window.addEventListener("load", function(){
 				draw.height = video.videoHeight;
 				var context2D = draw.getContext('2d');
 				context2D.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+				draw.toBlob(function(blob){
+					var data = new FormData();
+					data.append('upimage', blob);
+					socket.emit("SendingPicture", data);
+				});
 				// Put into canvas container
 				canvas.innerHTML = "";
 				canvas.appendChild(draw);
-				// Upload to server
-				socket.emit('sendingPicture',{
-					canvas:canvas
-				});
 			});
 		})
 		.catch(function(err) {
@@ -70,10 +71,6 @@ masterbutton.addEventListener('click', function(){
 	socket.emit('registerMaster',{
 		socketID: socketID	
 	});
-	
-
-
-	
 });
 
 //functions
