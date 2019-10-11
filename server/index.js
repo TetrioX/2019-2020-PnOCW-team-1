@@ -23,15 +23,16 @@ app.get('', function(req,res){
 var io =socket(server);
 
 io.on('connect', function(socket){
-	console.log('made socket connection with', socket.id);
+
 //sending who is master
 	socket.on('registerMaster', function(data){
 		io.sockets.emit('registerMaster',data);
-		console.log("master is send");
+	});
 
+	socket.on('changeBackgroundColor',function(data){
+		io.sockets.emit('changeBackgroundColor',data);
 	});
 });
-
 
 
 
