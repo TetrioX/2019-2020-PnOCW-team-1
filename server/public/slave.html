@@ -15,7 +15,7 @@
 	</div>
 	<script>
 		//make connection
-		var socket = io();
+		var socket = io('/slave');
 
 		//listen for events from server
 		socket.on('connect',function(){
@@ -30,17 +30,13 @@
 		socket.on('SendingPicture', function(data){
 			console.log("picture recieved");
 		});
-		
+
 
 		//listen for events from client
 		var masterButton = document.getElementById("masterButton");
 		var socketID = null;
 
 		masterButton.addEventListener('click',function(){
-			console.log("socketID is send");
-			socket.emit('registerMaster',{
-				socketID :socketID
-			});
 			window.location.href="/master";
 		});
 	</script>
