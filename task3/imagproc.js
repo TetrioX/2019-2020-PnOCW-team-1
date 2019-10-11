@@ -72,7 +72,7 @@ if(argv._.length < 2) {
  */
 async function doImgDiff(imgs, demand_same_size=false) {
 	
-	version = 3;
+	version = 3
 	
     assert(imgs.length > 0)
 
@@ -203,18 +203,31 @@ async function doImgDiff(imgs, demand_same_size=false) {
 function image_xor(buff1, buff2, buff3) {	
 	assert(buff1.length == buff2.length)
     assert(buff1.length == version * buff3.length)
+	startWhite = 0
+	onWhite = true
 	for(let i = 0; i < buff1.length; i += version) {
 		lab1 = new Array(buff1[i], buff1[i+1], buff1[i+2])
 		lab2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
-
+		
 		// console.log(i, " ", lab1, " ", lab2, " ", colorDistance(lab1,lab2))
-		precision = 20
-        buff3[i/version] = Math.round(colorDistance(lab1,lab2) / precision) * precision * 2.56
+		precision = 30
+        buff3[i/version] = precisionRound(colorDistance2000(lab1,lab2), precision) * 5
+		
+		if (buff3[i/version] > 50) if (!onWhite) { 
+		startWhite = i/version; 
+		onWhite = true
+		}
+		if (buff3[i/version] <= 50) if (onWhite) { 
+		if(i/version - startWhite > 256) console.log(i/version - startWhite); 
+		onWhite = false
+		}
     }
 }
 
 function precisionRound(number, precision) {
-	return Math.round(number / precision) * precision
+	// return Math.round(number / precision) * precision
+	if (number > precision) return 100
+	else return 0
 }
 	
 
