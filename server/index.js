@@ -20,9 +20,6 @@ function addSlave(slave){
 }
 
 //Static files
-<<<<<<< HEAD
-app.use(express.static('public'));
-=======
 
 app.get('/master', function(req,res){
 	res.sendFile(__dirname + '/public/master.html')
@@ -31,19 +28,10 @@ app.get('/master', function(req,res){
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
->>>>>>> master
 
 //Socket setup
 var io =socket(server);
 
-<<<<<<< HEAD
-
-io.on('connect', function(socket){
-
-//sending who is master
-	socket.on('registerMaster', function(data){
-		io.sockets.emit('registerMaster',data);
-=======
 var masterIo = io.of('/master').on('connect', function(socket){
   socket.broadcast.emit('registerMaster')
   console.log(slaves)-
@@ -52,7 +40,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
   })
   socket.on('changeBackgroundColor',function(data){
 		slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
->>>>>>> master
 	});
 })
 
@@ -63,13 +50,8 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 		console.log("geraak ik hier?");
 		io.sockets.emit("SendingPicture", data);
 	})
-<<<<<<< HEAD
-});
-
-=======
 
   socket.on('disconnect', function() {
     deleteSlave(socket)
   }
 )});
->>>>>>> master
