@@ -76,8 +76,6 @@ if(argv._.length < 2) {
  * loop the time to do other things.
  */
 async function doImgDiff(imgs, demand_same_size=false) {
-
-	version = 3
 	
     assert(imgs.length > 0)
 
@@ -112,6 +110,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
     // We know there is at least one image because of the assert above...
     const w_orig = imgs_metas[0].width
     const h_orig = imgs_metas[0].height
+	const channel = imgs_metas[0].channels
     for(let i = 0; demand_same_size && (i < imgs_metas.length); ++i) {
         if((imgs_metas[i].width != w_orig) || (imgs_metas[i].height != h_orig)) {
             throw(Error('Images should all have the same dimensions'))
@@ -149,8 +148,8 @@ async function doImgDiff(imgs, demand_same_size=false) {
     })
 
     // Printing shows an array of pending promises; they run in parallel by sharp.
-    if(verbose) console.log('4. imgs_buffs_promises =', imgs_buffs_promises)
-	if(verbose) console.log('4. imgs_buffs_promises =', tempResult_promises)
+    if(verbose) console.log('4.1 imgs_buffs_promises =', imgs_buffs_promises)
+	if(verbose) console.log('4.2 tempResult_promises =', tempResult_promises)
 
     // Barrier: 'await' will make sure all the promises have been resolved, and so all
     // pixels are available now.
@@ -159,10 +158,10 @@ async function doImgDiff(imgs, demand_same_size=false) {
 	const tempResult = await Promise.all(tempResult_promises)
 
     // The promises will show as resolved:
-    if(verbose > 1) console.log('5. imgs_buffs_promises =', imgs_buffs_promises)
-    if(verbose > 1) console.log('6. imgs_buffs =', imgs_buffs)
-	if(verbose > 1) console.log('5. imgs_buffs_promises =', tempResult_promises)
-    if(verbose > 1) console.log('6. imgs_buffs =', tempResult)
+    if(verbose > 1) console.log('5.1 imgs_buffs_promises =', imgs_buffs_promises)
+    if(verbose > 1) console.log('5.2 tempResult_promises =', tempResult_promises)
+	if(verbose > 1) console.log('6.1 imgs_buffs =', imgs_buffs)
+    if(verbose > 1) console.log('6.2 tempResult =', tempResult)
 
     // At this point we finally have all the pixel data in our buffers and so we can
     // finally call our algorithm to calculate pixel differences:
@@ -171,10 +170,9 @@ async function doImgDiff(imgs, demand_same_size=false) {
     for(let i = 0; i < imgs_buffs.length - 1; ++i) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-        imgread.imageReading(imgs_buffs[i], imgs_buffs[i+1], tempResult[i], version)
-        assert(imgs_buffs[i].length == new_size.width * new_size.height * version)
+        imgread.imageReading(imgs_buffs[i], imgs_buffs[i+1], tempResult[i], channel)
+        assert(imgs_buffs[i].length == new_size.width * new_size.height * channel)
 		assert(tempResult[i].length == new_size.width * new_size.height)
-        if(verbose > 2) console.log(`7.${i+1} result buffer =`, imgs_buffs[i])
 		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
@@ -184,8 +182,8 @@ async function doImgDiff(imgs, demand_same_size=false) {
 
     // If we put an await here, then the first console.log in the main code will still
     // print a promise... Can you figure out why?
-    //const to_files = await Promise.all(to_file_promises)
-    //console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
+    // const to_files = await Promise.all(to_file_promises)
+    // if(verbose > 2) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
 
     return to_file_promises
 }	
