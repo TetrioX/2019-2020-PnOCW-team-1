@@ -1,5 +1,21 @@
 
+const assert = require('assert')  // asserting pre-conditions
+
+/**
+ * Calculate the difference between two colors.
+ *
+ * @param {Array} color1 Input color 1
+ * @param {Array} color2 Input color 2
+ *
+ * @pre color1.length == color1.length == 3
+ *
+ * @note The used algorithm is based upon the CIE94 algorithm.
+ * @see https://en.wikipedia.org/wiki/Color_difference
+ */
 exports.colorDistance = function(color1, color2) {
+	assert(color1.length == 3)
+	assert(color2.length == 3)
+	
 	kl = kc = kh = 1
 	k1 = 0.045
 	k2 = 0.015
@@ -18,12 +34,22 @@ exports.colorDistance = function(color1, color2) {
 	return Math.sqrt( (dl/(kl*sl))**2 + (dc/(kc*sc))**2 + (dh/(kh*sh))**2)
 }
 
-// returns positive modulo
-function mod(n, m) {
-  return ((n % m) + m) % m;
-}
 
+/**
+ * Calculate the difference between two colors.
+ *
+ * @param {Array} color1 Input color 1
+ * @param {Array} color2 Input color 2
+ *
+ * @pre color1.length == color1.length == 3
+ *
+ * @note The used algorithm is based upon the CIEDE2000 algorithm.
+ * @see https://en.wikipedia.org/wiki/Color_difference
+ */
 exports.colorDistance2000 = function(color1, color2) {
+  assert(color1.length == 3)
+  assert(color2.length == 3)
+  
   kl = kc = kh = 1
 
   ddifl = color1[0] - color2[0]
@@ -57,4 +83,9 @@ exports.colorDistance2000 = function(color1, color2) {
   Rt = -2 * Math.sqrt(difc_**2/(difc_**2 + 25**7)) * Math.sin(Math.PI/3 * Math.exp(0-((difH_ - 55/36*Math.PI)/(5/36*Math.PI))**2))
 
   return Math.sqrt((ddifl/(kl*Sl))**2 + (ddifc/(kc*Sc))**2 + (ddifH/(kh*Sh))**2 + Rt*ddifc/(kc*Sc)*ddifH/(kh*Sh))
+}
+
+// returns positive modulo
+function mod(n, m) {
+  return ((n % m) + m) % m;
 }
