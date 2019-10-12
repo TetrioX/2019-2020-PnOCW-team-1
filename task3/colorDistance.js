@@ -12,7 +12,7 @@ const assert = require('assert')  // asserting pre-conditions
  * @note The used algorithm is based upon the CIE94 algorithm.
  * @see https://en.wikipedia.org/wiki/Color_difference
  */
-exports.colorDistance = function(color1, color2) {
+const colorDistance = function(color1, color2) {
 	assert(color1.length == 3)
 	assert(color2.length == 3)
 	
@@ -46,7 +46,7 @@ exports.colorDistance = function(color1, color2) {
  * @note The used algorithm is based upon the CIEDE2000 algorithm.
  * @see https://en.wikipedia.org/wiki/Color_difference
  */
-exports.colorDistance2000 = function(color1, color2) {
+const colorDistance2000 = function(color1, color2) {
   assert(color1.length == 3)
   assert(color2.length == 3)
   
@@ -89,3 +89,10 @@ exports.colorDistance2000 = function(color1, color2) {
 function mod(n, m) {
   return ((n % m) + m) % m;
 }
+
+// To make the function accesible in other .js files
+module.exports = {
+	colorDistance: colorDistance,
+	colorDistance2000: colorDistance2000
+};
+	

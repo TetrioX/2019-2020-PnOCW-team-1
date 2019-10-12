@@ -190,3 +190,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
     return to_file_promises
 }	
 
+// To make the function accesible in other .js files
+module.exports = {
+	doImgDiff: doImgDiff
+};

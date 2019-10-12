@@ -23,7 +23,7 @@ precision = 30 // reference number to determine difference precision
  * 
  * @see https://nodejs.org/api/buffer.html
  */
-exports.imageReading = function(buff1, buff2, buff3, version) {
+const imageReading = function(buff1, buff2, buff3, version) {
 	console.log(version)
 	assert(buff1.length == buff2.length)
     assert(buff1.length == version * buff3.length)
@@ -60,3 +60,8 @@ function precisionRound(number, precision) {
 	if (number > precision) return 100
 	else return 0
 }
+
+// To make the function accesible in other .js files
+module.exports = {
+	imageReading: imageReading
+};
