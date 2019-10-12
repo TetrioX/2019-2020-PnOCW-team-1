@@ -4,13 +4,12 @@
 	<meta charsert= "uft-8">
 	<title>
 		Master Page
-	</title>		
+	</title>
 	<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 	<h1 >Ik ben een master</h1>
 	<input type="color" id="color">
-	<button id="changeBackgroundColor">Change background of slave</button>
 	<div id="bcPicker"></div>
 	<div id="vid-controls">
 		<video id="vid-show" autoplay></video>
@@ -31,13 +30,11 @@
 
 
 		// Make Connection
-		var socket = io();
-	
-		//listen for events from server	
+		var socket = io('/master');
+
+		//listen for events from server
 		socket.on('registerMaster',function(data){
-			if (data.socketID != socket.id){
-				window.location.href='/';
-			}
+			window.location.href='/';
 		});
 
 		//Emit events to server
@@ -49,12 +46,41 @@
 			colorValue = colorPicker.value
 		});
 
-		changeBackgroundColor.addEventListener('click',function(){
-			socket.emit('changeBackgroundColor',{
-				colorValue:colorValue
+		var slaveButtons = {};
+
+		function createSlaveButton(slave) {
+			var btn = document.createElement("BUTTON");
+			btn.innerHTML = "Change collor of " + slave;
+			document.body.appendChild(btn);
+			btn.addEventListener('click',function(){
+				 socket.emit('changeBackgroundColor',{
+					colorValue: colorValue,
+					id: slave
+				});
 			});
+			slaveButtons[slave] = btn;
+		}
+
+		function removeSlaveButton(slave) {
+			if (slave in slaveButtons) {
+				slaveButtons[slave].remove();
+				delete slaveButtons[slave];
+			}
+		}
+
+		socket.on('slaveSet',function(data){
+			for (slave of data.slaves) {
+				createSlaveButton(slave);
+			}
 		});
 
+		socket.on('registerSlave',function(data){
+			createSlaveButton(data);
+		});
+
+		socket.on('removeSlave',function(data){
+			removeSlaveButton(data)
+		});
 
 		//Foto nemen
 		window.addEventListener("load", function(){
@@ -100,4 +126,3 @@
 	</script>
 </body>
 </html>
-
