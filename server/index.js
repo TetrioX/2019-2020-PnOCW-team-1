@@ -6,17 +6,24 @@ var app = express();
 var server = app.listen(8000, function(){
     console.log('listening to requests on port 8000')
 });
+//Socket setup
+var io = socket(server);
 
-var slaves = new Set();
+var slaves = {}
+var number = 0
 
-function deleteSlave(slave){
-  masterIo.emit("removeSlave", slave.id)
-  slaves.delete(slave.id)
+function deleteSlave(socket) {
+   delete slaves[socket.id]
+    masterIo.emit("removeSlave", socket.id)
 }
 
-function addSlave(slave){
-  masterIo.emit('registerSlave', slave.id);
-  slaves.add(slave.id)
+function addSlave(socket) {
+    slaves[socket.id] = ++number
+    masterIo.emit('registerSlave', {
+        number: number,
+        socket_id: socket.id
+    })
+    socket.emit('slaveID', number)
 }
 
 //Static files
@@ -29,14 +36,13 @@ app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
 
-//Socket setup
-var io =socket(server);
+
 
 var masterIo = io.of('/master').on('connect', function(socket){
   socket.broadcast.emit('registerMaster')
   console.log(slaves)-
   socket.emit('slaveSet', {
-    slaves: Array.from(slaves)
+    slaves: slaves
   })
   socket.on('changeBackgroundColor',function(data){
 		slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);

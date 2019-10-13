@@ -6,13 +6,19 @@
 		Slave Page
 	</title>
 	<script src="/socket.io/socket.io.js"></script>
+    <style>
+        .hidden {
+            display: none
+        }
+    </style>
 
 </head>
 <body>
-	<div text-align ="center">
-	<h1>Ik ben een slaaf</h1>
+	<div text-align ="center" id="wrapper">
+	<h1 id="slaveID">Ik ben een slaaf nummer </h1>
 	<button id='masterButton'>Word Master</button>
 	</div>
+
 	<script>
 		//make connection
 		var socket = io('/slave');
@@ -24,12 +30,18 @@
 		});
 
 		socket.on('changeBackgroundColor',function(data){
-			document.body.style.backgroundColor = data.colorValue;
+            document.body.style.backgroundColor = data.colorValue;
+            document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
 		});
 
 		socket.on('SendingPicture', function(data){
 			console.log("picture recieved");
-		});
+        });
+        // Sending number to slave (also usefull for angle of arrow!)
+        socket.on('slaveID', function (id) {
+            console.log(id)
+            document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
+        })
 
 
 		//listen for events from client
