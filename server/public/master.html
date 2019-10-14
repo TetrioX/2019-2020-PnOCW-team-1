@@ -1,128 +1,129 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charsert= "uft-8">
-	<title>
-		Master Page
-	</title>
-	<script src="/socket.io/socket.io.js"></script>
+    <meta charsert="uft-8">
+    <title>
+        Master Page
+    </title>
+    <script src="/socket.io/socket.io.js"></script>
+    
 </head>
 <body>
 	<h1 >Ik ben een master</h1>
+	<div class="contentarea">
+		<div class="camera">
+			<video id="video">Video stream not available.</video>
+		</div>
+        <canvas id="canvas" width="0" height="0"></canvas>
+	</div>
+	<button id="startbutton">Take photo</button>
+	<button id="drawLine">Draw line</button>
+	<input id="anglePicker" placeholder="Enter angle (degrees)" type="number" name="name"/>
 	<input type="color" id="color">
 	<div id="bcPicker"></div>
-	<div id="vid-controls">
-		<video id="vid-show" autoplay></video>
-		<input id="vid-take" type="button" value="Take Photo"/>
-		<div id="vid-canvas"></div>
-	</div>
-	<style>
-		#vid-show, #vid-canvas, #vid-take {
-			display: block;
-			margin-bottom: 30px;
-		}
-		html, body {
-			padding: 0;
-			margin: 0;
-		}
-	</style>
-	<script >
 
+	<script >
 
 		// Make Connection
 		var socket = io('/master');
 
 		//listen for events from server
-		socket.on('registerMaster',function(data){
-			window.location.href='/';
+		socket.on('registerMaster', function (data) {
+				window.location.href = '/';
 		});
 
 		//Emit events to server
-		var backgroundButton =document.getElementById('changeBackgroundColor');
+		var backgroundButton = document.getElementById('changeBackgroundColor');
 		var colorPicker = document.getElementById('color');
-		var colorValue =colorPicker.value;
+		var colorValue = colorPicker.value;
 
-		colorPicker.addEventListener('input',function(){
-			colorValue = colorPicker.value
+		colorPicker.addEventListener('input', function () {
+				colorValue = colorPicker.value
 		});
 
 		var slaveButtons = {};
+		var numberOnButton = 0;
 
-		function createSlaveButton(slave) {
-			var btn = document.createElement("BUTTON");
-			btn.innerHTML = "Change collor of " + slave;
-			document.body.appendChild(btn);
-			btn.addEventListener('click',function(){
-				 socket.emit('changeBackgroundColor',{
-					colorValue: colorValue,
-					id: slave
+        var drawButtonLine = document.getElementById('drawLine');
+        var anglePicker = document.getElementById('anglePicker');
+				var canvas=document.getElementById("canvas");
+
+        var angle = 0;
+		anglePicker.addEventListener('input', function () {
+			angle = -anglePicker.value / 180 * Math.PI
+		})
+
+
+        drawButtonLine.addEventListener('click', function(){
+            socket.emit('drawLine',{
+                angle:angle
+            })
+        });
+
+		colorPicker.addEventListener('input',function(){
+			colorValue = colorPicker.value
+		})
+
+		function createSlaveButton(number,id) {
+				var btn = document.createElement("BUTTON");
+				btn.innerHTML = "Change collor of " + number;
+				document.body.appendChild(btn);
+				btn.addEventListener('click', function () {
+						socket.emit('changeBackgroundColor', {
+								colorValue: colorValue,
+								id: id
+						});
 				});
-			});
-			slaveButtons[slave] = btn;
+				slaveButtons[id] = btn;
 		}
 
 		function removeSlaveButton(slave) {
-			if (slave in slaveButtons) {
-				slaveButtons[slave].remove();
-				delete slaveButtons[slave];
-			}
+				if (slave in slaveButtons) {
+						slaveButtons[slave].remove();
+						delete slaveButtons[slave];
+				}
 		}
 
-		socket.on('slaveSet',function(data){
-			for (slave of data.slaves) {
-				createSlaveButton(slave);
-			}
+		socket.on('slaveSet', function (data) {
+				for (socket_id in data.slaves) {
+						createSlaveButton(data.slaves[socket_id], socket_id);
+				}
 		});
 
-		socket.on('registerSlave',function(data){
-			createSlaveButton(data);
+		socket.on('registerSlave', function (data) {
+				createSlaveButton(data.number,data.socket_id);
 		});
 
-		socket.on('removeSlave',function(data){
-			removeSlaveButton(data)
+		socket.on('removeSlave', function (data) {
+				removeSlaveButton(data)
 		});
 
 		//Foto nemen
-		window.addEventListener("load", function(){
-			// [1] GET ALL THE HTML ELEMENTS
-			var video = document.getElementById("vid-show"),
-				canvas = document.getElementById("vid-canvas"),
-				take = document.getElementById("vid-take");
+        var video = document.getElementById('video');
+        var canvas = null;
+        var startbutton = document.getElementById('startbutton');
 
-			// [2] ASK FOR USER PERMISSION TO ACCESS CAMERA
-			// WILL FAIL IF NO CAMERA IS ATTACHED TO COMPUTER
-			navigator.mediaDevices.getUserMedia({ video : true })
-				.then(function(stream) {
-					// [3] SHOW VIDEO STREAM ON VIDEO TAG
-					video.srcObject = stream;
-					video.play();
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
+            .then(function (stream) {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(function (err) {
+                console.log("An error occurred: " + err);
+            });
 
-					// [4] WHEN WE CLICK ON "TAKE PHOTO" BUTTON
-					take.addEventListener('click', function(){
-						// Create snapshot from video
-						var draw = document.createElement('canvas');
-						draw.width = video.videoWidth;
-						draw.height = video.videoHeight;
-						var context2D = draw.getContext('2d');
-						context2D.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-						draw.toBlob(function(blob){
-							var screenshot = new FormData();
-							console.log(screenshot);
-							screenshot.append('upimage', blob);
-							socket.emit('SendingPicture',{
-								screenshot : screenshot
-							});
-						});
-						// Put into canvas container
-						canvas.innerHTML = "";
-						canvas.appendChild(draw);
-					});
-				})
-				.catch(function(err) {
-					document.getElementById("vid-controls").innerHTML = "Please enable access and attach a camera";
-				});
-	});
+        startbutton.addEventListener('click', function () {
+            canvas = document.getElementById('canvas');
+            var context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
 
+            socket.emit('upload-image', {
+                image: true,
+                buffer: canvas.toDataURL('image/png')
+            });
+        });
 	</script>
 </body>
 </html>
