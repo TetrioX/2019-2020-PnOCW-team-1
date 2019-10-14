@@ -1,7 +1,7 @@
 
 
 const screenReading = function(buff) {
-	endWhite
+	endWhite = 0
 	startWhite = 0
 	onWhite = true
 	
@@ -15,7 +15,7 @@ const screenReading = function(buff) {
 		onWhite = false
 		}
 		
-		if (onWhite && startWhite  
+		if (onWhite && startWhite) break;
 	}
 
 	// console.log(screennr, " ", position)
