@@ -4,8 +4,8 @@ var fs = fs = require('fs');
 
 //App setup
 var app = express();
-var server = app.listen(8000, function(){
-    console.log('listening to requests on port 8000')
+var server = app.listen(8001, function(){
+    console.log('listening to requests on port 8001')
 });
 //Socket setup
 var io = socket(server);
