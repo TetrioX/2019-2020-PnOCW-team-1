@@ -6,20 +6,23 @@
 		Slave Page
 	</title>
 	<script src="/socket.io/socket.io.js"></script>
-    <link href="slave.css" type="text/css" rel="stylesheet" />
-
+    <style>
+        .hidden {
+            display: none
+        }
+    </style>
 
 </head>
 <body>
-	<div text-align ="center">
-	<h1>Ik ben een slaaf</h1>
+	<div text-align ="center" id="wrapper">
+	<h1 id="slaveID">Ik ben een slaaf nummer </h1>
 	<button id='masterButton'>Word Master</button>
         <canvas id="canvas">Canvas</canvas>
 	</div>
 
 	<script>
 		//make connection
-		var socket = io();
+		var socket = io('/slave');
 
         //listen for events from client
         var masterButton = document.getElementById("masterButton");
@@ -113,27 +116,27 @@
 		});
 
 		socket.on('changeBackgroundColor',function(data){
-			document.body.style.backgroundColor = data.colorValue;
+            document.body.style.backgroundColor = data.colorValue;
+            document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
 		});
 
-		socket.on('drawLine', function(data){
+		socket.on('SendingPicture', function(data){
+			console.log("picture recieved");
+        });
+        // Sending number to slave (also usefull for angle of arrow!)
+        socket.on('slaveID', function (id) {
+            console.log(id)
+            document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
+        })
 
+
+		socket.on('drawLine', function(data){
 		    draw(data.angle);
         });
 
-
-
-
-
 		masterButton.addEventListener('click',function(){
-			console.log("socketID is send");
-			socket.emit('registerMaster',{
-				socketID :socketID
-			});
 			window.location.href="/master";
 		});
-
-
 
 	</script>
 </body>

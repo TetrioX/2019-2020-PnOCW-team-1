@@ -23,12 +23,15 @@
 // (C) 2019 Dirk Nuyens
 //
 
+
 const fs = require('fs')          // file system operations
 const sharp = require('sharp')    // image processing
 const { argv } = require('yargs') // command line arguments
                .count('verbose')
                .alias('v', 'verbose')
 const assert = require('assert')  // asserting pre-conditions
+const imgread = require('./imageReading.js');
+
 
 let verbose = argv.verbose;
 
@@ -47,6 +50,8 @@ if(argv._.length < 2) {
     //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
     //doImgDiff(imgs, argv['same-size']).catch(console.error)
 }
+
+
 
 /**
  * Load images from disk or buffer and save pair-wise differences to disk.
@@ -71,8 +76,8 @@ if(argv._.length < 2) {
  * loop the time to do other things.
  */
 async function doImgDiff(imgs, demand_same_size=false) {
-	
-	version = 3;
+
+	version = 3
 	
     assert(imgs.length > 0)
 
@@ -166,14 +171,14 @@ async function doImgDiff(imgs, demand_same_size=false) {
     for(let i = 0; i < imgs_buffs.length - 1; ++i) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-        image_xor(imgs_buffs[i], imgs_buffs[i+1], tempResult[i])
+        imgread.imageReading(imgs_buffs[i], imgs_buffs[i+1], tempResult[i], version)
         assert(imgs_buffs[i].length == new_size.width * new_size.height * version)
 		assert(tempResult[i].length == new_size.width * new_size.height)
         if(verbose > 2) console.log(`7.${i+1} result buffer =`, imgs_buffs[i])
 		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
-        to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`diff-${i+1}.png`) )
+        to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./Result/diff-${i+1}.png`) )
     }
     if(verbose) console.log('8. to_file_promises =', to_file_promises)
 
@@ -183,97 +188,5 @@ async function doImgDiff(imgs, demand_same_size=false) {
     //console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
 
     return to_file_promises
-}
+}	
 
-// The following function should actually be in some separate file...
-/**
- * Calculate some pixel based difference between the input arrays-of-integers.
- *
- * @param {Buffer} buff1 Input buffer 1.
- * @param {Buffer} buff2 Input buffer 2.
- * @param {Buffer} buff3 Output buffer.
- *
- * @pre buff1.length == buff2.length == buff3.length
- *
- * @note All arguments are allowed to alias each other since we never reuse data in the
- * for loop below.
- *
- * @see https://nodejs.org/api/buffer.html
- */
-function image_xor(buff1, buff2, buff3) {	
-	assert(buff1.length == buff2.length)
-    assert(buff1.length == version * buff3.length)
-	for(let i = 0; i < buff1.length; i += version) {
-		lab1 = new Array(buff1[i], buff1[i+1], buff1[i+2])
-		lab2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
-
-		// console.log(i, " ", lab1, " ", lab2, " ", colorDistance(lab1,lab2))
-		precision = 20
-        buff3[i/version] = Math.round(colorDistance(lab1,lab2) / precision) * precision * 2.56
-    }
-}
-
-function precisionRound(number, precision) {
-	return Math.round(number / precision) * precision
-}
-	
-
-function colorDistance(color1, color2) {
-	kl = kc = kh = 1
-	k1 = 0.045
-	k2 = 0.015
-
-	dl = color1[0] - color2[0]
-	c1 = Math.sqrt(color1[1]**2 + color1[2]**2)
-	c2 = Math.sqrt(color2[1]**2 + color2[2]**2)
-	dc = c1 - c2
-	da = color1[1] - color2[1]
-	db = color1[2] - color2[2]
-	dh = Math.sqrt(Math.abs(da**2 + db**2 - dc**2))
-	sl = 1
-	sc = 1 + k1 * c1
-	sh = 1 + k2 * c1
-
-	return Math.sqrt( (dl/(kl*sl))**2 + (dc/(kc*sc))**2 + (dh/(kh*sh))**2)
-}
-
-// returns positive modulo
-function mod(n, m) {
-  return ((n % m) + m) % m;
-}
-
-function colorDistance2000(color1, color2) {
-  kl = kc = kh = 1
-
-  ddifl = color1[0] - color2[0]
-  l_ = (color1[0] + color2[0])/2
-  c1 = Math.sqrt(color1[1]**2 + color1[2]**2)
-  c2 = Math.sqrt(color2[1]**2 + color2[2]**2)
-  c_ = (c1 + c2)/2
-  difa1 = color1[1] + color1[1]/2*(1 - Math.sqrt(c_**2/(c_**2 + 25**7)))
-  difa2 = color2[1] + color2[1]/2*(1 - Math.sqrt(c_**2/(c_**2 + 25**7)))
-  difc1 = Math.sqrt(difa1**2 + color1[2]**2)
-  difc2 = Math.sqrt(difa2**2 + color2[2]**2)
-  difc_ = (difc1 + difc2)/2
-  ddifc = difc2 - difc1
-  difh1 = mod(Math.atan2(color1[2],difa1), Math.PI*2)
-  difh2 = mod(Math.atan2(color2[2],difa2), Math.PI*2)
-  ddifh = difh2 - difh1
-  difH_ = (difh1 + difh2)/2
-  
-  if(Math.abs(ddifh) > Math.PI) {
-    if(difh2 <= difh1) ddifh += 2 * Math.PI
-    else ddifh -= 2 * Math.PI
-    if (difh1 + difh2 < Math.PI*2) difH_ += Math.Pi
-    else difH_ -= Math.PI
-  }
-  
-  ddifH = 2 * Math.sqrt(difc1 * difc2) * Math.sin(ddifh/2)
-  T = 1 - 0.17 * Math.cos(difH_ - Math.PI/6) + 0.24 * Math.cos(2 * difH_) + 0.32 * Math.cos(3 * difH_ + Math.PI/30) - 0.20 * Math.cos(4 * difH_ - 7/20*Math.PI)
-  Sl = 1 + 0.015 * (l_ - 50)**2/Math.sqrt(20 + (l_ - 50)**2)
-  Sc = 1 + 0.045 * difc_
-  Sh = 1 + 0.015 * difc_ * T
-  Rt = -2 * Math.sqrt(difc_**2/(difc_**2 + 25**7)) * Math.sin(Math.PI/3 * Math.exp(0-((difH_ - 55/36*Math.PI)/(5/36*Math.PI))**2))
-
-  return Math.sqrt((ddifl/(kl*Sl))**2 + (ddifc/(kc*Sc))**2 + (ddifH/(kh*Sh))**2 + Rt*ddifc/(kc*Sc)*ddifH/(kh*Sh))
-}
