@@ -11,6 +11,9 @@
 	<h1 >Ik ben een master</h1>
 	<input type="color" id="color">
 	<div id="bcPicker"></div>
+    <canvas id="canvas">Canvas</canvas>
+    <button id="drawLine">Draw line</button>
+	<input id="anglePicker" placeholder="Enter angle (degrees)" type="number" name="name"/>
 
 	<div class="contentarea">
 		<div class="camera">
@@ -45,6 +48,26 @@
 
 		var slaveButtons = {};
 		var numberOnButton = 0;
+
+        var drawButtonLine = document.getElementById('drawLine');
+        var anglePicker = document.getElementById('anglePicker');
+				var canvas=document.getElementById("canvas");
+
+        var angle = 0;
+		anglePicker.addEventListener('input', function () {
+			angle = -anglePicker.value / 180 * Math.PI
+		})
+
+
+        drawButtonLine.addEventListener('click', function(){
+            socket.emit('drawLine',{
+                angle:angle
+            })
+        });
+
+		colorPicker.addEventListener('input',function(){
+			colorValue = colorPicker.value
+		})
 
 		function createSlaveButton(number,id) {
 				var btn = document.createElement("BUTTON");

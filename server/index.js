@@ -74,12 +74,23 @@ var masterIo = io.of('/master').on('connect', function(socket){
         fs.writeFileSync('image-' + imageIndex + '.png', decodeBase64Image(data.buffer).data);
         imageIndex += 1;
     });
+
+    socket.on('drawLine', function (data) {
+  	slaveIo.emit('drawLine', data);
+  	});
 })
 
 var slaveIo = io.of('/slave').on('connect', function(socket){
   addSlave(socket)
 
+	socket.on('changeBackgroundColor',function(data){
+		io.sockets.emit('changeBackgroundColor',data);
+	});
+//sending photo
+	socket.on("SendingPicture", function(data) {
+		io.sockets.emit("SendingPicture", data);
+	})
   socket.on('disconnect', function() {
     deleteSlave(socket)
-  }
-)});
+  })
+});
