@@ -11,23 +11,20 @@
 	<h1 >Ik ben een master</h1>
 	<input type="color" id="color">
 	<div id="bcPicker"></div>
-	<div id="vid-controls">
-		<video id="vid-show" autoplay></video>
-		<input id="vid-take" type="button" value="Take Photo"/>
-		<div id="vid-canvas"></div>
-	</div>
-	<style>
-		#vid-show, #vid-canvas, #vid-take {
-			display: block;
-			margin-bottom: 30px;
-		}
-		html, body {
-			padding: 0;
-			margin: 0;
-		}
-	</style>
-	<script >
 
+	<div class="contentarea">
+		<div class="camera">
+			<video id="video">Video stream not available.</video>
+			<button id="startbutton">Take photo</button>
+		</div>
+		<canvas style="display:none" id="canvas">
+		</canvas>
+		<div class="output">
+			<img id="photo">
+		</div>
+	</div>
+
+	<script >
 
 		// Make Connection
 		var socket = io('/master');
@@ -50,7 +47,7 @@
 
 		function createSlaveButton(slave) {
 			var btn = document.createElement("BUTTON");
-			btn.innerHTML = "Change collor of " + slave;
+			btn.innerHTML = "Change color of " + slave;
 			document.body.appendChild(btn);
 			btn.addEventListener('click',function(){
 				 socket.emit('changeBackgroundColor',{
@@ -83,45 +80,75 @@
 		});
 
 		//Foto nemen
-		window.addEventListener("load", function(){
-			// [1] GET ALL THE HTML ELEMENTS
-			var video = document.getElementById("vid-show"),
-				canvas = document.getElementById("vid-canvas"),
-				take = document.getElementById("vid-take");
 
-			// [2] ASK FOR USER PERMISSION TO ACCESS CAMERA
-			// WILL FAIL IF NO CAMERA IS ATTACHED TO COMPUTER
-			navigator.mediaDevices.getUserMedia({ video : true })
-				.then(function(stream) {
-					// [3] SHOW VIDEO STREAM ON VIDEO TAG
-					video.srcObject = stream;
-					video.play();
+		(function() {
+			// |streaming| indicates whether or not we're currently streaming
+			// video from the camera. Obviously, we start at false.
 
-					// [4] WHEN WE CLICK ON "TAKE PHOTO" BUTTON
-					take.addEventListener('click', function(){
-						// Create snapshot from video
-						var draw = document.createElement('canvas');
-						draw.width = video.videoWidth;
-						draw.height = video.videoHeight;
-						var context2D = draw.getContext('2d');
-						context2D.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-						draw.toBlob(function(blob){
-							var screenshot = new FormData();
-							console.log(screenshot);
-							screenshot.append('upimage', blob);
-							socket.emit('SendingPicture',{
-								screenshot : screenshot
-							});
+			var streaming = false;
+
+			// The various HTML elements we need to configure or control. These
+			// will be set by the startup() function.
+
+			var video = null;
+			var canvas = null;
+			var photo = null;
+			var startbutton = null;
+
+			function startup() {
+				video = document.getElementById('video');
+				canvas = document.getElementById('canvas');
+				photo = document.getElementById('photo');
+				startbutton = document.getElementById('startbutton');
+
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
+						.then(function (stream) {
+							video.srcObject = stream;
+							video.play();
+						})
+						.catch(function (err) {
+							console.log("An error occurred: " + err);
 						});
-						// Put into canvas container
-						canvas.innerHTML = "";
-						canvas.appendChild(draw);
-					});
-				})
-				.catch(function(err) {
-					document.getElementById("vid-controls").innerHTML = "Please enable access and attach a camera";
+
+				video.addEventListener('canplay', function (ev) {
+					if (!streaming) {
+						streaming = true;
+					}
+				}, false);
+
+				startbutton.addEventListener('click', function (ev) {
+					takepicture();
+					ev.preventDefault();
+
+				}, false);
+			}
+
+			// Capture a photo by fetching the current contents of the video
+			// and drawing it into a canvas, then converting that to a PNG
+			// format data URL. By drawing it on an offscreen canvas and then
+			// drawing that to the screen, we can change its size and/or apply
+			// other changes before drawing it.
+
+			function takepicture() {
+				var context = canvas.getContext('2d');
+				canvas.width = video.videoWidth;
+				canvas.height = video.videoHeight;
+				context.drawImage(video, 0, 0);
+
+				var Picurl = canvas.toDataURL('image/png');
+				photo.setAttribute('src', Picurl);
+
+				socket.emit('upload-image', {
+					image: true,
+					buffer: canvas.toDataURL()
 				});
-	});
+			}
+
+
+			// Set up our event listener to run the startup process
+			// once loading is complete.
+			window.addEventListener('load', startup, false);
+		})();
 
 	</script>
 </body>
