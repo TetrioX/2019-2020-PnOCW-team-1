@@ -26,23 +26,13 @@ precision = 30 // reference number to determine difference precision
 const imageReading = function(buff1, buff2, buff3, channel) {
 	assert(buff1.length == buff2.length)
     assert(buff1.length == channel * buff3.length)
-	startWhite = 0
-	onWhite = true
 
 	for(let i = 0; i < buff1.length; i += channel) {
 		lab1 = new Array(buff1[i], buff1[i+1], buff1[i+2])
 		lab2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
 		
-        buff3[i/channel] = precisionRound(clrdis.colorDistance2000(lab1,lab2), precision) * 5
+        buff3[i/channel] = precisionRound(clrdis.colorDistance2000(lab1,lab2), precision) * 5 // factor 5 is hier gekozen om waarden die wit zijn visueel duidelijk wit te maken
 		
-		if (buff3[i/channel] > 50) if (!onWhite) { 
-		startWhite = i/channel; 
-		onWhite = true
-		}
-		if (buff3[i/channel] <= 50) if (onWhite) { 
-		// if(i/channel - startWhite > 256) console.log(i/channel - startWhite); 
-		onWhite = false
-		}
     }
 }
 

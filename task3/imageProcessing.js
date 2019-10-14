@@ -43,7 +43,7 @@ if(argv._.length < 2) {
     // Note: we are calling an 'async' function, so we need to catch errors by
     // attaching an error handler to the promise:
     let result = doImgDiff(argv._, argv['same-size']).catch(console.error)
-    // The following line will not print first, but almost... This is what you should
+	// The following line will not print first, but almost... This is what you should
     // understand if you have studied how call backs, promises and async/await work.
     if(verbose) console.log('0. result =', result)
     // Alternatively we pass in buffers of image data directly:
@@ -170,14 +170,16 @@ async function doImgDiff(imgs, demand_same_size=false) {
     for(let i = 0; i < imgs_buffs.length - 1; ++i) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-        imgread.imageReading(imgs_buffs[i], imgs_buffs[i+1], tempResult[i], channel)
+        imgread.imageReading(imgs_buffs[0], imgs_buffs[i+1], tempResult[i], channel)
         assert(imgs_buffs[i].length == new_size.width * new_size.height * channel)
 		assert(tempResult[i].length == new_size.width * new_size.height)
 		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
         to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./Result/diff-${i+1}.png`) )
+		
     }
+	fs.writeFile('Output.txt', tempResult, (err) => { if (err) throw err; }) 
     if(verbose) console.log('8. to_file_promises =', to_file_promises)
 
     // If we put an await here, then the first console.log in the main code will still
@@ -187,6 +189,9 @@ async function doImgDiff(imgs, demand_same_size=false) {
 
     return to_file_promises
 }	
+
+
+
 
 // To make the function accesible in other .js files
 module.exports = {
