@@ -30,53 +30,54 @@
 		var socket = io('/master');
 
 		//listen for events from server
-		socket.on('registerMaster',function(data){
-			window.location.href='/';
+		socket.on('registerMaster', function (data) {
+				window.location.href = '/';
 		});
 
 		//Emit events to server
-		var backgroundButton =document.getElementById('changeBackgroundColor');
+		var backgroundButton = document.getElementById('changeBackgroundColor');
 		var colorPicker = document.getElementById('color');
-		var colorValue =colorPicker.value;
+		var colorValue = colorPicker.value;
 
-		colorPicker.addEventListener('input',function(){
-			colorValue = colorPicker.value
+		colorPicker.addEventListener('input', function () {
+				colorValue = colorPicker.value
 		});
 
 		var slaveButtons = {};
+		var numberOnButton = 0;
 
-		function createSlaveButton(slave) {
-			var btn = document.createElement("BUTTON");
-			btn.innerHTML = "Change color of " + slave;
-			document.body.appendChild(btn);
-			btn.addEventListener('click',function(){
-				 socket.emit('changeBackgroundColor',{
-					colorValue: colorValue,
-					id: slave
+		function createSlaveButton(number,id) {
+				var btn = document.createElement("BUTTON");
+				btn.innerHTML = "Change collor of " + number;
+				document.body.appendChild(btn);
+				btn.addEventListener('click', function () {
+						socket.emit('changeBackgroundColor', {
+								colorValue: colorValue,
+								id: id
+						});
 				});
-			});
-			slaveButtons[slave] = btn;
+				slaveButtons[id] = btn;
 		}
 
 		function removeSlaveButton(slave) {
-			if (slave in slaveButtons) {
-				slaveButtons[slave].remove();
-				delete slaveButtons[slave];
-			}
+				if (slave in slaveButtons) {
+						slaveButtons[slave].remove();
+						delete slaveButtons[slave];
+				}
 		}
 
-		socket.on('slaveSet',function(data){
-			for (slave of data.slaves) {
-				createSlaveButton(slave);
-			}
+		socket.on('slaveSet', function (data) {
+				for (socket_id in data.slaves) {
+						createSlaveButton(data.slaves[socket_id], socket_id);
+				}
 		});
 
-		socket.on('registerSlave',function(data){
-			createSlaveButton(data);
+		socket.on('registerSlave', function (data) {
+				createSlaveButton(data.number,data.socket_id);
 		});
 
-		socket.on('removeSlave',function(data){
-			removeSlaveButton(data)
+		socket.on('removeSlave', function (data) {
+				removeSlaveButton(data)
 		});
 
 		//Foto nemen
