@@ -1,4 +1,4 @@
-
+ 
 const fs = require('fs')          // file system operations
 const sharp = require('sharp')    // image processing
 const { argv } = require('yargs') // command line arguments
