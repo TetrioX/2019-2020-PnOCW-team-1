@@ -56,7 +56,7 @@ app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
 
-
+app.use('/static', express.static(__dirname +  '/public'))
 
 var masterIo = io.of('/master').on('connect', function(socket){
     socket.broadcast.emit('registerMaster')
