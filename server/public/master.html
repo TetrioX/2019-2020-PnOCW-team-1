@@ -12,6 +12,10 @@
 	<input type="color" id="color">
 	<button id="changeBackgroundColor">Change background of slave</button>
 	<div id="bcPicker"></div>
+    <canvas id="canvas">Canvas</canvas>
+    <button id="drawLine">Draw line</button>
+	<input id="anglePicker" placeholder="Enter angle (degrees)" type="number" name="name"/>
+
 	<script >
 
 
@@ -30,6 +34,27 @@
 		var colorPicker = document.getElementById('color');
 		var colorValue =colorPicker.value;
 
+        var drawButtonLine = document.getElementById('drawLine');
+        var anglePicker = document.getElementById('anglePicker');
+		var canvas=document.getElementById("canvas");
+
+        var angle = 0;
+
+
+
+
+		anglePicker.addEventListener('input', function () {
+			angle = -anglePicker.value / 180 * Math.PI
+		})
+
+
+        drawButtonLine.addEventListener('click', function(){
+            socket.emit('drawLine',{
+                angle:angle
+            });
+
+        });
+
 		colorPicker.addEventListener('input',function(){
 			colorValue = colorPicker.value
 		});
@@ -39,6 +64,11 @@
 				colorValue:colorValue
 			});
 		});
+
+
+
+
+
 	</script>
 </body>
 </html>

@@ -32,6 +32,9 @@ io.on('connect', function(socket){
 	socket.on('changeBackgroundColor',function(data){
 		io.sockets.emit('changeBackgroundColor',data);
 	});
+	socket.on('drawLine', function (data) {
+		io.sockets.emit('drawLine', data);
+	});
 //sending photo
 	socket.on("SendingPicture", function(data) {
 		io.sockets.emit("SendingPicture", data);
