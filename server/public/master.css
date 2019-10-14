@@ -1,1 +1,23 @@
-.hline { width:100%; height:1px; background: #fff }
+#entirePage{
+	margin: auto;
+	text-align: center;
+}
+
+body{
+	background-color: #c2ccc5;
+}
+
+.interaction{
+	margin: 20px;
+}
+
+#h1{
+  font-family: Arial;
+  font-size: 50px;
+  color:#2a3d5c;
+}
+
+#cameraDiv{
+	
+}
+

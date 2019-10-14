@@ -1,129 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charsert="uft-8">
-    <title>
-        Master Page
-    </title>
-    <script src="/socket.io/socket.io.js"></script>
-    
+	<link rel="stylesheet" href="static/master.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<meta charsert= "uft-8">
+	<title>
+		Master Page
+	</title>
+	<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-	<h1 >Ik ben een master</h1>
-	<div class="contentarea">
-		<div class="camera">
-			<video id="video">Video stream not available.</video>
+	<div id="entirePage">
+		<h1  id="h1">Master Page</h1>
+		<button id="useCamBtn" class=" btn btn-outline-secondary">Use Camera</button>
+		<div class="contentarea" id="cameraDiv" style="display:none;">
+			<div class="camera">
+				<video id="video">Video stream not available.</video>
+			</div>
+			<canvas style="display:none" id="canvas">
+			</canvas>
+			<div class="output">
+				<img id="photo">
+			</div>
+			<div class="interaction">
+				<button type="button" class="btn btn-outline-secondary" id="startbutton">Take Photo</button>
+			</div>
 		</div>
-        <canvas id="canvas" width="0" height="0"></canvas>
+
+		<div class="interaction">
+			<input id="anglePicker" placeholder="Enter angle (degrees)" type="number" name="name"/>
+			<button type="button" id="drawLine" class="btn btn-outline-secondary">Draw Line</button>
+		</div>
+		<div>
+			<input type="color" id="color">
+		</div>
 	</div>
-	<button id="startbutton">Take photo</button>
-	<button id="drawLine">Draw line</button>
-	<input id="anglePicker" placeholder="Enter angle (degrees)" type="number" name="name"/>
-	<input type="color" id="color">
-	<div id="bcPicker"></div>
-
-	<script >
-
-		// Make Connection
-		var socket = io('/master');
-
-		//listen for events from server
-		socket.on('registerMaster', function (data) {
-				window.location.href = '/';
-		});
-
-		//Emit events to server
-		var backgroundButton = document.getElementById('changeBackgroundColor');
-		var colorPicker = document.getElementById('color');
-		var colorValue = colorPicker.value;
-
-		colorPicker.addEventListener('input', function () {
-				colorValue = colorPicker.value
-		});
-
-		var slaveButtons = {};
-		var numberOnButton = 0;
-
-        var drawButtonLine = document.getElementById('drawLine');
-        var anglePicker = document.getElementById('anglePicker');
-				var canvas=document.getElementById("canvas");
-
-        var angle = 0;
-		anglePicker.addEventListener('input', function () {
-			angle = -anglePicker.value / 180 * Math.PI
-		})
-
-
-        drawButtonLine.addEventListener('click', function(){
-            socket.emit('drawLine',{
-                angle:angle
-            })
-        });
-
-		colorPicker.addEventListener('input',function(){
-			colorValue = colorPicker.value
-		})
-
-		function createSlaveButton(number,id) {
-				var btn = document.createElement("BUTTON");
-				btn.innerHTML = "Change collor of " + number;
-				document.body.appendChild(btn);
-				btn.addEventListener('click', function () {
-						socket.emit('changeBackgroundColor', {
-								colorValue: colorValue,
-								id: id
-						});
-				});
-				slaveButtons[id] = btn;
-		}
-
-		function removeSlaveButton(slave) {
-				if (slave in slaveButtons) {
-						slaveButtons[slave].remove();
-						delete slaveButtons[slave];
-				}
-		}
-
-		socket.on('slaveSet', function (data) {
-				for (socket_id in data.slaves) {
-						createSlaveButton(data.slaves[socket_id], socket_id);
-				}
-		});
-
-		socket.on('registerSlave', function (data) {
-				createSlaveButton(data.number,data.socket_id);
-		});
-
-		socket.on('removeSlave', function (data) {
-				removeSlaveButton(data)
-		});
-
-		//Foto nemen
-        var video = document.getElementById('video');
-        var canvas = null;
-        var startbutton = document.getElementById('startbutton');
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-            .then(function (stream) {
-                video.srcObject = stream;
-                video.play();
-            })
-            .catch(function (err) {
-                console.log("An error occurred: " + err);
-            });
-
-        startbutton.addEventListener('click', function () {
-            canvas = document.getElementById('canvas');
-            var context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0);
-
-            socket.emit('upload-image', {
-                image: true,
-                buffer: canvas.toDataURL('image/png')
-            });
-        });
-	</script>
+	<script src="static/master.js"></script>
 </body>
 </html>
