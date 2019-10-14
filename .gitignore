@@ -1,5 +1,8 @@
 #JetBeans IDE
 .idea
 
+# Visual Studio
+.vs
+
 #Mac OS
 .DS_Store
