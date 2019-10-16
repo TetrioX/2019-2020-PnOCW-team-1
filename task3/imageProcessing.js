@@ -174,7 +174,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
     if(verbose > 2) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
 	
 	return {
-		buffer: tempResult, 
+		buffers: tempResult, 
 		dimensions: { width: new_size.width, height: new_size.height }
 	}
 }	

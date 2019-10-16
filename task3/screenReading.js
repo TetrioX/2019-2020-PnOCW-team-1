@@ -1,24 +1,26 @@
 
 
-const screenReading = function(buff) {
+const screenReading = function(buff, dimensions) {
 	endWhite = 0
 	startWhite = 0
 	onWhite = true
+	result = []
 	
 	for(let i = 0; i < buff.length; i++) {
-		if (buff[i] > 50) if (!onWhite) { 
+		
+		if (buff[i] > 100) if (!onWhite) { 
+		result.push(i - endWhite)
 		startWhite = i; 
 		onWhite = true
 		}
-		if (buff[i] <= 50) if (onWhite) { 
+		if (buff[i] <= 100) if (onWhite) { 
+		result.push(i - startWhite)
 		endWhite = i
 		onWhite = false
 		}
-		
-		if (onWhite && startWhite) break;
 	}
 
-	// console.log(screennr, " ", position)
+	console.log(" ", result)
 	
 }	
 

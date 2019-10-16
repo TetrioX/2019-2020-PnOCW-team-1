@@ -127,7 +127,6 @@ async function findScreen(imgs, demand_same_size=false) {
 	for(let i = 0; i < imgs_buffs.length; ++i) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-        console.log("Hallo")
 		scrread.screenReading(imgs_buffs[i])
         assert(imgs_buffs[i].length == new_size.width * new_size.height)
 		// if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
