@@ -79,7 +79,7 @@ async function findScreen(imgs, demand_same_size=false) {
     //}
 
     // Figure out if all images are all the same size and prepare to rescale them.
-    const extend = 1000 //The number of pixels we want in the largest dimension.
+    const extend = 100 //The number of pixels we want in the largest dimension.
     // We know there is at least one image because of the assert above...
     const w_orig = imgs_metas[0].width
     const h_orig = imgs_metas[0].height
@@ -127,7 +127,7 @@ async function findScreen(imgs, demand_same_size=false) {
 	for(let i = 0; i < imgs_buffs.length; ++i) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-		scrread.screenReading(imgs_buffs[i])
+		scrread.screenReading(imgs_buffs[i], new_size)
         assert(imgs_buffs[i].length == new_size.width * new_size.height)
 		// if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
