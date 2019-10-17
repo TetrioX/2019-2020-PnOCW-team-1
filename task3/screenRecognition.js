@@ -78,8 +78,8 @@ async function findScreen(imgs, demand_same_size=false) {
     //    })
     //}
 
-    // Figure out if all images are all the same size and prepare to rescale them.
-    const extend = 100 //The number of pixels we want in the largest dimension.
+    // Figure out if all images are all the same size and prepare to rescale them
+    const extend = 10 //The number of pixels we want in the largest dimension.
     // We know there is at least one image because of the assert above...
     const w_orig = imgs_metas[0].width
     const h_orig = imgs_metas[0].height
