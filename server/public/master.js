@@ -21,7 +21,8 @@ var numberOnButton = 0;
 
 var drawButtonLine = document.getElementById('drawLine');
 var anglePicker = document.getElementById('anglePicker');
-		var canvas=document.getElementById("canvas");
+var canvas = document.getElementById("canvas");
+var calibrateButton = document.getElementById("calibrateButton");
 
 var angle = 0;
 anglePicker.addEventListener('input', function () {
@@ -143,8 +144,33 @@ useCameraButton.addEventListener('click',function(){
 		});
 	}
 
+	function sleep(ms) {
+  	return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+	socket.on('takePicture', function(data, callback){
+		switch(data.mode) {
+			case 'black':
+				socket.emit('changeBackgroundColor', {
+					colorValue: '#000000'
+				});
+			case 'white':
+				socket.emit('changeBackgroundColor', {
+					colorValue: '#ffffff'
+				});
+			default:
+				sleep(1000);
+		}
+		takepicture();
+		callback(true);
+	});
 
 	// Set up our event listener to run the startup process
 	// once loading is complete.
 	window.addEventListener('load', startup, false);
 })();
+
+// Starts the calibration process and shows the result
+calibrateButton.addEventListener('click',function(){
+	socket.emit('calibrate');
+});

@@ -61,23 +61,42 @@ app.use('/static', express.static(__dirname +  '/public'))
 var masterIo = io.of('/master').on('connect', function(socket){
     socket.broadcast.emit('registerMaster')
     var imageIndex = 0;
-    console.log(slaves)-
     socket.emit('slaveSet', {
         slaves: slaves
     })
+
     socket.on('changeBackgroundColor',function(data){
-		    slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
+      if (data.id){
+        slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
+      } else{
+        slaveIo.emit('changeBackgroundColor',data);
+      }
+
 	});
 
     socket.on('upload-image', function (data) {
-        console.log(data.buffer)
         fs.writeFileSync('image-' + imageIndex + '.png', decodeBase64Image(data.buffer).data);
+        masterIo.emit('imageSaved')
         imageIndex += 1;
     });
 
-    socket.on('drawLine', function (data) {
-  	slaveIo.emit('drawLine', data);
+    socket.on('drawLine', function(data){
+      slaveIo.emit('drawLine', data);
   	});
+
+    socket.on('calibrate', function(data){
+      socket.emit('takePicture', {
+        mode: 'white'
+      }, function(callbackData){
+        console.log('test')
+        socket.emit('takePicture', {
+          mode: 'black'
+        }, function(callbackData){
+          console.log('took 2 pictures.')
+          // TODO: run screen recognition
+        })
+      })
+    })
 })
 
 var slaveIo = io.of('/slave').on('connect', function(socket){
