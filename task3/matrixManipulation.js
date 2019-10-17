@@ -3,15 +3,23 @@ const { argv } = require('yargs') // command line arguments
     .count('verbose')
     .alias('v', 'verbose')
 const assert = require('assert')  // asserting pre-conditions
-const scrread = require('./screenReading.js')
+
+
+
+ scrread = require('./screenReading.js')// Importeer exporte functies uit screenReading.js
+
+
 
 let verbose = argv.verbose;
 
 const testCasesImageProcessing = function () {
     console.log("Hallo")
-    import 
+    buffer = Buffer.alloc()
+	dimensions = {}
+	scrread.screenReading(buffer, dimensions) // gebruik van de geimporteerde functie
+
 }
-const 
+
 
 
 let result = testCasesImageProcessing()
