@@ -6,22 +6,22 @@ const screenReading = function(buffer, dimensions) {
 	startWhite = 0
 	onWhite = true
 	result = []
-	
+
 	for(let i = 0; i < buffer.length; i++) {
-		
-		if (buffer[i] > 100) if (!onWhite) { 
+
+		if (buffer[i] > 100) if (!onWhite) {
 		result.push(i - endWhite)
-		startWhite = i; 
+		startWhite = i;
 		onWhite = true
 		}
-		
-		if (buffer[i] <= 100) if (onWhite) { 
+
+		if (buffer[i] <= 100) if (onWhite) {
 		result.push(i - startWhite)
 		endWhite = i
 		onWhite = false
 		}
 	}
-	
+
 	result = createMatrix(buffer, dimensions)
 	console.log(dimensions)
     console.log(" ", result)
@@ -29,18 +29,19 @@ const screenReading = function(buffer, dimensions) {
     console.log("lowWhite", locLowestWhite(result))
     console.log("leftWhite", locLeftWhite(result))
     console.log("rightWhite", locRightWhite(result))
-    
+
 	console.log("listOfWhite", listOfWhite(result)) // Deze call naar deze functie is de oorzaak van je probleem
-    
+
     console.log("NeighborsAndDiagonal", NeighborsAndDiagonal(result, { x: 3, y: 2 }))
     console.log("Neighbors", Neighbors(result, { x: 3, y: 2 }))
 
     console.log("Neighborscolor", sortColorOut(result, Neighbors(result, { x: 4, y: 4 }), 1))
+		var border = findBorder(result)
+    console.log("border", border)
+		var orderedBorder = findBorderOrdered(result)
+    console.log("orderedBorder", orderedBorder)
 
-    console.log("border", findBorder(matrix))
-    
-	
-}	
+}
 
 
 const createMatrix = function(buffer, dimensions) {
@@ -136,7 +137,7 @@ const Neighbors = function (matrix, loc) {//loc = key value pair x: y:
         if (j >= 0 && j < matrix.length && j != loc.y) { //inside matrix & not loc & white
             temp3.push({ x: loc.x, y: j })
         }
-        
+
     }
     for (let i = loc.x - 1; i <= loc.x + 1; i++) {
         if (i >= 0 && i < matrix[0].length && i != loc.x) { //inside matrix & not loc & white
@@ -169,6 +170,67 @@ const findBorder = function (matrix) {
     }
     return border
 }
+
+	const findBorderOrdered = function (matrix){
+
+		function checkNeighbour(current, ang, value){
+			console.log('y value', current.y - value*(ang.y))
+			console.log('x value', current.x + value*(ang.x))
+			var neighbour = matrix[current.y - value*(ang.y)]
+			if (typeof neighbour === 'undefined'){
+				return false
+			}
+			neighbour = neighbour[current.x + value*(ang.x)]
+			if (typeof neighbour === 'undefined'){
+				return false
+			}
+			console.log('value neighbour', neighbour)
+			return neighbour == 1
+		}
+
+		var finishedLoop = false
+    current = locHighestWhite(matrix);
+		border = []
+		angle = {x: 1, y: 0}
+		while(false == finishedLoop){
+			console.log('angle', angle)
+			console.log('current', current)
+			if (checkNeighbour(current, angle, 1) ||
+				checkNeighbour(current, angle, 2) ||
+				checkNeighbour(current, angle, 3)){
+				console.log('im here')
+				current.x += angle.x
+				current.y -= angle.y
+				border.push({
+					x: current.x,
+					y: current.y
+				})
+				console.log(border)
+			}else{
+				console.log('else')
+
+				if(angle.x == 1 && angle.y ==0){
+					angle = {x: 1, y: -1}
+				}else if(angle.x == 1 && angle.y ==-1){
+					angle = {x: 0, y: -1}
+				}else if(angle.x == 0 && angle.y ==-1){
+					angle = {x: -1, y: -1}
+				}else if(angle.x ==-1 && angle.y ==-1){
+					angle = {x: -1, y: 0}
+				}else if(angle.x == -1 && angle.y ==0){
+					angle = {x: -1, y: 1}
+				}else if(angle.x == -1 && angle.y ==1){
+					angle = {x: 0, y: 1}
+				}else if(angle.x == 0 && angle.y ==1){
+					angle = {x: 1, y: 1}
+				}else{
+					finishedLoop = true
+				}
+			}
+		}
+
+		return border
+	}
 
 /*
 const findCorners = function (matrix) {

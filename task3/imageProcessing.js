@@ -76,7 +76,7 @@ if(argv._.length < 2) {
  * loop the time to do other things.
  */
 async function doImgDiff(imgs, demand_same_size=false) {
-	
+
     assert(imgs.length > 0)
 
     // For every image in imgs we want to know width-by-height.
@@ -106,7 +106,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
     //}
 
     // Figure out if all images are all the same size and prepare to rescale them.
-    const extend = 1000 //The number of pixels we want in the largest dimension.
+    const extend = 10 //The number of pixels we want in the largest dimension.
     // We know there is at least one image because of the assert above...
     const w_orig = imgs_metas[0].width
     const h_orig = imgs_metas[0].height
@@ -163,21 +163,21 @@ async function doImgDiff(imgs, demand_same_size=false) {
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
         to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./Result/diff-${i+1}.png`) )
-		
+
     }
-	
+
     if(verbose) console.log('8. to_file_promises =', to_file_promises)
 
     // If we put an await here, then the first console.log in the main code will still
     // print a promise... Can you figure out why?
     const to_files = await Promise.all(to_file_promises) // .then(result => {return result})
     if(verbose > 2) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
-	
+
 	return {
-		buffers: tempResult, 
+		buffers: tempResult,
 		dimensions: { width: new_size.width, height: new_size.height }
 	}
-}	
+}
 
 
 // To make the function accesible in other .js files
