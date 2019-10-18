@@ -32,7 +32,12 @@ const screenReading = function(buffer, dimensions) {
     
 	console.log("listOfWhite", listOfWhite(result)) // Deze call naar deze functie is de oorzaak van je probleem
     
-	console.log("Neighbors", Neighbors(result, {x:3,y:2}))
+    console.log("NeighborsAndDiagonal", NeighborsAndDiagonal(result, { x: 3, y: 2 }))
+    console.log("Neighbors", Neighbors(result, { x: 3, y: 2 }))
+
+    console.log("Neighborscolor", sortColorOut(result, Neighbors(result, { x: 4, y: 4 }), 1))
+
+    console.log("border", findBorder(matrix))
     
 	
 }	
@@ -99,35 +104,84 @@ const locRightWhite = function (matrix) {
 }
 
 const listOfWhite = function (matrix) {
-    temp = []; // Deze benaming (eerst result) veranderde de waarde van de result voorbeeld matrix
+    temp1 = []; // Deze benaming (eerst result) veranderde de waarde van de result voorbeeld matrix
         for (let j = 0; j < matrix.length; j++) {
             for (let i = 0; i < matrix[0].length; i++) {
                 if (matrix[j][i] == 1) {
-                    temp.push({ x: i, y: j })
+                    temp1.push({ x: i, y: j })
                 }
             }
         }
-    return temp
+    return temp1
 }
 
-const Neighbors = function (matrix, loc) {//loc = key value pair x: y:
-    
-	console.log(matrix)
-	console.log("Matrix dimensions: ", matrix[1].length, " ", matrix.length)
-	
+const NeighborsAndDiagonal = function (matrix, loc) {//loc = key value pair x: y:
+    temp2 = [];
 	for (let j = loc.y - 1; j <= loc.y + 1; j++) {
         for (let i = loc.x - 1; i <= loc.x + 1; i++) {
             console.log(i, j);
             if (j >= 0 && i >= 0 && j < matrix.length && i < matrix[0].length
-                && !(i == loc.x && j == loc.y) && matrix[i][j] == 1) { //inside matrix & not loc & white
-                console.log("Why dont i get here???");
-                result.push({ x: i, y: j })
+                && !(i == loc.x && j == loc.y)) { //inside matrix & not loc & white
+                console.log("ook schuin");
+                temp2.push({ x: i, y: j })
             }
         }
     }
-    return result
+    return temp2
 }
 
+const Neighbors = function (matrix, loc) {//loc = key value pair x: y:
+    temp3 = []
+    for (let j = loc.y - 1; j <= loc.y + 1; j++) {
+        if (j >= 0 && j < matrix.length && j != loc.y) { //inside matrix & not loc & white
+            temp3.push({ x: loc.x, y: j })
+        }
+        
+    }
+    for (let i = loc.x - 1; i <= loc.x + 1; i++) {
+        if (i >= 0 && i < matrix[0].length && i != loc.x) { //inside matrix & not loc & white
+            temp3.push({ x: i, y: loc.y })
+        }
+    }
+    return temp3
+}
+
+const sortColorOut = function (matrix, locations, colorNumber) {
+    temp4 = []
+    for (k of locations) {
+        if (matrix[k.y][k.x] == colorNumber) {
+            temp4.push({ x: k.x, y: k.y })
+        }
+    }
+    return temp4
+}
+
+const findBorder = function (matrix) {
+    border = []
+    allwhite = listOfWhite(matrix)
+    for (w of allwhite) {
+        console.log("1",w);
+        if (sortColorOut(matrix, Neighbors(matrix, w), 1).length > 0 &&
+            sortColorOut(matrix, Neighbors(matrix, w), 0).length > 0) {
+            console.log("2",w);
+            border.push({ x: w.x, y: w.y })
+        }
+    }
+    return border
+}
+
+/*
+const findCorners = function (matrix) {
+    hi = locHighestWhite(matrix)
+    lo = locLowestWhite(matrix)
+    if (lo.x < hi.x) {
+        //hi doorschuiven nr rechts
+        //lo doorschuiven nr links
+    }
+    le = locLeftWhite(matrix)
+    re = locRightWhite(matrix)
+}
+*/
 
 // To make the function accesible in other .js files
 module.exports = {
