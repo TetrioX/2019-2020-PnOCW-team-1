@@ -13,10 +13,10 @@ function getCorners(rand){
 
   function getCornerWithMinimumAngle(angles){
     // Retuns index of minimum of angles
-    var indexOfMinAngle = angles.reduce((minI, angle, i, angles) => angle < angles[minI] ? i : minI, 0);
+    var indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
     // Set values next to minimum angle to infinity so that they don't show up next time.
     for (v = -5; v <= 5; v++){
-      angles[v] = Infinity;
+      angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
     }
     return getRand(indexOfMinAngle);
   }
@@ -42,15 +42,12 @@ function getCorners(rand){
 
     angles.push(avgAngle);
   }
-  console.log(angles)
 
   var corners = []
 
   for (c = 0; c < 4; c++){
     corners.push(getCornerWithMinimumAngle(angles));
   }
-
-  console.log(corners);
   return corners;
 }
 

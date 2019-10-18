@@ -40,6 +40,8 @@ const screenReading = function(buffer, dimensions) {
     console.log("border", border)
 		var orderedBorder = findBorderOrdered(result)
     console.log("orderedBorder", orderedBorder)
+		var findCorners = require('./findCorners.js')
+		console.log("corners", findCorners.getCorners(orderedBorder))
 
 }
 
@@ -173,58 +175,56 @@ const findBorder = function (matrix) {
 
 	const findBorderOrdered = function (matrix){
 
-		function checkNeighbour(current, ang, value){
-			console.log('y value', current.y - value*(ang.y))
-			console.log('x value', current.x + value*(ang.x))
-			var neighbour = matrix[current.y - value*(ang.y)]
-			if (typeof neighbour === 'undefined'){
+		function checkNeighbor(current, ang, value){
+			var neighbor = matrix[current.y + value*(ang.y)]
+			if (typeof neighbor === 'undefined'){
 				return false
 			}
-			neighbour = neighbour[current.x + value*(ang.x)]
-			if (typeof neighbour === 'undefined'){
+			neighbor = neighbor[current.x + value*(ang.x)]
+			if (typeof neighbor === 'undefined'){
 				return false
 			}
-			console.log('value neighbour', neighbour)
-			return neighbour == 1
+			return neighbor == 1
 		}
 
-		var finishedLoop = false
+		var angles = [
+			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
+			{x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1},
+			{x: 0, y: -1}, {x: 1, y: -1}
+		]
+
+		function checkAngle(current, angle, distance, border){
+			for (currDistance = 1; currDistance <= distance; currDistance++){
+				if (checkNeighbor(current, angle, currDistance)){
+					return true;
+				}
+			}
+			return false;
+		}
+
+		var angleIndex = 0
     current = locHighestWhite(matrix);
 		border = []
-		angle = {x: 1, y: 0}
-		while(false == finishedLoop){
-			console.log('angle', angle)
-			console.log('current', current)
-			if (checkNeighbour(current, angle, 1) ||
-				checkNeighbour(current, angle, 2) ||
-				checkNeighbour(current, angle, 3)){
-				console.log('im here')
-				current.x += angle.x
-				current.y -= angle.y
-				border.push({
-					x: current.x,
-					y: current.y
-				})
-				console.log(border)
-			}else{
-				console.log('else')
-
-				if(angle.x == 1 && angle.y ==0){
-					angle = {x: 1, y: -1}
-				}else if(angle.x == 1 && angle.y ==-1){
-					angle = {x: 0, y: -1}
-				}else if(angle.x == 0 && angle.y ==-1){
-					angle = {x: -1, y: -1}
-				}else if(angle.x ==-1 && angle.y ==-1){
-					angle = {x: -1, y: 0}
-				}else if(angle.x == -1 && angle.y ==0){
-					angle = {x: -1, y: 1}
-				}else if(angle.x == -1 && angle.y ==1){
-					angle = {x: 0, y: 1}
-				}else if(angle.x == 0 && angle.y ==1){
-					angle = {x: 1, y: 1}
-				}else{
-					finishedLoop = true
+		while(true){
+			var foundNewBorder = false;
+			// Also check previous angle
+			for (prev = -1; prev < 1; prev++){
+				var angle = angles[(angleIndex+prev+8)%8]
+				if (checkAngle(current, angle, 3)){
+					current.x += angle.x
+					current.y += angle.y
+					border.push({
+						x: current.x,
+						y: current.y
+					})
+					foundNewBorder = true;
+					break;
+				}
+			}
+			if (!foundNewBorder){
+				angleIndex += 1;
+				if (angleIndex == 9){
+					break;
 				}
 			}
 		}
