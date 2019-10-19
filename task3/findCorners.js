@@ -1,5 +1,9 @@
 function getCorners(rand){
 
+  if (rand.length < 25){
+    return {}
+  }
+
   function getRand(i){
     if (i<0){
       i += rand.length;
