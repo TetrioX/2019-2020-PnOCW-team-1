@@ -21,7 +21,8 @@ var numberOnButton = 0;
 
 var drawButtonLine = document.getElementById('drawLine');
 var anglePicker = document.getElementById('anglePicker');
-		var canvas=document.getElementById("canvas");
+var canvas = document.getElementById("canvas");
+var calibrateButton = document.getElementById("calibrateButton");
 
 var angle = 0;
 anglePicker.addEventListener('input', function () {
@@ -93,7 +94,7 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audi
 		console.log("An error occurred: " + err);
 	});
 
-startbutton.addEventListener('click', function () {
+function takePicture(){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
@@ -103,4 +104,33 @@ startbutton.addEventListener('click', function () {
 		image: true,
 		buffer: canvas.toDataURL('image/png')
 	});
+}
+
+startbutton.addEventListener('click', function () {
+	takePicture();
+});
+
+function sleep(ms){
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+socket.on('takePicture', async function(data, callback){
+	switch(data.mode) {
+		case 'black':
+			socket.emit('changeBackgroundColor', {
+				colorValue: '#000000'
+			});
+		case 'white':
+			socket.emit('changeBackgroundColor', {
+				colorValue: '#ffffff'
+			});
+	}
+	await sleep(1000);
+	takePicture();
+	callback(true);
+});
+
+// Starts the calibration process and shows the result
+calibrateButton.addEventListener('click',function(){
+	socket.emit('calibrate');
 });
