@@ -50,9 +50,8 @@ if(argv._.length < 2) {
  */
 async function findScreen(imgs, demand_same_size=false) {
 	
-	
-	
     assert(imgs.length > 0)
+	
 	screenIds = searchID(imgs)
 	if (verbose) console.log("1. Available slave Id's = ", screenIds)
 	
@@ -83,8 +82,8 @@ async function findScreen(imgs, demand_same_size=false) {
  *
  * @param {String[]} imgs Input string of called pictures
  *
- * @pre typeof imgs[i][7] == integer
-
+ * @pre typeof imgs[i][7] == integer 
+ *		It is required for the input images to have 'image-k.png' as name with k a valid number.
  */
 function searchID(imgs) {
 	arr = []
