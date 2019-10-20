@@ -1,40 +1,13 @@
 
 const assert = require('assert')  // asserting pre-conditions
-
+const vctcalc = require('./vectorCalculation.js')
 
 const screenReading = function(buffer, dimensions) {
-	endWhite = 0
-	startWhite = 0
-	onWhite = true
-	result = []
-	
-	for(let i = 0; i < buffer.length; i++) {
-		
-		if (buffer[i] > 100) if (!onWhite) { 
-		result.push(i - endWhite)
-		startWhite = i; 
-		onWhite = true
-		}
-		
-		if (buffer[i] <= 100) if (onWhite) { 
-		result.push(i - startWhite)
-		endWhite = i
-		onWhite = false
-		}
-	}
 	
 	result = createMatrix(buffer, dimensions)
-	console.log(dimensions)
-    console.log(" ", result)
-    console.log("highWhite", locHighestWhite(result))
-    console.log("lowWhite", locLowestWhite(result))
-    console.log("leftWhite", locLeftWhite(result))
-    console.log("rightWhite", locRightWhite(result))
-    
-	console.log("listOfWhite", listOfWhite(result)) // Deze call naar deze functie is de oorzaak van je probleem
-    
-	console.log("Neighbors", Neighbors(result, {x:3,y:2}))
-    
+	
+	temp = vctcalc.vectorCalc(result)
+    console.log(temp)
 	
 }	
 

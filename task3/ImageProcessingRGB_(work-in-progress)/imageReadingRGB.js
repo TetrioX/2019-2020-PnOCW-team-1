@@ -35,7 +35,7 @@ const imageReading = function(buff1, buff2, buff3, channel) {
 		
 		// console.log(i," ", k)
 		
-		if (k < 3) buff3[i + k] = 240
+		if (k < 3) buff3[i / channel * 3 + k] = 240
     }
 }
 
