@@ -6,9 +6,9 @@ const screenReading = function(buffer, dimensions) {
 	
 	result = createMatrix(buffer, dimensions)
 	
-	temp = vctcalc.vectorCalc(result)
-    console.log(temp)
-	
+	// temp = vctcalc.vectorCalc(result)
+    // console.log(temp)
+	return 0
 }	
 
 /**

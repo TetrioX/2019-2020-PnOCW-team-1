@@ -45,7 +45,7 @@ if(argv._.length < 2) {
     let result = doImgDiff(argv._, argv['same-size']).catch(console.error)
 	// The following line will not print first, but almost... This is what you should
     // understand if you have studied how call backs, promises and async/await work.
-    if(verbose) console.log('0. result =', result)
+    if(verbose > 1) console.log('0. result =', result)
     // Alternatively we pass in buffers of image data directly:
     //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
     //doImgDiff(imgs, argv['same-size']).catch(console.error)
@@ -87,17 +87,17 @@ async function doImgDiff(imgs, demand_same_size=false) {
                  .then( meta => { return { meta: meta, sharp_data: sharp_img } } )
     })
     // Printing this we see an array of pending promises; they run in parallel by sharp.
-    if(verbose) console.log('1. imgs_metas_data_promises =', imgs_metas_data_promises)
+    if(verbose > 1) console.log('1. imgs_metas_data_promises =', imgs_metas_data_promises)
 
     // Barrier: the 'await' will make sure that after this line the promises in imgs_meta
     // have all been resolved, and will give the chance to other code to run.
     const imgs_metas_data = await Promise.all(imgs_metas_data_promises)
 
     // Printing now will show the promises as been resolved.
-    if(verbose > 1) console.log('2. imgs_metas_data_promises =', imgs_metas_data_promises)
+    if(verbose > 2) console.log('2. imgs_metas_data_promises =', imgs_metas_data_promises)
     // Extract only the meta data:
     const imgs_metas = imgs_metas_data.map( ({meta, sharp_data}) => { return meta } )
-    if(verbose > 1) console.log('3. imgs_metas =', imgs_metas)
+    if(verbose > 2) console.log('3. imgs_metas =', imgs_metas)
     //for(let i = 0; i < imgs_metas_data_promises.length; ++i) {
     //    imgs_metas_data_promises[i].then( ({meta, sharp_data}) => {
     //          console.log('meta =', meta)
@@ -136,7 +136,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
     })
 
     // Printing shows an array of pending promises; they run in parallel by sharp.
-    if(verbose) console.log('4. imgs_buffs_promises =', imgs_buffs_promises)
+    if(verbose > 1) console.log('4. imgs_buffs_promises =', imgs_buffs_promises)
 
     // Barrier: 'await' will make sure all the promises have been resolved, and so all
     // pixels are available now.
@@ -144,8 +144,8 @@ async function doImgDiff(imgs, demand_same_size=false) {
     const imgs_buffs = await Promise.all(imgs_buffs_promises)
 
     // The promises will show as resolved:
-    if(verbose > 1) console.log('5. imgs_buffs_promises =', imgs_buffs_promises)
-	if(verbose > 1) console.log('6. imgs_buffs =', imgs_buffs)
+    if(verbose > 2) console.log('5. imgs_buffs_promises =', imgs_buffs_promises)
+	if(verbose > 2) console.log('6. imgs_buffs =', imgs_buffs)
 
     // At this point we finally have all the pixel data in our buffers and so we can
     // finally call our algorithm to calculate pixel differences:
@@ -159,19 +159,19 @@ async function doImgDiff(imgs, demand_same_size=false) {
         assert(imgs_buffs[i].length == new_size.width * new_size.height * channel)
 		imgread.imageReading(imgs_buffs[0], imgs_buffs[i+1], tempResult[i], channel)
 		assert(tempResult[i].length == new_size.width * new_size.height)
-		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
+		if(verbose > 3) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
         to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./Result/diff-${i+1}.png`) )
 		
     }
 	
-    if(verbose) console.log('8. to_file_promises =', to_file_promises)
+    if(verbose > 1) console.log('8. to_file_promises =', to_file_promises)
 
     // If we put an await here, then the first console.log in the main code will still
     // print a promise... Can you figure out why?
     const to_files = await Promise.all(to_file_promises) // .then(result => {return result})
-    if(verbose > 2) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
+    if(verbose > 3) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
 	
 	return {
 		buffers: tempResult, 
