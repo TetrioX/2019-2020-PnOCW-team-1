@@ -1,5 +1,5 @@
 //
-// Accept a buffer and given dimensions, turn the buffer into a matrix 
+// Accept a buffer and given dimensions, turn the buffer into a matrix
 // and return eventual corners on the figure.
 //
 // (C) 2019 PnO Team 1
@@ -28,7 +28,7 @@ const screenReading = function(buffer, dimensions) {
     // console.log("border", border)
 		// var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
     // console.log("orderedBorder", orderedBorder)
-		//console.log("squares", getSquares(result))
+		// console.log("squares", getSquares(result))
 
 	return getSquares(result)
 
@@ -239,7 +239,7 @@ const findBorder = function (matrix) {
                 //switch angle
                 angleIndex += 1;
                 //stop if 360
-								if (angleIndex == 8){
+								if (angleIndex == 9){
 									break;
                 }
             //Stop if back in start position
@@ -253,7 +253,7 @@ const findBorder = function (matrix) {
 
 	function getCorners(rand){
 
-	  if (rand.length < 1000){
+	  if (rand.length < 50){
 	    return []
 	  }
 
@@ -282,7 +282,7 @@ const findBorder = function (matrix) {
 
 	  for (var i = 0; i < rand.length; i++){
 	    var avgAngle = 0;
-	    for (j = 2; j <= 5; j++) {
+	    for (var j = 2; j <= 5; j++) {
 	      // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
 	        var aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
 	        var bSqrt = getSqrDist(getRand(i), getRand(i + j));
@@ -369,21 +369,15 @@ const findBorder = function (matrix) {
 									// corners.length is not 4 but first findBorderOrdered should support
 									// figures with outwards angles
 									// console.log('corners', corners)
-									if (corners.length != 4){
-										// temporarily create 0 value for next jump
-										if (typeof jumps[j] === 'undefined'){
-											jumps[j] = {}
-										}
-										jumps[j][i] = 0
-
-									} else{
+									if (corners.length == 4){
 										squares.push(corners)
-										// adds new jumps
-										var newjumps = getBorderJumps(border)
-										// console.log('newjumps', newjumps)
-										for (ii in newjumps){
-											jumps[ii] = {...jumps[ii], ...newjumps[ii]}
-										}
+
+									}
+									// adds new jumps
+									var newjumps = getBorderJumps(border)
+									// console.log('newjumps', newjumps)
+									for (ii in newjumps){
+										jumps[ii] = {...jumps[ii], ...newjumps[ii]}
 									}
 								}
 							// jump
@@ -409,5 +403,7 @@ const findCorners = function (matrix) {
 
 // To make the function accesible in other .js files
 module.exports = {
-	screenReading: screenReading
+	screenReading: screenReading,
+	getSquares: getSquares,
+	createMatrix: createMatrix
 };
