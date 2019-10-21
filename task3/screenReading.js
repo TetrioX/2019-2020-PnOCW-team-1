@@ -42,7 +42,7 @@ const screenReading = function(buffer, dimensions) {
 		// var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
     // console.log("orderedBorder", orderedBorder)
 		//console.log("squares", getSquares(result))
-		
+
 	return getSquares(result)
 
 }
@@ -193,7 +193,6 @@ const findBorder = function (matrix) {
 }
 
 	const findBorderOrdered = function (matrix, start){
-
         // check if pixel on current + angle*value is white and in screen
 		function checkNeighbor(current, ang, value){
 			var neighbor = matrix[current.y + value*(ang.y)]
@@ -222,9 +221,8 @@ const findBorder = function (matrix) {
 			}
 			return false;
 		}
-
 		var angleIndex = 0
-        current = {
+        var current = {
 			x: start.x,
 			y: start.y
 		};
@@ -235,16 +233,16 @@ const findBorder = function (matrix) {
             for (var prev = -2; prev < 1; prev++){
                 //stap - prev
                 var angle = angles[(angleIndex + prev + 8) % 8]
-                //check further angles to close gaps (gaps of max 2 pixels)
-				if (checkAngle(current, angle, 3)){
+                //check further angles to close gaps (gaps of max 1 pixels)
+				if (checkAngle(current, angle, 2)){
 					current.x += angle.x
 					current.y += angle.y
 					border.push({
 						x: current.x,
 						y: current.y
-                    })
-                    angleIndex += prev 
-                    //continue searching in the same direction
+					});
+          angleIndex == (angleIndex + prev + 8) % 8
+          //continue searching in the same direction
 					foundNewBorderPixel = true;
 					break;
 				}
@@ -254,8 +252,8 @@ const findBorder = function (matrix) {
                 //switch angle
                 angleIndex += 1;
                 //stop if 360
-				if (angleIndex == 9){
-					break;
+								if (angleIndex == 8){
+									break;
                 }
             //Stop if back in start position
 			} else if (current.x == start.x && current.y == start.y){

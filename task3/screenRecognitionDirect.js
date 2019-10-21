@@ -51,15 +51,15 @@ if(argv._.length < 2) {
 async function findScreen(imgs, demand_same_size=false) {
 
     assert(imgs.length > 0)
-	
+
 	screenIds = searchID(imgs)
 	if (verbose) console.log("1. Available slave Id's = ", screenIds)
-	
+
 	const diff = await imgproc.doImgDiff(imgs, demand_same_size)
 	if (verbose) console.log("2. Result image processing = ", diff)
-	
+
 	dict = {}
-	
+
 	for(let i = 0; i < diff.buffers.length; ++i) {
 		assert(diff.buffers[i].length == diff.dimensions.width * diff.dimensions.height)
 		screenMiddle = scrread.screenReading(diff.buffers[i], diff.dimensions)
@@ -67,9 +67,9 @@ async function findScreen(imgs, demand_same_size=false) {
 		console.log("Buffer done", screenIds[i])
 		if (verbose > 1) console.log(`3.${i+1} Screen Middle = `, screenMiddle)
     }
-	
-	if (verbose) console.log("4. Return values = ", dict)	
-    
+
+	if (verbose) console.log("4. Return values = ", dict)
+
 	return dict
 }
 
@@ -78,9 +78,9 @@ async function findScreen(imgs, demand_same_size=false) {
  *
  * @param {String[]} imgs Input string of called pictures
  *
- * 
  *
- * @pre typeof imgs[i][7] == integer 
+ *
+ * @pre typeof imgs[i][7] == integer
  *		It is required for the input images to have 'image-k.png' as name with k a valid number.
  */
 function searchID(imgs) {
@@ -88,7 +88,7 @@ function searchID(imgs) {
 	for (elem of imgs) {
 		if (elem[17] == 'm') continue
 		temp = parseInt(elem[17])
-		assert(! isNaN(temp))
+		// assert(! isNaN(temp))
 		arr.push(temp)
 	}
 	return arr
