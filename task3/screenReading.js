@@ -412,5 +412,6 @@ const findCorners = function (matrix) {
 
 // To make the function accesible in other .js files
 module.exports = {
-	screenReading: screenReading
+	screenReading: screenReading,
+	getSquares: getSquares
 };

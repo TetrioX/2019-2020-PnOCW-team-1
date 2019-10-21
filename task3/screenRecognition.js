@@ -144,3 +144,8 @@ async function findScreen(imgs, demand_same_size=false) {
 
     return to_file_promises
 }
+
+
+module.exports = {
+  findScreen: findScreen
+}
