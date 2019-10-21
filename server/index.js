@@ -1,7 +1,7 @@
 var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
-
+const scrnrec = require('../task3/screenRecognitionDirect.js')
 
 //App setup
 var app = express();
@@ -92,11 +92,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
 			socket.emit('takePicture', { mode: 'black' }, 
 				function(callbackData){
 					console.log('took 2 pictures.')
+					imgs = []
+					for (let i = 0; i < Object.keys(slaves).length + 1; i++) imgs.push(`./image-${i}.png`)
+					scrnrec.findScreen(imgs) // Alleen nog exporten, ik kan dit niet testen dus pakt dat we dit doen tijdens de zitting maandag
 				})
 		})
-		imgs = []
-		for (let i = 0; i < slaves.length; i++) imgs.push(`image-${imageIndex}.png`)
-		scrnrec.findScreen(imgs) // Alleen nog exporten, ik kan dit niet testen dus pakt dat we dit doen tijdens de zitting maandag
     })
 })
 

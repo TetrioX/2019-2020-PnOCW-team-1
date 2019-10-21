@@ -74,6 +74,8 @@ async function findScreen(imgs, demand_same_size=false) {
 	
 	if (verbose) console.log("4. Return values = ", dict)
 	
+	console.log(dict)
+	
     return dict
 }
 
@@ -82,16 +84,22 @@ async function findScreen(imgs, demand_same_size=false) {
  *
  * @param {String[]} imgs Input string of called pictures
  *
+ * 
+ *
  * @pre typeof imgs[i][7] == integer 
  *		It is required for the input images to have 'image-k.png' as name with k a valid number.
  */
 function searchID(imgs) {
 	arr = []
 	for (elem of imgs) {
-		temp = parseInt(elem[5])
+		temp = parseInt(elem[8])
 		assert(! isNaN(temp))
 		arr.push(temp)
 	}
 	arr.shift()
 	return arr
+}
+
+module.exports = {
+	findScreen: findScreen
 }

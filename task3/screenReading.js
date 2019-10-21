@@ -42,6 +42,8 @@ const screenReading = function(buffer, dimensions) {
 		var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
     console.log("orderedBorder", orderedBorder)
 		console.log("squares", getSquares(result))
+		
+	return getSquares(result)
 
 }
 
