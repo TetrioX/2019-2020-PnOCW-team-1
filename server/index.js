@@ -93,7 +93,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				function(callbackData){
 					console.log('Took enough pictures.')
 					imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
-					for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`)
+					for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
 					scrnrec.findScreen(imgs) // Implement the screen recognition
 				})
 		})
