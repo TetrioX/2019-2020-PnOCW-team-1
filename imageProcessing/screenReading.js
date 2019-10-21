@@ -1,27 +1,14 @@
+//
+// Accept a buffer and given dimensions, turn the buffer into a matrix 
+// and return eventual corners on the figure.
+//
+// (C) 2019 PnO Team 1
+//
 
 const assert = require('assert')  // asserting pre-conditions
 const vctcalc = require('./vectorCalculation.js')
 
 const screenReading = function(buffer, dimensions) {
-	endWhite = 0
-	startWhite = 0
-	onWhite = true
-	result = []
-
-	for(let i = 0; i < buffer.length; i++) {
-
-		if (buffer[i] > 100) if (!onWhite) {
-		result.push(i - endWhite)
-		startWhite = i;
-		onWhite = true
-		}
-
-		if (buffer[i] <= 100) if (onWhite) {
-		result.push(i - startWhite)
-		endWhite = i
-		onWhite = false
-		}
-	}
 
 	result = createMatrix(buffer, dimensions)
 	// console.log(dimensions)

@@ -1,8 +1,8 @@
 var assert = require('assert');
 var chai = require('chai');
 var assert = chai.assert;    // Using Assert style
-var expect = chai.expect;    // Using Expect style
-var should = chai.should();  // Using Should style
+// var expect = chai.expect;    // Using Expect style
+// var should = chai.should();  // Using Should style
 var screenRecognition = require('../screenRecognition.js')
 const screenReading = require('../screenReading.js');
 
@@ -23,7 +23,6 @@ describe('findScreen', function() {
     imageSmall = await screenRecognition.findScreen(['./TestResults/TestCaseSmall.png'], false, true)
     imageMoreScreens = await screenRecognition.findScreen(['./TestResults/TestCaseMoreScreens.png'],  false, true)
     imageMoreScreens2 = await screenRecognition.findScreen(['./TestResults/TestCaseMoreScreens.png'], false, true)
-    console.log(image1)
     matrix1 = screenReading.createMatrix(image1.buffers[0], image1.dimension)
     matrix2 = screenReading.createMatrix(image2.buffers[0], image2.dimension)
     matrix3 = screenReading.createMatrix(image3.buffers[0], image3.dimension)
