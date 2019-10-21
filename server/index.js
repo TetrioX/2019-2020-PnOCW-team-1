@@ -1,7 +1,7 @@
 var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
-const scrnrec = require('../task3/screenRecognitionDirect.js')
+const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 
 //App setup
 var app = express();
