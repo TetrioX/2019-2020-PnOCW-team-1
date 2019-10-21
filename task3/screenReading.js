@@ -230,7 +230,7 @@ const findBorder = function (matrix) {
 		while(true){
 			var foundNewBorderPixel = false;
 			// Also check previous angles
-            for (var prev = -3; prev < 1; prev++){
+            for (var prev = -2; prev < 1; prev++){
                 //stap - prev
                 var angle = angles[(angleIndex + prev + 8) % 8]
                 //check further angles to close gaps (gaps of max 2 pixels)
@@ -241,6 +241,7 @@ const findBorder = function (matrix) {
 						x: current.x,
 						y: current.y
                     })
+                    angleIndex += prev 
                     //continue searching in the same direction
 					foundNewBorderPixel = true;
 					break;
