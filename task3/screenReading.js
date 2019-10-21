@@ -8,6 +8,7 @@ const screenReading = function(buffer, dimensions) {
 	
 	// temp = vctcalc.vectorCalc(result)
     // console.log(temp)
+	
 	return 0
 }	
 
