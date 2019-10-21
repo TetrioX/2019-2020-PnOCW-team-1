@@ -1,7 +1,7 @@
 var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
-
+const scrnrec = require('../task3/screenRecognitionDirect.js')
 
 //App setup
 var app = express();
@@ -41,7 +41,7 @@ function decodeBase64Image(dataString)
     }
 
     response.type = matches[1];
-    response.data = new Buffer(matches[2], 'base64');
+    response.data = new Buffer.alloc(matches[2].length, matches[2], 'base64'); //¨Possible bug present
 
     return response;
 }
@@ -66,17 +66,18 @@ var masterIo = io.of('/master').on('connect', function(socket){
         slaves: slaves
     })
 
-    socket.on('changeBackgroundColor',function(data){
-      if (data.id){
-        slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
-      } else{
-        slaveIo.emit('changeBackgroundColor',data);
-      }
+    socket.on('changeBackgroundColor', function(data){
+		if (data.id) slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
+		else {
+			console.log(data)
+			slaveIo.emit('changeBackgroundColor', data);
+		}
 
 	});
 
     socket.on('upload-image', function (data) {
-        fs.writeFileSync(`image-${imageIndex}.png`, decodeBase64Image(data.buffer).data); //Deze lijn netter gemaakt, zou moeten werken
+		if (data.destination) fs.writeFileSync(`./Pictures/slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+		else fs.writeFileSync(`./Pictures/image-${imageIndex}.png`, decodeBase64Image(data.buffer).data); 
         masterIo.emit('imageSaved')
         imageIndex += 1;
     });
@@ -86,17 +87,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
   	});
 
     socket.on('calibrate', function(data){
-		socket.emit('takePicture', { mode: 'white' }, 
-		function(callbackData){
-			console.log('test')
-			socket.emit('takePicture', { mode: 'black' }, 
+		slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
+		socket.emit('takePictures', {slaves: {0:'m'}}, function(callbackData){
+			socket.emit('takePictures', {slaves: slaves},
 				function(callbackData){
-					console.log('took 2 pictures.')
+					console.log('Took enough pictures.')
+					imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
+					for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`)
+					scrnrec.findScreen(imgs) // Implement the screen recognition
 				})
 		})
-		imgs = []
-		for (let i = 0; i < slaves.length; i++) imgs.push(`image-${imageIndex}.png`)
-		scrnrec.findScreen(imgs) // Alleen nog exporten, ik kan dit niet testen dus pakt dat we dit doen tijdens de zitting maandag
     })
 })
 

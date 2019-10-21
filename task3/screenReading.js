@@ -24,24 +24,26 @@ const screenReading = function(buffer, dimensions) {
 	}
 
 	result = createMatrix(buffer, dimensions)
-	console.log(dimensions)
-    console.log(" ", result)
-    console.log("highWhite", locHighestWhite(result))
-    console.log("lowWhite", locLowestWhite(result))
-    console.log("leftWhite", locLeftWhite(result))
-    console.log("rightWhite", locRightWhite(result))
+	// console.log(dimensions)
+    // console.log(" ", result)
+    // console.log("highWhite", locHighestWhite(result))
+    // console.log("lowWhite", locLowestWhite(result))
+    // console.log("leftWhite", locLeftWhite(result))
+    // console.log("rightWhite", locRightWhite(result))
 
-	console.log("listOfWhite", listOfWhite(result)) // Deze call naar deze functie is de oorzaak van je probleem
+	// console.log("listOfWhite", listOfWhite(result)) // Deze call naar deze functie is de oorzaak van je probleem
 
-    console.log("NeighborsAndDiagonal", NeighborsAndDiagonal(result, { x: 3, y: 2 }))
-    console.log("Neighbors", Neighbors(result, { x: 3, y: 2 }))
+    // console.log("NeighborsAndDiagonal", NeighborsAndDiagonal(result, { x: 3, y: 2 }))
+    // console.log("Neighbors", Neighbors(result, { x: 3, y: 2 }))
 
-    console.log("Neighborscolor", sortColorOut(result, Neighbors(result, { x: 4, y: 4 }), 1))
-		var border = findBorder(result)
-    console.log("border", border)
-		var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
-    console.log("orderedBorder", orderedBorder)
-		console.log("squares", getSquares(result))
+    // console.log("Neighborscolor", sortColorOut(result, Neighbors(result, { x: 4, y: 4 }), 1))
+		// var border = findBorder(result)
+    // console.log("border", border)
+		// var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
+    // console.log("orderedBorder", orderedBorder)
+		//console.log("squares", getSquares(result))
+
+	return getSquares(result)
 
 }
 
@@ -191,7 +193,7 @@ const findBorder = function (matrix) {
 }
 
 	const findBorderOrdered = function (matrix, start){
-
+        // check if pixel on current + angle*value is white and in screen
 		function checkNeighbor(current, ang, value){
 			var neighbor = matrix[current.y + value*(ang.y)]
 			if (typeof neighbor === 'undefined'){
@@ -202,7 +204,7 @@ const findBorder = function (matrix) {
 				return false
 			}
 			return neighbor == 1
-		}
+        }
 
 		var angles = [
 			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
@@ -210,6 +212,7 @@ const findBorder = function (matrix) {
 			{x: 0, y: -1}, {x: 1, y: -1}
 		]
 
+        //function to check over longer distance in case of gaps
 		function checkAngle(current, angle, distance, border){
 			for (var currDistance = 1; currDistance <= distance; currDistance++){
 				if (checkNeighbor(current, angle, currDistance)){
@@ -218,34 +221,41 @@ const findBorder = function (matrix) {
 			}
 			return false;
 		}
-
 		var angleIndex = 0
-    current = {
+        var current = {
 			x: start.x,
 			y: start.y
 		};
 		border = []
 		while(true){
-			var foundNewBorder = false;
-			// Also check previous angle
-			for (var prev = -1; prev < 1; prev++){
-				var angle = angles[(angleIndex+prev+8)%8]
-				if (checkAngle(current, angle, 3)){
+			var foundNewBorderPixel = false;
+			// Also check previous angles
+            for (var prev = -2; prev < 1; prev++){
+                //stap - prev
+                var angle = angles[(angleIndex + prev + 8) % 8]
+                //check further angles to close gaps (gaps of max 1 pixels)
+				if (checkAngle(current, angle, 2)){
 					current.x += angle.x
 					current.y += angle.y
 					border.push({
 						x: current.x,
 						y: current.y
-					})
-					foundNewBorder = true;
+					});
+          angleIndex == (angleIndex + prev + 8) % 8
+          //continue searching in the same direction
+					foundNewBorderPixel = true;
 					break;
 				}
-			}
-			if (!foundNewBorder){
-				angleIndex += 1;
-				if (angleIndex == 9){
-					break;
-				}
+            }
+            // only black pixels folowing this angle
+            if (!foundNewBorderPixel) {
+                //switch angle
+                angleIndex += 1;
+                //stop if 360
+								if (angleIndex == 8){
+									break;
+                }
+            //Stop if back in start position
 			} else if (current.x == start.x && current.y == start.y){
 				break;
 			}
@@ -256,7 +266,7 @@ const findBorder = function (matrix) {
 
 	function getCorners(rand){
 
-	  if (rand.length < 50){
+	  if (rand.length < 1000){
 	    return []
 	  }
 
@@ -366,12 +376,12 @@ const findBorder = function (matrix) {
             if (matrix[j][i] == 1) {
 								if (typeof jumps[j] === 'undefined' || typeof jumps[j][i] === 'undefined'){
 	                var border = findBorderOrdered(matrix, {x: i, y: j});
-									console.log('border', border)
+									// console.log('border', border)
 									var corners = getCorners(border);
 									// This should be changed in the future to where jumps are added even if
 									// corners.length is not 4 but first findBorderOrdered should support
 									// figures with outwards angles
-									console.log('corners', corners)
+									// console.log('corners', corners)
 									if (corners.length != 4){
 										// temporarily create 0 value for next jump
 										if (typeof jumps[j] === 'undefined'){
@@ -383,7 +393,7 @@ const findBorder = function (matrix) {
 										squares.push(corners)
 										// adds new jumps
 										var newjumps = getBorderJumps(border)
-										console.log('newjumps', newjumps)
+										// console.log('newjumps', newjumps)
 										for (ii in newjumps){
 											jumps[ii] = {...jumps[ii], ...newjumps[ii]}
 										}
