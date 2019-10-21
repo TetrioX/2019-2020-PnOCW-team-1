@@ -49,6 +49,7 @@ describe('findScreen', function() {
   }
 
   describe('getSquares()', function() {
+
     it('Should return the corners of TestCase1', function() {
       corners1 = screenReading.getSquares(matrix1)
       assert.lengthOf(corners1[0], 4, 'number of corners is 4');
@@ -63,21 +64,42 @@ describe('findScreen', function() {
         'Corners are withing margen of correction.'
       );
     });
+
     it('Should return the corners of TestCase2', function() {
       corners2 = screenReading.getSquares(matrix2)
       assert.lengthOf(corners2[0], 4, 'number of corners is 4')
-      console.log(corners2)
+      assert.isTrue(checkIfCordListContainsOtherCordList(
+          [
+            { x: 359, y: 198 },
+            { x: 242, y: 302 },
+            { x: 150, y: 214 },
+            { x: 243, y: 124 }
+          ],
+          corners1[0]),
+        'Corners are withing margen of correction.'
+      );
     });
+
     it('Should return the corners of TestCase3', function() {
       corners3 = screenReading.getSquares(matrix3)
       assert.lengthOf(corners3[0], 4, 'number of corners is 4');
-      console.log(corners3)
+      assert.isTrue(checkIfCordListContainsOtherCordList(
+          [
+            { x: 255, y: 184 },
+            { x: 32, y: 348 },
+            { x: 173, y: 381 },
+            { x: 93, y: 206 }
+          ],
+          corners1[0]),
+        'Corners are withing margen of correction.'
+      );
     });
+
     it('Should return the corners of TestCase4', function() {
       corners4 = screenReading.getSquares(matrix4)
       assert.lengthOf(corners4[0], 4, 'number of corners is 4');
-      console.log(corners4)
     });
+
     it('Should return the corners of TestCaseSmall', function() {
       cornersSmall = screenReading.getSquares(matrixSmall)
       assert.lengthOf(cornersSmall[0], 4, 'number of corners is 4');
@@ -92,16 +114,6 @@ describe('findScreen', function() {
         'Corners are withing margen of correction.'
       );
       console.log(cornersSmall)
-    });
-    it('Should return the corners of TestCaseMoreScreens', function() {
-      cornersMoreScreen = screenReading.getSquares(matrixMoreScreens)
-      assert.lengthOf(cornersMoreScreen[0], 4, 'number of corners is 4');
-      console.log(cornersMoreScreen)
-    });
-    it('Should return the corners of TestCaseMoreScreens2', function() {
-      cornersMoreScreen2 = screenReading.getSquares(matrixMoreScreens2)
-      assert.lengthOf(cornersMoreScreen2[0], 4, 'number of corners is 4');
-      console.log(cornersMoreScreen2)
     });
   });
 });
