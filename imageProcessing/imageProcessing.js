@@ -162,7 +162,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
 		if(verbose > 3) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
-        to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`../task3/Result/diff-${i+1}.png`) )
+        to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`../imageProcessing/Result/diff-${i+1}.png`) )
 
     }
 
