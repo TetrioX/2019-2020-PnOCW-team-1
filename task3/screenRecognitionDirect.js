@@ -1,4 +1,9 @@
-
+//
+// Accept a number of image files, calculate pixel distance,
+// search for squares on the distances and return the location.
+//
+// (C) 2019 PnO Team 1
+//
 
 const fs = require('fs')          // file system operations
 const sharp = require('sharp')    // image processing
