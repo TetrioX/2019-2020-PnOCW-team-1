@@ -94,7 +94,7 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audi
 		console.log("An error occurred: " + err);
 	});
 
-function takePicture(){
+function takePicture(data){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
@@ -102,31 +102,37 @@ function takePicture(){
 
 	socket.emit('upload-image', {
 		image: true,
-		buffer: canvas.toDataURL('image/png')
+		buffer: canvas.toDataURL('image/png'),
+		destination: data.destination
 	});
 }
 
 startbutton.addEventListener('click', function () {
-	takePicture();
+	takePicture({});
 });
 
 function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-socket.on('takePicture', async function(data, callback){
-	switch(data.mode) {
-		case 'black':
-			socket.emit('changeBackgroundColor', {
-				colorValue: '#000000'
-			});
-		case 'white':
-			socket.emit('changeBackgroundColor', {
-				colorValue: '#ffffff'
-			});
+socket.on('takePictures', async function(data, callback){
+	for (var key in data.slaves) {
+		if (key) socket.emit('changeBackgroundColor', {
+						colorValue: '#ffffff',
+						id: key
+					});
+		
+		await sleep(1000);
+		// console.log(key, " ", data.slaves[key])
+		takePicture({destination: data.slaves[key]});
+		await sleep(100)
+		
+		if (key) socket.emit('changeBackgroundColor', {
+						colorValue: '#000000',
+						id: key
+					});
 	}
-	await sleep(1000);
-	takePicture();
+	
 	callback(true);
 });
 

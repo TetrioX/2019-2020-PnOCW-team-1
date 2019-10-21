@@ -49,7 +49,7 @@ if(argv._.length < 2) {
  * loop the time to do other things.
  */
 async function findScreen(imgs, demand_same_size=false) {
-	
+
     assert(imgs.length > 0)
 	
 	screenIds = searchID(imgs)
@@ -57,26 +57,20 @@ async function findScreen(imgs, demand_same_size=false) {
 	
 	const diff = await imgproc.doImgDiff(imgs, demand_same_size)
 	if (verbose) console.log("2. Result image processing = ", diff)
-
-    // At this point we finally have all the pixel data in our buffers and so we can
-    // finally call our algorithm to calculate pixel differences:
 	
 	dict = {}
 	
 	for(let i = 0; i < diff.buffers.length; ++i) {
-		// We store the output in the array of the first image.
-        // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
 		assert(diff.buffers[i].length == diff.dimensions.width * diff.dimensions.height)
 		screenMiddle = scrread.screenReading(diff.buffers[i], diff.dimensions)
 		dict[screenIds[i]] = screenMiddle
+		console.log("Buffer done", screenIds[i])
 		if (verbose > 1) console.log(`3.${i+1} Screen Middle = `, screenMiddle)
     }
 	
-	if (verbose) console.log("4. Return values = ", dict)
-	
-	console.log(dict)
-	
-    return dict
+	if (verbose) console.log("4. Return values = ", dict)	
+    
+	return dict
 }
 
 /**
@@ -92,11 +86,11 @@ async function findScreen(imgs, demand_same_size=false) {
 function searchID(imgs) {
 	arr = []
 	for (elem of imgs) {
-		temp = parseInt(elem[8])
+		if (elem[17] == 'm') continue
+		temp = parseInt(elem[17])
 		assert(! isNaN(temp))
 		arr.push(temp)
 	}
-	arr.shift()
 	return arr
 }
 

@@ -24,24 +24,24 @@ const screenReading = function(buffer, dimensions) {
 	}
 
 	result = createMatrix(buffer, dimensions)
-	console.log(dimensions)
-    console.log(" ", result)
-    console.log("highWhite", locHighestWhite(result))
-    console.log("lowWhite", locLowestWhite(result))
-    console.log("leftWhite", locLeftWhite(result))
-    console.log("rightWhite", locRightWhite(result))
+	// console.log(dimensions)
+    // console.log(" ", result)
+    // console.log("highWhite", locHighestWhite(result))
+    // console.log("lowWhite", locLowestWhite(result))
+    // console.log("leftWhite", locLeftWhite(result))
+    // console.log("rightWhite", locRightWhite(result))
 
-	console.log("listOfWhite", listOfWhite(result)) // Deze call naar deze functie is de oorzaak van je probleem
+	// console.log("listOfWhite", listOfWhite(result)) // Deze call naar deze functie is de oorzaak van je probleem
 
-    console.log("NeighborsAndDiagonal", NeighborsAndDiagonal(result, { x: 3, y: 2 }))
-    console.log("Neighbors", Neighbors(result, { x: 3, y: 2 }))
+    // console.log("NeighborsAndDiagonal", NeighborsAndDiagonal(result, { x: 3, y: 2 }))
+    // console.log("Neighbors", Neighbors(result, { x: 3, y: 2 }))
 
-    console.log("Neighborscolor", sortColorOut(result, Neighbors(result, { x: 4, y: 4 }), 1))
-		var border = findBorder(result)
-    console.log("border", border)
-		var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
-    console.log("orderedBorder", orderedBorder)
-		console.log("squares", getSquares(result))
+    // console.log("Neighborscolor", sortColorOut(result, Neighbors(result, { x: 4, y: 4 }), 1))
+		// var border = findBorder(result)
+    // console.log("border", border)
+		// var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
+    // console.log("orderedBorder", orderedBorder)
+		//console.log("squares", getSquares(result))
 		
 	return getSquares(result)
 
@@ -258,7 +258,7 @@ const findBorder = function (matrix) {
 
 	function getCorners(rand){
 
-	  if (rand.length < 50){
+	  if (rand.length < 1000){
 	    return []
 	  }
 
@@ -368,12 +368,12 @@ const findBorder = function (matrix) {
             if (matrix[j][i] == 1) {
 								if (typeof jumps[j] === 'undefined' || typeof jumps[j][i] === 'undefined'){
 	                var border = findBorderOrdered(matrix, {x: i, y: j});
-									console.log('border', border)
+									// console.log('border', border)
 									var corners = getCorners(border);
 									// This should be changed in the future to where jumps are added even if
 									// corners.length is not 4 but first findBorderOrdered should support
 									// figures with outwards angles
-									console.log('corners', corners)
+									// console.log('corners', corners)
 									if (corners.length != 4){
 										// temporarily create 0 value for next jump
 										if (typeof jumps[j] === 'undefined'){
@@ -385,7 +385,7 @@ const findBorder = function (matrix) {
 										squares.push(corners)
 										// adds new jumps
 										var newjumps = getBorderJumps(border)
-										console.log('newjumps', newjumps)
+										// console.log('newjumps', newjumps)
 										for (ii in newjumps){
 											jumps[ii] = {...jumps[ii], ...newjumps[ii]}
 										}
