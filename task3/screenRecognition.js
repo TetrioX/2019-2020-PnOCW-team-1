@@ -9,20 +9,23 @@ const scrread = require('./screenReading.js')
 
 let verbose = argv.verbose;
 
-if(argv._.length < 1) {
-    console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 ...`)
-    console.log('Output screen positions of FILE(k) in console.')
-    console.log('If --same-size is present then all inputs must have the same size.')
-} else {
-    // Note: we are calling an 'async' function, so we need to catch errors by
-    // attaching an error handler to the promise:
-    let result = findScreen(argv._, argv['same-size']).catch(console.error)
-    // The following line will not print first, but almost... This is what you should
-    // understand if you have studied how call backs, promises and async/await work.
-    if(verbose) console.log('0. result =', result)
-    // Alternatively we pass in buffers of image data directly:
-    //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
-    //doImgDiff(imgs, argv['same-size']).catch(console.error)
+// only run when this is the main program, not when it is a dependency
+if (require.main === module) {
+  if(argv._.length < 1) {
+      console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 ...`)
+      console.log('Output screen positions of FILE(k) in console.')
+      console.log('If --same-size is present then all inputs must have the same size.')
+  } else {
+      // Note: we are calling an 'async' function, so we need to catch errors by
+      // attaching an error handler to the promise:
+      let result = findScreen(argv._, argv['same-size']).catch(console.error)
+      // The following line will not print first, but almost... This is what you should
+      // understand if you have studied how call backs, promises and async/await work.
+      if(verbose) console.log('0. result =', result)
+      // Alternatively we pass in buffers of image data directly:
+      //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
+      //doImgDiff(imgs, argv['same-size']).catch(console.error)
+  }
 }
 
 
@@ -48,7 +51,7 @@ if(argv._.length < 1) {
  * awaiting on have settled, at the same time we are giving the Node.js event
  * loop the time to do other things.
  */
-async function findScreen(imgs, demand_same_size=false) {
+async function findScreen(imgs, demand_same_size=false, return_buffers = false) {
 
     assert(imgs.length > 0)
 
@@ -80,7 +83,7 @@ async function findScreen(imgs, demand_same_size=false) {
 
 
     // Figure out if all images are all the same size and prepare to rescale them
-    const extend = 500 //The number of pixels we want in the largest dimension.
+    const extend = 100 //The number of pixels we want in the largest dimension.
     // We know there is at least one image because of the assert above...
     const w_orig = imgs_metas[0].width
     const h_orig = imgs_metas[0].height
@@ -116,6 +119,12 @@ async function findScreen(imgs, demand_same_size=false) {
     // pixels are available now.
     // Other code can run while sharp is dealing with the I/O to external code.
     const imgs_buffs = await Promise.all(imgs_buffs_promises)
+
+
+    // If we only need the buffers we return them here and stop the program
+    if (return_buffers){
+      return {buffers: imgs_buffs, dimension: new_size}
+    }
 
     // The promises will show as resolved:
     if(verbose > 1) console.log('5. imgs_buffs_promises =', imgs_buffs_promises)

@@ -11,22 +11,26 @@ const imgproc = require('./imageProcessing.js');
 
 let verbose = argv.verbose;
 
-if(argv._.length < 2) {
-    console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
-    console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
-	console.log('Input files need to be of type image-k.png, with k a valid number.')
-    console.log('If --same-size is present then all inputs must have the same size.')
-} else {
-    // Note: we are calling an 'async' function, so we need to catch errors by
-    // attaching an error handler to the promise:
-    let result = findScreen(argv._, argv['same-size']).catch(console.error)
-	// The following line will not print first, but almost... This is what you should
-    // understand if you have studied how call backs, promises and async/await work.
-    if(verbose) console.log('0. result =', result)
-    // Alternatively we pass in buffers of image data directly:
-    //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
-    //doImgDiff(imgs, argv['same-size']).catch(console.error)
+// only run when this is the main program, not when it is a dependency
+if (require.main === module) {
+  if(argv._.length < 2) {
+      console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
+      console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
+    console.log('Input files need to be of type image-k.png, with k a valid number.')
+      console.log('If --same-size is present then all inputs must have the same size.')
+  } else {
+      // Note: we are calling an 'async' function, so we need to catch errors by
+      // attaching an error handler to the promise:
+      let result = findScreen(argv._, argv['same-size']).catch(console.error)
+    // The following line will not print first, but almost... This is what you should
+      // understand if you have studied how call backs, promises and async/await work.
+      if(verbose) console.log('0. result =', result)
+      // Alternatively we pass in buffers of image data directly:
+      //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
+      //doImgDiff(imgs, argv['same-size']).catch(console.error)
+  }
 }
+
 
 
 /**
@@ -62,8 +66,8 @@ async function findScreen(imgs, demand_same_size=false) {
 
 	for(let i = 0; i < diff.buffers.length; ++i) {
 		assert(diff.buffers[i].length == diff.dimensions.width * diff.dimensions.height)
-		screenMiddle = scrread.screenReading(diff.buffers[i], diff.dimensions)
-		dict[screenIds[i]] = screenMiddle
+		screenCorners = scrread.screenReading(diff.buffers[i], diff.dimensions)
+		dict[screenIds[i]] = screenCorners
 		console.log("Buffer done", screenIds[i])
 		if (verbose > 1) console.log(`3.${i+1} Screen Middle = `, screenMiddle)
     }
