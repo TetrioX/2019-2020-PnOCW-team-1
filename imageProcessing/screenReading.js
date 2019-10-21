@@ -1,5 +1,5 @@
 //
-// Accept a buffer and given dimensions, turn the buffer into a matrix 
+// Accept a buffer and given dimensions, turn the buffer into a matrix
 // and return eventual corners on the figure.
 //
 // (C) 2019 PnO Team 1
@@ -28,7 +28,7 @@ const screenReading = function(buffer, dimensions) {
     // console.log("border", border)
 		// var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
     // console.log("orderedBorder", orderedBorder)
-		console.log("squares", getSquares(result))
+		// console.log("squares", getSquares(result))
 
 	return getSquares(result)
 
@@ -239,7 +239,7 @@ const findBorder = function (matrix) {
                 //switch angle
                 angleIndex += 1;
                 //stop if 360
-								if (angleIndex == 8){
+								if (angleIndex == 9){
 									break;
                 }
             //Stop if back in start position
@@ -381,7 +381,6 @@ const findBorder = function (matrix) {
 									}
 								}
 							// jump
-
 							i += jumps[j][i]
             }
         }

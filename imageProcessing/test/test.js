@@ -8,8 +8,8 @@ const screenReading = require('../screenReading.js');
 
 describe('findScreen', function() {
 
-  // set timeout to 10 seconds
-  this.timeout(10000)
+  // set timeout to 3 seconds
+  this.timeout(3000)
 
   // allowed pixel distance
   delta = 3
@@ -36,7 +36,7 @@ describe('findScreen', function() {
     for (var c2 of corners2){
       var contained = false;
       for (var c1 of corners1) {
-        if (Math.abs(c1.x - c2.x) && (c1.y - c2.y) <= delta){
+        if (Math.abs(c1.x - c2.x) <= delta && Math.abs(c1.y - c2.y) <= delta){
           contained = true
           break;
         }
@@ -70,10 +70,10 @@ describe('findScreen', function() {
       assert.lengthOf(corners2[0], 4, 'number of corners is 4')
       assert.isTrue(checkIfCordListContainsOtherCordList(
           [
-            { x: 359, y: 198 },
-            { x: 242, y: 302 },
-            { x: 150, y: 214 },
-            { x: 243, y: 124 }
+            { x: 71, y: 39 },
+            { x: 48, y: 60 },
+            { x: 30, y: 43 },
+            { x: 48, y: 25 }
           ],
           corners2[0]),
         'Corners are withing margen of correction.'
@@ -85,19 +85,14 @@ describe('findScreen', function() {
       assert.lengthOf(corners3[0], 4, 'number of corners is 4');
       assert.isTrue(checkIfCordListContainsOtherCordList(
           [
-            { x: 255, y: 184 },
-            { x: 32, y: 348 },
-            { x: 173, y: 381 },
-            { x: 93, y: 206 }
+            { x: 50, y: 37 },
+            { x: 6, y: 69 },
+            { x: 34, y: 75 },
+            { x: 19, y: 41 }
           ],
           corners3[0]),
         'Corners are withing margen of correction.'
       );
-    });
-
-    it('Should return the corners of TestCase4', function() {
-      corners4 = screenReading.getSquares(matrix4)
-      assert.lengthOf(corners4[0], 4, 'number of corners is 4');
     });
 
     it('Should return the corners of TestCaseSmall', function() {
@@ -113,7 +108,6 @@ describe('findScreen', function() {
           cornersSmall[0]),
         'Corners are withing margen of correction.'
       );
-      console.log(cornersSmall)
     });
   });
 });
