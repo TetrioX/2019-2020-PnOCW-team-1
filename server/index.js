@@ -2,6 +2,7 @@ var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
 
+
 //App setup
 var app = express();
 var server = app.listen(8001, function(){
@@ -75,7 +76,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 	});
 
     socket.on('upload-image', function (data) {
-        fs.writeFileSync('image-' + imageIndex + '.png', decodeBase64Image(data.buffer).data);
+        fs.writeFileSync(`image-${imageIndex}.png`, decodeBase64Image(data.buffer).data); //Deze lijn netter gemaakt, zou moeten werken
         masterIo.emit('imageSaved')
         imageIndex += 1;
     });
@@ -85,17 +86,17 @@ var masterIo = io.of('/master').on('connect', function(socket){
   	});
 
     socket.on('calibrate', function(data){
-      socket.emit('takePicture', {
-        mode: 'white'
-      }, function(callbackData){
-        console.log('test')
-        socket.emit('takePicture', {
-          mode: 'black'
-        }, function(callbackData){
-          console.log('took 2 pictures.')
-          // TODO: run screen recognition
-        })
-      })
+		socket.emit('takePicture', { mode: 'white' }, 
+		function(callbackData){
+			console.log('test')
+			socket.emit('takePicture', { mode: 'black' }, 
+				function(callbackData){
+					console.log('took 2 pictures.')
+				})
+		})
+		imgs = []
+		for (let i = 0; i < slaves.length; i++) imgs.push(`image-${imageIndex}.png`)
+		scrnrec.findScreen(imgs) // Alleen nog exporten, ik kan dit niet testen dus pakt dat we dit doen tijdens de zitting maandag
     })
 })
 

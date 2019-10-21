@@ -9,12 +9,12 @@ const assert = require('assert')  // asserting pre-conditions
 const scrread = require('./screenReading.js');
 const imgproc = require('./imageProcessing.js');
 
-
 let verbose = argv.verbose;
 
 if(argv._.length < 2) {
     console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
     console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
+	console.log('Input files need to be of type image-k.png, with k a valid number.')
     console.log('If --same-size is present then all inputs must have the same size.')
 } else {
     // Note: we are calling an 'async' function, so we need to catch errors by
@@ -36,7 +36,7 @@ if(argv._.length < 2) {
  *                                          images or buffers containing image
  *                                          data.
  *
- * @return  
+ * @return  0
  *
  * @pre     imgs.length > 0
  *
@@ -49,22 +49,49 @@ if(argv._.length < 2) {
  * loop the time to do other things.
  */
 async function findScreen(imgs, demand_same_size=false) {
-
+	
     assert(imgs.length > 0)
 	
+	screenIds = searchID(imgs)
+	if (verbose) console.log("1. Available slave Id's = ", screenIds)
+	
 	const diff = await imgproc.doImgDiff(imgs, demand_same_size)
-	if (verbose) console.log("0. Resultaat image processing = ", diff)
+	if (verbose) console.log("2. Result image processing = ", diff)
 
     // At this point we finally have all the pixel data in our buffers and so we can
     // finally call our algorithm to calculate pixel differences:
+	
+	dict = {}
+	
 	for(let i = 0; i < diff.buffers.length; ++i) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-		console.log("loop ", i)
-		assert(buffers[i].length == diff.dimensions.width * diff.dimensions.height)
-		scrread.screenReading(diff.buffers[i], diff.dimensions)
-  
+		assert(diff.buffers[i].length == diff.dimensions.width * diff.dimensions.height)
+		screenMiddle = scrread.screenReading(diff.buffers[i], diff.dimensions)
+		dict[screenIds[i]] = screenMiddle
+		if (verbose > 1) console.log(`3.${i+1} Screen Middle = `, screenMiddle)
     }
+	
+	if (verbose) console.log("4. Return values = ", dict)
+	
+    return dict
+}
 
-    return 0
+/**
+ * Return a list of all IDs of slave screens.
+ *
+ * @param {String[]} imgs Input string of called pictures
+ *
+ * @pre typeof imgs[i][7] == integer 
+ *		It is required for the input images to have 'image-k.png' as name with k a valid number.
+ */
+function searchID(imgs) {
+	arr = []
+	for (elem of imgs) {
+		temp = parseInt(elem[5])
+		assert(! isNaN(temp))
+		arr.push(temp)
+	}
+	arr.shift()
+	return arr
 }

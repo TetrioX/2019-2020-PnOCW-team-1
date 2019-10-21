@@ -1,3 +1,28 @@
+//
+// Accept a number of image files on the command line
+// do a pair-wise pixel based "difference" calculation
+// save the outputs as image files diff-1, diff-2, ...
+//
+// Example code for doing command line calculations on images
+// using Node.js and sharp.
+// This example demonstrates how to handle multiple images
+// from disk. Loading an image from disk happens asynchronous.
+// That means that your JavaScript code will either register
+// a 'call back' function which is called when the loading has
+// completed, or returns a 'promise' which can attach an
+// action to do when the loading has completed by using
+// '.then()'. Using promises makes the code more straightforward.
+// Since we are loading multiple images we will use a 'barrier'.
+// A barrier is a point in the code which will yield execution
+// to other events until all promises have been resolved.
+//
+// @see https://promisesaplus.com        The Promises/A+ standard
+// @see https://github.com/lovell/sharp
+// @see https://sharp.pixelplumbing.com
+//
+// (C) 2019 Dirk Nuyens
+//
+
 
 const fs = require('fs')          // file system operations
 const sharp = require('sharp')    // image processing
@@ -5,25 +30,27 @@ const { argv } = require('yargs') // command line arguments
                .count('verbose')
                .alias('v', 'verbose')
 const assert = require('assert')  // asserting pre-conditions
-const scrread = require('./screenReading.js')
+const imgread = require('./imageReadingRGB.js');
+
 
 let verbose = argv.verbose;
 
-if(argv._.length < 1) {
-    console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 ...`)
-    console.log('Output screen positions of FILE(k) in console.')
+if(argv._.length < 2) {
+    console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
+    console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
     console.log('If --same-size is present then all inputs must have the same size.')
 } else {
     // Note: we are calling an 'async' function, so we need to catch errors by
     // attaching an error handler to the promise:
-    let result = findScreen(argv._, argv['same-size']).catch(console.error)
-    // The following line will not print first, but almost... This is what you should
+    let result = doImgDiff(argv._, argv['same-size']).catch(console.error)
+	// The following line will not print first, but almost... This is what you should
     // understand if you have studied how call backs, promises and async/await work.
     if(verbose) console.log('0. result =', result)
     // Alternatively we pass in buffers of image data directly:
     //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
     //doImgDiff(imgs, argv['same-size']).catch(console.error)
 }
+
 
 
 /**
@@ -48,8 +75,8 @@ if(argv._.length < 1) {
  * awaiting on have settled, at the same time we are giving the Node.js event
  * loop the time to do other things.
  */
-async function findScreen(imgs, demand_same_size=false) {
-
+async function doImgDiff(imgs, demand_same_size=false) {
+	
     assert(imgs.length > 0)
 
     // For every image in imgs we want to know width-by-height.
@@ -78,12 +105,12 @@ async function findScreen(imgs, demand_same_size=false) {
     //    })
     //}
 
-
-    // Figure out if all images are all the same size and prepare to rescale them
-    const extend = 100 //The number of pixels we want in the largest dimension.
+    // Figure out if all images are all the same size and prepare to rescale them.
+    const extend = 1000 //The number of pixels we want in the largest dimension.
     // We know there is at least one image because of the assert above...
     const w_orig = imgs_metas[0].width
     const h_orig = imgs_metas[0].height
+	const channel = imgs_metas[0].channels
     for(let i = 0; demand_same_size && (i < imgs_metas.length); ++i) {
         if((imgs_metas[i].width != w_orig) || (imgs_metas[i].height != h_orig)) {
             throw(Error('Images should all have the same dimensions'))
@@ -100,11 +127,10 @@ async function findScreen(imgs, demand_same_size=false) {
     // Return buffers of pixel data (single channel gray scale, rescaled, apply filters).
     const imgs_buffs_promises = imgs_data.map( sharp_img => {
         return sharp_img
-                 .grayscale()
-                 .toColorspace('b-w')
+                 // .toColorspace('srgb')
                  .resize(new_size)
                  .normalize()
-                 // .blur() // note: blur after resize...
+                 .blur() // note: blur after resize...
                  .raw()
                  .toBuffer()
     })
@@ -123,24 +149,38 @@ async function findScreen(imgs, demand_same_size=false) {
 
     // At this point we finally have all the pixel data in our buffers and so we can
     // finally call our algorithm to calculate pixel differences:
-    let to_file_promises = []
-    let output_meta = { raw: { width: new_size.width, height: new_size.height, channels: 1 } }
-	for(let i = 0; i < imgs_buffs.length; ++i) {
+    let tempResult = [] // Buffer list on which our output buffers will be printed
+	let to_file_promises = []
+    let output_meta = { raw: { width: new_size.width, height: new_size.height, channels: 3 } }
+    for(let i = 0; i < imgs_buffs.length - 1; ++i) {
+		tempResult.push( Buffer.alloc(new_size.width * new_size.height * 3))
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-		scrread.screenReading(imgs_buffs[i], new_size)
-        assert(imgs_buffs[i].length == new_size.width * new_size.height)
-		// if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
+        assert(imgs_buffs[i].length == new_size.width * new_size.height * channel)
+		imgread.imageReading(imgs_buffs[0], imgs_buffs[i+1], tempResult[i], channel)
+		assert(tempResult[i].length == new_size.width * new_size.height * 3)
+		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
-        // to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./Result/diff-${i+1}.png`) )
+        to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./ diff-${i+1}.png`) )
+		
     }
+	
     if(verbose) console.log('8. to_file_promises =', to_file_promises)
 
     // If we put an await here, then the first console.log in the main code will still
     // print a promise... Can you figure out why?
-    // const to_files = await Promise.all(to_file_promises)
-    // if(verbose > 2) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
+    const to_files = await Promise.all(to_file_promises) // .then(result => {return result})
+    if(verbose > 2) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
+	
+	return {
+		buffers: tempResult, 
+		dimensions: { width: new_size.width, height: new_size.height }
+	}
+}	
 
-    return to_file_promises
-}
+
+// To make the function accesible in other .js files
+module.exports = {
+	doImgDiff: doImgDiff
+};
