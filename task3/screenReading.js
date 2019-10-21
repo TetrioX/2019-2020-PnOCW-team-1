@@ -194,6 +194,7 @@ const findBorder = function (matrix) {
 
 	const findBorderOrdered = function (matrix, start){
 
+        // check if pixel on current + angle*value is white and in screen
 		function checkNeighbor(current, ang, value){
 			var neighbor = matrix[current.y + value*(ang.y)]
 			if (typeof neighbor === 'undefined'){
@@ -204,7 +205,7 @@ const findBorder = function (matrix) {
 				return false
 			}
 			return neighbor == 1
-		}
+        }
 
 		var angles = [
 			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
@@ -212,6 +213,7 @@ const findBorder = function (matrix) {
 			{x: 0, y: -1}, {x: 1, y: -1}
 		]
 
+        //function to check over longer distance in case of gaps
 		function checkAngle(current, angle, distance, border){
 			for (var currDistance = 1; currDistance <= distance; currDistance++){
 				if (checkNeighbor(current, angle, currDistance)){
@@ -222,32 +224,40 @@ const findBorder = function (matrix) {
 		}
 
 		var angleIndex = 0
-    current = {
+        current = {
 			x: start.x,
 			y: start.y
 		};
 		border = []
 		while(true){
-			var foundNewBorder = false;
-			// Also check previous angle
-			for (var prev = -1; prev < 1; prev++){
-				var angle = angles[(angleIndex+prev+8)%8]
+			var foundNewBorderPixel = false;
+			// Also check previous angles
+            for (var prev = -2; prev < 1; prev++){
+                //stap - prev
+                var angle = angles[(angleIndex + prev + 8) % 8]
+                //check further angles to close gaps (gaps of max 2 pixels)
 				if (checkAngle(current, angle, 3)){
 					current.x += angle.x
 					current.y += angle.y
 					border.push({
 						x: current.x,
 						y: current.y
-					})
-					foundNewBorder = true;
+                    })
+                    angleIndex += prev 
+                    //continue searching in the same direction
+					foundNewBorderPixel = true;
 					break;
 				}
-			}
-			if (!foundNewBorder){
-				angleIndex += 1;
+            }
+            // only black pixels folowing this angle
+            if (!foundNewBorderPixel) {
+                //switch angle
+                angleIndex += 1;
+                //stop if 360
 				if (angleIndex == 9){
 					break;
-				}
+                }
+            //Stop if back in start position
 			} else if (current.x == start.x && current.y == start.y){
 				break;
 			}
