@@ -75,7 +75,7 @@ describe('findScreen', function() {
             { x: 150, y: 214 },
             { x: 243, y: 124 }
           ],
-          corners1[0]),
+          corners2[0]),
         'Corners are withing margen of correction.'
       );
     });
@@ -90,7 +90,7 @@ describe('findScreen', function() {
             { x: 173, y: 381 },
             { x: 93, y: 206 }
           ],
-          corners1[0]),
+          corners3[0]),
         'Corners are withing margen of correction.'
       );
     });
@@ -110,7 +110,7 @@ describe('findScreen', function() {
             { x: 33, y: 65 },
             { x: 33, y: 32 }
           ],
-          corners1[0]),
+          cornersSmall[0]),
         'Corners are withing margen of correction.'
       );
       console.log(cornersSmall)
