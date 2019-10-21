@@ -36,10 +36,7 @@ if(argv._.length < 2) {
  *                                          images or buffers containing image
  *                                          data.
  *
- * @return  {Promise
-
-  []}              Returns array of promises for
- *                                          saving the differences to files.
+ * @return  
  *
  * @pre     imgs.length > 0
  *
@@ -56,28 +53,18 @@ async function findScreen(imgs, demand_same_size=false) {
     assert(imgs.length > 0)
 	
 	const diff = await imgproc.doImgDiff(imgs, demand_same_size)
-	if (verbose) console.log(diff)
-	const buffers = diff.buffer
-	const dimensions = diff.dimensions
+	if (verbose) console.log("0. Resultaat image processing = ", diff)
 
     // At this point we finally have all the pixel data in our buffers and so we can
     // finally call our algorithm to calculate pixel differences:
-	for(let i = 0; i < buffers.length; ++i) {
+	for(let i = 0; i < diff.buffers.length; ++i) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
 		console.log("loop ", i)
-		assert(buffers[i].length == dimensions.width * dimensions.height)
-		scrread.screenReading(buffers[i])
-        
-	
-        
+		assert(buffers[i].length == diff.dimensions.width * diff.dimensions.height)
+		scrread.screenReading(diff.buffers[i], diff.dimensions)
+  
     }
-    if(verbose) console.log('8. to_file_promises =', to_file_promises)
-
-    // If we put an await here, then the first console.log in the main code will still
-    // print a promise... Can you figure out why?
-    // const to_files = await Promise.all(to_file_promises)
-    // if(verbose > 2) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
 
     return 0
 }
