@@ -239,8 +239,8 @@ const findBorderOrdered = function (matrix, start){
     while (true) {
         var foundNewBorderPixel = false;
         // Also check previous angles
-        for (var add = -2; add < 3; add++) { //vanaf -3 al????
-            //45° kloksgewijs: angleIndex (huidige index) + add
+        for (var add = -2; add < 5; add++) { //vanaf -3 al????
+            //45ï¿½ kloksgewijs: angleIndex (huidige index) + add
             var angle = angles[(angleIndex + add + 8) % 8]
             // check in the direction of the angle if your neighbour is white
             if (checkNeighbor(current, angle)) {
@@ -252,27 +252,25 @@ const findBorderOrdered = function (matrix, start){
                     y: current.y
                 });
                 //remove it from the matrix (make it black)
-                matrix[current.y][current.x] == 0
+                matrix[current.y][current.x] = 0
                 //set the new direction to the current angle
-                angleIndex == (angleIndex + add + 8) % 8
+                angleIndex = (angleIndex + add + 8) % 8
                 //continue searching in the same direction
                 foundNewBorderPixel = true;
                 break;
             }
         }
         // only black pixels surround this pixel
-        if (!foundNewBorderPixel) {
-            console.log("unstuck")
-            //check if begin pixel is a neighbor
-            if ((start.x == current.x || start.x == current.x + 1 || start.x == current.x - 1) &&
-                (start.y == current.y || start.y == current.y + 1 || start.y == current.y - 1)) {
-                break;
-            }
-            else {
-                console.log("komt niet terug uit naast de beginpixel!")
-                break;
-            }
-        }
+				if (!foundNewBorderPixel) {
+						// console.log('stuck')
+						//pass
+				}
+          else {
+						if (start.x == current.x  && start.y == current.y ){
+              break;
+          }
+      	}
+
     }
     return border
 }
@@ -281,12 +279,13 @@ const getSquares = function (matrix) {
     copy = copyMatrix(matrix)
     squares = []
     while (locHighestWhite(copy) != null) { //hmmmn klopt dit wel?
+				console.log('new start' + 'x' + locHighestWhite(copy).x + 'y' + locHighestWhite(copy).y)
         squares.push(findBorderOrdered(copy, locHighestWhite(copy)))
     }
     return squares
 }
 
-    
+
 
 function getCorners(rand){
 
