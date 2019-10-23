@@ -169,26 +169,23 @@ const sortColorOut = function (matrix, locations, colorNumber) {
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
-const copyMatrix = function (matrix) {
-    copy = []
-    for (var i = 0; i < matrix.length; i++) {
-        line = []
-        for (var j = 0; j < matrix[i].length; j++) {
-            line.push(matrix[i][j])
-        }
-        copy.push(line)
+const copyMatrix = function (originalMatrix) {
+    var newArray = [];
+    for (var i = 0; i < originalMatrix.length; i++) {
+        newArray[i] = originalMatrix[i].slice();
     }
-    return copy
+    return newArray
 }
 
-const OnlyBorder = function (matrix) {
+const onlyBorder = function (matrix) {
     allwhite = listOfWhite(matrix)
-    onlyBorder = copyMatrix(matrix)
+    var onlyBorder = copyMatrix(matrix)
     for (w of allwhite) {
         //geen deel vd rand ==> wordt die nul
         if (!(hasNeighbors(matrix, w, 1) && hasNeighbors(matrix, w, 0))) {
-            onlyBorder[w.y][w.x] == 0
+            onlyBorder[w.y][w.x] = 0
         }
+
     }
     return onlyBorder
 }
@@ -210,16 +207,17 @@ const hasNeighbors = function (matrix, loc, color) { //inside matrix & not loc &
 }
 
 
-const findBorderOrdered = function (matrix, start){
+const findBorderOrdered = function (matrix, start) {
+    borderMatrix = onlyBorder(matrix)
     // check if pixel on current + angle*value is white and in screen
 	function checkNeighbor(current, ang){
-		var neighbor = matrix[current.y + ang.y]
+		var neighbor = borderMatrix[current.y + ang.y]
         if (typeof neighbor === 'undefined'){
 			return false
 		}
 		neighbor = neighbor[current.x + ang.x]
 		if (typeof neighbor === 'undefined'){
-			return false
+			return             
         }
         return neighbor == 1
     }
@@ -239,8 +237,8 @@ const findBorderOrdered = function (matrix, start){
     while (true) {
         var foundNewBorderPixel = false;
         // Also check previous angles
-        for (var add = -2; add < 5; add++) { //vanaf -3 al????
-            //45� kloksgewijs: angleIndex (huidige index) + add
+        for (var add = -2; add < 3; add++) { //vanaf -3 al????
+            //45graden kloksgewijs: angleIndex (huidige index) + add
             var angle = angles[(angleIndex + add + 8) % 8]
             // check in the direction of the angle if your neighbour is white
             if (checkNeighbor(current, angle)) {
@@ -252,7 +250,7 @@ const findBorderOrdered = function (matrix, start){
                     y: current.y
                 });
                 //remove it from the matrix (make it black)
-                matrix[current.y][current.x] = 0
+                borderMatrix[current.y][current.x] = 0
                 //set the new direction to the current angle
                 angleIndex = (angleIndex + add + 8) % 8
                 //continue searching in the same direction
@@ -261,26 +259,30 @@ const findBorderOrdered = function (matrix, start){
             }
         }
         // only black pixels surround this pixel
-				if (!foundNewBorderPixel) {
-						// console.log('stuck')
-						//pass
-				}
-          else {
-						if (start.x == current.x  && start.y == current.y ){
-              break;
-          }
-      	}
+        if (!foundNewBorderPixel) {
+            console.log("unstuck")
+            //check if begin pixel is a neighbor
+            if ((start.x == current.x || start.x == current.x + 1 || start.x == current.x - 1) &&
+                (start.y == current.y || start.y == current.y + 1 || start.y == current.y - 1)) {
+                break;
+            }
+            else {
+                console.log("komt niet terug uit naast de beginpixel!")
+                break;
+            }
+        }
 
     }
+    matrix = borderMatrix
+    console.log(matrix)
     return border
 }
 
 const getSquares = function (matrix) {
-    copy = copyMatrix(matrix)
     squares = []
-    while (locHighestWhite(copy) != null) { //hmmmn klopt dit wel?
-				console.log('new start' + 'x' + locHighestWhite(copy).x + 'y' + locHighestWhite(copy).y)
-        squares.push(findBorderOrdered(copy, locHighestWhite(copy)))
+    while (locHighestWhite(matrix) != null) { //hmmmn klopt dit wel?
+        squares.push(findBorderOrdered(matrix, locHighestWhite(matrix)))
+        console.log(matrix)
     }
     return squares
 }
