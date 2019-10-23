@@ -192,14 +192,14 @@ const onlyBorder = function (matrix) {
 
 
 const hasNeighbors = function (matrix, loc, color) { //inside matrix & not loc & right color
-    for (let j = loc.y - 1; j <= loc.y + 1; j++) {
-        if (j >= 0 && j < matrix.length && j != loc.y && color == matrix[j][loc.x]) { //left & right
+    for (let j = loc.y - 1; j <= loc.y + 1; j+= 2) {
+        if (j >= 0 && j < matrix.length && color == matrix[j][loc.x]) { //left & right
             return true
         }
 
     }
-    for (let i = loc.x - 1; i <= loc.x + 1; i++) {
-        if (i >= 0 && i < matrix[0].length && i != loc.x && color == matrix[loc.y][i]) { //up & down
+    for (let i = loc.x - 1; i <= loc.x + 1; i+= 2) {
+        if (i >= 0 && i < matrix[0].length && color == matrix[loc.y][i]) { //up & down
             return true
         }
     }
@@ -208,7 +208,7 @@ const hasNeighbors = function (matrix, loc, color) { //inside matrix & not loc &
 
 
 const findBorderOrdered = function (matrix, start) {
-    borderMatrix = onlyBorder(matrix)
+
     // check if pixel on current + angle*value is white and in screen
 	function checkNeighbor(current, ang){
 		var neighbor = borderMatrix[current.y + ang.y]
@@ -217,7 +217,7 @@ const findBorderOrdered = function (matrix, start) {
 		}
 		neighbor = neighbor[current.x + ang.x]
 		if (typeof neighbor === 'undefined'){
-			return             
+			return
         }
         return neighbor == 1
     }
@@ -228,6 +228,8 @@ const findBorderOrdered = function (matrix, start) {
 		{x: 0, y: -1}, {x: 1, y: -1}
     ]
 
+	borderMatrix[start.y][start.x] = 0
+
 	var angleIndex = 0
     var current = {
 		x: start.x,
@@ -237,7 +239,7 @@ const findBorderOrdered = function (matrix, start) {
     while (true) {
         var foundNewBorderPixel = false;
         // Also check previous angles
-        for (var add = -2; add < 3; add++) { //vanaf -3 al????
+        for (var add = -2; add < 4; add++) { //vanaf -3 al????
             //45graden kloksgewijs: angleIndex (huidige index) + add
             var angle = angles[(angleIndex + add + 8) % 8]
             // check in the direction of the angle if your neighbour is white
@@ -260,29 +262,39 @@ const findBorderOrdered = function (matrix, start) {
         }
         // only black pixels surround this pixel
         if (!foundNewBorderPixel) {
-            console.log("unstuck")
             //check if begin pixel is a neighbor
             if ((start.x == current.x || start.x == current.x + 1 || start.x == current.x - 1) &&
                 (start.y == current.y || start.y == current.y + 1 || start.y == current.y - 1)) {
                 break;
             }
-            else {
-                console.log("komt niet terug uit naast de beginpixel!")
-                break;
-            }
+		        else {
+		            // we're stuck so we have to go back
+								// angle we came from
+								var angle = angles[(angleIndex + 4) % 8]
+								current.x += angle.x
+                current.y += angle.y
+                //add to the list
+                border.push({
+                    x: current.x,
+                    y: current.y
+                });
+		        }
         }
 
     }
     matrix = borderMatrix
-    console.log(matrix)
     return border
 }
 
 const getSquares = function (matrix) {
     squares = []
-    while (locHighestWhite(matrix) != null) { //hmmmn klopt dit wel?
-        squares.push(findBorderOrdered(matrix, locHighestWhite(matrix)))
-        console.log(matrix)
+		borderMatrix = onlyBorder(matrix)
+    while (locHighestWhite(borderMatrix) != null) { //hmmmn klopt dit wel?
+				var border = findBorderOrdered(borderMatrix, locHighestWhite(borderMatrix))
+				var corners = getCorners(border)
+				if (corners.length == 4){
+						squares.push(corners)
+				}
     }
     return squares
 }
