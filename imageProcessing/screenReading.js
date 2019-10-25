@@ -282,7 +282,6 @@ const findBorderOrdered = function (matrix, start) {
         }
 
     }
-    matrix = borderMatrix
     return border
 }
 
