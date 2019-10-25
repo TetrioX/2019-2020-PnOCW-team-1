@@ -12,20 +12,22 @@ const assert = require('assert')  // asserting pre-conditions
  * @note The used algorithm is based upon the CIE94 algorithm.
  * @see https://en.wikipedia.org/wiki/Color_difference
  */
-const colorDistance = function(color1, color2) {
+const colorDistance = function(color1) { // color2) {
 	color1 = colorNormalise(color1)
-	color2 = colorNormalise(color2)
+	// color2 = colorNormalise(color2)
 	
-	dr = Math.abs(color2[0] - color1[0])
-	dg = Math.abs(color2[1] - color1[1])
-	db = Math.abs(color2[2] - color1[2])
+	dr = color1[0] // Math.abs(color2[0] - color1[0])
+	dg = color1[1] // Math.abs(color2[1] - color1[1])
+	db = color1[2] // Math.abs(color2[2] - color1[2])
 	
 	// console.log(color1, " and ", color2)
 	// console.log(" -> ", dr, " ", dg, " ", db)
 	
-	if (dr >= dg && dr >= db && dr > 50) return 0
-	else if (dg >= dr && dg >= db && dg > 50) return 1
-	else if (db >= dr && db >= dg && db > 50) return 2
+	difference = 20
+	
+	if (dr >= difference + dg && dr >= difference + db && dr > 70) return 0
+	else if (dg >= difference + dr && dg >= difference / 2 + db && dg > 70) return 1
+	else if (db >= difference + dr && db >= difference / 2 + dg && db > 70) return 2
 	else return 3
 }
 

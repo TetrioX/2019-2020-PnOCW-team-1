@@ -152,12 +152,12 @@ async function doImgDiff(imgs, demand_same_size=false) {
     let tempResult = [] // Buffer list on which our output buffers will be printed
 	let to_file_promises = []
     let output_meta = { raw: { width: new_size.width, height: new_size.height, channels: 3 } }
-    for(let i = 0; i < imgs_buffs.length - 1; ++i) {
+    for(let i = 0; i < imgs_buffs.length; ++i) {
 		tempResult.push( Buffer.alloc(new_size.width * new_size.height * 3))
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
         assert(imgs_buffs[i].length == new_size.width * new_size.height * channel)
-		imgread.imageReading(imgs_buffs[0], imgs_buffs[i+1], tempResult[i], channel)
+		imgread.imageReading(imgs_buffs[i], tempResult[i], channel)
 		assert(tempResult[i].length == new_size.width * new_size.height * 3)
 		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can

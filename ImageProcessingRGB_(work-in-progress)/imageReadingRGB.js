@@ -23,19 +23,18 @@ precision = 30 // reference number to determine difference precision
  * 
  * @see https://nodejs.org/api/buffer.html
  */
-const imageReading = function(buff1, buff2, buff3, channel) {
-	assert(buff1.length == buff2.length)
+const imageReading = function(buff1, buff3, channel) {
     assert(buff1.length == channel * buff3.length / 3)
 
 	for(let i = 0; i < buff1.length; i += channel) {
 		rgb1 = new Array(buff1[i], buff1[i+1], buff1[i+2])
-		rgb2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
+		// rgb2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
 		
-		k = clrdis.colorDistance(rgb1, rgb2)
+		k = clrdis.colorDistance(rgb1)
 		
 		// console.log(i," ", k)
 		
-		if (k < 3) buff3[i / channel * 3 + k] = 240
+		if (k < 3) buff3[i / channel * 3 + k] = 255
     }
 }
 
