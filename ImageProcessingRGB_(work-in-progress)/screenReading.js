@@ -9,25 +9,22 @@ const assert = require('assert')  // asserting pre-conditions
 
 
 const screenReading = function(buff1, buff2, buff3, dimensions) {
-	for(let k = 0; k < buff1.length; k += 3) {
-		rgb1 = new Array(buff1[k], buff1[k+1], buff1[k+2])
-		rgb2 = new Array(buff2[k], buff2[k+1], buff2[k+2])
-		
-		v1 = rgb(rgb1)
-		v2 = rgb(rgb2)
+	for(let k = 0; k < buff1.length; k++) {
+		v1 = rgb(buff1[k])
+		v2 = rgb(buff2[k])
 		
 		result = (Math.abs(v1 - v2) * v1 * v2 * (3 * v1 + v2) / 2) % 8 // Possible values: 1 to 7 without 4 
-		// console.log(val1, " + ", val2, " = ", result)
+		// console.log(v1, " + ", v2, " = ", result)
 		
-		buff3[k/3] = 255 / (7) * result
+		buff3[k] = 255 / (7) * result
     }
-	console.log(buff3)
 }
 
 const rgb = function(rgbCol) {
-	if (rgbCol[0] > 0) return 1
-	else if (rgbCol[1] > 0) return 2
-	else if (rgbCol[2] > 0) return 3
+	precision = 255/3 + 5
+	if (rgbCol > precision * 2) return 3
+	else if (rgbCol > precision) return 2
+	else if (rgbCol > 0) return 1
 	else return 0
 }
 

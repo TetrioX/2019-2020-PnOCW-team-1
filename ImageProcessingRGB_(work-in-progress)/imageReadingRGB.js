@@ -23,33 +23,18 @@ precision = 30 // reference number to determine difference precision
  * 
  * @see https://nodejs.org/api/buffer.html
  */
-const imageReading = function(buff1, buff3, channel) {
-    assert(buff1.length == channel * buff3.length / 3)
+const imageReading = function(buff, toBuff, channel) {
+    assert(buff.length == channel * toBuff.length)
 
-	for(let i = 0; i < buff1.length; i += channel) {
-		rgb1 = new Array(buff1[i], buff1[i+1], buff1[i+2])
-		// rgb2 = new Array(buff2[i], buff2[i+1], buff2[i+2])
+	for(let i = 0; i < buff.length; i += channel) {
+		rgb = new Array(buff[i], buff[i+1], buff[i+2])
 		
-		k = clrdis.colorDistance(rgb1)
+		k = clrdis.colorDistance(rgb)
 		
 		// console.log(i," ", k)
 		
-		if (k < 3) buff3[i / channel * 3 + k] = 255
+		toBuff[i / channel] = 255 / 3 * k
     }
-}
-
-
-/**
- * Round the given number to either 0 or 100 depending on its position to precision.
- *	
- * @param {float} number Input number
- * @param {int} precision Reference number
- *
- */ 
-function precisionRound(number, precision) {
-	// return Math.round(number / precision) * precision
-	if (number > precision) return 100
-	else return 0
 }
 
 // To make the function accesible in other .js files

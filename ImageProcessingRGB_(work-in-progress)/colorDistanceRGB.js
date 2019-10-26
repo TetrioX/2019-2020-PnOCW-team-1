@@ -23,13 +23,13 @@ const colorDistance = function(color1) { // color2) {
 	// console.log(color1, " and ", color2)
 	// console.log(" -> ", dr, " ", dg, " ", db)
 	
-	difference = 20
-	inferum = 70
+	difference = 30
+	inferum = 60
 	
-	if (dr >= difference + dg && dr >= difference + db && dr > inferum) return 0
-	else if (dg >= difference + dr && dg >= difference / 2 + db && dg > inferum) return 1
-	else if (db >= difference + dr && db >= difference / 2 + dg && db > inferum) return 2
-	else return 3
+	if (dr >= difference + dg && dr >= difference + db && dr > inferum) return 1
+	else if (dg >= difference + dr && dg >= difference / 2 + db && dg > inferum) return 2
+	else if (db >= difference + dr && db >= difference / 2 + dg && db > inferum) return 3
+	else return 0
 }
 
 const colorNormalise = function(color) {
