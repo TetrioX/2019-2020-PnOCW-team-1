@@ -2,7 +2,7 @@
 const assert = require('assert')  // asserting pre-conditions
 
 /**
- * Calculate the difference between two colors.
+ * Calculate the raw pixel color.
  *
  * @param {Array} color1 Input color 1
  * @param {Array} color2 Input color 2
@@ -12,7 +12,7 @@ const assert = require('assert')  // asserting pre-conditions
  * @note The used algorithm is based upon the CIE94 algorithm.
  * @see https://en.wikipedia.org/wiki/Color_difference
  */
-const colorDistance = function(color) { // color2) {
+const pixelColor = function(color) { // color2) {
 	color = colorNormalise(color)
 	
 	dr = color[0] 
@@ -40,6 +40,6 @@ const colorNormalise = function(color) {
 
 // To make the function accesible in other .js files
 module.exports = {
-	colorDistance: colorDistance,
+	pixelColor: pixelColor,
 };
 	
