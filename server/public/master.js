@@ -76,7 +76,7 @@ socket.on('removeSlave', function (data) {
 
 //Foto nemen
 
-var useCameraButton =document.getElementById('useCamBtn');
+var useCameraButton = document.getElementById('useCamBtn');
 useCameraButton.addEventListener('click',function(){
 	document.getElementById("cameraDiv").style.display = "";
 });
