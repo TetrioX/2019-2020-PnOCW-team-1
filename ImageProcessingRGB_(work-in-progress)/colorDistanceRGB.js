@@ -12,23 +12,21 @@ const assert = require('assert')  // asserting pre-conditions
  * @note The used algorithm is based upon the CIE94 algorithm.
  * @see https://en.wikipedia.org/wiki/Color_difference
  */
-const colorDistance = function(color1) { // color2) {
-	color1 = colorNormalise(color1)
-	// color2 = colorNormalise(color2)
+const colorDistance = function(color) { // color2) {
+	color = colorNormalise(color)
 	
-	dr = color1[0] // Math.abs(color2[0] - color1[0])
-	dg = color1[1] // Math.abs(color2[1] - color1[1])
-	db = color1[2] // Math.abs(color2[2] - color1[2])
+	dr = color[0] 
+	dg = color[1] 
+	db = color[2] 
 	
-	// console.log(color1, " and ", color2)
-	// console.log(" -> ", dr, " ", dg, " ", db)
+	inferum = 40
 	
-	difference = 30
-	inferum = 60
-	
-	if (dr >= difference + dg && dr >= difference + db && dr > inferum) return 1
-	else if (dg >= difference + dr && dg >= difference / 2 + db && dg > inferum) return 2
-	else if (db >= difference + dr && db >= difference / 2 + dg && db > inferum) return 3
+	if (dr > inferum && dr / 2 >= dg && dr / 2 >= db) return 1
+	else if (dg > inferum && dg / 2 >= dr && dg / 2 >= db) return 2
+	else if (db > inferum && db / 2 >= dg && db / 2 >= dr) return 3
+	else if (dr > inferum && dg > inferum && (dr / 2 <= dg && dr / 2 >= db || dg / 2 <= dr && dg / 2 >= db)) return 4
+	else if (dr > inferum && db > inferum && (dr / 2 <= db && dr / 2 >= dg || db / 2 <= dr && db / 2 >= dg)) return 5
+	else if (dg > inferum && db > inferum && (dg / 2 <= db && dg / 2 >= dr || db / 2 <= dg && db / 2 >= dr)) return 6
 	else return 0
 }
 
@@ -39,7 +37,6 @@ const colorNormalise = function(color) {
 	
 	return new Array(color[0] - subst, color[1] - subst, color[2] - subst)
 }
-
 
 // To make the function accesible in other .js files
 module.exports = {

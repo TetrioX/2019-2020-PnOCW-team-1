@@ -78,6 +78,7 @@ socket.on('removeSlave', function (data) {
 
 var useCameraButton = document.getElementById('useCamBtn');
 useCameraButton.addEventListener('click',function(){
+	console.log("Hoi")
 	document.getElementById("cameraDiv").style.display = "";
 });
 
@@ -118,20 +119,17 @@ function sleep(ms){
 socket.on('takePictures', async function(data, callback){
 	for (var key in data.slaves) {
 		if (key) socket.emit('changeBackgroundColor', {
-						colorValue: '#ffffff',
-						id: key
+					colorValue: '#ffffff',
+					id: key
 					});
 		
-		await sleep(1000);
-		// console.log(key, " ", data.slaves[key])
-		takePicture({destination: data.slaves[key]});
-		await sleep(100)
 		
-		if (key) socket.emit('changeBackgroundColor', {
-						colorValue: '#000000',
-						id: key
-					});
+		
 	}
+	await sleep(1000);
+		// console.log(key, " ", data.slaves[key])
+	takePicture({destination: data.slaves[key]});
+	await sleep(100)
 	
 	callback(true);
 });
