@@ -73,11 +73,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
 			slaveIo.emit('changeBackgroundColor', data);
 		}
 
+    socket.on('changeBackgroundOfAllSlaves', function(data){
+      for 
+    if(data.id) slaveIo.to('${data.id}').emit
+    })
+
 	});
 
     socket.on('upload-image', function (data) {
 		if (data.destination) fs.writeFileSync(`./Pictures/slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
-		else fs.writeFileSync(`./Pictures/image-${imageIndex}.png`, decodeBase64Image(data.buffer).data); 
+		else fs.writeFileSync(`./Pictures/image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
         masterIo.emit('imageSaved')
         imageIndex += 1;
     });
@@ -114,3 +119,41 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
     deleteSlave(socket)
   })
 });
+
+
+
+//creating grids with a number of columns and a number of rows
+function createColorGrid(nbrows, nbcolumns){
+  var colorGrid =[];
+  for (var i = 0; i<nbrows, i++){
+    matrix[i] = [];
+    for (var j = 0; j<nbcolumns, j++)
+      matrix[i][j]= allColorCombinations[allColorCombinations.length-1];
+      allColorCombinations.pop();
+  return colorGrid;
+  }
+}
+
+// make a list of #pictures-taken colors( if you take 4
+//pictures the list will be 4 items long)
+
+
+//adjust this if you want to have more colorlist
+ var possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF";]
+const allColorCombinations = function getCombColors(nbOfpictures, list){
+  // end of recursion
+  if (nbOfpictures == 0){
+    return list
+  }
+  // create a list with color values
+  if (list === 'undefined'){
+    return getCombColors(n-1, possibleColors.slice())
+  }
+  // add all color values to each combination to the list once.
+  for (comb of list){
+    for (col of possibleColors){
+      comb.push(col)
+    }
+  }
+  return getCombColors(nbOfpictures-1, list)
+}
