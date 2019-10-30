@@ -23,7 +23,7 @@ var columnPicker =document.getElementById("columnPicker");
 var angle = 0;
 rowPicker.addEventListener('input', function(){
 	var numberOfRows = rowPicker.value
-})
+});;
 
 columnPicker.addEventListener('input', function(){
 	var numberOfColumns =columnPicker.value
@@ -143,6 +143,7 @@ socket.on('takePictures', async function(data, callback){
 	
 	callback(true);
 });
+
 
 // Starts the calibration process and shows the result
 calibrateButton.addEventListener('click',function(){
