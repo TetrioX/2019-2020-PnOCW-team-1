@@ -16,6 +16,11 @@ var io = socket(server);
 var slaves = {}
 var number = 0
 
+//adjust this if you want to have more colorlist
+ var possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
+// TODO: should be created when the calibration button is pressed
+var allColorCombinations = getColorComb(4)
+
 function deleteSlave(socket) {
    delete slaves[socket.id]
     masterIo.emit("removeSlave", socket.id)
@@ -52,13 +57,13 @@ function decodeBase64Image(dataString)
 function getColorComb(n){
   //create combinations of all colors (n=1)
   var combs = []
-  for (var col of colors){
+  for (var col of possibleColors){
     combs.push([col])
   }
   for (var i=1; i<n; i++) {
     var newCombs = []
     for (var com of combs){
-      for (col of colors){
+      for (col of possibleColors){
         // copy
         var ccom = com.slice()
         ccom.push(col)
@@ -193,28 +198,4 @@ function createColorGrid(nbrows, nbcolumns){
       allColorCombinations.pop();
   return colorGrid;
   }
-}
-
-// make a list of #pictures-taken colors( if you take 4
-//pictures the list will be 4 items long)
-
-
-//adjust this if you want to have more colorlist
- var possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
-const allColorCombinations = function getCombColors(nbOfpictures, list){
-  // end of recursion
-  if (nbOfpictures == 0){
-    return list
-  }
-  // create a list with color values
-  if (list === 'undefined'){
-    return getCombColors(n-1, possibleColors.slice())
-  }
-  // add all color values to each combination to the list once.
-  for (comb of list){
-    for (col of possibleColors){
-      comb.push(col)
-    }
-  }
-  return getCombColors(nbOfpictures-1, list)
 }

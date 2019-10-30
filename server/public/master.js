@@ -157,7 +157,7 @@ socket.on('takePictures', async function(data, callback){
 // Starts the calibration process and shows the result
 calibrateButton.addEventListener('click',function(){
 	socket.emit('changeBackgroundOfAllSlaves',{
-		numberOfRows:numberOfRows
+		numberOfRows:numberOfRows,
 		numberOfColumns:numberOfColumns
 	});
 });
