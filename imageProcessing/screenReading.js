@@ -7,6 +7,8 @@
 
 const assert = require('assert')  // asserting pre-conditions
 const vctcalc = require('./vectorCalculation.js')
+// number of colors used
+const nbOfColors = 6;
 
 const screenReading = function(buffer, dimensions) {
 
@@ -53,6 +55,18 @@ const createMatrix = function(buffer, dimensions) {
 		matrix.push(bufferToArray(temp))
 	}
 	return matrix
+}
+
+function joinMatrixes(matrixes){
+	var result = matrixes[0]
+	for (var j = 0; j < result.length; j++){
+		for (var i = 0; i < result[0].length; i++){
+			for (var m = 1; m < matrixes.length; m++){
+				result[j][i] += matrixes[m][j][i] * (nbOfColors + 1) ** m
+			}
+		}
+	}
+	return result
 }
 
 /**
