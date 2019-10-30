@@ -2,6 +2,8 @@ var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
+// load config file
+const config = require('./config.json');
 
 //App setup
 var app = express();
@@ -13,6 +15,11 @@ var io = socket(server);
 
 var slaves = {}
 var number = 0
+
+//adjust this if you want to have more colorlist
+ var possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
+// TODO: should be created when the calibration button is pressed
+var allColorCombinations = getColorComb(4)
 
 function deleteSlave(socket) {
    delete slaves[socket.id]
@@ -46,6 +53,53 @@ function decodeBase64Image(dataString)
     return response;
 }
 
+// generates a list of color combinations
+function getColorComb(n){
+  //create combinations of all colors (n=1)
+  var combs = []
+  for (var col of possibleColors){
+    combs.push([col])
+  }
+  for (var i=1; i<n; i++) {
+    var newCombs = []
+    for (var com of combs){
+      for (col of possibleColors){
+        // copy
+        var ccom = com.slice()
+        ccom.push(col)
+        newCombs.push(ccom)
+      }
+    }
+    combs = newCombs
+  }
+  // remove combinations with only the same value
+  // f.e. ['blue', 'blue', 'blue']
+  var remIndex = [] // list of indexes to remove
+  for (var i in combs){
+    // set the prevCol to the first color
+    var prevCol = combs[i][0]
+    var diffValue = false
+    // check if each color equals the prev color
+    for (var col of combs[i]){
+      if (prevCol != col){
+        // there is a color difference
+        diffValue = true
+        break
+      }
+      prevCol = col
+    }
+    if (diffValue == false){
+      remIndex.push(Number(i))
+    }
+  }
+  // we iterate backwards so we don't affect the indexes of the values that
+  // we still have to remove.
+  for (var i = remIndex.length - 1; i >= 0; i-= 1){
+    // remove value on index i
+    combs.splice(remIndex[i], 1)
+  }
+  return combs
+}
 
 //Static files
 
@@ -58,6 +112,16 @@ app.get('', function(req,res){
 })
 
 app.use('/static', express.static(__dirname +  '/public'))
+
+io.of('/master').use(function(socket, next) {
+  var passwd = socket.handshake.query.passwd
+  if (passwd == config.masterPasswd){
+    next();
+  } else{
+     next(new Error("not authorized"));
+  }
+
+});
 
 var masterIo = io.of('/master').on('connect', function(socket){
     socket.broadcast.emit('registerMaster')
@@ -134,28 +198,4 @@ function createColorGrid(nbrows, nbcolumns){
       allColorCombinations.pop();
   return colorGrid;
   }
-}
-
-// make a list of #pictures-taken colors( if you take 4
-//pictures the list will be 4 items long)
-
-
-//adjust this if you want to have more colorlist
- var possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
-const allColorCombinations = function getCombColors(nbOfpictures, list){
-  // end of recursion
-  if (nbOfpictures == 0){
-    return list
-  }
-  // create a list with color values
-  if (list === 'undefined'){
-    return getCombColors(n-1, possibleColors.slice())
-  }
-  // add all color values to each combination to the list once.
-  for (comb of list){
-    for (col of possibleColors){
-      comb.push(col)
-    }
-  }
-  return getCombColors(nbOfpictures-1, list)
 }
