@@ -192,10 +192,11 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 function createColorGrid(nbrows, nbcolumns){
   var colorGrid =[];
   for (var i = 0; i<nbrows; i++){
-    matrix[i] = [];
-    for (var j = 0; j<nbcolumns; j++)
-      matrix[i][j]= allColorCombinations[allColorCombinations.length-1];
-      allColorCombinations.pop();
-  return colorGrid;
+    colorGrid.push([]);
+    for (var j = 0; j<nbcolumns; j++){
+      colorGrid[i].push(allColorCombinations.pop());
+      
+    }
   }
+  return colorGrid;
 }
