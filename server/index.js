@@ -135,8 +135,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		else {
 			console.log(data)
 			slaveIo.emit('changeBackgroundColor', data);
-		};
-
+		  };
+  	});
+    
     socket.on('changeBackgroundOfAllSlaves', function(data){
       console.log("message recieved, should make grid")
       const slavesID = Object.keys(slaves);
@@ -144,8 +145,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
         slaveIo.to(`${slavesID[i]}`).emit('changeBackgroundOfAllSlaves',createColorGrid(data.numberOfRows,data.numberOfColumns));
       }
     });
-
-	});
 
     socket.on('upload-image', function (data) {
 		if (data.destination) fs.writeFileSync(`./Pictures/slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)

@@ -30,17 +30,18 @@ var canvas = document.getElementById("canvas");
 var makeGridButton = document.getElementById("calibrateButton");
 var rowPicker =document.getElementById("rowPicker");
 var columnPicker =document.getElementById("columnPicker");
-var numberOfRows = rowPicker;
-var numberOfColumns =columnPicker;
+
+var numberOfRows = rowPicker.valueAsNumber;
+var numberOfColumns =columnPicker.valueAsNumber;
 
 console.log(numberOfColumns);
 var angle = 0;
 rowPicker.addEventListener('input', function(){
-	var numberOfRows = rowPicker
+	numberOfRows = rowPicker.valueAsNumber
 });
 
 columnPicker.addEventListener('input', function(){
-	var numberOfColumns =columnPicker
+	numberOfColumns =columnPicker.valueAsNumber
 })
 
 colorPicker.addEventListener('input', function () {
