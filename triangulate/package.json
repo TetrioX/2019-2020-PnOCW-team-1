@@ -1,0 +1,8 @@
+{
+  "name": "delaunay-triangulation",
+  "main": "delaunay.js",
+  "license": "MIT",
+  "devDependencies": {
+    "delaunay": "^0.4.0"
+  }
+}
