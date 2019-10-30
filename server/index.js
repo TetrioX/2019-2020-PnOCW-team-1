@@ -2,6 +2,8 @@ var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
+// load config file
+const config = require('./config.json');
 
 //App setup
 var app = express();
@@ -59,6 +61,16 @@ app.get('', function(req,res){
 
 app.use('/static', express.static(__dirname +  '/public'))
 
+io.of('/master').use(function(socket, next) {
+  var passwd = socket.handshake.query.passwd
+  if (passwd == config.masterPasswd){
+    next();
+  } else{
+     next(new Error("not authorized"));
+  }
+
+});
+
 var masterIo = io.of('/master').on('connect', function(socket){
     socket.broadcast.emit('registerMaster')
     var imageIndex = 0;
@@ -77,7 +89,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     socket.on('upload-image', function (data) {
 		if (data.destination) fs.writeFileSync(`./Pictures/slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
-		else fs.writeFileSync(`./Pictures/image-${imageIndex}.png`, decodeBase64Image(data.buffer).data); 
+		else fs.writeFileSync(`./Pictures/image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
         masterIo.emit('imageSaved')
         imageIndex += 1;
     });

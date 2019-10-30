@@ -1,5 +1,15 @@
+var passwd = prompt("master password");
 // Make Connection
-var socket = io('/master');
+var socket = io('/master', { query: "passwd="+passwd });
+// if authentication failed notify the user and become a slave
+console.log(socket)
+// if not connected in 1 second become a slave
+setTimeout(function() {
+	if (socket.connected == false){
+		alert("authentication failed")
+		window.location.href="/";
+	}
+}, 1000);
 
 //listen for events from server
 socket.on('registerMaster', function (data) {
@@ -121,18 +131,18 @@ socket.on('takePictures', async function(data, callback){
 						colorValue: '#ffffff',
 						id: key
 					});
-		
+
 		await sleep(1000);
 		// console.log(key, " ", data.slaves[key])
 		takePicture({destination: data.slaves[key]});
 		await sleep(100)
-		
+
 		if (key) socket.emit('changeBackgroundColor', {
 						colorValue: '#000000',
 						id: key
 					});
 	}
-	
+
 	callback(true);
 });
 

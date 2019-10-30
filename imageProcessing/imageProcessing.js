@@ -35,22 +35,24 @@ const imgread = require('./imageReading.js');
 
 let verbose = argv.verbose;
 
-if(argv._.length < 2) {
-    console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
-    console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
-    console.log('If --same-size is present then all inputs must have the same size.')
-} else {
-    // Note: we are calling an 'async' function, so we need to catch errors by
-    // attaching an error handler to the promise:
-    let result = doImgDiff(argv._, argv['same-size']).catch(console.error)
-	// The following line will not print first, but almost... This is what you should
-    // understand if you have studied how call backs, promises and async/await work.
-    if(verbose > 1) console.log('0. result =', result)
-    // Alternatively we pass in buffers of image data directly:
-    //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
-    //doImgDiff(imgs, argv['same-size']).catch(console.error)
+// only run when this is the main program, not when it is a dependency
+if (require.main === module) {
+  if(argv._.length < 2) {
+      console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
+      console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
+      console.log('If --same-size is present then all inputs must have the same size.')
+  } else {
+      // Note: we are calling an 'async' function, so we need to catch errors by
+      // attaching an error handler to the promise:
+      let result = doImgDiff(argv._, argv['same-size']).catch(console.error)
+  	// The following line will not print first, but almost... This is what you should
+      // understand if you have studied how call backs, promises and async/await work.
+      if(verbose > 1) console.log('0. result =', result)
+      // Alternatively we pass in buffers of image data directly:
+      //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
+      //doImgDiff(imgs, argv['same-size']).catch(console.error)
+  }
 }
-
 
 
 /**
