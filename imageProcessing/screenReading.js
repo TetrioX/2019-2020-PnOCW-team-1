@@ -80,6 +80,7 @@ const locHighestWhite = function (matrix) {
             }
         }
     }
+    return null
 }
 
 const locLowestWhite = function (matrix) {
@@ -165,230 +166,277 @@ const sortColorOut = function (matrix, locations, colorNumber) {
     return temp4
 }
 
-const findBorder = function (matrix) {
-    border = []
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+
+const copyMatrix = function (originalMatrix) {
+    var newArray = [];
+    for (var i = 0; i < originalMatrix.length; i++) {
+        newArray[i] = originalMatrix[i].slice();
+    }
+    return newArray
+}
+
+const onlyBorder = function (matrix) {
     allwhite = listOfWhite(matrix)
+    var onlyBorder = copyMatrix(matrix)
     for (w of allwhite) {
-        console.log("1",w);
-        if (sortColorOut(matrix, Neighbors(matrix, w), 1).length > 0 &&
-            sortColorOut(matrix, Neighbors(matrix, w), 0).length > 0) {
-            console.log("2",w);
-            border.push({ x: w.x, y: w.y })
+        //geen deel vd rand ==> wordt die nul
+        if (!(hasNeighbors(matrix, w, 1) && hasNeighbors(matrix, w, 0))) {
+            onlyBorder[w.y][w.x] = 0
         }
+
+    }
+    return onlyBorder
+}
+
+
+const hasNeighbors = function (matrix, loc, color) { //inside matrix & not loc & right color
+    for (let j = loc.y - 1; j <= loc.y + 1; j+= 2) {
+        if (j >= 0 && j < matrix.length && color == matrix[j][loc.x]) { //left & right
+            return true
+        }
+
+    }
+    for (let i = loc.x - 1; i <= loc.x + 1; i+= 2) {
+        if (i >= 0 && i < matrix[0].length && color == matrix[loc.y][i]) { //up & down
+            return true
+        }
+    }
+    return false
+}
+
+
+const findBorderOrdered = function (matrix, start) {
+
+    // check if pixel on current + angle*value is white and in screen
+	function checkNeighbor(current, ang){
+		var neighbor = borderMatrix[current.y + ang.y]
+        if (typeof neighbor === 'undefined'){
+			return false
+		}
+		neighbor = neighbor[current.x + ang.x]
+		if (typeof neighbor === 'undefined'){
+			return
+        }
+        return neighbor == 1
+    }
+    //possible angles to go to
+	var angles = [
+		{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
+		{x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1},
+		{x: 0, y: -1}, {x: 1, y: -1}
+    ]
+
+	borderMatrix[start.y][start.x] = 0
+
+	var angleIndex = 0
+    var current = {
+		x: start.x,
+		y: start.y
+    };
+	border = []
+    while (true) {
+        var foundNewBorderPixel = false;
+        // Also check previous angles
+        for (var add = -2; add < 4; add++) { //vanaf -3 al????
+            //45graden kloksgewijs: angleIndex (huidige index) + add
+            var angle = angles[(angleIndex + add + 8) % 8]
+            // check in the direction of the angle if your neighbour is white
+            if (checkNeighbor(current, angle)) {
+                current.x += angle.x
+                current.y += angle.y
+                //add to the list
+                border.push({
+                    x: current.x,
+                    y: current.y
+                });
+                //remove it from the matrix (make it black)
+                borderMatrix[current.y][current.x] = 0
+                //set the new direction to the current angle
+                angleIndex = (angleIndex + add + 8) % 8
+                //continue searching in the same direction
+                foundNewBorderPixel = true;
+                break;
+            }
+        }
+        // only black pixels surround this pixel
+        if (!foundNewBorderPixel) {
+            //check if begin pixel is a neighbor
+            if ((start.x == current.x || start.x == current.x + 1 || start.x == current.x - 1) &&
+                (start.y == current.y || start.y == current.y + 1 || start.y == current.y - 1)) {
+                break;
+            }
+		        else {
+		            // we're stuck so we have to go back
+								// angle we came from
+								var angle = angles[(angleIndex + 4) % 8]
+								current.x += angle.x
+                current.y += angle.y
+                //add to the list
+                border.push({
+                    x: current.x,
+                    y: current.y
+                });
+		        }
+        }
+
     }
     return border
 }
 
-	const findBorderOrdered = function (matrix, start){
-        // check if pixel on current + angle*value is white and in screen
-		function checkNeighbor(current, ang, value){
-			var neighbor = matrix[current.y + value*(ang.y)]
-			if (typeof neighbor === 'undefined'){
-				return false
-			}
-			neighbor = neighbor[current.x + value*(ang.x)]
-			if (typeof neighbor === 'undefined'){
-				return false
-			}
-			return neighbor == 1
-        }
-
-		var angles = [
-			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
-			{x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1},
-			{x: 0, y: -1}, {x: 1, y: -1}
-		]
-
-        //function to check over longer distance in case of gaps
-		function checkAngle(current, angle, distance, border){
-			for (var currDistance = 1; currDistance <= distance; currDistance++){
-				if (checkNeighbor(current, angle, currDistance)){
-					return true;
+const getSquares = function (matrix) {
+    squares = []
+		borderMatrix = onlyBorder(matrix)
+    while (locHighestWhite(borderMatrix) != null) { //hmmmn klopt dit wel?
+				var border = findBorderOrdered(borderMatrix, locHighestWhite(borderMatrix))
+				var corners = getCorners(border)
+				if (corners.length == 4){
+						squares.push(corners)
 				}
-			}
-			return false;
-		}
-		var angleIndex = 0
-        var current = {
-			x: start.x,
-			y: start.y
-		};
-		border = []
-		while(true){
-			var foundNewBorderPixel = false;
-			// Also check previous angles
-            for (var prev = -2; prev < 1; prev++){
-                //stap - prev
-                var angle = angles[(angleIndex + prev + 8) % 8]
-                //check further angles to close gaps (gaps of max 1 pixels)
-				if (checkAngle(current, angle, 2)){
-					current.x += angle.x
-					current.y += angle.y
-					border.push({
-						x: current.x,
-						y: current.y
-					});
-          angleIndex == (angleIndex + prev + 8) % 8
-          //continue searching in the same direction
-					foundNewBorderPixel = true;
-					break;
-				}
-            }
-            // only black pixels folowing this angle
-            if (!foundNewBorderPixel) {
-                //switch angle
-                angleIndex += 1;
-                //stop if 360
-								if (angleIndex == 9){
-									break;
-                }
-            //Stop if back in start position
-			} else if (current.x == start.x && current.y == start.y){
-				break;
-			}
-		}
+    }
+    return squares
+}
 
-		return border
+
+
+function getCorners(rand){
+
+	if (rand.length < 50){
+	return []
 	}
 
-	function getCorners(rand){
-
-	  if (rand.length < 50){
-	    return []
-	  }
-
-	  function getRand(i){
-	    if (i<0){
-	      i += rand.length;
-	    }
-	    return rand[i%rand.length];
-	  }
-
-	  function getSqrDist(a, b){
-	    return (a.x - b.x)**2 + (a.y - b.y)**2;
-	  }
-
-	  function getCornerWithMinimumAngle(angles){
-	    // Retuns index of minimum of angles
-	    var indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
-	    // Set values next to minimum angle to infinity so that they don't show up next time.
-	    for (var v = -5; v <= 5; v++){
-	      angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
-	    }
-	    return getRand(indexOfMinAngle);
-	  }
-
-	  var angles = [];
-
-	  for (var i = 0; i < rand.length; i++){
-	    var avgAngle = 0;
-	    for (var j = 2; j <= 5; j++) {
-	      // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
-	        var aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
-	        var bSqrt = getSqrDist(getRand(i), getRand(i + j));
-	        var cSqrt = getSqrDist(getRand(i), getRand(i - j));
-	        var b = Math.sqrt(bSqrt);
-	        var c = Math.sqrt(cSqrt);
-
-	        // We don't need to do Math.acos() since if a < b then acos(a) > acos(b)
-	        // and we'll be comparing them relative to each other
-	        avgAngle += (bSqrt + cSqrt - aSqrt)/(2 * b * c);
-	    }
-	    // We don't have to devide the average since we'll only be comparing them
-	    // to each other
-
-	    angles.push(avgAngle);
-	  }
-
-	  var corners = []
-
-	  for (var c = 0; c < 4; c++){
-	    corners.push(getCornerWithMinimumAngle(angles));
-	  }
-	  return corners;
+	function getRand(i){
+	if (i<0){
+	    i += rand.length;
+	}
+	return rand[i%rand.length];
 	}
 
-	function getSquares(matrix){
+	function getSqrDist(a, b){
+	return (a.x - b.x)**2 + (a.y - b.y)**2;
+	}
 
-		// Calculates the difference between each end of the border on one row
-		// so this part can be skipped when looking for the beginning of
-		// the next square
-		function getBorderJumps(border){
-			// When border length is eq. to 1 or less the program might crash so
-			// we handle them here
-			if (border.length <= 1){
-				if (border.length == 1){
-					var jumps = {}
-					jumps[border[0].y][border[0].x] = 0;
-					return jumps
-				} else{
-					return {}
-				}
+	function getCornerWithMinimumAngle(angles){
+	// Retuns index of minimum of angles
+	var indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
+	// Set values next to minimum angle to infinity so that they don't show up next time.
+	for (var v = -5; v <= 5; v++){
+	    angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
+	}
+	return getRand(indexOfMinAngle);
+	}
+
+	var angles = [];
+
+	for (var i = 0; i < rand.length; i++){
+	var avgAngle = 0;
+	for (var j = 2; j <= 5; j++) {
+	    // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
+	    var aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
+	    var bSqrt = getSqrDist(getRand(i), getRand(i + j));
+	    var cSqrt = getSqrDist(getRand(i), getRand(i - j));
+	    var b = Math.sqrt(bSqrt);
+	    var c = Math.sqrt(cSqrt);
+
+	    // We don't need to do Math.acos() since if a < b then acos(a) > acos(b)
+	    // and we'll be comparing them relative to each other
+	    avgAngle += (bSqrt + cSqrt - aSqrt)/(2 * b * c);
+	}
+	// We don't have to devide the average since we'll only be comparing them
+	// to each other
+
+	angles.push(avgAngle);
+	}
+
+	var corners = []
+
+	for (var c = 0; c < 4; c++){
+	corners.push(getCornerWithMinimumAngle(angles));
+	}
+	return corners;
+}
+/*
+function getSquares(matrix){
+
+	// Calculates the difference between each end of the border on one row
+	// so this part can be skipped when looking for the beginning of
+	// the next square
+	function getBorderJumps(border){
+		// When border length is eq. to 1 or less the program might crash so
+		// we handle them here
+		if (border.length <= 1){
+			if (border.length == 1){
+				var jumps = {}
+				jumps[border[0].y][border[0].x] = 0;
+				return jumps
+			} else{
+				return {}
 			}
-			// jumps[y][x] is an integer with the size of the jump
-			// and y and x the start of the jump
-			var jumps = {};
-			var rightIndex = 0;
-			var leftIndex = border.length - 1;
-			var maxRight = border[rightIndex].x;
-			var minLeft = border[leftIndex].x
-			// border is stored clockwise and starts at the top
-			while (rightIndex <= leftIndex){
-				if (border[rightIndex].y > border[leftIndex].y){
-					while (border[rightIndex].y > border[leftIndex].y){
-						minLeft = Math.min(minLeft, border[leftIndex].x)
-						leftIndex -= 1;
-					}
-					// adds new value to jumps
-					jumps[border[leftIndex+1].y] = {};
-					jumps[border[leftIndex+1].y][minLeft] = maxRight - minLeft;
-					// reset minmax
-					var maxRight = border[rightIndex].x;
-					var minLeft = border[leftIndex].x;
-				} else{
-					maxRight = Math.max(maxRight, border[rightIndex].x)
-					rightIndex += 1;
-				}
-			}
-			// we skipped the last one so we add it now.
-			jumps[border[leftIndex].y] = {};
-			jumps[border[leftIndex].y][minLeft] = maxRight - minLeft;
-			return jumps
 		}
-
-		var squares = [];
+		// jumps[y][x] is an integer with the size of the jump
+		// and y and x the start of the jump
 		var jumps = {};
-		for (var j = 0; j < matrix.length; j++) {
-        for (var i = 0; i < matrix[0].length; i++) {
-            if (matrix[j][i] == 1) {
-								if (typeof jumps[j] === 'undefined' || typeof jumps[j][i] === 'undefined'){
-	                var border = findBorderOrdered(matrix, {x: i, y: j});
-									// console.log('border', border)
-									var corners = getCorners(border);
-									// This should be changed in the future to where jumps are added even if
-									// corners.length is not 4 but first findBorderOrdered should support
-									// figures with outwards angles
-									// console.log('corners', corners)
-									if (corners.length == 4){
-										squares.push(corners)
+		var rightIndex = 0;
+		var leftIndex = border.length - 1;
+		var maxRight = border[rightIndex].x;
+		var minLeft = border[leftIndex].x
+		// border is stored clockwise and starts at the top
+		while (rightIndex <= leftIndex){
+			if (border[rightIndex].y > border[leftIndex].y){
+				while (border[rightIndex].y > border[leftIndex].y){
+					minLeft = Math.min(minLeft, border[leftIndex].x)
+					leftIndex -= 1;
+				}
+				// adds new value to jumps
+				jumps[border[leftIndex+1].y] = {};
+				jumps[border[leftIndex+1].y][minLeft] = maxRight - minLeft;
+				// reset minmax
+				var maxRight = border[rightIndex].x;
+				var minLeft = border[leftIndex].x;
+			} else{
+				maxRight = Math.max(maxRight, border[rightIndex].x)
+				rightIndex += 1;
+			}
+		}
+		// we skipped the last one so we add it now.
+		jumps[border[leftIndex].y] = {};
+		jumps[border[leftIndex].y][minLeft] = maxRight - minLeft;
+		return jumps
+	}
 
-									}
-									// adds new jumps
-									var newjumps = getBorderJumps(border)
-									// console.log('newjumps', newjumps)
-									for (ii in newjumps){
-										jumps[ii] = {...jumps[ii], ...newjumps[ii]}
-									}
+	var squares = [];
+	var jumps = {};
+	for (var j = 0; j < matrix.length; j++) {
+    for (var i = 0; i < matrix[0].length; i++) {
+        if (matrix[j][i] == 1) {
+							if (typeof jumps[j] === 'undefined' || typeof jumps[j][i] === 'undefined'){
+	            var border = findBorderOrdered(matrix, {x: i, y: j});
+								// console.log('border', border)
+								var corners = getCorners(border);
+								// This should be changed in the future to where jumps are added even if
+								// corners.length is not 4 but first findBorderOrdered should support
+								// figures with outwards angles
+								// console.log('corners', corners)
+								if (corners.length == 4){
+									squares.push(corners)
+
 								}
-							// jump
-							i += jumps[j][i]
-            }
+								// adds new jumps
+								var newjumps = getBorderJumps(border)
+								// console.log('newjumps', newjumps)
+								for (ii in newjumps){
+									jumps[ii] = {...jumps[ii], ...newjumps[ii]}
+								}
+							}
+						// jump
+						i += jumps[j][i]
         }
     }
-		return squares
-	}
+}
+	return squares
+}
 
-/*
 const findCorners = function (matrix) {
     hi = locHighestWhite(matrix)
     lo = locLowestWhite(matrix)
@@ -400,6 +448,7 @@ const findCorners = function (matrix) {
     re = locRightWhite(matrix)
 }
 */
+
 
 // To make the function accesible in other .js files
 module.exports = {
