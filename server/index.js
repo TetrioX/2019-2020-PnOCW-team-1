@@ -137,12 +137,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
 			slaveIo.emit('changeBackgroundColor', data);
 		  };
   	});
-    
+
     socket.on('changeBackgroundOfAllSlaves', function(data){
       console.log("message recieved, should make grid")
       const slavesID = Object.keys(slaves);
       for (i=0;i < slavesID.length;i++){
-        slaveIo.to(`${slavesID[i]}`).emit('changeBackgroundOfAllSlaves',createColorGrid(data.numberOfRows,data.numberOfColumns));
+        var colorGrid = createColorGrid(data.numberOfRows,data.numberOfColumns)
+        slaveIo.to(`${slavesID[i]}`).emit('changeBackgroundOfAllSlaves',colorGrid);
       }
     });
 
@@ -195,7 +196,6 @@ function createColorGrid(nbrows, nbcolumns){
     colorGrid.push([]);
     for (var j = 0; j<nbcolumns; j++){
       colorGrid[i].push(allColorCombinations.pop());
-      
     }
   }
   return colorGrid;
