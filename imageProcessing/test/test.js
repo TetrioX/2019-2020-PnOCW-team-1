@@ -12,7 +12,7 @@ describe('findScreen', function() {
   this.timeout(3000)
 
   // allowed pixel distance
-  delta = 3
+  delta = 5
 
   before(async function() {
 

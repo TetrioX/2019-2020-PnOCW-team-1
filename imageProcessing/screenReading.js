@@ -317,21 +317,33 @@ function getCorners(rand){
 	return (a.x - b.x)**2 + (a.y - b.y)**2;
 	}
 
-	function getCornerWithMinimumAngle(angles){
-	// Retuns index of minimum of angles
-	var indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
-	// Set values next to minimum angle to infinity so that they don't show up next time.
-	for (var v = -5; v <= 5; v++){
-	    angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
-	}
-	return getRand(indexOfMinAngle);
-	}
+    function getCornersWithMinimumAngle(angles) {
+        var array = []
+        while (true) {
+            // Retuns index of minimum of angles
+            var indexOfMinAngle = angles.reduce((minI, angle, i, angles) => angle < angles[minI] ? i : minI, 0);
+            if (angles[indexOfMinAngle] < Math.PI * 2 / 3) {
+                array.push(rand[indexOfMinAngle])
+                rand[indexOfMinAngle]['angle'] = angles[indexOfMinAngle]
+
+                for (var v = -15; v <= 15; v++) {
+                    angles[(indexOfMinAngle + v + angles.length) % angles.length] = Infinity;
+                }
+            }
+            else { break; }
+        }
+        return array;
+    }
+
+
+
 
 	var angles = [];
 
 	for (var i = 0; i < rand.length; i++){
-	var avgAngle = 0;
-	for (var j = 2; j <= 5; j++) {
+    // var avgCosAngle = 0; @@@@
+    var avgAngle = 0;
+	for (var j = 2; j <= 5; j++) { // pixel vanaf i tot j
 	    // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
 	    var aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
 	    var bSqrt = getSqrDist(getRand(i), getRand(i + j));
@@ -341,20 +353,21 @@ function getCorners(rand){
 
 	    // We don't need to do Math.acos() since if a < b then acos(a) > acos(b)
 	    // and we'll be comparing them relative to each other
-	    avgAngle += (bSqrt + cSqrt - aSqrt)/(2 * b * c);
+        // avgCosAngle += (bSqrt + cSqrt - aSqrt) / (2 * b * c); @@@@
+        cosAngle = (bSqrt + cSqrt - aSqrt) / (2 * b * c);
+        if (cosAngle < -1) { avgAngle -= Math.PI } //afronding
+        else if (cosAngle > 1) { avgAngle += 0 } //afronding
+        else { avgAngle += Math.acos(cosAngle) }
 	}
 	// We don't have to devide the average since we'll only be comparing them
 	// to each other
-
-	angles.push(avgAngle);
-	}
-
-	var corners = []
-
-	for (var c = 0; c < 4; c++){
-	corners.push(getCornerWithMinimumAngle(angles));
-	}
-	return corners;
+        avgAngle = avgAngle / 4; /// !!!!!!!!!!!!!!!!!!!
+        angles.push(avgAngle)
+	//angles.push(avgCosAngle); @@@@
+    }
+    var result = getCornersWithMinimumAngle(angles)
+    console.log(result)
+    return result
 }
 /*
 function getSquares(matrix){
