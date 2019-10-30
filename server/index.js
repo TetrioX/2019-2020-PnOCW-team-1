@@ -48,6 +48,53 @@ function decodeBase64Image(dataString)
     return response;
 }
 
+// generates a list of color combinations
+function getColorComb(n){
+  //create combinations of all colors (n=1)
+  var combs = []
+  for (var col of colors){
+    combs.push([col])
+  }
+  for (var i=1; i<n; i++) {
+    var newCombs = []
+    for (var com of combs){
+      for (col of colors){
+        // copy
+        var ccom = com.slice()
+        ccom.push(col)
+        newCombs.push(ccom)
+      }
+    }
+    combs = newCombs
+  }
+  // remove combinations with only the same value
+  // f.e. ['blue', 'blue', 'blue']
+  var remIndex = [] // list of indexes to remove
+  for (var i in combs){
+    // set the prevCol to the first color
+    var prevCol = combs[i][0]
+    var diffValue = false
+    // check if each color equals the prev color
+    for (var col of combs[i]){
+      if (prevCol != col){
+        // there is a color difference
+        diffValue = true
+        break
+      }
+      prevCol = col
+    }
+    if (diffValue == false){
+      remIndex.push(Number(i))
+    }
+  }
+  // we iterate backwards so we don't affect the indexes of the values that
+  // we still have to remove.
+  for (var i = remIndex.length - 1; i >= 0; i-= 1){
+    // remove value on index i
+    combs.splice(remIndex[i], 1)
+  }
+  return combs
+}
 
 //Static files
 
