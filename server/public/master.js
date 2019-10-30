@@ -11,20 +11,28 @@ var backgroundButton = document.getElementById('changeBackgroundColor');
 var colorPicker = document.getElementById('color');
 var colorValue = colorPicker.value;
 var entirePage =document.getElementById('entirePage');
+var slaveButtons = {};
+var numberOnButton = 0;
+var drawButtonLine = document.getElementById('drawLine');
+var anglePicker = document.getElementById('anglePicker');
+var canvas = document.getElementById("canvas");
+var makeGridButton = document.getElementById("calibrateButton");
+var rowPicker =document.getElementById("rowPicker");
+var columnPicker =document.getElementById("columnPicker");
+
+var angle = 0;
+rowPicker.addEventListener('input', function(){
+	var numberOfRows = rowPicker.value
+})
+
+columnPicker.addEventListener('input', function(){
+	var numberOfColumns =columnPicker.value
+})
 
 colorPicker.addEventListener('input', function () {
 		colorValue = colorPicker.value
 });
 
-var slaveButtons = {};
-var numberOnButton = 0;
-
-var drawButtonLine = document.getElementById('drawLine');
-var anglePicker = document.getElementById('anglePicker');
-var canvas = document.getElementById("canvas");
-var calibrateButton = document.getElementById("calibrateButton");
-
-var angle = 0;
 anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
@@ -138,5 +146,8 @@ socket.on('takePictures', async function(data, callback){
 
 // Starts the calibration process and shows the result
 calibrateButton.addEventListener('click',function(){
-	socket.emit('calibrate');
+	socket.emit('changeBackgroundOfAllSlaves',{
+		numberOfRows:numberOfRows
+		numberOfColumns:numberOfColumns
+	});
 });

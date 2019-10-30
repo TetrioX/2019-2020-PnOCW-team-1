@@ -64,19 +64,21 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var imageIndex = 0;
     socket.emit('slaveSet', {
         slaves: slaves
-    })
+    });
 
     socket.on('changeBackgroundColor', function(data){
 		if (data.id) slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
 		else {
 			console.log(data)
 			slaveIo.emit('changeBackgroundColor', data);
-		}
+		};
 
     socket.on('changeBackgroundOfAllSlaves', function(data){
-      for 
-    if(data.id) slaveIo.to('${data.id}').emit
-    })
+      const slavesID = Object.keys(slaves);
+      for (i=0;i < slavesID.length;i++){
+        slaveIo.to(`${slavesID[i]}`).emit('changeBackgroundOfAllSlaves',createColorGrid(data.nbrows,data.nbcolumns));
+      }
+    });
 
 	});
 
@@ -125,9 +127,9 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 //creating grids with a number of columns and a number of rows
 function createColorGrid(nbrows, nbcolumns){
   var colorGrid =[];
-  for (var i = 0; i<nbrows, i++){
+  for (var i = 0; i<nbrows; i++){
     matrix[i] = [];
-    for (var j = 0; j<nbcolumns, j++)
+    for (var j = 0; j<nbcolumns; j++)
       matrix[i][j]= allColorCombinations[allColorCombinations.length-1];
       allColorCombinations.pop();
   return colorGrid;
@@ -139,7 +141,7 @@ function createColorGrid(nbrows, nbcolumns){
 
 
 //adjust this if you want to have more colorlist
- var possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF";]
+ var possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
 const allColorCombinations = function getCombColors(nbOfpictures, list){
   // end of recursion
   if (nbOfpictures == 0){

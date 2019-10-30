@@ -111,6 +111,10 @@ socket.on('drawLine', function(data){
     draw(data.angle);
 });
 
+socket.on('changeBackgroundOfAllSlaves', function(data){
+	console.log(data)
+})
+
 masterButton.addEventListener('click',function(){
 	window.location.href="/master";
 });
