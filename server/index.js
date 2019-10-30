@@ -138,9 +138,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		};
 
     socket.on('changeBackgroundOfAllSlaves', function(data){
+      console.log("message recieved, should make grid")
       const slavesID = Object.keys(slaves);
       for (i=0;i < slavesID.length;i++){
-        slaveIo.to(`${slavesID[i]}`).emit('changeBackgroundOfAllSlaves',createColorGrid(data.nbrows,data.nbcolumns));
+        slaveIo.to(`${slavesID[i]}`).emit('changeBackgroundOfAllSlaves',createColorGrid(data.numberOfRows,data.numberOfColumns));
       }
     });
 

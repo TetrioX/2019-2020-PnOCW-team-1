@@ -20,6 +20,7 @@ socket.on('registerMaster', function (data) {
 var backgroundButton = document.getElementById('changeBackgroundColor');
 var colorPicker = document.getElementById('color');
 var colorValue = colorPicker.value;
+
 var entirePage =document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
@@ -29,14 +30,17 @@ var canvas = document.getElementById("canvas");
 var makeGridButton = document.getElementById("calibrateButton");
 var rowPicker =document.getElementById("rowPicker");
 var columnPicker =document.getElementById("columnPicker");
+var numberOfRows = rowPicker.value;
+var numberOfColumns =columnPicker.value;
 
+console.log(numberOfColumns);
 var angle = 0;
 rowPicker.addEventListener('input', function(){
-	var numberOfRows = rowPicker.value
-});;
+	var numberOfRows = rowPicker
+});
 
 columnPicker.addEventListener('input', function(){
-	var numberOfColumns =columnPicker.value
+	var numberOfColumns =columnPicker
 })
 
 colorPicker.addEventListener('input', function () {
@@ -156,7 +160,8 @@ socket.on('takePictures', async function(data, callback){
 
 
 // Starts the calibration process and shows the result
-calibrateButton.addEventListener('click',function(){
+makeGridButton.addEventListener('click',function(){
+	console.log("i will send");
 	socket.emit('changeBackgroundOfAllSlaves',{
 		numberOfRows:numberOfRows,
 		numberOfColumns:numberOfColumns
