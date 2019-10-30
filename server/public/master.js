@@ -30,8 +30,8 @@ var canvas = document.getElementById("canvas");
 var makeGridButton = document.getElementById("calibrateButton");
 var rowPicker =document.getElementById("rowPicker");
 var columnPicker =document.getElementById("columnPicker");
-var numberOfRows = rowPicker.value;
-var numberOfColumns =columnPicker.value;
+var numberOfRows = rowPicker;
+var numberOfColumns =columnPicker;
 
 console.log(numberOfColumns);
 var angle = 0;
