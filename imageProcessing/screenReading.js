@@ -70,6 +70,23 @@ function joinMatrixes(matrixes, nbOfColors){
 	return result
 }
 
+function colorToValue(colorString) {
+    if (colorString == "red") { return 1 }
+    else if (colorString == "green") { return 2 }
+    else if (colorString == "blue") { return 3 }
+    else if (colorString == "#FFFF00") { return 4 }
+    else if (colorString == "#FF00FF") { return 5 }
+    else if (colorString == "#00FFFF") { return 6 }
+    else if (colorString == "black") { return 0 }
+    else { throw new Error("The string is not a valid color") }
+}
+
+function colorToValueList(list) {
+    for (i of list) {
+        i = colorToValue(i)
+    }
+}
+
 /**
  * Create an array out of a given buffer with the given dimensions consisting of only 1 and 0 elements.
  *
