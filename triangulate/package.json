@@ -1,6 +1,6 @@
 {
   "name": "delaunay-triangulation",
-  "main": "delaunay.js",
+  "main": "bowyer_watson.js",
   "license": "MIT",
   "devDependencies": {
     "delaunay": "^0.4.0"
