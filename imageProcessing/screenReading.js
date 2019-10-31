@@ -317,6 +317,11 @@ const findBorderOrdered = function (matrix, start,color) {
     return border
 }
 
+function checkNeighborsColor(corners, screen, screens){
+	
+}
+
+
 /** returns the screens of the given matrixes
 	*
 	* @param {Integer[[[]]]} matrixes list of matrixes that include a color value
@@ -336,7 +341,30 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 		var colValue = getColorValue(colComb)
 		colorCombs[colValue] = colorCombs[colComb]
 	}
-	var foundColValues
+	// a set of all colors that have been checked
+	// 0 is the value for noice and shouldn't be checked
+	var foundColValues = new Set([0])
+	// an array of all valide screen squares
+	var foundScreenSquares = []
+	// iterate through the matrix with j the y value and i the x value
+	for (var j = 0; j < matrix.length; j++){
+		for (var i = 0; i < matrix.length; i++){
+			// check if we have found a new color
+			if (foundColValues.has(matrix[j][i])) {
+				var border = findBorderOrdered(matrix, {x: i, y: j}, matrix[j][i])
+				var corners = getCorners(border)
+				var cornersOrientated = checkNeighborsColor(corners, colorCombs[matrix[j][i]], screens)
+				if (cornersOrientated != false){
+					foundScreenSquares.push({
+						corners: cornersOrientated,
+						screen: colorCombs[matrix[j][i]]
+					})
+					foundColValues.add(matrix[j][i])
+				}
+			}
+		}
+	}
+	return foundScreenSquares
 }
 
 // returns the 4 corners of the quadrangles with a given color in the matrix
