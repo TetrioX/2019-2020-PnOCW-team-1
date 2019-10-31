@@ -15,7 +15,7 @@ const screenReading = function(buffer, dimensions) {
 	result = createMatrix(buffer, dimensions)
 	// console.log(dimensions)
     // console.log(" ", result)
-    // console.log("highWhite", locHighestWhite(result))
+    // console.log("highWhite", locHighestOfColor(result,1))
     // console.log("lowWhite", locLowestWhite(result))
     // console.log("leftWhite", locLeftWhite(result))
     // console.log("rightWhite", locRightWhite(result))
@@ -28,10 +28,10 @@ const screenReading = function(buffer, dimensions) {
     // console.log("Neighborscolor", sortColorOut(result, Neighbors(result, { x: 4, y: 4 }), 1))
 		// var border = findBorder(result)
     // console.log("border", border)
-		// var orderedBorder = findBorderOrdered(result, locHighestWhite(result))
+		// var orderedBorder = findBorderOrdered(result, locHighestOfColor(result,1),1)
     // console.log("orderedBorder", orderedBorder)
 		// console.log("squares", getSquares(result))
-
+    console.log(result)
 	return getSquares(result)
 
 }
@@ -86,10 +86,10 @@ const bufferToArray = function(buffer) {
 	return arr
 }
 
-const locHighestWhite = function (matrix) {
+const locHighestOfColor = function (matrix,color) {
     for (let j = 0; j < matrix.length; j++) {
         for (let i = 0; i < matrix[0].length; i++) {
-            if (matrix[j][i] == 1) {
+            if (matrix[j][i] == color) {
                 return { x: i, y: j }
             }
         }
@@ -127,11 +127,11 @@ const locRightWhite = function (matrix) {
     }
 }
 
-const listOfWhite = function (matrix) {
+const locationsOfColor = function (matrix,color) {
     temp1 = []; // Deze benaming (eerst result) veranderde de waarde van de result voorbeeld matrix
         for (let j = 0; j < matrix.length; j++) {
             for (let i = 0; i < matrix[0].length; i++) {
-                if (matrix[j][i] == 1) {
+                if (matrix[j][i] == color) {
                     temp1.push({ x: i, y: j })
                 }
             }
@@ -191,12 +191,12 @@ const copyMatrix = function (originalMatrix) {
     return newArray
 }
 
-const onlyBorder = function (matrix) {
-    allwhite = listOfWhite(matrix)
+const onlyBorder = function (matrix,color) {
+    colorLoc = locationsOfColor(matrix,color)
     var onlyBorder = copyMatrix(matrix)
-    for (w of allwhite) {
+    for (w of colorLoc) {
         //geen deel vd rand ==> wordt die nul
-        if (!(hasNeighbors(matrix, w, 1) && hasNeighbors(matrix, w, 0))) {
+        if (!(hasNeighbors(matrix, w, color) && hasNeighbors(matrix, w, 0))) {
             onlyBorder[w.y][w.x] = 0
         }
 
@@ -221,7 +221,7 @@ const hasNeighbors = function (matrix, loc, color) { //inside matrix & not loc &
 }
 
 
-const findBorderOrdered = function (matrix, start) {
+const findBorderOrdered = function (matrix, start,color) {
 
     // check if pixel on current + angle*value is white and in screen
 	function checkNeighbor(current, ang){
@@ -233,7 +233,7 @@ const findBorderOrdered = function (matrix, start) {
 		if (typeof neighbor === 'undefined'){
 			return
         }
-        return neighbor == 1
+        return neighbor == color
     }
     //possible angles to go to
 	var angles = [
@@ -299,11 +299,11 @@ const findBorderOrdered = function (matrix, start) {
     return border
 }
 
-const getSquares = function (matrix) {
+const getSquares = function (matrix,color) {
     squares = []
-		borderMatrix = onlyBorder(matrix)
-    while (locHighestWhite(borderMatrix) != null) { //hmmmn klopt dit wel?
-				var border = findBorderOrdered(borderMatrix, locHighestWhite(borderMatrix))
+    borderMatrix = onlyBorder(matrix, color) //nog omzetten dat de kleur kan gekozen worden
+    while (locHighestOfColor(borderMatrix,color) != null) { //hmmmn klopt dit wel?
+				var border = findBorderOrdered(borderMatrix, locHighestOfColor(borderMatrix,color),color)
 				var corners = getCorners(border)
 				if (corners.length == 4){
 						squares.push(corners)
@@ -452,7 +452,7 @@ function getSquares(matrix){
 }
 
 const findCorners = function (matrix) {
-    hi = locHighestWhite(matrix)
+    hi = locHighestOfColor(matrix,1)
     lo = locLowestWhite(matrix)
     if (lo.x < hi.x) {
         //hi doorschuiven nr rechts

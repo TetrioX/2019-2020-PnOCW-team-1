@@ -78,8 +78,8 @@ describe('findScreen', function() {
 
   describe('getSquares()', function() {
 
-    it('Returns the corners of TestCase1', function() {
-      corners1 = screenReading.getSquares(matrix1)
+      it('Returns the corners of TestCase1', function () {
+      corners1 = screenReading.getSquares(matrix1,1)
       assert.isTrue(checkLenghtSquares(corners1), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -96,7 +96,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCase2', function() {
-      corners2 = screenReading.getSquares(matrix2)
+      corners2 = screenReading.getSquares(matrix2,1)
       assert.isTrue(checkLenghtSquares(corners2), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -113,7 +113,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCase3', function() {
-      corners3 = screenReading.getSquares(matrix3)
+      corners3 = screenReading.getSquares(matrix3,1)
       assert.isTrue(checkLenghtSquares(corners3), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -130,7 +130,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCase4', function() {
-      corners4 = screenReading.getSquares(matrix4)
+      corners4 = screenReading.getSquares(matrix4,1)
       assert.isTrue(checkLenghtSquares(corners4), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -147,7 +147,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCaseSmall', function() {
-      cornersSmall = screenReading.getSquares(matrixSmall)
+      cornersSmall = screenReading.getSquares(matrixSmall,1)
       assert.isTrue(checkLenghtSquares(cornersSmall), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -164,7 +164,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCaseMoreScreens', function() {
-      cornersMoreScreens = screenReading.getSquares(matrixMoreScreens)
+      cornersMoreScreens = screenReading.getSquares(matrixMoreScreens,1)
       assert.isTrue(checkLenghtSquares(cornersMoreScreens), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -193,7 +193,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCaseMoreScreens2', function() {
-      cornersMoreScreens2 = screenReading.getSquares(matrixMoreScreens2)
+      cornersMoreScreens2 = screenReading.getSquares(matrixMoreScreens2,1)
       assert.isTrue(checkLenghtSquares(cornersMoreScreens2), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
