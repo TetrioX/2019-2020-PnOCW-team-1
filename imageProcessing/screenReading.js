@@ -7,8 +7,9 @@
 
 const assert = require('assert')  // asserting pre-conditions
 const vctcalc = require('./vectorCalculation.js')
-// number of colors used
-const nbOfColors = 6;
+
+// TODO
+const colorValues = {}
 
 const screenReading = function(buffer, dimensions) {
 
@@ -57,7 +58,7 @@ const createMatrix = function(buffer, dimensions) {
 	return matrix
 }
 
-function joinMatrixes(matrixes){
+function joinMatrixes(matrixes, nbOfColors){
 	var result = matrixes[0]
 	for (var j = 0; j < result.length; j++){
 		for (var i = 0; i < result[0].length; i++){
@@ -299,6 +300,29 @@ const findBorderOrdered = function (matrix, start,color) {
     return border
 }
 
+/** returns the screens of the given matrixes
+	*
+	* @param {Integer[[[]]]} matrixes list of matrixes that include a color value
+	*	for each pixel
+	* @param {Object} screens an object with as key a screen square and as value the
+	* color value on that location of the screen
+	* @param {Object} colorCombs an object with as key a color combination and as
+	* value a screen square
+	* @param {Integer} nbOfColors number of colors used
+	*/
+function getScreens(matrixes, screens, colorCombs, nbOfColors) {
+	// join the matrixes in 1 matrix
+	var matrix = joinMatrixes(matrixes, nbOfColors)
+	// add the value of the color comb to colorCombs
+	// so we can get the screen information from the colValue
+	for (val colComb of Object.keys(colorCombs)){
+		var colValue = getColorValue(colComb)
+		colorCombs[colValue] = colorCombs[colComb]
+	}
+	var foundColValues
+}
+
+// returns the 4 corners of the quadrangles with a given color in the matrix
 const getSquares = function (matrix,color) {
     squares = []
     borderMatrix = onlyBorder(matrix, color) //nog omzetten dat de kleur kan gekozen worden
@@ -312,8 +336,7 @@ const getSquares = function (matrix,color) {
     return squares
 }
 
-
-
+// return the 4 smallest corners of a given border.
 function getCorners(rand){
 
 	if (rand.length < 50){
