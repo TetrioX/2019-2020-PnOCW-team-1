@@ -10,6 +10,84 @@ var context = canvas.getContext('2d');
 var length = 350;
 
 
+
+
+
+
+
+
+//listen for events from server
+socket.on('connect',function(){
+	socketID =socket.id;
+	console.log(socketID);
+});
+
+socket.on('changeBackgroundColor',function(data){
+    document.body.style.backgroundColor = data.colorValue;
+    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
+});
+
+socket.on('SendingPicture', function(data){
+	console.log("picture recieved");
+});
+// Sending number to slave (also usefull for angle of arrow!)
+socket.on('slaveID', function (id) {
+    console.log(id)
+    document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
+})
+
+
+socket.on('drawLine', function(data){
+    draw(data.angle);
+});
+
+
+socket.on('changeBackgroundOfAllSlaves', function(data){
+	document.body.innerHTML=""
+	var entirePage = document.createElement('th');
+	entirePage.setAttribute("id","entirePage");
+	document.body.appendChild(entirePage);
+	createGrid(data);
+});
+
+masterButton.addEventListener('click',function(){
+	window.location.href="/master";
+});
+
+
+
+function createGrid(data){
+	var numberOfrows=data.length;
+	var numberOfColumns = data[0].length;
+	var counter =1;
+	for (i=0; i<4;i++){
+		var corner =document.createElement('div');
+		corner.setAttribute("class","corner");
+		corner.setAttribute("id", "corner"+i.toString());
+		document.body.appendChild(corner);
+		document.getElementById("corner"+i.toString()).style.backgroundColor=data.cornBorder[0];
+
+	}
+	for (i=0; i<numberOfrows;i++){
+		var row =document.createElement('div');
+		row.setAttribute("class","row");
+		row.setAttribute("id", i.toString());
+		document.getElementById("entirePage").appendChild(row);
+	
+		for (j=0; j<numberOfColumns; j++){
+
+			var grid = document.createElement('div');
+			grid.setAttribute("id","grid"+i.toString()+j.toString());
+			grid.setAttribute("class", "grid");
+			document.getElementById(i.toString()).appendChild(grid);
+			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=data[i][j][0];
+			counter+=1;
+			
+			
+		}
+	}
+}
+
 function drawArrowHead(from, to, radius){
 
 
@@ -82,75 +160,4 @@ function draw(radianAngle) {
 	context.stroke();
 	drawArrowHead(from, to, 60);
 
-}
-
-
-
-
-
-//listen for events from server
-socket.on('connect',function(){
-	socketID =socket.id;
-	console.log(socketID);
-});
-
-socket.on('changeBackgroundColor',function(data){
-    document.body.style.backgroundColor = data.colorValue;
-    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
-});
-
-socket.on('SendingPicture', function(data){
-	console.log("picture recieved");
-});
-// Sending number to slave (also usefull for angle of arrow!)
-socket.on('slaveID', function (id) {
-    console.log(id)
-    document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
-})
-
-
-socket.on('drawLine', function(data){
-    draw(data.angle);
-});
-
-
-socket.on('changeBackgroundOfAllSlaves', function(data){
-	document.body.innerHTML=""
-	var entirePage = document.createElement('th');
-	entirePage.setAttribute("id","entirePage");
-	document.body.appendChild(entirePage);
-	createGrid(data);
-});
-
-masterButton.addEventListener('click',function(){
-	window.location.href="/master";
-});
-
-
-
-function createGrid(data){
-	var numberOfrows=data.length;
-	var numberOfColumns = data[0].length;
-	console.log(data.length);
-	console.log(data[0].length);
-	console.log(data[0][0].length);
-	var counter =1;
-	for (i=0; i<numberOfrows;i++){
-		var row =document.createElement('div');
-		row.setAttribute("class","row");
-		row.setAttribute("id", i.toString());
-		document.getElementById("entirePage").appendChild(row);
-	
-		for (j=0; j<numberOfColumns; j++){
-
-			var grid = document.createElement('span');
-			grid.setAttribute("id","grid"+i.toString()+j.toString());
-			grid.setAttribute("class", "grid");
-			document.getElementById(i.toString()).appendChild(grid);
-			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=data[i][j][3];
-			counter+=1;
-			
-			
-		}
-	}
 }

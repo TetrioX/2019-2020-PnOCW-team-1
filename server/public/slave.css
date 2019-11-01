@@ -1,9 +1,9 @@
 #entirePage{
   position: fixed;
-  top: 20px;
-  left: 20px;
-  bottom: 20px;
-  right: 20px;
+  top: 30px;
+  left: 30px;
+  bottom: 30px;
+  right: 30px;
   overflow: auto;
   display: grid;
 
@@ -20,4 +20,31 @@
     display: table-cell;
     text-align: center;
     height:100%;
+}
+
+.corner{
+  background-color: black;
+  height:30px;
+  width: 30px;
+  position: absolute;
+}
+
+#corner0{
+  top:0;
+  left:0;
+}
+
+#corner1{
+  top:0;
+  right:0;
+}
+
+#corner2{
+  bottom: 0;
+  left:0;
+}
+
+#corner3{
+  bottom: 0;
+  right:0;
 }
