@@ -59,7 +59,6 @@ masterButton.addEventListener('click',function(){
 function createGrid(data){
 	var numberOfrows=data.grid.length;
 	var numberOfColumns = data.grid[0].length;
-	console.log(data.grid)
 	var counter =1;
 	for (i=0; i<4;i++){
 		var corner =document.createElement('div');

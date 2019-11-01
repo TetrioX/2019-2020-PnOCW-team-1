@@ -156,7 +156,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
     socket.on('changeBackgroundColor', function(data){
 		if (data.id) slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
 		else {
-			console.log(data)
 			slaveIo.emit('changeBackgroundColor', data);
 		  };
   	});
@@ -225,14 +224,11 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 
 //creating grids with a number of columns and a number of rows
 function createColorGrid(nbrows, nbcolumns, slaveID){
-  console.log('rows', nbrows)
-  console.log('cols', nbcolumns)
   var colorGrid = {
     grid: [],
     comb: {}
   }
   for (var i = 0; i<nbrows; i++){
-    console.log('start', i)
     colorGrid.grid.push([]);
     for (var j = 0; j<nbcolumns; j++){
       var colorComb = allColorCombinations.pop()
@@ -246,7 +242,6 @@ function createColorGrid(nbrows, nbcolumns, slaveID){
       }
     }
   }
-  console.log(colorGrid.grid)
   // generate a color for the side and corner border.
   var cornBorder = allColorCombinations.pop()
   var sideBorder = allColorCombinations.pop()
