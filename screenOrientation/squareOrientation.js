@@ -17,7 +17,7 @@ const getSquareOrientation = function(corners) {
 	console.log(" Verhouding Zijden: ", sides.AB / sides.CD, ' - ',  sides.AD / sides.BC )
 	console.log(" Verhouding Diagonalen: ", diagonals.AO / diagonals.DO , ' - ',  diagonals.BO / diagonals.CO )
 	console.log(" Cos: ", 1.0769/(Math.PI/3 + Math.PI/18*5))
-	return sides
+	return angles
 }
 
 
@@ -128,7 +128,7 @@ test40 = [{x:102,y:25},{x:1224,y:26},{x:132,y:630},{x:1195,y:630}]
 test40_ = [{x:115,y:295},{x:132,y:630},{x:735,y:630},{x:737,y:296}]
 test40_2 = [{x:361,y:195},{x:371,y:532},{x:974,y:532},{x:983,y:195}]
 
-result = getSquareOrientation(test40)
+result = getSquareOrientation(test70)
 console.log(result)
 
 
