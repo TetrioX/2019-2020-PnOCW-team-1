@@ -30,6 +30,54 @@ describe('findScreen', function() {
     matrixSmall = screenReading.createMatrix(imageSmall.buffers[0], imageSmall.dimension)
     matrixMoreScreens = screenReading.createMatrix(imageMoreScreens.buffers[0], imageMoreScreens.dimension)
     matrixMoreScreens2 = screenReading.createMatrix(imageMoreScreens2.buffers[0], imageMoreScreens2.dimension)
+      colorMatrix1 =
+          [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,]]
+      colorMatrix2 =
+          [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,]]
   });
 
   // checks if the length of all squares is 4
@@ -78,8 +126,8 @@ describe('findScreen', function() {
 
   describe('getSquares()', function() {
 
-    it('Returns the corners of TestCase1', function() {
-      corners1 = screenReading.getSquares(matrix1)
+      it('Returns the corners of TestCase1', function () {
+      corners1 = screenReading.getSquares(matrix1,1)
       assert.isTrue(checkLenghtSquares(corners1), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -96,7 +144,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCase2', function() {
-      corners2 = screenReading.getSquares(matrix2)
+      corners2 = screenReading.getSquares(matrix2,1)
       assert.isTrue(checkLenghtSquares(corners2), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -113,7 +161,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCase3', function() {
-      corners3 = screenReading.getSquares(matrix3)
+      corners3 = screenReading.getSquares(matrix3,1)
       assert.isTrue(checkLenghtSquares(corners3), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -130,7 +178,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCase4', function() {
-      corners4 = screenReading.getSquares(matrix4)
+      corners4 = screenReading.getSquares(matrix4,1)
       assert.isTrue(checkLenghtSquares(corners4), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -147,7 +195,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCaseSmall', function() {
-      cornersSmall = screenReading.getSquares(matrixSmall)
+      cornersSmall = screenReading.getSquares(matrixSmall,1)
       assert.isTrue(checkLenghtSquares(cornersSmall), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -164,7 +212,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCaseMoreScreens', function() {
-      cornersMoreScreens = screenReading.getSquares(matrixMoreScreens)
+      cornersMoreScreens = screenReading.getSquares(matrixMoreScreens,1)
       assert.isTrue(checkLenghtSquares(cornersMoreScreens), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -193,7 +241,7 @@ describe('findScreen', function() {
     });
 
     it('Returns the corners of TestCaseMoreScreens2', function() {
-      cornersMoreScreens2 = screenReading.getSquares(matrixMoreScreens2)
+      cornersMoreScreens2 = screenReading.getSquares(matrixMoreScreens2,1)
       assert.isTrue(checkLenghtSquares(cornersMoreScreens2), "length of squares is 4")
       assert.isTrue(checkMultipleSquares(
           [
@@ -237,6 +285,63 @@ describe('findScreen', function() {
           cornersMoreScreens2),
         'Corners are withing margen of correction.'
       );
+      });
+
+      it('Test diffrent colors', function () {
+          var matrix = [colorMatrix1,colorMatrix2]
+          var screens = [[[23, 31, 39],
+                          [20, 25, 33],
+                          [36, 47, 15]]]
+          var colorComb = {
+              23: {
+                  scherm: 0,
+                     col: 0,
+                     row: 0
+              },
+              31: {
+                  scherm: 0,
+                     col: 1,
+                     row: 0
+              },
+              39: {
+                  scherm: 0,
+                     col: 2,
+                     row: 0
+              },
+              20: {
+                  scherm: 0,
+                     col: 0,
+                     row: 1
+              },
+              25: {
+                  scherm: 0,
+                     col: 1,
+                     row: 1
+              },
+              33: {
+                  scherm: 0,
+                     col: 2,
+                     row: 1
+              },
+              36: {
+                  scherm: 0,
+                     col: 0,
+                     row: 2
+              },
+              47: {
+                  scherm: 0,
+                     col: 1,
+                     row: 2
+              },
+              15: {
+                  scherm: 0,
+                     col: 2,
+                     row: 2
+              }
+          }
+          console.log(screenReading.getScreens(matrix, screens, colorComb, 7))
+      
+
     });
   });
 });
