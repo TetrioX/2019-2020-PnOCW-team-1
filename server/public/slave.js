@@ -57,8 +57,9 @@ masterButton.addEventListener('click',function(){
 
 
 function createGrid(data){
-	var numberOfrows=data.length;
-	var numberOfColumns = data[0].length;
+	var numberOfrows=data.grid.length;
+	var numberOfColumns = data.grid[0].length;
+	console.log(data.grid)
 	var counter =1;
 	for (i=0; i<4;i++){
 		var corner =document.createElement('div');
@@ -73,17 +74,17 @@ function createGrid(data){
 		row.setAttribute("class","row");
 		row.setAttribute("id", i.toString());
 		document.getElementById("entirePage").appendChild(row);
-	
+
 		for (j=0; j<numberOfColumns; j++){
 
 			var grid = document.createElement('div');
 			grid.setAttribute("id","grid"+i.toString()+j.toString());
 			grid.setAttribute("class", "grid");
 			document.getElementById(i.toString()).appendChild(grid);
-			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=data[i][j][0];
+			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=data.grid[i][j][0];
 			counter+=1;
-			
-			
+
+
 		}
 	}
 }

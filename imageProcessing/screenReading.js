@@ -82,9 +82,11 @@ function colorToValue(colorString) {
 }
 
 function colorToValueList(list) {
-    for (i of list) {
-        i = colorToValue(i)
-    }
+	var result = 0
+  for (var x of list) {
+      result += colorToValue(x)
+  }
+	return result
 }
 
 /**
@@ -508,7 +510,7 @@ function getScreenFromSquare(square, corners, nbOfRows, nbOfCols){
 		},
 		{
 			x: corn.x + spaceTop * vectorTop.x + spaceLeft * vectorLeft.x ,
-			y: corn.y + spaceTop * vectorTop.y + spaceLeft * vectorLeft.y 
+			y: corn.y + spaceTop * vectorTop.y + spaceLeft * vectorLeft.y
 		},
 	]
 }
