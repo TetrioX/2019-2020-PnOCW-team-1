@@ -232,7 +232,10 @@ function createColorGrid(nbrows, nbcolumns, slaveID){
       colorGrid.grid[i].push(colorComb);
       // the key is the integer value of the color comb and the value
       // is the location of the quadrangle in the grid.
-      colorGrid.comb[scrnread.colorToValueList(colorComb)] = [slaveID, i, j]
+      colorGrid.comb[scrnread.colorToValueList(colorComb)] = {
+        screen:slaveID,
+        row:i,
+        col:j
     }
   }
   // generate a color for the side and corner border.

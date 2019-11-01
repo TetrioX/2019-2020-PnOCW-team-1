@@ -317,12 +317,12 @@ const findBorderOrdered = function (matrix, start,color) {
     return border
 }
 
-function checkNeighborsColor(corners, screen, screens){
+function checkNeighborsColor(corners, square, screens){
 	// distance to check for color
 	const distance = 3;
-	// check if there is a pixel around the current pixel with a certain color
-	// within a certain distance
-	function checkNeighbors(current, color, distance){
+	// check if there are pixels around the current pixel with certain colors
+	// within a certain distance and returns true if all colors are present.
+	function checkNeighbors(current, colors, distance){
 		//possible angles to go to
 		const angles = [
 			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
@@ -341,15 +341,25 @@ function checkNeighborsColor(corners, screen, screens){
 				if (typeof neighbor === 'undefined'){
 					break;
 				}
-				if (neighbor == color){
-					return true
+				for (j in colors){
+					if (neighbor == colors[j]){
+						// we remove the found color
+						colors.splice(j, 1)
+						// if there are no colors left to be found return true
+						if (colors.length == 0){
+							return true
+						}
+						break;
+					}
 				}
 			}
 		}
 		return false;
 	}
 	// returns the color of the neigbor of the current square as shown in the
-	// figure below. if
+	// figure below in an array. If the neighbor is a border it will return
+	// the color of the corner border if the neigbor is located on the corner or
+	// the side border and the color next to the corner and border.
 	//
 	//	  i=3  \       \ i=0			NOTE: this is orientated according to screen
 	//	_______\_______\_______					and not the picture so i=0 is the upper
@@ -359,41 +369,38 @@ function checkNeighborsColor(corners, screen, screens){
 	//	       \       \
 	//	  i=2  \       \ i=1
 	function getColorNeighbor(i){
-		var nbOfRows = screen.length
-		var nbOfCols = screen[0].length
+		var nbOfRows = screens[square.screen]
+		var nbOfCols = screens[square.screen][0]
+		// possible angles
+		const angles = [
+			{x: 1, y: -1}, {x: 1, y: 1},
+			{x: -1, y: 1}, {x: -1, y: -1}
+	  ]
 		// get row and column from i
-		var rowI = screen[1]
-		var colI = screen[2]
-		switch(i){
-			case 0:
-				rowI -= 1;
-				colI += 1;
-				break;
-			case 1:
-				rowI += 1;
-				colI += 1;
-				break;
-			case 2:
-				rowI += 1;
-				colI -= 1;
-				break;
-			case 3:
-				rowI -= 1;
-				colI -= 1;
-				break;
-		}
+		var rowI = screen.row + angles.y
+		var colI = screen.col + angles.x
 		// check if are col or row is out of bounds
 		var rowInRange = ((0 <= rowI) && (rowI < nbOfRows))
 		var colInRange = ((0 <= colI) && (colI < nbOfcols))
 		// if both are not in range take corner border color
 		if (!rowInRange && !colInRange){
-			return screens[screen[0]].cornBorder
+			return [screens[square.screen].cornBorder]
 		}
-		// if only one is not in range take side border color
-		if (!rowInRange || !colInRange){
-			return screens[screen[0]].sideBorder
+		// if only row is not in range return sideBorder and the horizontal side neigbor
+		if (!rowInRange){
+			return [
+				screens[square.screen].sideBorder,
+				screens[square.screen][rowI - angles.y][colI]
+			]
 		}
-		return screens[screen[0]][rowI][colI];
+		// if only col is not in range return sideBorder and the vertical side neigbor
+		if (!colInRange){
+			return [
+				screens[square.screen].sideBorder,
+				screens[square.screen][rowI][colI - angles.x]
+			]
+		}
+		return [screens[square.screen][rowI][colI]];
 
 	}
 
