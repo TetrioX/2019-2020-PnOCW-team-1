@@ -86,6 +86,8 @@ function draw(radianAngle) {
 
 
 
+
+
 //listen for events from server
 socket.on('connect',function(){
 	socketID =socket.id;
@@ -111,11 +113,44 @@ socket.on('drawLine', function(data){
     draw(data.angle);
 });
 
+
 socket.on('changeBackgroundOfAllSlaves', function(data){
-	console.log("de data is ontvangen");
-	console.log(data);
-})
+	document.body.innerHTML=""
+	var entirePage = document.createElement('th');
+	entirePage.setAttribute("id","entirePage");
+	document.body.appendChild(entirePage);
+	createGrid(data);
+});
 
 masterButton.addEventListener('click',function(){
 	window.location.href="/master";
 });
+
+
+
+function createGrid(data){
+	var numberOfrows=data.length;
+	var numberOfColumns = data[0].length;
+	console.log(data.length);
+	console.log(data[0].length);
+	console.log(data[0][0].length);
+	var counter =1;
+	for (i=0; i<numberOfrows;i++){
+		var row =document.createElement('div');
+		row.setAttribute("class","row");
+		row.setAttribute("id", i.toString());
+		document.getElementById("entirePage").appendChild(row);
+	
+		for (j=0; j<numberOfColumns; j++){
+
+			var grid = document.createElement('span');
+			grid.setAttribute("id","grid"+i.toString()+j.toString());
+			grid.setAttribute("class", "grid");
+			document.getElementById(i.toString()).appendChild(grid);
+			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=data[i][j][3];
+			counter+=1;
+			
+			
+		}
+	}
+}
