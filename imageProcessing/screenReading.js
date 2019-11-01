@@ -449,7 +449,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 				if (cornersOrientated.length == 4){
 					foundScreenSquares.push({
 						corners: cornersOrientated,
-						screen: colorCombs[matrix[j][i]]
+						square: colorCombs[matrix[j][i]]
 					})
 				}
 				foundColValues.add(matrix[j][i])
@@ -457,6 +457,60 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 		}
 	}
 	return foundScreenSquares
+}
+
+// returns the corners of the screen from a given square located in that screen
+function getScreenFromSquare(square, corners, nbOfRows, nbOfCols){
+	// get the vecotrs that define the square
+	//
+	//	       \VTop-> \
+	//	_______\_______\_______
+	//	 Vleft \current\	VRight
+	//     |   \ square\    |
+	//	___V___\_______\____V__
+	//	       \Vbot-> \
+	//	       \       \
+	var vectorTop = {
+		x: corners[0].x - corners[3].x,
+		y: corners[0].y - corners[3].y
+	}
+	var vectorBot = {
+		x: corners[1].x - corners[2].x,
+		y: corners[1].y - corners[2].y
+	}
+	var vectorRight = {
+		x: corners[0].x - corners[1].x,
+		y: corners[0].y - corners[1].y
+	}
+	var vectorLeft = {
+		x: corners[3].x - corners[2].x,
+		y: corners[3].y - corners[2].y
+	}
+	// we'll calculate all corners off te screen relative to this one.
+	var corn = corners[3]
+	// calculate how many times we have to add the vector to find the size of the screen
+	var spaceTop = square.row
+	var spaceBot = nbOfRows - square.row
+	var spaveLeft = square.col
+	var spaceRight = nbOfCols - square.col
+	return [
+		{
+			x: corn.x + spaceTop * vectorTop.x + spaceRight * vectorRight.x ,
+			y: corn.y + spaceTop * vectorTop.y + spaceRight * vectorRight.y
+		},
+		{
+			x: corn.x + spaceBot * vectorBot.x + spaceRight * vectorRight.x ,
+			y: corn.y + spaceBot * vectorBot.y + spaceRight * vectorRight.y
+		},
+		{
+			x: corn.x + spaceBot * vectorBot.x + spaceLeft * vectorLeft.x ,
+			y: corn.y + spaceBot * vectorBot.y + spaceLeft * vectorLeft.y
+		},
+		{
+			x: corn.x + spaceTop * vectorTop.x + spaceLeft * vectorLeft.x ,
+			y: corn.y + spaceTop * vectorTop.y + spaceLeft * vectorLeft.y 
+		},
+	]
 }
 
 // returns the 4 corners of the quadrangles with a given color in the matrix
