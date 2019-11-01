@@ -20,8 +20,8 @@ var slaveButtons = {};
 var numberOnButton = 0;
 
 var drawButtonLine = document.getElementById('drawLine');
+var drawstarButton = document.getElementById('drawStar')
 var anglePicker = document.getElementById('anglePicker');
-var canvas = document.getElementById("canvas");
 var calibrateButton = document.getElementById("calibrateButton");
 
 var angle = 0;
@@ -29,8 +29,11 @@ anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
 
+drawstarButton.addEventListener('click', function() {
+	socket.emit('drawStar')
+});
 
-drawButtonLine.addEventListener('click', function(){
+drawButtonLine.addEventListener('click', function() {
     socket.emit('drawLine',{
         angle:angle
     })
@@ -42,7 +45,7 @@ colorPicker.addEventListener('input',function(){
 
 function createSlaveButton(number,id) {
 		var btn = document.createElement("BUTTON");
-		btn.innerHTML = "Change collor of " + number;
+		btn.innerHTML = "Change color of " + number;
 		entirePage.appendChild(btn);
 		btn.addEventListener('click', function () {
 				socket.emit('changeBackgroundColor', {

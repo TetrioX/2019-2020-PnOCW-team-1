@@ -33,7 +33,6 @@ function delaunay(pts, adj, l, r){
 
 }
 
-
 module.exports = {
     Delaunay: Delaunay
 }
