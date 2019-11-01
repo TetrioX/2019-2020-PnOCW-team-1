@@ -224,7 +224,7 @@ const hasNeighbors = function (matrix, loc, color) { //inside matrix & not loc &
 
 const findBorderOrdered = function (matrix, start,color) {
 
-    // check if pixel on current + angle*value is white and in screen
+  // check if pixel on current + angle*value is white and in screen
 	function checkNeighbor(current, ang){
 		var neighbor = borderMatrix[current.y + ang.y]
         if (typeof neighbor === 'undefined'){
@@ -233,15 +233,15 @@ const findBorderOrdered = function (matrix, start,color) {
 		neighbor = neighbor[current.x + ang.x]
 		if (typeof neighbor === 'undefined'){
 			return
-        }
-        return neighbor == color
-    }
-    //possible angles to go to
-	var angles = [
+      }
+    return neighbor == color
+  }
+  //possible angles to go to
+	const angles = [
 		{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
 		{x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1},
 		{x: 0, y: -1}, {x: 1, y: -1}
-    ]
+  ]
 
 	borderMatrix[start.y][start.x] = 0
 
@@ -301,9 +301,99 @@ const findBorderOrdered = function (matrix, start,color) {
 }
 
 function checkNeighborsColor(corners, screen, screens){
-	
-}
+	// distance to check for color
+	const distance = 3;
+	// check if there is a pixel around the current pixel with a certain color
+	// within a certain distance
+	function checkNeighbors(current, color, distance){
+		//possible angles to go to
+		const angles = [
+			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
+			{x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1},
+			{x: 0, y: -1}, {x: 1, y: -1}
+	  ]
+		// for each angle
+		for (angle of angles){
+			// for each distance
+			for (var i = 0; i < distance; i++){
+				var neighbor = borderMatrix[current.y + ang.y]
+				if (typeof neighbor === 'undefined'){
+					break;
+				}
+				neighbor = neighbor[current.x + ang.x]
+				if (typeof neighbor === 'undefined'){
+					break;
+				}
+				if (neighbor == color){
+					return true
+				}
+			}
+		}
+		return false;
+	}
+	// returns the color of the neigbor of the current square as shown in the
+	// figure below. if
+	//
+	//	  i=3  \       \ i=0			NOTE: this is orientated according to screen
+	//	_______\_______\_______					and not the picture so i=0 is the upper
+	//	       \current\								right corner of the screen.
+	//         \ square\
+	//	_______\_______\_______
+	//	       \       \
+	//	  i=2  \       \ i=1
+	function getColorNeighbor(i){
+		var nbOfRows = screen.length
+		var nbOfCols = screen[0].length
+		// get row and column from i
+		var rowI = screen[1]
+		var colI = screen[2]
+		switch(i){
+			case 0:
+				rowI -= 1;
+				colI += 1;
+				break;
+			case 1:
+				rowI += 1;
+				colI += 1;
+				break;
+			case 2:
+				rowI += 1;
+				colI -= 1;
+				break;
+			case 3:
+				rowI -= 1;
+				colI -= 1;
+				break;
+		}
+		// check if are col or row is out of bounds
+		var rowInRange = ((0 <= rowI) && (rowI < nbOfRows))
+		var colInRange = ((0 <= colI) && (colI < nbOfcols))
+		// if both are not in range take corner border color
+		if (!rowInRange && !colInRange){
+			return screens[screen[0]].cornBorder
+		}
+		// if only one is not in range take side border color
+		if (!rowInRange || !colInRange){
+			return screens[screen[0]].sideBorder
+		}
+		return screens[screen[0]][rowI][colI];
 
+	}
+
+	// array in which we'll put the corners in orientated sequence
+	var cornersOrientated = [];
+	// check each angle and see if edge corner exists around the corners provided
+	// and use this information to also order the corners
+	for (corn of corners){
+		for (var i = 0; i < 4; i++){
+			var color = getColorNeighbor(i)
+			if (checkNeighbors(corn, color, 3)){
+				cornersOrientated.add(corn)
+			}
+		}
+	}
+	return cornersOrientated
+}
 
 /** returns the screens of the given matrixes
 	*
@@ -311,19 +401,13 @@ function checkNeighborsColor(corners, screen, screens){
 	*	for each pixel
 	* @param {Object} screens an object with as key a screen square and as value the
 	* color value on that location of the screen
-	* @param {Object} colorCombs an object with as key a color combination and as
+	* @param {Object} colorCombs an object with as key a color value and as
 	* value a screen square
 	* @param {Integer} nbOfColors number of colors used
 	*/
 function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	// join the matrixes in 1 matrix
 	var matrix = joinMatrixes(matrixes, nbOfColors)
-	// add the value of the color comb to colorCombs
-	// so we can get the screen information from the colValue
-	for (val colComb of Object.keys(colorCombs)){
-		var colValue = getColorValue(colComb)
-		colorCombs[colValue] = colorCombs[colComb]
-	}
 	// a set of all colors that have been checked
 	// 0 is the value for noice and shouldn't be checked
 	var foundColValues = new Set([0])
@@ -337,7 +421,8 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 				var border = findBorderOrdered(matrix, {x: i, y: j}, matrix[j][i])
 				var corners = getCorners(border)
 				var cornersOrientated = checkNeighborsColor(corners, colorCombs[matrix[j][i]], screens)
-				if (cornersOrientated != false){
+				// check if we've found all corners
+				if (cornersOrientated.length == 4){
 					foundScreenSquares.push({
 						corners: cornersOrientated,
 						screen: colorCombs[matrix[j][i]]

@@ -7,8 +7,8 @@ const config = require('./config.json');
 
 //App setup
 var app = express();
-var server = app.listen(8001, function(){
-    console.log('listening to requests on port 8001')
+var server = app.listen(config.port, function(){
+    console.log('listening to requests on port '+config.port)
 });
 //Socket setup
 var io = socket(server);
@@ -52,6 +52,29 @@ function decodeBase64Image(dataString)
 
     return response;
 }
+
+// Fisher–Yates Shuffle
+// source: https://bost.ocks.org/mike/shuffle/
+function shuffle(array) {
+  var copy = [], n = array.length, i;
+
+  // While there remain elements to shuffle…
+  while (n) {
+
+    // Pick a remaining element…
+    i = Math.floor(Math.random() * array.length);
+
+    // If not already shuffled, move it to the new array.
+    if (i in array) {
+      copy.push(array[i]);
+      delete array[i];
+      n--;
+    }
+  }
+
+  return copy;
+}
+
 
 // generates a list of color combinations
 function getColorComb(n){
@@ -98,7 +121,7 @@ function getColorComb(n){
     // remove value on index i
     combs.splice(remIndex[i], 1)
   }
-  return combs
+  return shuffle(combs)
 }
 
 //Static files
@@ -140,11 +163,18 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     socket.on('changeBackgroundOfAllSlaves', function(data){
       console.log("message recieved, should make grid")
-      const slavesID = Object.keys(slaves);
-      for (i=0;i < slavesID.length;i++){
-        var colorGrid = createColorGrid(data.numberOfRows,data.numberOfColumns)
-        slaveIo.to(`${slavesID[i]}`).emit('changeBackgroundOfAllSlaves',colorGrid);
-      }
+      var screens = {}
+      var colorCombs = {};
+      Object.keys(slaves).forEach(function(slave, index) {
+        // slaves[slave] is the slave ID
+        var colorGrid = createColorGrid(data.numberOfRows,data.numberOfColumns, slaves[slave])
+        slaveIo.to(`${slave}`).emit('changeBackgroundOfAllSlaves',colorGrid.grid);
+        // add the grid to screens
+        screens[slaves[slave]] = colorGrid.grid
+        // add the new color combinations to the colorComb Object
+        colorCombs = {...colorCombs, ...colorGrid.comb}
+      })
+
     });
 
     socket.on('upload-image', function (data) {
@@ -190,13 +220,32 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 
 
 //creating grids with a number of columns and a number of rows
-function createColorGrid(nbrows, nbcolumns){
-  var colorGrid =[];
+function createColorGrid(nbrows, nbcolumns, slaveID){
+  var colorGrid = {
+    grid: [],
+    comb: {}
+  }
   for (var i = 0; i<nbrows; i++){
-    colorGrid.push([]);
+    colorGrid.grid.push([]);
     for (var j = 0; j<nbcolumns; j++){
-      colorGrid[i].push(allColorCombinations.pop());
+      var colorComb = allColorCombinations.pop()
+      colorGrid.grid[i].push(colorComb);
+      // the key is the integer value of the color comb and the value
+      // is the location of the quadrangle in the grid.
+      colorGrid.comb[getColorValue(colorComb)] = [slaveID, i, j]
     }
   }
+  // generate a color for the side and corner border.
+  var cornBorder = allColorCombinations.pop()
+  var sideBorder = allColorCombinations.pop()
+  colorGrid.gird.cornBorder = cornBorder
+  colorGrid.grid.sideBorder = sideBorder
+
   return colorGrid;
+}
+
+// TODO
+var testColorValue = 0
+function getColorValue(){
+  return testColorValue++
 }
