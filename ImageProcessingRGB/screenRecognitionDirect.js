@@ -66,7 +66,7 @@ async function findScreen(imgs, demand_same_size=false) {
 	for(let i = 0; i < diff.buffers.length - 1; ++i) {
 		tempResult.push( Buffer.alloc(diff.dimensions.width * diff.dimensions.height))
 		// This assertion should always return true
-		assert(diff.buffers[i].length == 3 * diff.dimensions.width * diff.dimensions.height)
+		assert(diff.buffers[i].length == diff.dimensions.width * diff.dimensions.height)
 		screenCorners = scrread.screenReading(diff.buffers[i], diff.buffers[i+1], tempResult[i], diff.dimensions)
 		dict[screenIds[i]] = screenCorners
 		if (verbose > 1) console.log(`3.${i+1} Screen Middle = `, screenMiddle)
