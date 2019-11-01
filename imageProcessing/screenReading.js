@@ -444,8 +444,8 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 						corners: cornersOrientated,
 						screen: colorCombs[matrix[j][i]]
 					})
-					foundColValues.add(matrix[j][i])
 				}
+				foundColValues.add(matrix[j][i])
 			}
 		}
 	}
@@ -621,5 +621,8 @@ const findCorners = function (matrix) {
 module.exports = {
 	screenReading: screenReading,
 	getSquares: getSquares,
-	createMatrix: createMatrix
+	createMatrix: createMatrix,
+	colorToValue: colorToValue,
+	colorToValueList: colorToValueList,
+	getScreens: getScreens
 };

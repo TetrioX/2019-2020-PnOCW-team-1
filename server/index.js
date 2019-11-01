@@ -2,6 +2,7 @@ var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
+const scrnread = require('../imageProcessing/screenReading.js')
 // load config file
 const config = require('./config.json');
 
@@ -123,7 +124,6 @@ function getColorComb(n){
   }
   return shuffle(combs)
 }
-
 //Static files
 
 app.get('/master', function(req,res){
@@ -232,20 +232,14 @@ function createColorGrid(nbrows, nbcolumns, slaveID){
       colorGrid.grid[i].push(colorComb);
       // the key is the integer value of the color comb and the value
       // is the location of the quadrangle in the grid.
-      colorGrid.comb[getColorValue(colorComb)] = [slaveID, i, j]
+      colorGrid.comb[scrnread.colorToValueList(colorComb)] = [slaveID, i, j]
     }
   }
   // generate a color for the side and corner border.
   var cornBorder = allColorCombinations.pop()
   var sideBorder = allColorCombinations.pop()
-  colorGrid.gird.cornBorder = cornBorder
-  colorGrid.grid.sideBorder = sideBorder
+  colorGrid.grid['cornBorder'] = cornBorder
+  colorGrid.grid['sideBorder'] = sideBorder
 
   return colorGrid;
-}
-
-// TODO
-var testColorValue = 0
-function getColorValue(){
-  return testColorValue++
 }
