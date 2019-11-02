@@ -18,9 +18,8 @@ var slaves = {}
 var number = 0
 
 //adjust this if you want to have more colorlist
- var possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
-// TODO: should be created when the calibration button is pressed
-var allColorCombinations = getColorComb(4)
+ const possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
+
 
 function deleteSlave(socket) {
    delete slaves[socket.id]
@@ -162,11 +161,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     socket.on('changeBackgroundOfAllSlaves', function(data){
       console.log("message recieved, should make grid")
+      var allColorCombinations = getColorComb(4)
       var screens = {}
       var colorCombs = {};
       Object.keys(slaves).forEach(function(slave, index) {
         // slaves[slave] is the slave ID
-        var colorGrid = createColorGrid(data.numberOfRows,data.numberOfColumns, slaves[slave])
+        var colorGrid = createColorGrid(data.numberOfRows,data.numberOfColumns, allColorCombinations, slaves[slave])
         slaveIo.to(`${slave}`).emit('changeBackgroundOfAllSlaves',{
           grid: colorGrid.grid,
           cornBorder: colorGrid.grid.cornBorder,
@@ -174,8 +174,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
         });
         // after we've transimited the cornBorder and sideBorder we change its value
         // to its color value.
-        colorGrid.grid['cornBorder'] = colorToValueList(colorGrid.grid.cornBorder)
-        colorGrid.grid['sideBorder'] = colorToValueList(colorGrid.grid.sideBorder)
+        colorGrid.grid['cornBorder'] = scrnread.colorToValueList(colorGrid.grid.cornBorder)
+        colorGrid.grid['sideBorder'] = scrnread.colorToValueList(colorGrid.grid.sideBorder)
         // add the grid to screens
         screens[slaves[slave]] = colorGrid.grid
         // add the new color combinations to the colorComb Object
@@ -227,7 +227,7 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 
 
 //creating grids with a number of columns and a number of rows
-function createColorGrid(nbrows, nbcolumns, slaveID){
+function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID){
   var colorGrid = {
     grid: [],
     comb: {}
