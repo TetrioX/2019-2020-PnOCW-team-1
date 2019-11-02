@@ -56,8 +56,9 @@ socket.on('changeBackgroundOfAllSlaves', function(data){
 	createGrid();
 });
 
-socket.on('changeGrid', function(data){
+socket.on('changeGrid', function(data, callback){
 	updateGrid(data)
+	callback()
 });
 
 masterButton.addEventListener('click',function(){

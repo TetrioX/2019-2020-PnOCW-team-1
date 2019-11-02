@@ -15,6 +15,7 @@ var server = app.listen(config.port, function(){
 var io = socket(server);
 
 var slaves = {}
+var salveSockets = {}
 var number = 0
 
 //adjust this if you want to have more colorlist
@@ -28,6 +29,7 @@ function deleteSlave(socket) {
 
 function addSlave(socket) {
     slaves[socket.id] = ++number
+    salveSockets[socket.id] = socket
     masterIo.emit('registerSlave', {
         number: number,
         socket_id: socket.id
@@ -159,8 +161,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		  };
   	});
 
-    socket.on('changeBackgroundOfAllSlaves', function(data){
-      console.log("message recieved, should make grid")
+    socket.on('changeBackgroundOfAllSlaves', async function(data){
       // number of color combinations we need
       var nbOfColorCombs = Object.keys(slaves).length * (data.numberOfRows * data.numberOfColumns + 2)
       // calculate how many pictues should be taken
@@ -185,30 +186,53 @@ var masterIo = io.of('/master').on('connect', function(socket){
         // add the new color combinations to the colorComb Object
         colorCombs = {...colorCombs, ...colorGrid.comb}
       })
-      takePicture(0, nbOfPictures, [])
+      // TODO: matrixes should be get out of array of buffers and used for getScreens
+      console.log(await takePicture(nbOfPictures))
     });
-
-    function sleep(ms){
-    	return new Promise(resolve => setTimeout(resolve, ms));
-    }
 
     // takes a picture with i the current picture and n the total number of pictures
     // and pictues a list with all taken pictures
-    function takePicture(i, n, pictures){
-      socket.emit('takeOnePicture', {}, function(callBackData){
-        pictures.push(decodeBase64Image(callBackData).data)
-        i++
-        if (i < n){
-          Object.keys(slaves).forEach(function(slave, index) {
-            slaveIo.to(`${slave}`).emit('changeGrid', i)
+    async function takePicture(n){
+      var pictures = []
+      // loop untill break statement
+      var i = 0
+      while(true){
+        var picPromise = new Promise(function(resolve, reject) {
+          socket.emit('takeOnePicture', {}, async function(callBackData){
+            resolve(callBackData)
           })
-          sleep(200)
-          takePicture(i, n, pictures)
+          setTimeout(function() {
+            // if it takes longer than 0.5 seconds reject the promise
+            reject()
+          }, 500);
+        })
+        var picture = await picPromise
+        pictures.push(decodeBase64Image(picture).data)
+        i += 1
+        if (i < n){
+          // promises that will be fulfilled once the screens have changed color
+          var promises = []
+          Object.keys(slaves).forEach(async function(slave, index) {
+            var promise = new Promise(function(resolve, reject) {
+              salveSockets[slave].emit('changeGrid', i, function(callBackData){
+              // fulfill promise
+              resolve()
+              })
+              setTimeout(function() {
+                // if it takes longer than 0.5 seconds reject the promise
+              	reject()
+              }, 500);
+            })
+            promises.push(promise)
+          })
+          // wait untill all screens have changed
+          await Promise.all(promises)
         }
         else{
-          console.log(pictures)
+          break
         }
-      })
+      }
+      return pictures
     }
 
     socket.on('upload-image', function (data) {
