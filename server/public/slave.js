@@ -104,6 +104,7 @@ function updateGrid(c){
 			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=gridData.grid[i][j][c];
 		}
 	}
+	document.body.style.backgroundColor = gridData.sideBorder[c];
 }
 
 function saveGrid(data){
