@@ -6,6 +6,11 @@ var masterButton = document.getElementById("masterButton");
 var socketID = null;
 var canvas=document.getElementById("canvas");
 var context = canvas.getContext('2d');
+var gridData = {
+	grid: [],
+	sideBorder: [],
+	cornBorder: []
+}
 
 var length = 350;
 
@@ -47,26 +52,27 @@ socket.on('changeBackgroundOfAllSlaves', function(data){
 	var entirePage = document.createElement('th');
 	entirePage.setAttribute("id","entirePage");
 	document.body.appendChild(entirePage);
-	createGrid(data);
+	saveGrid(data);
+	createGrid();
+});
+
+socket.on('changeGrid', function(data){
+	updateGrid(data)
 });
 
 masterButton.addEventListener('click',function(){
 	window.location.href="/master";
 });
 
-
-
-function createGrid(data){
-	var numberOfrows=data.grid.length;
-	var numberOfColumns = data.grid[0].length;
-	var counter =1;
+function createGrid(){
+	var numberOfrows=gridData.grid.length;
+	var numberOfColumns = gridData.grid[0].length;
 	for (i=0; i<4;i++){
 		var corner =document.createElement('div');
 		corner.setAttribute("class","corner");
 		corner.setAttribute("id", "corner"+i.toString());
 		document.body.appendChild(corner);
-		document.getElementById("corner"+i.toString()).style.backgroundColor=data.cornBorder[0];
-
+		document.getElementById("corner"+i.toString()).style.backgroundColor=gridData.cornBorder[0];
 	}
 	for (i=0; i<numberOfrows;i++){
 		var row =document.createElement('div');
@@ -80,12 +86,28 @@ function createGrid(data){
 			grid.setAttribute("id","grid"+i.toString()+j.toString());
 			grid.setAttribute("class", "grid");
 			document.getElementById(i.toString()).appendChild(grid);
-			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=data.grid[i][j][0];
-			counter+=1;
-
-
+			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=gridData.grid[i][j][0];
 		}
 	}
+	document.body.style.backgroundColor = gridData.sideBorder[0];
+}
+
+function updateGrid(c){
+	var numberOfrows=gridData.grid.length;
+	var numberOfColumns = gridData.grid[0].length;
+	for (i=0; i<4;i++){
+		document.getElementById("corner"+i.toString()).style.backgroundColor=gridData.cornBorder[c];
+	}
+	for (i=0; i<numberOfrows;i++){
+		for (j=0; j<numberOfColumns; j++){
+			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=gridData.grid[i][j][c];
+		}
+	}
+}
+
+function saveGrid(data){
+	// save the grid data in global variable
+	gridData = data
 }
 
 function drawArrowHead(from, to, radius){

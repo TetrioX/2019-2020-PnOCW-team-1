@@ -139,6 +139,14 @@ function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+socket.on('takeOnePicture', function(data, callback){
+	var context = canvas.getContext('2d');
+	canvas.width = video.videoWidth;
+	canvas.height = video.videoHeight;
+	context.drawImage(video, 0, 0);
+	callback(canvas.toDataURL('image/png'))
+})
+
 socket.on('takePictures', async function(data, callback){
 	for (var key in data.slaves) {
 		if (key) socket.emit('changeBackgroundColor', {

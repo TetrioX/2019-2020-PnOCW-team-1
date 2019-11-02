@@ -185,8 +185,31 @@ var masterIo = io.of('/master').on('connect', function(socket){
         // add the new color combinations to the colorComb Object
         colorCombs = {...colorCombs, ...colorGrid.comb}
       })
-
+      takePicture(0, nbOfPictures, [])
     });
+
+    function sleep(ms){
+    	return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // takes a picture with i the current picture and n the total number of pictures
+    // and pictues a list with all taken pictures
+    function takePicture(i, n, pictures){
+      socket.emit('takeOnePicture', {}, function(callBackData){
+        pictures.push(decodeBase64Image(callBackData).data)
+        i++
+        if (i < n){
+          Object.keys(slaves).forEach(function(slave, index) {
+            slaveIo.to(`${slave}`).emit('changeGrid', i)
+          })
+          sleep(200)
+          takePicture(i, n, pictures)
+        }
+        else{
+          console.log(pictures)
+        }
+      })
+    }
 
     socket.on('upload-image', function (data) {
 		if (data.destination) fs.writeFileSync(`./Pictures/slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
@@ -209,7 +232,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 					for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
 					scrnrec.findScreen(imgs) // Implement the screen recognition
 				})
-		})
+		  })
     })
 })
 
