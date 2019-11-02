@@ -394,15 +394,15 @@ function checkNeighborsColor(corners, matrix, square, screens){
 		for (ang of angles){
 			// for each distance
 			for (var i = 0; i < distance; i++){
-				var neighbor = matrix[current.y + ang.y]
+				var neighbor = matrix[current.y + i * ang.y]
 				if (typeof neighbor === 'undefined'){
 					break;
 				}
-				neighbor = neighbor[current.x + ang.x]
+				neighbor = neighbor[current.x + i * ang.x]
 				if (typeof neighbor === 'undefined'){
 					break;
 				}
-				for (j in colors){
+				for (var j in colors){
 					if (neighbor == colors[j]){
 						// we remove the found color
 						colors.splice(j, 1)
