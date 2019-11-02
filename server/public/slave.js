@@ -47,18 +47,25 @@ socket.on('drawLine', function(data){
 });
 
 
-socket.on('changeBackgroundOfAllSlaves', function(data){
+socket.on('changeBackgroundOfAllSlaves', function(data, callback){
 	document.body.innerHTML=""
 	var entirePage = document.createElement('th');
 	entirePage.setAttribute("id","entirePage");
 	document.body.appendChild(entirePage);
 	saveGrid(data);
 	createGrid();
+	// callback after 50ms
+	setTimeout(function() {
+		callback()
+	}, 100);
 });
 
 socket.on('changeGrid', function(data, callback){
 	updateGrid(data)
-	callback()
+	// callback after 50ms
+	setTimeout(function() {
+		callback()
+	}, 50);
 });
 
 masterButton.addEventListener('click',function(){

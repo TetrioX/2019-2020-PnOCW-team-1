@@ -169,14 +169,24 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var allColorCombinations = getColorComb(nbOfPictures)
       var screens = {}
       var colorCombs = {};
+      // all promises that will be resolved when a grid has been created
+      var createGridPromises = [];
       Object.keys(slaves).forEach(function(slave, index) {
         // slaves[slave] is the slave ID
         var colorGrid = createColorGrid(data.numberOfRows,data.numberOfColumns, allColorCombinations, slaves[slave])
-        slaveIo.to(`${slave}`).emit('changeBackgroundOfAllSlaves',{
-          grid: colorGrid.grid,
-          cornBorder: colorGrid.grid.cornBorder,
-          sideBorder: colorGrid.grid.sideBorder
-        });
+        createGridPromises.push(new Promise(function(resolve, reject) {
+          salveSockets[slave].emit('changeBackgroundOfAllSlaves',{
+            grid: colorGrid.grid,
+            cornBorder: colorGrid.grid.cornBorder,
+            sideBorder: colorGrid.grid.sideBorder
+          }, function(callBackData){
+            resolve()
+          })
+          setTimeout(function() {
+            // if it takes longer than 1 seconds reject the promise
+            reject()
+          }, 1000);
+        }))
         // after we've transimited the cornBorder and sideBorder we change its value
         // to its color value.
         colorGrid.grid['cornBorder'] = scrnread.colorToValueList(colorGrid.grid.cornBorder)
@@ -186,8 +196,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
         // add the new color combinations to the colorComb Object
         colorCombs = {...colorCombs, ...colorGrid.comb}
       })
-      // TODO: matrixes should be get out of array of buffers and used for getScreens
-      console.log(await takePicture(nbOfPictures))
+      // wait for grids to be created
+      await Promise.all(createGridPromises)
+      var pictures = await takePicture(nbOfPictures)
+      var matrixes = []
+      for (var i in pictures){
+        fs.writeFileSync(`./image-${i}.png`, pictures[i]);
+      }
+
     });
 
     // takes a picture with i the current picture and n the total number of pictures
