@@ -161,7 +161,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     socket.on('changeBackgroundOfAllSlaves', function(data){
       console.log("message recieved, should make grid")
-      var allColorCombinations = getColorComb(4)
+      // number of color combinations we need
+      var nbOfColorCombs = Object.keys(slaves).length * (data.numberOfRows * data.numberOfColumns + 2)
+      // calculate how many pictues should be taken
+      var nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
+      var allColorCombinations = getColorComb(nbOfPictures)
       var screens = {}
       var colorCombs = {};
       Object.keys(slaves).forEach(function(slave, index) {
