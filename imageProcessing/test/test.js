@@ -351,7 +351,9 @@ describe('findScreen', function() {
           console.log(result)
           for (var i in result){
             console.log('square #'+i, result[i])
+            console.log('screen from #'+i, screenReading.getScreenFromSquare(result[i], 3, 3))
           }
+
 
 
     });

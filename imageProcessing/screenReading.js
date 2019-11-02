@@ -533,56 +533,58 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 }
 
 // returns the corners of the screen from a given square located in that screen
-function getScreenFromSquare(square, corners, nbOfRows, nbOfCols){
-	// get the vecotrs that define the square
+function getScreenFromSquare(locSquare, nbOfRows, nbOfCols){
+	// get the vectors that define the square
 	//
-	//	       \VTop-> \
+	//corner[3]\VTop-> \corner[0]
 	//	_______\_______\_______
 	//	 Vleft \current\	VRight
 	//     |   \ square\    |
 	//	___V___\_______\____V__
-	//	       \Vbot-> \
+	//corner[2]\Vbot-> \corner[1]
 	//	       \       \
+	var corners = locSquare.corners
+	var square = locSquare.square
 	var vectorTop = {
-		x: corners[0].x - corners[3].x,
+		x: corners[0].x - corners[3].x + 1,
 		y: corners[0].y - corners[3].y
 	}
 	var vectorBot = {
-		x: corners[1].x - corners[2].x,
+		x: corners[1].x - corners[2].x + 1,
 		y: corners[1].y - corners[2].y
 	}
 	var vectorRight = {
-		x: corners[0].x - corners[1].x,
-		y: corners[0].y - corners[1].y
+		x: corners[1].x - corners[0].x,
+		y: corners[1].y - corners[0].y + 1
 	}
 	var vectorLeft = {
-		x: corners[3].x - corners[2].x,
-		y: corners[3].y - corners[2].y
+		x: corners[2].x - corners[3].x,
+		y: corners[2].y - corners[3].y + 1
 	}
 	// we'll calculate all corners off te screen relative to this one.
 	var corn = corners[3]
 	// calculate how many times we have to add the vector to find the size of the screen
 	var spaceTop = square.row
 	var spaceBot = nbOfRows - square.row
-	var spaveLeft = square.col
+	var spaceLeft = square.col
 	var spaceRight = nbOfCols - square.col
 	return [
 		{
-			x: corn.x + spaceTop * vectorTop.x + spaceRight * vectorRight.x ,
-			y: corn.y + spaceTop * vectorTop.y + spaceRight * vectorRight.y
-		},
+			x: corn.x + spaceRight * vectorTop.x - spaceTop * vectorRight.x - 1,
+			y: corn.y + spaceRight * vectorTop.y - spaceTop * vectorRight.y
+		}, // top right corner
 		{
-			x: corn.x + spaceBot * vectorBot.x + spaceRight * vectorRight.x ,
-			y: corn.y + spaceBot * vectorBot.y + spaceRight * vectorRight.y
-		},
+			x: corn.x + spaceRight * vectorBot.x + spaceBot * vectorRight.x - 1,
+			y: corn.y + spaceRight * vectorBot.y + spaceBot * vectorRight.y - 1
+		}, // bottem right corner
 		{
-			x: corn.x + spaceBot * vectorBot.x + spaceLeft * vectorLeft.x ,
-			y: corn.y + spaceBot * vectorBot.y + spaceLeft * vectorLeft.y
-		},
+			x: corn.x - spaceLeft * vectorBot.x + spaceBot * vectorLeft.x ,
+			y: corn.y - spaceLeft * vectorBot.y + spaceBot * vectorLeft.y - 1
+		}, //bottem left corner
 		{
-			x: corn.x + spaceTop * vectorTop.x + spaceLeft * vectorLeft.x ,
-			y: corn.y + spaceTop * vectorTop.y + spaceLeft * vectorLeft.y
-		},
+			x: corn.x - spaceLeft * vectorTop.x - spaceTop * vectorLeft.x ,
+			y: corn.y - spaceLeft * vectorTop.y - spaceTop * vectorLeft.y
+		}, // top left corner
 	]
 }
 
@@ -758,5 +760,6 @@ module.exports = {
 	createMatrix: createMatrix,
 	colorToValue: colorToValue,
 	colorToValueList: colorToValueList,
-	getScreens: getScreens
+	getScreens: getScreens,
+	getScreenFromSquare: getScreenFromSquare
 };
