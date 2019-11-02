@@ -172,6 +172,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
           cornBorder: colorGrid.grid.cornBorder,
           sideBorder: colorGrid.grid.sideBorder
         });
+        // after we've transimited the cornBorder and sideBorder we change its value
+        // to its color value.
+        colorGrid.grid['cornBorder'] = colorToValueList(colorGrid.grid.cornBorder)
+        colorGrid.grid['sideBorder'] = colorToValueList(colorGrid.grid.sideBorder)
         // add the grid to screens
         screens[slaves[slave]] = colorGrid.grid
         // add the new color combinations to the colorComb Object

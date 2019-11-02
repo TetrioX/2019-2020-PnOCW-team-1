@@ -319,7 +319,66 @@ const findBorderOrdered = function (matrix, start,color) {
     return border
 }
 
-function checkNeighborsColor(corners, square, screens){
+const findBorderOrderedRgb = function (matrix, start,color) {
+
+  // check if pixel on current + angle*value is white and in screen
+	function checkNeighbor(current, ang){
+		var neighbor = matrix[current.y + ang.y]
+        if (typeof neighbor === 'undefined'){
+			return false
+		}
+		neighbor = neighbor[current.x + ang.x]
+		if (typeof neighbor === 'undefined'){
+			return
+      }
+    return neighbor == color
+  }
+  //possible angles to go to
+	const angles = [
+		{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
+		{x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1},
+		{x: 0, y: -1}, {x: 1, y: -1}
+  ]
+
+	var angleIndex = 0
+    var current = {
+		x: start.x,
+		y: start.y
+    };
+	border = []
+    while (true) {
+        var foundNewBorderPixel = false;
+        // Also check previous angles
+        for (var add = -2; add < 4; add++) { //vanaf -3 al????
+            //45graden kloksgewijs: angleIndex (huidige index) + add
+            var angle = angles[(angleIndex + add + 8) % 8]
+            // check in the direction of the angle if your neighbour is white
+            if (checkNeighbor(current, angle)) {
+                current.x += angle.x
+                current.y += angle.y
+                //add to the list
+                border.push({
+                    x: current.x,
+                    y: current.y
+                });
+                //set the new direction to the current angle
+                angleIndex = (angleIndex + add + 8) % 8
+                //continue searching in the same direction
+                foundNewBorderPixel = true;
+                break;
+            }
+        }
+				if (foundNewBorderPixel){
+					if (start.x == current.x && start.y == current.y){
+						break;
+					}
+				}
+
+    }
+    return border
+}
+
+function checkNeighborsColor(corners, matrix, square, screens){
 	// distance to check for color
 	const distance = 3;
 	// check if there are pixels around the current pixel with certain colors
@@ -332,10 +391,10 @@ function checkNeighborsColor(corners, square, screens){
 			{x: 0, y: -1}, {x: 1, y: -1}
 	  ]
 		// for each angle
-		for (angle of angles){
+		for (ang of angles){
 			// for each distance
 			for (var i = 0; i < distance; i++){
-				var neighbor = borderMatrix[current.y + ang.y]
+				var neighbor = matrix[current.y + ang.y]
 				if (typeof neighbor === 'undefined'){
 					break;
 				}
@@ -370,39 +429,40 @@ function checkNeighborsColor(corners, square, screens){
 	//	_______\_______\_______
 	//	       \       \
 	//	  i=2  \       \ i=1
-	function getColorNeighbor(i){
-		var nbOfRows = screens[square.screen]
-		var nbOfCols = screens[square.screen][0]
+	function getColorsNeighbor(i){
+		var screen = screens[square.screen]
+		var nbOfRows = screen.length
+		var nbOfCols = screen[0].length
 		// possible angles
 		const angles = [
 			{x: 1, y: -1}, {x: 1, y: 1},
 			{x: -1, y: 1}, {x: -1, y: -1}
 	  ]
 		// get row and column from i
-		var rowI = screen.row + angles.y
-		var colI = screen.col + angles.x
+		var rowI = square.row + angles[i].y
+		var colI = square.col + angles[i].x
 		// check if are col or row is out of bounds
 		var rowInRange = ((0 <= rowI) && (rowI < nbOfRows))
-		var colInRange = ((0 <= colI) && (colI < nbOfcols))
+		var colInRange = ((0 <= colI) && (colI < nbOfCols))
 		// if both are not in range take corner border color
 		if (!rowInRange && !colInRange){
-			return [screens[square.screen].cornBorder]
+			return [screen.cornBorder]
 		}
 		// if only row is not in range return sideBorder and the horizontal side neigbor
 		if (!rowInRange){
 			return [
-				screens[square.screen].sideBorder,
-				screens[square.screen][rowI - angles.y][colI]
+				screen.sideBorder,
+				screen[rowI - angles[i].y][colI]
 			]
 		}
 		// if only col is not in range return sideBorder and the vertical side neigbor
 		if (!colInRange){
 			return [
-				screens[square.screen].sideBorder,
-				screens[square.screen][rowI][colI - angles.x]
+				screen.sideBorder,
+				screen[rowI][colI - angles[i].x]
 			]
 		}
-		return [screens[square.screen][rowI][colI]];
+		return [screen[rowI][colI]];
 
 	}
 
@@ -412,9 +472,9 @@ function checkNeighborsColor(corners, square, screens){
 	// and use this information to also order the corners
 	for (corn of corners){
 		for (var i = 0; i < 4; i++){
-			var color = getColorNeighbor(i)
-			if (checkNeighbors(corn, color, 3)){
-				cornersOrientated.add(corn)
+			var colors = getColorsNeighbor(i)
+			if (checkNeighbors(corn, colors, 3)){
+				cornersOrientated.push(corn)
 			}
 		}
 	}
@@ -443,10 +503,21 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	for (var j = 0; j < matrix.length; j++){
 		for (var i = 0; i < matrix.length; i++){
 			// check if we have found a new color
-			if (foundColValues.has(matrix[j][i])) {
-				var border = findBorderOrdered(matrix, {x: i, y: j}, matrix[j][i])
+			if (!foundColValues.has(matrix[j][i])) {
+				// check if the found color is in colorComb
+				// if not skip it and ad to colors to be ingored
+				if (!colorCombs.hasOwnProperty(matrix[j][i])){
+					foundColValues.add(matrix[j][i])
+					break;
+				}
+				var border = findBorderOrderedRgb(matrix, {x: i, y: j}, matrix[j][i])
 				var corners = getCorners(border)
-				var cornersOrientated = checkNeighborsColor(corners, colorCombs[matrix[j][i]], screens)
+				// found square is too small
+				if (corners.length != 4){
+					foundColValues.add(matrix[j][i])
+					break;
+				}
+				var cornersOrientated = checkNeighborsColor(corners, matrix, colorCombs[matrix[j][i]], screens)
 				// check if we've found all corners
 				if (cornersOrientated.length == 4){
 					foundScreenSquares.push({
@@ -532,7 +603,7 @@ const getSquares = function (matrix,color) {
 // return the 4 smallest corners of a given border.
 function getCorners(rand){
 
-	if (rand.length < 50){
+	if (rand.length < 24){
 	return []
 	}
 
@@ -551,7 +622,7 @@ function getCorners(rand){
 	// Retuns index of minimum of angles
 	var indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
 	// Set values next to minimum angle to infinity so that they don't show up next time.
-	for (var v = -5; v <= 5; v++){
+	for (var v = -4; v <= 4; v++){
 	    angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
 	}
 	return getRand(indexOfMinAngle);
