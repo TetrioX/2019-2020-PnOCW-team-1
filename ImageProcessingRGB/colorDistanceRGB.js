@@ -14,13 +14,13 @@ const assert = require('assert')  // asserting pre-conditions
  */
 const pixelColor = function(color) { // color2) {
 	color = colorNormalise(color)
-	
-	dr = color[0] 
-	dg = color[1] 
-	db = color[2] 
-	
-	inferum = 40
-	
+
+	dr = color[0]
+	dg = color[1]
+	db = color[2]
+
+	inferum = 20
+
 	if (dr > inferum && dr / 2 >= dg && dr / 2 >= db) return 1
 	else if (dg > inferum && dg / 2 >= dr && dg / 2 >= db) return 2
 	else if (db > inferum && db / 2 >= dg && db / 2 >= dr) return 3
@@ -34,7 +34,7 @@ const colorNormalise = function(color) {
 	if (color[0] <= color[1] && color[0] <= color[2]) subst = color[0]
 	else if (color[1] <= color[0] && color[1] <= color[2]) subst = color[1]
 	else if (color[2] <= color[0] && color[2] <= color[1]) subst = color[2]
-	
+
 	return new Array(color[0] - subst, color[1] - subst, color[2] - subst)
 }
 
@@ -42,4 +42,3 @@ const colorNormalise = function(color) {
 module.exports = {
 	pixelColor: pixelColor,
 };
-	

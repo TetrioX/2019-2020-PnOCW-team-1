@@ -7,6 +7,13 @@ const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
 // load config file
 const config = require('./config.json');
 
+const { argv } = require('yargs')
+                  .boolean('save-debug-files')
+                  .default('grid-pause', 0)
+
+var saveDebugFiles = argv['save-debug-files']
+var gridPause = argv['grid-pause']
+
 //App setup
 var app = express();
 var server = app.listen(config.port, function(){
@@ -188,10 +195,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
             reject()
           }, 1000);
         }))
-        // after we've transimited the cornBorder and sideBorder we change its value
-        // to its color value.
-        colorGrid.grid['cornBorder'] = scrnread.colorToValueList(colorGrid.grid.cornBorder)
-        colorGrid.grid['sideBorder'] = scrnread.colorToValueList(colorGrid.grid.sideBorder)
         // add the grid to screens
         screens[slaves[slave]] = colorGrid.grid
         // add the new color combinations to the colorComb Object
@@ -200,20 +203,31 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       var pictures = await takePicture(nbOfPictures)
+      if (saveDebugFiles) {
+        fs.writeFileSync(`screens.json`, JSON.stringify(screens))
+        fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
+      }
       // we get all matrixes of the pictures asynchronously
       var matrixPromises = []
       for (var i in pictures){
         matrixPromises.push(new Promise(async function(resolve, reject){
           fs.writeFileSync(`./image-${i}.png`, pictures[i]);
-          var result = await imgprcssrgb.doImgDiff([`./image-${i}.png`])
-          resolve(result.matrix)
+          var result = await imgprcssrgb.doImgDiff([`./image-${i}.png`], false, false)
+          resolve(result.matrix[0])
         }))
       }
       var matrixes = await Promise.all(matrixPromises)
+      if (saveDebugFiles) {
+        fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
+      }
       console.log(matrixes)
       var screens = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
       console.log(screens)
     });
+
+    function sleep(ms){
+    	return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     // takes a picture with i the current picture and n the total number of pictures
     // and pictues a list with all taken pictures
@@ -237,6 +251,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         if (i < n){
           // promises that will be fulfilled once the screens have changed color
           var promises = []
+          await sleep(Number(gridPause))
           Object.keys(slaves).forEach(async function(slave, index) {
             var promise = new Promise(function(resolve, reject) {
               salveSockets[slave].emit('changeGrid', i, function(callBackData){
@@ -315,7 +330,7 @@ function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID){
       colorGrid.grid[i].push(colorComb);
       // the key is the integer value of the color comb and the value
       // is the location of the quadrangle in the grid.
-      colorGrid.comb[scrnread.colorToValueList(colorComb)] = {
+      colorGrid.comb[scrnread.colorToValueList(colorComb, possibleColors.length)] = {
         screen:slaveID,
         row:i,
         col:j

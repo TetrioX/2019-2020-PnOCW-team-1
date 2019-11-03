@@ -81,10 +81,10 @@ function colorToValue(colorString) {
     else { throw new Error("The string is not a valid color") }
 }
 
-function colorToValueList(list) {
+function colorToValueList(list, nbOfColors) {
 	var result = 0
-  for (var x of list) {
-      result += colorToValue(x)
+  for (var i in list) {
+      result += colorToValue(list[i]) * (nbOfColors + 1) ** i
   }
 	return result
 }
@@ -347,9 +347,9 @@ const findBorderOrderedRgb = function (matrix, start,color) {
     };
 	border = []
     while (true) {
-        var foundNewBorderPixel = false;
+        var foundNewBorderPixel = true;
         // Also check previous angles
-        for (var add = -2; add < 4; add++) { //vanaf -3 al????
+        for (var add = -2; add <= 4; add++) { //vanaf -3 al????
             //45graden kloksgewijs: angleIndex (huidige index) + add
             var angle = angles[(angleIndex + add + 8) % 8]
             // check in the direction of the angle if your neighbour is white
@@ -380,10 +380,10 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 
 function checkNeighborsColor(corners, matrix, square, screens){
 	// distance to check for color
-	const distance = 3;
+	const distance = 8;
 	// check if there are pixels around the current pixel with certain colors
 	// within a certain distance and returns true if all colors are present.
-	function checkNeighbors(current, colors, distance){
+	function checkNeighbors(current, colors){
 		//possible angles to go to
 		const angles = [
 			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
@@ -403,7 +403,8 @@ function checkNeighborsColor(corners, matrix, square, screens){
 					break;
 				}
 				for (var j in colors){
-					if (neighbor == colors[j]){
+					var color = colorToValueList(colors[j], 6)
+					if (neighbor == color){
 						// we remove the found color
 						colors.splice(j, 1)
 						// if there are no colors left to be found return true
@@ -473,7 +474,7 @@ function checkNeighborsColor(corners, matrix, square, screens){
 	for (corn of corners){
 		for (var i = 0; i < 4; i++){
 			var colors = getColorsNeighbor(i)
-			if (checkNeighbors(corn, colors, 3)){
+			if (checkNeighbors(corn, colors)){
 				cornersOrientated.push(corn)
 			}
 		}
@@ -494,8 +495,13 @@ function checkNeighborsColor(corners, matrix, square, screens){
 function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	// join the matrixes in 1 matrix
 	var matrix = joinMatrixes(matrixes, nbOfColors)
+	// make a matrix with the same dimensions as the joined matrix to store noise
+	//var noiseMatrix = []
+	//for (row of matrix){
+	//	noiceMatrix.push(new Array(row.length))
+	//}
 	// a set of all colors that have been checked
-	// 0 is the value for noice and shouldn't be checked
+	// 0 is the value for noise and shouldn't be checked
 	var foundColValues = new Set([0])
 	// an array of all valide screen squares
 	var foundScreenSquares = []
@@ -758,6 +764,7 @@ module.exports = {
 	screenReading: screenReading,
 	getSquares: getSquares,
 	createMatrix: createMatrix,
+	joinMatrixes: joinMatrixes,
 	colorToValue: colorToValue,
 	colorToValueList: colorToValueList,
 	getScreens: getScreens,
