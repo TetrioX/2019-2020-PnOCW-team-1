@@ -1,18 +1,24 @@
 var assert = require('assert');
 var chai = require('chai');
+var fs = fs = require('fs');
 var assert = chai.assert;    // Using Assert style
 // var expect = chai.expect;    // Using Expect style
 // var should = chai.should();  // Using Should style
 var screenRecognition = require('../screenRecognition.js')
 const screenReading = require('../screenReading.js');
 
-describe('findScreen', function() {
+describe('findscreen', function() {
 
   // set timeout to 3 seconds
   this.timeout(3000)
 
   // allowed pixel distance
   delta = 3
+
+  function parseJsonFile(path){
+    var contents = fs.readFileSync(path);
+    return JSON.parse(contents);
+  }
 
   before(async function() {
 
@@ -30,6 +36,17 @@ describe('findScreen', function() {
     matrixSmall = screenReading.createMatrix(imageSmall.buffers[0], imageSmall.dimension)
     matrixMoreScreens = screenReading.createMatrix(imageMoreScreens.buffers[0], imageMoreScreens.dimension)
     matrixMoreScreens2 = screenReading.createMatrix(imageMoreScreens2.buffers[0], imageMoreScreens2.dimension)
+    var rgbCasesPath = './test/rgbTestCases'
+    matrixes1 = parseJsonFile(rgbCasesPath + '/case1/matrixes.json')
+    colorCombs1 = parseJsonFile(rgbCasesPath + '/case1/colorCombs.json')
+    screens1 = parseJsonFile(rgbCasesPath + '/case1/screens.json')
+    matrixes2 = parseJsonFile(rgbCasesPath + '/case2/matrixes.json')
+    colorCombs2 = parseJsonFile(rgbCasesPath + '/case2/colorCombs.json')
+    screens2 = parseJsonFile(rgbCasesPath + '/case2/screens.json')
+    matrixes3 = parseJsonFile(rgbCasesPath + '/case3/matrixes.json')
+    colorCombs3 = parseJsonFile(rgbCasesPath + '/case3/colorCombs.json')
+    screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json')
+    /*
       colorMatrix1 =
           [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
            [0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,],
@@ -84,6 +101,7 @@ describe('findScreen', function() {
           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,]]
+        */
   });
 
   // checks if the length of all squares is 4
@@ -292,7 +310,7 @@ describe('findScreen', function() {
         'Corners are withing margen of correction.'
       );
       });
-
+      /*
       it('Test diffrent colors', function () {
           var matrix = [colorMatrix1,colorMatrix2]
           var screens = [[[23, 31, 39],
@@ -353,9 +371,20 @@ describe('findScreen', function() {
             console.log('square #'+i, result[i])
             console.log('screen from #'+i, screenReading.getScreenFromSquare(result[i], 3, 3))
           }
-
-
-
-    });
+        });
+          */
   });
+  describe('findScreens', function() {
+
+    it('Returns the corners of TestCase1', function() {
+      console.log(screenReading.getScreens(matrixes1, screens1, colorCombs1, 6))
+    })
+    it('Returns the corners of TestCase2', function() {
+      console.log(screenReading.getScreens(matrixes2, screens2, colorCombs2, 6))
+    })
+    it('Returns the corners of TestCase3', function() {
+      console.log(screenReading.getScreens(matrixes3, screens3, colorCombs3, 6))
+    })
+
+  })
 });

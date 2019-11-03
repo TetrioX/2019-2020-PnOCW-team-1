@@ -181,13 +181,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var createGridPromises = [];
       Object.keys(slaves).forEach(function(slave, index) {
         // slaves[slave] is the slave ID
-        var colorGrid = createColorGrid(data.numberOfRows,data.numberOfColumns, allColorCombinations, slaves[slave])
+        var gridAndCombs = createColorGrid(data.numberOfRows,data.numberOfColumns, allColorCombinations, slaves[slave])
         createGridPromises.push(new Promise(function(resolve, reject) {
-          salveSockets[slave].emit('changeBackgroundOfAllSlaves',{
-            grid: colorGrid.grid,
-            cornBorder: colorGrid.grid.cornBorder,
-            sideBorder: colorGrid.grid.sideBorder
-          }, function(callBackData){
+          salveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
           setTimeout(function() {
@@ -196,9 +192,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
           }, 1000);
         }))
         // add the grid to screens
-        screens[slaves[slave]] = colorGrid.grid
+        screens[slaves[slave]] = gridAndCombs.colorGrid
         // add the new color combinations to the colorComb Object
-        colorCombs = {...colorCombs, ...colorGrid.comb}
+        colorCombs = {...colorCombs, ...gridAndCombs.comb}
       })
       // wait for grids to be created
       await Promise.all(createGridPromises)
@@ -318,18 +314,18 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 
 //creating grids with a number of columns and a number of rows
 function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID){
-  var colorGrid = {
-    grid: [],
+  var result = {
+    colorGrid: {grid: []},
     comb: {}
   }
   for (var i = 0; i<nbrows; i++){
-    colorGrid.grid.push([]);
+    result.colorGrid.grid.push([]);
     for (var j = 0; j<nbcolumns; j++){
       var colorComb = allColorCombinations.pop()
-      colorGrid.grid[i].push(colorComb);
+      result.colorGrid.grid[i].push(colorComb);
       // the key is the integer value of the color comb and the value
       // is the location of the quadrangle in the grid.
-      colorGrid.comb[scrnread.colorToValueList(colorComb, possibleColors.length)] = {
+      result.comb[scrnread.colorToValueList(colorComb, possibleColors.length)] = {
         screen:slaveID,
         row:i,
         col:j
@@ -339,8 +335,8 @@ function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID){
   // generate a color for the side and corner border.
   var cornBorder = allColorCombinations.pop()
   var sideBorder = allColorCombinations.pop()
-  colorGrid.grid['cornBorder'] = cornBorder
-  colorGrid.grid['sideBorder'] = sideBorder
+  result.colorGrid['cornBorder'] = cornBorder
+  result.colorGrid['sideBorder'] = sideBorder
 
-  return colorGrid;
+  return result;
   }

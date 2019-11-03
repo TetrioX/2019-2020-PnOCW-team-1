@@ -440,8 +440,8 @@ function checkNeighborsColor(corners, matrix, square, screens){
 	//	  i=2  \       \ i=1
 	function getColorsNeighbor(i){
 		var screen = screens[square.screen]
-		var nbOfRows = screen.length
-		var nbOfCols = screen[0].length
+		var nbOfRows = screen.grid.length
+		var nbOfCols = screen.grid[0].length
 		// possible angles
 		const angles = [
 			{x: 1, y: -1}, {x: 1, y: 1},
@@ -461,17 +461,17 @@ function checkNeighborsColor(corners, matrix, square, screens){
 		if (!rowInRange){
 			return [
 				screen.sideBorder,
-				screen[rowI - angles[i].y][colI]
+				screen.grid[rowI - angles[i].y][colI]
 			]
 		}
 		// if only col is not in range return sideBorder and the vertical side neigbor
 		if (!colInRange){
 			return [
 				screen.sideBorder,
-				screen[rowI][colI - angles[i].x]
+				screen.grid[rowI][colI - angles[i].x]
 			]
 		}
-		return [screen[rowI][colI]];
+		return [screen.grid[rowI][colI]];
 
 	}
 
