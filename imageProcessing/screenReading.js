@@ -320,20 +320,28 @@ const findBorderOrdered = function (matrix, start,color) {
 }
 
 const findBorderOrderedRgb = function (matrix, start,color) {
-
-  // check if pixel on current + angle*value is white and in screen
+	// distance between 2 pixels in the border
+	// this will cause small gaps to be skipped
+	const distance = 3
+  // check if pixel on current + angle*i is white and in screen
+	// with i in range from 1 through distance
 	function checkNeighbor(current, ang){
-		var neighbor = matrix[current.y + ang.y]
-        if (typeof neighbor === 'undefined'){
-			return false
-		}
-		neighbor = neighbor[current.x + ang.x]
-		if (typeof neighbor === 'undefined'){
-			return
-      }
-    return neighbor == color
-  }
-  //possible angles to go to
+		for (var i = 1; i <= distance; i++){
+			var neighbor = matrix[current.y + ang.y]
+	        if (typeof neighbor === 'undefined'){
+				return false
+			}
+			neighbor = neighbor[current.x + ang.x]
+			if (typeof neighbor === 'undefined'){
+				return false
+	      }
+	    if(neighbor == color){
+				return true
+			}
+	  }
+		return false
+	}
+	 //possible angles to go to
 	const angles = [
 		{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
 		{x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1},
@@ -476,6 +484,8 @@ function checkNeighborsColor(corners, matrix, square, screens){
 			var colors = getColorsNeighbor(i)
 			if (checkNeighbors(corn, colors)){
 				cornersOrientated.push(corn)
+				// go to the next corner
+				break;
 			}
 		}
 	}
@@ -615,6 +625,8 @@ function getCorners(rand){
 	return []
 	}
 
+	const distance = Math.max(5, Math.ceil(rand.length/12))
+
 	function getRand(i){
 	if (i<0){
 	    i += rand.length;
@@ -630,7 +642,7 @@ function getCorners(rand){
 	// Retuns index of minimum of angles
 	var indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
 	// Set values next to minimum angle to infinity so that they don't show up next time.
-	for (var v = -4; v <= 4; v++){
+	for (var v = 1 - distance; v <= distance - 1; v++){
 	    angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
 	}
 	return getRand(indexOfMinAngle);
@@ -640,7 +652,7 @@ function getCorners(rand){
 
 	for (var i = 0; i < rand.length; i++){
 	var avgAngle = 0;
-	for (var j = 2; j <= 5; j++) {
+	for (var j = distance - 3; j <= distance; j++) {
 	    // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
 	    var aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
 	    var bSqrt = getSqrDist(getRand(i), getRand(i + j));

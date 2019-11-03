@@ -122,8 +122,8 @@ async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
     }
     const new_size = { width: extend, height: extend }
     // 'x | 0' is a hack to obtain the integer part by bitwise operator |.
-    if(w_orig > h_orig) new_size.height = (extend * h_orig / w_orig) | 0
-    else                new_size.width  = (extend * w_orig / h_orig) | 0
+    new_size.height = h_orig
+    new_size.width  = w_orig
     // Maybe you would want the minimum dimension to be 'extend' instead of the maximum...
 
     // Extract the sharp objects:
@@ -134,7 +134,6 @@ async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
                  // .toColorspace('srgb')
                  .resize(new_size)
                  .normalize()
-                 .blur() // note: blur after resize...
                  .raw()
                  .toBuffer()
     })

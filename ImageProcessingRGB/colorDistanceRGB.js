@@ -19,7 +19,7 @@ const pixelColor = function(color) { // color2) {
 	dg = color[1]
 	db = color[2]
 
-	inferum = 20
+	inferum = 5
 
 	if (dr > inferum && dr / 2 >= dg && dr / 2 >= db) return 1
 	else if (dg > inferum && dg / 2 >= dr && dg / 2 >= db) return 2

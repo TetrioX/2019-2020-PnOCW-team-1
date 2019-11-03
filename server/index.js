@@ -220,7 +220,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
       if (saveDebugFiles) {
         fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
       }
-      console.log(matrixes)
       var screens = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
       console.log(screens)
     });
