@@ -3,6 +3,7 @@ var socket = require('socket.io');
 var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
+const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
 // load config file
 const config = require('./config.json');
 
@@ -199,11 +200,19 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       var pictures = await takePicture(nbOfPictures)
-      var matrixes = []
+      // we get all matrixes of the pictures asynchronously
+      var matrixPromises = []
       for (var i in pictures){
-        fs.writeFileSync(`./image-${i}.png`, pictures[i]);
+        matrixPromises.push(new Promise(async function(resolve, reject){
+          fs.writeFileSync(`./image-${i}.png`, pictures[i]);
+          var result = await imgprcssrgb.doImgDiff([`./image-${i}.png`])
+          resolve(result.matrix)
+        }))
       }
-
+      var matrixes = await Promise.all(matrixPromises)
+      console.log(matrixes)
+      var screens = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
+      console.log(screens)
     });
 
     // takes a picture with i the current picture and n the total number of pictures

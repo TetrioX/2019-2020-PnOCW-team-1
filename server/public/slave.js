@@ -54,18 +54,18 @@ socket.on('changeBackgroundOfAllSlaves', function(data, callback){
 	document.body.appendChild(entirePage);
 	saveGrid(data);
 	createGrid();
-	// callback after 50ms
+	// callback after 300ms
 	setTimeout(function() {
 		callback()
-	}, 100);
+	}, 300);
 });
 
 socket.on('changeGrid', function(data, callback){
 	updateGrid(data)
-	// callback after 50ms
+	// callback after 200ms
 	setTimeout(function() {
 		callback()
-	}, 50);
+	}, 200);
 });
 
 masterButton.addEventListener('click',function(){
