@@ -377,13 +377,26 @@ describe('findscreen', function() {
   describe('findScreens', function() {
 
     it('Returns the corners of TestCase1', function() {
-      console.log(screenReading.getScreens(matrixes1, screens1, colorCombs1, 6))
+      var squares = screenReading.getScreens(matrixes1, screens1, colorCombs1, 6)
+      for (sq of squares){
+        console.log('1:', 'screen '+sq.square.screen+":")
+        console.log(screenReading.getScreenFromSquare(sq, screens1))
+      }
     })
     it('Returns the corners of TestCase2', function() {
-      console.log(screenReading.getScreens(matrixes2, screens2, colorCombs2, 6))
+      var squares = screenReading.getScreens(matrixes2, screens2, colorCombs2, 6)
+      for (sq of squares){
+        console.log('2:', 'screen '+sq.square.screen+":")
+        console.log(screenReading.getScreenFromSquare(sq, screens2))
+      }
     })
     it('Returns the corners of TestCase3', function() {
-      console.log(screenReading.getScreens(matrixes3, screens3, colorCombs3, 6))
+      var squares = screenReading.getScreens(matrixes3, screens3, colorCombs3, 6)
+      for (sq of squares){
+        console.log('3:', 'screen '+sq.square.screen+":")
+        console.log(screenReading.getScreenFromSquare(sq, screens3))
+      }
+      console.log(squares)
     })
 
   })

@@ -392,6 +392,8 @@ function checkNeighborsColor(corners, matrix, square, screens){
 	// check if there are pixels around the current pixel with certain colors
 	// within a certain distance and returns true if all colors are present.
 	function checkNeighbors(current, colors){
+		// copy colors
+		var colors = colors.slice()
 		//possible angles to go to
 		const angles = [
 			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
@@ -479,12 +481,13 @@ function checkNeighborsColor(corners, matrix, square, screens){
 	var cornersOrientated = [];
 	// check each angle and see if edge corner exists around the corners provided
 	// and use this information to also order the corners
-	for (corn of corners){
-		for (var i = 0; i < 4; i++){
-			var colors = getColorsNeighbor(i)
-			if (checkNeighbors(corn, colors)){
-				cornersOrientated.push(corn)
-				// go to the next corner
+	for (var i = 0; i < 4; i++){
+		var colors = getColorsNeighbor(i)
+		for (var c in corners){
+			if (checkNeighbors(corners[c], colors)){
+				cornersOrientated.push(corners[c])
+				// remove color so it won't be used twice and skip to next i
+				corners.splice(c, 1)
 				break;
 			}
 		}
@@ -549,7 +552,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 }
 
 // returns the corners of the screen from a given square located in that screen
-function getScreenFromSquare(locSquare, nbOfRows, nbOfCols){
+function getScreenFromSquare(locSquare, screens){
 	// get the vectors that define the square
 	//
 	//corner[3]\VTop-> \corner[0]
@@ -561,6 +564,9 @@ function getScreenFromSquare(locSquare, nbOfRows, nbOfCols){
 	//	       \       \
 	var corners = locSquare.corners
 	var square = locSquare.square
+	var screen = screens[square.screen]
+	var nbOfRows = screen.grid.length
+	var nbOfCols = screen.grid[0].length
 	var vectorTop = {
 		x: corners[0].x - corners[3].x + 1,
 		y: corners[0].y - corners[3].y
