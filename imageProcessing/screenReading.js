@@ -323,7 +323,7 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 	// distance between 2 pixels in the border
 	// this will cause small gaps to be skipped
 	const distance = 3
-  // check if pixel on current + angle*i is white and in screen
+  // check if pixel on current + angle*i is the color and in screen
 	// with i in range from 1 through distance
 	function checkNeighbor(current, ang){
 		for (var i = 1; i <= distance; i++){
@@ -411,9 +411,10 @@ function checkNeighborsColor(corners, matrix, square, screens){
 				neighbor = neighbor[current.x + i * ang.x]
 				if (typeof neighbor === 'undefined'){
 					break;
-				}
+                }
+                //check if the color is equal to one in the list (if so, remove it)
 				for (var j in colors){
-					var color = colorToValueList(colors[j], 6)
+					var color = colorToValueList(colors[j], 6) //review: this 6 == amount of colors used is hard coded
 					if (neighbor == color){
 						// we remove the found color
 						colors.splice(j, 1)
@@ -428,19 +429,22 @@ function checkNeighborsColor(corners, matrix, square, screens){
 		}
 		return false;
 	}
-	// returns the color of the neigbor of the current square as shown in the
-	// figure below in an array. If the neighbor is a border it will return
-	// the color of the corner border if the neigbor is located on the corner or
-	// the side border and the color next to the corner and border.
+	// Returns the color of the neigbor of the current square as shown in the
+    // figure below in an array. 
+    // If the current square is at the corner of the screen,
+    //   return the color of the border in the corner (see case 1)
+    // If the current square is at the side of the screen (not corner),
+    //   return the color of the side border and a color square next to it (see case 2/3)
 	//
-	//	  i=3  \       \ i=0			NOTE: this is orientated according to screen
-	//	_______\_______\_______					and not the picture so i=0 is the upper
-	//	       \current\								right corner of the screen.
-	//         \ square\
-	//	_______\_______\_______
-	//	       \       \
-	//	  i=2  \       \ i=1
-	function getColorsNeighbor(i){
+	//	  i=3  |       | i=0			NOTE: this is orientated according to screen
+	//	_______|_______|_______					and not the picture so i=0 is the upper
+	//	       |current|								right corner of the screen.
+	//         | square|
+	//	_______|_______|_______
+	//	       |       |
+	//	  i=2  |       | i=1
+    function getColorsNeighbor(i) {
+        //data of the current square you're working with
 		var screen = screens[square.screen]
 		var nbOfRows = screen.grid.length
 		var nbOfCols = screen.grid[0].length
@@ -454,19 +458,32 @@ function checkNeighborsColor(corners, matrix, square, screens){
 		var colI = square.col + angles[i].x
 		// check if are col or row is out of bounds
 		var rowInRange = ((0 <= rowI) && (rowI < nbOfRows))
-		var colInRange = ((0 <= colI) && (colI < nbOfCols))
-		// if both are not in range take corner border color
+        var colInRange = ((0 <= colI) && (colI < nbOfCols))
+        // visual representation of edge cases (literal edge cases)
+        //  __________________________
+        //  \\\\\\\\\\\side  \\\\\\|          |
+        //	\\\\\\\\\\\border\\\\\\|cornBorder|
+	    //	\\\\\\\\\\\\\\\\\\\\\\\|__________|
+        //	          |            |\\\\\\\\\\|
+        //	          |            |\\\\\\\\\\|
+        //	  2       |     1      |\\\\\\\\\\|
+        //	          |            |\\\\\\\\\\|
+	    //	__________|____________|\\side  \\|
+	    //	          |            |\\border\\|
+	    //	          |     3      |\\\\\\\\\\|
+
+		// 1) if both are not in range take corner border color
 		if (!rowInRange && !colInRange){
 			return [screen.cornBorder]
 		}
-		// if only row is not in range return sideBorder and the horizontal side neigbor
+		// 2) if only row is not in range return sideBorder and the horizontal side neigbor
 		if (!rowInRange){
 			return [
 				screen.sideBorder,
 				screen.grid[rowI - angles[i].y][colI]
 			]
 		}
-		// if only col is not in range return sideBorder and the vertical side neigbor
+		// 3) if only col is not in range return sideBorder and the vertical side neigbor
 		if (!colInRange){
 			return [
 				screen.sideBorder,
@@ -524,7 +541,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 			// check if we have found a new color
 			if (!foundColValues.has(matrix[j][i])) {
 				// check if the found color is in colorComb
-				// if not skip it and ad to colors to be ingored
+				// if not skip it and ad to colors to be ignored
 				if (!colorCombs.hasOwnProperty(matrix[j][i])){
 					foundColValues.add(matrix[j][i])
 					break;
@@ -555,13 +572,13 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 function getScreenFromSquare(locSquare, screens){
 	// get the vectors that define the square
 	//
-	//corner[3]\VTop-> \corner[0]
-	//	_______\_______\_______
-	//	 Vleft \current\	VRight
-	//     |   \ square\    |
-	//	___V___\_______\____V__
-	//corner[2]\Vbot-> \corner[1]
-	//	       \       \
+	//corner[3]|VTop-> |corner[0]
+	//	_______|_______|_______
+	//	 Vleft |current|	VRight
+	//     |   | square|    |
+	//	___V___|_______|____V__
+	//corner[2]|Vbot-> |corner[1]
+	//	       |       |
 	var corners = locSquare.corners
 	var square = locSquare.square
 	var screen = screens[square.screen]
@@ -610,7 +627,7 @@ function getScreenFromSquare(locSquare, screens){
 	]
 }
 
-// returns the 4 corners of the quadrangles with a given color in the matrix
+// Returns the 4 corners of the quadrangles with a given color in the matrix
 const getSquares = function (matrix,color) {
     squares = []
     borderMatrix = onlyBorder(matrix, color) //nog omzetten dat de kleur kan gekozen worden
@@ -624,13 +641,14 @@ const getSquares = function (matrix,color) {
     return squares
 }
 
-// return the 4 smallest corners of a given border.
+// Return the 4 smallest corners of a given border.
 function getCorners(rand){
-
+    //If the border is to small we return an empty list
 	if (rand.length < 24){
 	return []
 	}
-
+    //Value to determen the distance that we look around corners
+    // to make softer borders recognisable
 	const distance = Math.max(5, Math.ceil(rand.length/12))
 
 	function getRand(i){
@@ -639,25 +657,26 @@ function getCorners(rand){
 	}
 	return rand[i%rand.length];
 	}
-
+    // Distance between a and b
 	function getSqrDist(a, b){
 	return (a.x - b.x)**2 + (a.y - b.y)**2;
 	}
-
+    // Returns the corner with the lowest angle
 	function getCornerWithMinimumAngle(angles){
-	// Retuns index of minimum of angles
-	var indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
-	// Set values next to minimum angle to infinity so that they don't show up next time.
-	for (var v = 1 - distance; v <= distance - 1; v++){
-	    angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
-	}
-	return getRand(indexOfMinAngle);
+	    // Returns index of minimum of angles
+	    var indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
+	    // Set values next to minimum angle to infinity so that they don't show up next time.
+	    for (var v = 1 - distance; v <= distance - 1; v++){
+	        angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
+	    }
+	    return getRand(indexOfMinAngle);
 	}
 
 	var angles = [];
-
+    // Walk through each pixel in the border 
 	for (var i = 0; i < rand.length; i++){
-	var avgAngle = 0;
+    var avgAngle = 0;
+    // Apply the cosinus rule four times using the distance
 	for (var j = distance - 3; j <= distance; j++) {
 	    // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
 	    var aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
