@@ -8,7 +8,6 @@ var algebra = require('algebra.js'); // Solving equations
 const getSquareOrientation = function(corners) {
 	assert(corners.length == 4)
 	corners = getCornerPositions(corners)
-	console.log(corners)
 	center = getCenter(corners)
 
 	
@@ -17,7 +16,12 @@ const getSquareOrientation = function(corners) {
 	// console.log(" Verhouding Diagonalen: ", diagonals.AO / diagonals.DO , ' - ',  diagonals.BO / diagonals.CO )
 	// console.log(" Cos: ", 1.0769/(Math.PI/3 + Math.PI/18*5))
 	
-	return transfer2Dto3D(corners)
+	corners.A.z = 0
+	corners.B.z = 0
+	corners.C.z = 0
+	corners.D.z = 0
+
+	return corners
 }
 
 
@@ -177,4 +181,6 @@ test40_2 = [{x:361,y:195},{x:371,y:532},{x:974,y:532},{x:983,y:195}]
 result = getSquareOrientation(test70)
 console.log(result)
 
-
+module.exports = {
+	getSquareOrientation: getSquareOrientation
+}

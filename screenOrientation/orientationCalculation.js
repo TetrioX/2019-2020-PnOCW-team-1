@@ -7,15 +7,19 @@ let nerdamer = require('nerdamer');  // cannot be const, nerdamer object is upda
 require('nerdamer/Algebra.js');
 require('nerdamer/Calculus.js');
 require('nerdamer/Solve.js');
+const sqor = require('./squareOrientation.js')
 
 
 const getOrientation = function(corners) {
+	
+	corners = sqor.getSquareOrientation(corners)
+	
 	center = getCenter(corners)
 	tiltDir = getTiltDir(corners)
 	if (getTiltDir(corners).z) zRotation = calcAngle(getDirVector(corners.B, corners.C), {x:0,y:1,z:0})
 	// xRotation = calcAngleDirection(corners, "x")
 	// yRotation = calcAngleDirection(corners, "y")
-	calcAngles(corners)
+	// calcAngles(corners)
 	return zRotation
 }
 
@@ -91,6 +95,8 @@ const getTiltDir = function(corners) {
 testCornersXTilt = {A: {x:10,y:10,z:0}, C: {x:30,y:30,z:20}, D: {x:10,y:30,z:20}, B: {x:30,y:10,z:0}}
 testCornersYTilt = {A: {x:10,y:10,z:0}, C: {x:20,y:30,z:20}, D: {x:10,y:30,z:0}, B: {x:20,y:10,z:20}}
 testCornersZTilt = {A: {x:100,y:10,z:0}, C: {x:90,y:120,z:0}, D: {x:40,y:70,z:0}, B: {x:150,y:60,z:0}}
+
+testCornersZTilt = [{x:100,y:10},{x:90,y:120},{x:40,y:70},{x:150,y:60}]
 
 
 console.log(getOrientation(testCornersZTilt))
