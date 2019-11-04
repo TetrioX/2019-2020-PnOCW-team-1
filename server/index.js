@@ -171,9 +171,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		  }
   	});
 
-    socket.on('changeBackgroundOfAllSlaves', async function(data){
+    async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
-      var nbOfColorCombs = Object.keys(slaves).length * (data.numberOfRows * data.numberOfColumns + 2)
+      var nbOfColorCombs = Object.keys(slaves).length * (numberOfRows * numberOfColumns + 2)
       // calculate how many pictues should be taken
       var nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
       var allColorCombinations = getColorComb(nbOfPictures)
@@ -183,7 +183,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var createGridPromises = [];
       Object.keys(slaves).forEach(function(slave, index) {
         // slaves[slave] is the slave ID
-        var gridAndCombs = createColorGrid(data.numberOfRows,data.numberOfColumns, allColorCombinations, slaves[slave])
+        var gridAndCombs = createColorGrid(numberOfRows,numberOfColumns, allColorCombinations, slaves[slave])
         createGridPromises.push(new Promise(function(resolve, reject) {
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
@@ -219,11 +219,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
       }
       var squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
-      console.log(squares)
-    });
-
-    function sleep(ms){
-    	return new Promise(resolve => setTimeout(resolve, ms));
+      return scrnread.getScreenFromSquares(squares, screens)
     }
 
     // takes a picture with i the current picture and n the total number of pictures
@@ -272,6 +268,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
       return pictures
     }
 
+    socket.on('changeBackgroundOfAllSlaves', async function(data){
+      console.log(await calibrate(data.numberOfRows, data.numberOfColumns))
+    });
+
+    function sleep(ms){
+    	return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     socket.on('upload-image', function (data) {
 		if (data.destination) fs.writeFileSync(`./Pictures/slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
 		else fs.writeFileSync(`./Pictures/image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
@@ -287,11 +291,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
         slaveIo.emit('drawStar');
     });
 
-    socket.on('triangulate', function(){
-        var screens = null;
-
+    socket.on('triangulate', async function(data){
+        var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
+        console.log(screens)
         var data = screenorientation.getScreens(screens);
+        console.log(data)
         var angles = delaunay.getAngles(data);
+        console.log(angles)
         Object.keys(slaves).forEach(function(slave, index) {
            slaveSockets[slave].emit('triangulate', angles[slave.id]);
         });

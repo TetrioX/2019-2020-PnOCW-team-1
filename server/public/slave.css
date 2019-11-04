@@ -1,9 +1,9 @@
 #entirePage{
   position: fixed;
-  top: 30px;
-  left: 30px;
-  bottom: 30px;
-  right: 30px;
+  top: 100px;
+  left: 100px;
+  bottom: 100px;
+  right: 100px;
   overflow: auto;
   display: grid;
 
@@ -13,8 +13,8 @@
 .row {
     display: table;
     width: 100%;
-    table-layout: fixed; 
-  
+    table-layout: fixed;
+
 }
 .grid {
     display: table-cell;
@@ -24,8 +24,8 @@
 
 .corner{
   background-color: black;
-  height:30px;
-  width: 30px;
+  height:100px;
+  width: 100px;
   position: absolute;
 }
 

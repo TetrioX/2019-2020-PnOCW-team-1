@@ -27,7 +27,7 @@ function getAngles(slaves){
         var point = [X,Y, rot]
 
         coords.push(point)
-        temp[point] = slaves[id].id
+        temp[point] = id
 
     }
 
@@ -44,13 +44,14 @@ function getAngles(slaves){
         var currentId = temp[pt]
         var connections = triangulation[pt].toArray()
         for(var ind=0;ind < connections.length; ind++){
-            
+
 
             var angleBetween = geometry.angleBetweenPoints(pt, connections[ind])
 
             angleBetween -= pt[2]
 
             angles.push(angleBetween)
+            console.log(currentId)
             result[currentId] = angles
         }
 
@@ -81,7 +82,7 @@ function Delaunay(pts){
 function delaunay(pts, adj, l, r){
     const diff = r - l;
 
-    if(diff < 1){
+    if(pts.length < 1){
         return
     }
     if(diff === 1){
@@ -103,7 +104,7 @@ function delaunay(pts, adj, l, r){
     merge.merge(adj, L, R)
 
 }
-
+/*
 var point = function(x,y){
     return {
         x : x,
@@ -131,6 +132,8 @@ console.log(getAngles(testArray))
 function removeDuplicates(pts){
 
 }
+*/
 module.exports = {
-    Delaunay: Delaunay
+    Delaunay: Delaunay,
+    getAngles: getAngles
 }
