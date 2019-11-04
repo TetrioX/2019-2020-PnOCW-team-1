@@ -10,13 +10,24 @@ require('nerdamer/Solve.js');
 const sqor = require('./squareOrientation.js')
 
 
+const getScreens = function(screens) {
+	var scrRes = {}
+	for (var id in screens) {
+		// console.log(id, " ", screens[id])
+		scrRes[id] = getOrientation(screens[id])
+		// console.log(getOrientation(screens[id]))
+	}
+	return scrRes
+}
+
 const getOrientation = function(corners) {
-	
-	corners = sqor.getSquareOrientation(corners)
+	// console.log(corners)
+	var corners = sqor.getSquareOrientation(corners)
 	
 	center = getCenter(corners)
 	tiltDir = getTiltDir(corners)
 	if (getTiltDir(corners).z) zRotation = calcAngle(getDirVector(corners.B, corners.C), {x:0,y:1,z:0})
+	else zRotation = 0
 	// xRotation = calcAngleDirection(corners, "x")
 	// yRotation = calcAngleDirection(corners, "y")
 	// calcAngles(corners)
@@ -103,8 +114,10 @@ testCornersXTilt = {A: {x:10,y:10,z:0}, C: {x:30,y:30,z:20}, D: {x:10,y:30,z:20}
 testCornersYTilt = {A: {x:10,y:10,z:0}, C: {x:20,y:30,z:20}, D: {x:10,y:30,z:0}, B: {x:20,y:10,z:20}}
 testCornersZTilt = {A: {x:100,y:10,z:0}, C: {x:90,y:120,z:0}, D: {x:40,y:70,z:0}, B: {x:150,y:60,z:0}}
 
+testScreens = {0: [{x:100,y:10,z:0}, {x:90,y:120,z:0},{x:40,y:70,z:0}, {x:150,y:60,z:0}], 1: [{x:10,y:10}, {x:30,y:30}, {x:10,y:30}, {x:30,y:10}]}
 testCornersZTilt = [{x:100,y:10},{x:90,y:120},{x:40,y:70},{x:150,y:60}]
 
 vectorTest = {x:4,y:0,z:0}
 
-console.log(getOrientation(testCornersZTilt))
+console.log(getScreens(testScreens))
+// console.log(getOrientation(testCornersZTilt))

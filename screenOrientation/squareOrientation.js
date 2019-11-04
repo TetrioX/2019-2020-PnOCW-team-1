@@ -9,9 +9,10 @@ require('nerdamer/Calculus.js');
 require('nerdamer/Solve.js');
 
 const getSquareOrientation = function(corners) {
+	// console.log(corners)
 	assert(corners.length == 4)
-	corners = getCornerPositions(corners)
-	center = getCenter(corners)
+	var corners = getCornerPositions(corners)
+	var center = getCenter(corners)
 
 	
 	// console.log(" Center: ", center)
@@ -24,14 +25,14 @@ const getSquareOrientation = function(corners) {
 	corners.C.z = 0
 	corners.D.z = 0
 	
-	return transfer2Dto3D(corners)
+	return corners // transfer2Dto3D(corners)
 }
 
 
 
 const getCornerPositions = function(corners) {
 	assert(corners.length == 4)
-	dict = {}
+	var dict = {}
 	dict.A = corners.reduce((A, corner) => corner.y < A.y || corner.y == A.y && corner.x < A.x ? corner : A);
 	corners.splice(corners.indexOf(dict.A), 1)
 	dict.B = corners.reduce((B, corner) => getCos(dict.A, corner) >= getCos(dict.A, B) ? corner : B);
@@ -185,8 +186,8 @@ test40 = [{x:102,y:25},{x:1224,y:26},{x:132,y:630},{x:1195,y:630}]
 test40_ = [{x:115,y:295},{x:132,y:630},{x:735,y:630},{x:737,y:296}]
 test40_2 = [{x:361,y:195},{x:371,y:532},{x:974,y:532},{x:983,y:195}]
 
-result = getSquareOrientation(test70)
-console.log(result)
+// result = getSquareOrientation(test70)
+// console.log(result)
 
 module.exports = {
 	getSquareOrientation: getSquareOrientation
