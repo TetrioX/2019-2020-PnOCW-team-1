@@ -11,8 +11,9 @@ var gridData = {
 	sideBorder: [],
 	cornBorder: []
 }
-
+var entirePage = document.createElement('th');
 var length = 1000;
+var gridElements = []
 
 //ster
 function drawStar() {
@@ -66,7 +67,7 @@ socket.on('SendingPicture', function(data){
 });
 // Sending number to slave (also usefull for angle of arrow!)
 socket.on('slaveID', function (id) {
-    
+
     document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
 })
 
@@ -77,8 +78,8 @@ socket.on('drawLine', function(data){
 
 
 socket.on('changeBackgroundOfAllSlaves', function(data, callback){
-	document.body.innerHTML=""
-	var entirePage = document.createElement('th');
+	let wrapper = document.getElementById("wrapper")
+	wrapper.style.display = "none";
 	entirePage.setAttribute("id","entirePage");
 	document.body.appendChild(entirePage);
 	saveGrid(data);
@@ -97,6 +98,14 @@ socket.on('changeGrid', function(data, callback){
 	}, 200);
 });
 
+socket.on('removeGrid', function(data){
+	document.body.style.backgroundColor = 'white'
+	for (el of gridElements){
+		el.remove()
+	}
+	gridElements = []
+})
+
 masterButton.addEventListener('click',function(){
 	window.location.href="/master";
 });
@@ -110,12 +119,14 @@ function createGrid(){
 		corner.setAttribute("id", "corner"+i.toString());
 		document.body.appendChild(corner);
 		document.getElementById("corner"+i.toString()).style.backgroundColor=gridData.cornBorder[0];
+		gridElements.push(corner)
 	}
 	for (i=0; i<numberOfrows;i++){
 		var row =document.createElement('div');
 		row.setAttribute("class","row");
 		row.setAttribute("id", i.toString());
 		document.getElementById("entirePage").appendChild(row);
+		gridElements.push(row)
 
 		for (j=0; j<numberOfColumns; j++){
 
@@ -124,6 +135,7 @@ function createGrid(){
 			grid.setAttribute("class", "grid");
 			document.getElementById(i.toString()).appendChild(grid);
 			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=gridData.grid[i][j][0];
+			gridElements.push(grid)
 		}
 	}
 	document.body.style.backgroundColor = gridData.sideBorder[0];
@@ -243,9 +255,11 @@ socket.on('drawStar', function(data){
 });
 
 socket.on('triangulate', function(angles){
+	wrapper.style.display = "none";
 	drawStar();
+	console.log(angles)
 	for (let angle in angles) {
-		draw(angle);
+		draw(-1 * angle);
 	}
 });
 

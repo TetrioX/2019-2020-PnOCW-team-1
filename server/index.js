@@ -190,7 +190,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
           })
           setTimeout(function() {
             // if it takes longer than 1 seconds reject the promise
-            reject()
+            // TODO: should be rejected and handled
+            resolve()
           }, 1000);
         }))
         // add the grid to screens
@@ -201,6 +202,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       var pictures = await takePicture(nbOfPictures)
+      // remove all the grids
+      // TODO: use the callback
+      Object.keys(slaves).forEach(function(slave, index) {
+        slaveSockets[slave].emit('removeGrid')
+      })
       if (saveDebugFiles) {
         fs.writeFileSync(`screens.json`, JSON.stringify(screens))
         fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
@@ -235,7 +241,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
           })
           setTimeout(function() {
             // if it takes longer than 0.5 seconds reject the promise
-            reject()
+            // TODO: should be rejected and handled
+            resolve()
           }, 500);
         })
         var picture = await picPromise
@@ -253,7 +260,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
               })
               setTimeout(function() {
                 // if it takes longer than 0.5 seconds reject the promise
-              	reject()
+                // TODO: should be rejected and handled
+              	resolve()
               }, 500);
             })
             promises.push(promise)
