@@ -59,9 +59,9 @@ drawstarButton.addEventListener('click', function () {
 	socket.emit('drawStar')
 });
 
-triangulateButton.addEventListener('click', function () {
+/*triangulateButton.addEventListener('click', function () {
 	socket.emit('triangulate')
-});
+});*/
 
 drawButtonLine.addEventListener('click', function() {
     socket.emit('drawLine',{

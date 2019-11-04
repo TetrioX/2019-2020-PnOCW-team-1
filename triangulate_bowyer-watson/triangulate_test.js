@@ -26,7 +26,7 @@ var triangles_pol = delaunay.triangulate(pointsoneline);
 //triangulatie
 //console.log(triangles1);
 var vertices1 = delaunay.getAllVertices(triangles1);
-console.log(vertices1[0].connections);
+console.log(vertices1);
 console.log(delaunay.getAngles(vertices1[0]));
 //console.log(triangles2);
 //console.log(triangles_pol);

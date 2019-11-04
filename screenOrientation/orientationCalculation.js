@@ -121,3 +121,7 @@ vectorTest = {x:4,y:0,z:0}
 
 console.log(getScreens(testScreens))
 // console.log(getOrientation(testCornersZTilt))
+
+module.exports = {
+	getScreens: getScreens
+}

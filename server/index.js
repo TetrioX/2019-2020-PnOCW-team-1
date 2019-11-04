@@ -4,6 +4,8 @@ var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
+const screenorientation = require('../screenOrientation/orientationCalculation.js')
+const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
 const config = require('./config.json');
 
@@ -286,12 +288,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
     });
 
     socket.on('triangulate', function(){
-        var data = {};
-        //
-        //data[slave.id].centre
-        //data[slave.id].angles
+        var screens = null;
+
+        var data = screenorientation.getScreens(screens);
+        var angles = delaunay.getAngles(data);
         Object.keys(slaves).forEach(function(slave, index) {
-           slaveSockets[slave].emit('triangulate', data[slave.id]);
+           slaveSockets[slave].emit('triangulate', angles[slave.id]);
         });
     });
 
