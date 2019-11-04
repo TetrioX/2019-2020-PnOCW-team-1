@@ -69,7 +69,7 @@ const calcAngles = function(corners) {
 	e = AD.y
 	f = AD.z
 
-	console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f)
+	// console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f)
 
 	eq = []
 	eq[0] = `${a}=t*v+s*u*w`
@@ -77,14 +77,15 @@ const calcAngles = function(corners) {
 	eq[2] = `${c}=s*t*w-u*v`
 	eq[3] = `${d}=s*u*v-t*w`
 	eq[4] = `${e}=r*v`
-	eq[5] = `${f}=u*w+s*t*v`
+	eq[5] = `${f}=u*  w+s*t*v`
 
 	eq[6] = `s=r*tan(x)`
 	eq[7] = `u=t*tan(y)`
 	eq[8] = `w=v*tan(z)`
 
-	opl = nerdamer.solveEquations([eq[0], eq[1], eq[2], eq[3], eq[4], eq[5]])
-	console.log(opl.toString())
+	// console.log(eq)
+	// opl = nerdamer.solveEquations([eq[0], eq[1], eq[2], eq[3], eq[4], eq[5]])
+	// console.log(opl.toString())
 	// opl = nerdamer.solveEquations([eq[0], eq[1], eq[2], eq[3], eq[4], eq[5]])
 	return 1
 }
@@ -114,7 +115,9 @@ testCornersXTilt = {A: {x:10,y:10,z:0}, C: {x:30,y:30,z:20}, D: {x:10,y:30,z:20}
 testCornersYTilt = {A: {x:10,y:10,z:0}, C: {x:20,y:30,z:20}, D: {x:10,y:30,z:0}, B: {x:20,y:10,z:20}}
 testCornersZTilt = {A: {x:100,y:10,z:0}, C: {x:90,y:120,z:0}, D: {x:40,y:70,z:0}, B: {x:150,y:60,z:0}}
 
-testScreens = {0: [{x:100,y:10,z:0}, {x:90,y:120,z:0},{x:40,y:70,z:0}, {x:150,y:60,z:0}], 1: [{x:10,y:10}, {x:30,y:30}, {x:10,y:30}, {x:30,y:10}]}
+test40 = [{x:102,y:25},{x:1224,y:26},{x:132,y:630},{x:1195,y:630}]
+test70 = [{x:95,y:204},{x:139,y:471},{x:1231,y:204},{x:1188,y:472}]
+testScreens = {0: test40, 1: test50}
 testCornersZTilt = [{x:100,y:10},{x:90,y:120},{x:40,y:70},{x:150,y:60}]
 
 vectorTest = {x:4,y:0,z:0}

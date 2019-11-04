@@ -13,12 +13,6 @@ const getSquareOrientation = function(corners) {
 	assert(corners.length == 4)
 	var corners = getCornerPositions(corners)
 	var center = getCenter(corners)
-
-	
-	// console.log(" Center: ", center)
-	// console.log(" Verhouding Zijden: ", sides.AB / sides.CD, ' - ',  sides.AD / sides.BC )
-	// console.log(" Verhouding Diagonalen: ", diagonals.AO / diagonals.DO , ' - ',  diagonals.BO / diagonals.CO )
-	// console.log(" Cos: ", 1.0769/(Math.PI/3 + Math.PI/18*5))
 	
 	corners.A.z = 0
 	corners.B.z = 0
@@ -33,13 +27,10 @@ const getSquareOrientation = function(corners) {
 const getCornerPositions = function(corners) {
 	assert(corners.length == 4)
 	var dict = {}
-	dict.A = corners.reduce((A, corner) => corner.y < A.y || corner.y == A.y && corner.x < A.x ? corner : A);
-	corners.splice(corners.indexOf(dict.A), 1)
-	dict.B = corners.reduce((B, corner) => getCos(dict.A, corner) >= getCos(dict.A, B) ? corner : B);
-	corners.splice(corners.indexOf(dict.B), 1)
-	dict.D = corners.reduce((D, corner) => getCos(dict.A, corner) <= getCos(dict.A, D) ? corner : D);
-	corners.splice(corners.indexOf(dict.D), 1)
-	dict.C = corners[0]
+	dict.A = corners[3]
+	dict.B = corners[0]
+	dict.C = corners[1]
+	dict.D = corners[2]
 	return dict
 }
 
@@ -153,9 +144,12 @@ const transfer2Dto3D = function(corners) {
 	l = getCoefficient(C, B)
 	
 	m = getCoefficient(D, D)
-	n = getCoefficient(A, C)
+	n = getCoefficient(A, B)
 	o = getCoefficient(D, A)
-	p = getCoefficient(D, C)
+	p = getCoefficient(D, B)
+	
+	verh = 675/339.5
+	v = verh * Math.sqrt(1 + verh**2) * 700**2 // Taak: Schatting maken van r en verhouding meekrijgen
 	
 	// console.log(A, " ", B, " ", C, " ", D)
 	// console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f, " ", g, " ", h, " ", i , " ", j, " ", k, " ", l, " ", m, " ", n, " ", o, " ", p)
@@ -163,15 +157,30 @@ const transfer2Dto3D = function(corners) {
 	eq[0] = `${a} * z1 ^ 2 + ${b} * z2 * z4 - ${c} * z1 * z2 - ${d} * z1 * z4 = 0`
 	eq[1] = `${e} * z2 ^ 2 + ${f} * z3 * z1 - ${g} * z2 * z3 - ${h} * z2 * z1 = 0`
 	eq[2] = `${i} * z3 ^ 2 + ${j} * z4 * z2 - ${k} * z3 * z4 - ${l} * z3 * z2 = 0`
-	eq[3] = `${m} * z4 ^ 2 + ${n} * z1 * z3 - ${o} * z4 * z1 - ${p} * z4 * z3 = 0`
-
-	console.log(eq);
+	eq[3] = `${m} * z4 ^ 2 + ${n} * z1 * z2 - ${o} * z4 * z1 - ${p} * z4 * z2 = ${v}`
 	
-	opl = nerdamer.solveEquations(eq)
+	opl = nerdamer.solveEquations(eq).toString();
 	
-	console.log(opl.toString());
+	str = []
+	substr = ''
+	for (var character of opl) 
+		if (character == ',') { str.push(substr); substr = '' } 
+		else substr += character;
+	str.push(substr)
 
+	opl = {}
+	Array.from(str, (d,i) => d[0] == 'z' ? opl[d] = parseFloat(str[i+1]) : false)
 
+	retval = {}
+	retval.A = {x: A.x1 * opl.z1, y: A.y1 * opl.z1, z: opl.z1}
+	retval.B = {x: B.x1 * opl.z2, y: B.y1 * opl.z2, z: opl.z2}
+	retval.C = {x: C.x1 * opl.z3, y: C.y1 * opl.z3, z: opl.z3}
+	retval.D = {x: D.x1 * opl.z4, y: D.y1 * opl.z4, z: opl.z4}
+	
+	console.log(get3DCoordinate({x:0, y:0, z:0}))
+	
+	
+	return retval
 }
 
 	
@@ -186,7 +195,7 @@ test40 = [{x:102,y:25},{x:1224,y:26},{x:132,y:630},{x:1195,y:630}]
 test40_ = [{x:115,y:295},{x:132,y:630},{x:735,y:630},{x:737,y:296}]
 test40_2 = [{x:361,y:195},{x:371,y:532},{x:974,y:532},{x:983,y:195}]
 
-// result = getSquareOrientation(test70)
+//result = getSquareOrientation(test70)
 // console.log(result)
 
 module.exports = {
