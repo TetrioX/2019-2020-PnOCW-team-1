@@ -3,28 +3,36 @@ const { argv } = require('yargs') // command line arguments
                .count('verbose')
                .alias('v', 'verbose')
 const assert = require('assert')  // asserting pre-conditions
+let nerdamer = require('nerdamer');  // cannot be const, nerdamer object is updated below
+require('nerdamer/Algebra.js');
+require('nerdamer/Calculus.js');
+require('nerdamer/Solve.js');
 
 const getSquareOrientation = function(corners) {
+	// console.log(corners)
 	assert(corners.length == 4)
-	corners = getCornerPositions(corners)
-	console.log(corners)
-	center = getCenter(corners)
-	angles = getAngles(corners)
-	diagonals = getDiagonalLength(corners, center)
-	sides = getSideLength(corners)
+	var corners = getCornerPositions(corners)
+	var center = getCenter(corners)
+
 	
-	console.log(" Center: ", center)
-	console.log(" Verhouding Zijden: ", sides.AB / sides.CD, ' - ',  sides.AD / sides.BC )
-	console.log(" Verhouding Diagonalen: ", diagonals.AO / diagonals.DO , ' - ',  diagonals.BO / diagonals.CO )
-	console.log(" Cos: ", 1.0769/(Math.PI/3 + Math.PI/18*5))
-	return angles
+	// console.log(" Center: ", center)
+	// console.log(" Verhouding Zijden: ", sides.AB / sides.CD, ' - ',  sides.AD / sides.BC )
+	// console.log(" Verhouding Diagonalen: ", diagonals.AO / diagonals.DO , ' - ',  diagonals.BO / diagonals.CO )
+	// console.log(" Cos: ", 1.0769/(Math.PI/3 + Math.PI/18*5))
+	
+	corners.A.z = 0
+	corners.B.z = 0
+	corners.C.z = 0
+	corners.D.z = 0
+	
+	return corners // transfer2Dto3D(corners)
 }
 
 
 
 const getCornerPositions = function(corners) {
 	assert(corners.length == 4)
-	dict = {}
+	var dict = {}
 	dict.A = corners.reduce((A, corner) => corner.y < A.y || corner.y == A.y && corner.x < A.x ? corner : A);
 	corners.splice(corners.indexOf(dict.A), 1)
 	dict.B = corners.reduce((B, corner) => getCos(dict.A, corner) >= getCos(dict.A, B) ? corner : B);
@@ -106,16 +114,66 @@ const getDiagonalLength = function(corners, center) {
 }
 
 
-
-
-const allignCorners = function(corners) {
-	theta = Math.atan((corners.B.y - corners.A.y)/(corners.B.x - corners.A.x))
+const get3DCoordinate = function(point) {
 	
+	cx = 675
+	cy = 339.5
+	fx = 4.8 * 72 / 25.4
+	fy = fx
+	
+	x1 = - (cx - point.x) / fx
+	y1 = - (cy - point.y) / fy
+	return { x1 : x1, y1 : y1 }
 }
 
-const rotateCorner = function(pos, angle, refPos) {
-	return { x: Math.cos(angle)}
+const getCoefficient = function(point1, point2) {
+	return point1.x1 * point2.x1 + point1.y1 * point2.y1 + 1
 }
+
+const transfer2Dto3D = function(corners) {
+	
+	A = get3DCoordinate(corners.A)
+	B = get3DCoordinate(corners.B)
+	C = get3DCoordinate(corners.C)
+	D = get3DCoordinate(corners.D)
+	
+	a = getCoefficient(A, A)
+	b = getCoefficient(B, D)
+	c = getCoefficient(A, B)
+	d = getCoefficient(A, D)
+	
+	e = getCoefficient(B, B)
+	f = getCoefficient(C, A)
+	g = getCoefficient(B, C)
+	h = getCoefficient(B, A)
+	
+	i = getCoefficient(C, C)
+	j = getCoefficient(D, B)
+	k = getCoefficient(C, D)
+	l = getCoefficient(C, B)
+	
+	m = getCoefficient(D, D)
+	n = getCoefficient(A, C)
+	o = getCoefficient(D, A)
+	p = getCoefficient(D, C)
+	
+	// console.log(A, " ", B, " ", C, " ", D)
+	// console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f, " ", g, " ", h, " ", i , " ", j, " ", k, " ", l, " ", m, " ", n, " ", o, " ", p)
+	eq = []
+	eq[0] = `${a} * z1 ^ 2 + ${b} * z2 * z4 - ${c} * z1 * z2 - ${d} * z1 * z4 = 0`
+	eq[1] = `${e} * z2 ^ 2 + ${f} * z3 * z1 - ${g} * z2 * z3 - ${h} * z2 * z1 = 0`
+	eq[2] = `${i} * z3 ^ 2 + ${j} * z4 * z2 - ${k} * z3 * z4 - ${l} * z3 * z2 = 0`
+	eq[3] = `${m} * z4 ^ 2 + ${n} * z1 * z3 - ${o} * z4 * z1 - ${p} * z4 * z3 = 0`
+
+	console.log(eq);
+	
+	opl = nerdamer.solveEquations(eq)
+	
+	console.log(opl.toString());
+
+
+}
+
 	
 testCorners = [{x:566,y:239},{x:1009,y:454},{x:585,y:417},{x:988,y:620}]
 testCornersReg = [{x:10,y:50},{x:100,y:10},{x:10,y:10},{x:100,y:50}]
@@ -128,7 +186,9 @@ test40 = [{x:102,y:25},{x:1224,y:26},{x:132,y:630},{x:1195,y:630}]
 test40_ = [{x:115,y:295},{x:132,y:630},{x:735,y:630},{x:737,y:296}]
 test40_2 = [{x:361,y:195},{x:371,y:532},{x:974,y:532},{x:983,y:195}]
 
-result = getSquareOrientation(test70)
-console.log(result)
+// result = getSquareOrientation(test70)
+// console.log(result)
 
-
+module.exports = {
+	getSquareOrientation: getSquareOrientation
+}

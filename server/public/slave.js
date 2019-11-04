@@ -12,7 +12,7 @@ var gridData = {
 	cornBorder: []
 }
 
-var length = 350;
+var length = 1000;
 
 //ster
 function drawStar() {
@@ -66,7 +66,7 @@ socket.on('SendingPicture', function(data){
 });
 // Sending number to slave (also usefull for angle of arrow!)
 socket.on('slaveID', function (id) {
-    console.log(id)
+    
     document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
 })
 
@@ -210,12 +210,11 @@ function draw(radianAngle) {
 	// end point
 	context.lineTo(to.x, to.y);
 
-	context.lineWidth = 50;
+	context.lineWidth = 10;
 	// Make the line visible
 
 	context.stroke();
 	//drawArrowHead(from, to, 60);
-
 }
 
 
@@ -243,8 +242,11 @@ socket.on('drawStar', function(data){
 	drawStar();
 });
 
-socket.on('triangulate', function(){
-
+socket.on('triangulate', function(angles){
+	drawStar();
+	for (let angle in angles) {
+		draw(angle);
+	}
 });
 
 socket.on('drawLine', function(data){

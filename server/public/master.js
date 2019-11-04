@@ -26,10 +26,9 @@ var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
 var drawstarButton = document.getElementById('drawStar');
-//var triangulateButton = document.getElementById('triangulate');
+var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
 
-var canvas = document.getElementById("canvas");
 var makeGridButton = document.getElementById("calibrateButton");
 var rowPicker =document.getElementById("rowPicker");
 var columnPicker =document.getElementById("columnPicker");
@@ -60,9 +59,9 @@ drawstarButton.addEventListener('click', function () {
 	socket.emit('drawStar')
 });
 
-triangulateButton.addEventListener('click', function () {
+/*triangulateButton.addEventListener('click', function () {
 	socket.emit('triangulate')
-});
+});*/
 
 drawButtonLine.addEventListener('click', function() {
     socket.emit('drawLine',{

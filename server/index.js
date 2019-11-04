@@ -4,6 +4,8 @@ var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
+const screenorientation = require('../screenOrientation/orientationCalculation.js')
+const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
 const config = require('./config.json');
 
@@ -23,7 +25,7 @@ var server = app.listen(config.port, function(){
 var io = socket(server);
 
 var slaves = {}
-var salveSockets = {}
+var slaveSockets = {}
 var number = 0
 
 //adjust this if you want to have more colorlist
@@ -37,7 +39,7 @@ function deleteSlave(socket) {
 
 function addSlave(socket) {
     slaves[socket.id] = ++number
-    salveSockets[socket.id] = socket
+    slaveSockets[socket.id] = socket
     masterIo.emit('registerSlave', {
         number: number,
         socket_id: socket.id
@@ -166,7 +168,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		if (data.id) slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
 		else {
 			slaveIo.emit('changeBackgroundColor', data);
-		  };
+		  }
   	});
 
     socket.on('changeBackgroundOfAllSlaves', async function(data){
@@ -183,7 +185,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         // slaves[slave] is the slave ID
         var gridAndCombs = createColorGrid(data.numberOfRows,data.numberOfColumns, allColorCombinations, slaves[slave])
         createGridPromises.push(new Promise(function(resolve, reject) {
-          salveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
+          slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
           setTimeout(function() {
@@ -216,8 +218,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
       if (saveDebugFiles) {
         fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
       }
-      var screens = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
-      console.log(screens)
+      var squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
+      console.log(squares)
     });
 
     function sleep(ms){
@@ -249,7 +251,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           await sleep(Number(gridPause))
           Object.keys(slaves).forEach(async function(slave, index) {
             var promise = new Promise(function(resolve, reject) {
-              salveSockets[slave].emit('changeGrid', i, function(callBackData){
+              slaveSockets[slave].emit('changeGrid', i, function(callBackData){
               // fulfill promise
               resolve()
               })
@@ -285,19 +287,29 @@ var masterIo = io.of('/master').on('connect', function(socket){
         slaveIo.emit('drawStar');
     });
 
-    socket.on('calibrate', function(data){
-		slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
-		socket.emit('takePictures', {slaves: {0:'m'}}, function(callbackData){
-			socket.emit('takePictures', {slaves: slaves},
-				function(callbackData){
-					console.log('Took enough pictures.')
-					imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
-					for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
-					scrnrec.findScreen(imgs) // Implement the screen recognition
-				})
-		  })
-    })
-})
+    socket.on('triangulate', function(){
+        var screens = null;
+
+        var data = screenorientation.getScreens(screens);
+        var angles = delaunay.getAngles(data);
+        Object.keys(slaves).forEach(function(slave, index) {
+           slaveSockets[slave].emit('triangulate', angles[slave.id]);
+        });
+    });
+
+    socket.on('calibrate', function(data) {
+        slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
+        socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
+            socket.emit('takePictures', {slaves: slaves},
+                function (callbackData) {
+                    console.log('Took enough pictures.')
+                    imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
+                    for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
+                    scrnrec.findScreen(imgs) // Implement the screen recognition
+                })
+        })
+    });
+});
 
 var slaveIo = io.of('/slave').on('connect', function(socket){
   addSlave(socket)
@@ -315,32 +327,31 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 });
 
 
-
 //creating grids with a number of columns and a number of rows
-function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID){
-  var result = {
-    colorGrid: {grid: []},
-    comb: {}
-  }
-  for (var i = 0; i<nbrows; i++){
-    result.colorGrid.grid.push([]);
-    for (var j = 0; j<nbcolumns; j++){
-      var colorComb = allColorCombinations.pop()
-      result.colorGrid.grid[i].push(colorComb);
-      // the key is the integer value of the color comb and the value
-      // is the location of the quadrangle in the grid.
-      result.comb[scrnread.colorToValueList(colorComb, possibleColors.length)] = {
-        screen:slaveID,
-        row:i,
-        col:j
-      }
+function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
+    var result = {
+        colorGrid: {grid: []},
+        comb: {}
     }
-  }
-  // generate a color for the side and corner border.
-  var cornBorder = allColorCombinations.pop()
-  var sideBorder = allColorCombinations.pop()
-  result.colorGrid['cornBorder'] = cornBorder
-  result.colorGrid['sideBorder'] = sideBorder
+    for (var i = 0; i < nbrows; i++) {
+        result.colorGrid.grid.push([]);
+        for (var j = 0; j < nbcolumns; j++) {
+            var colorComb = allColorCombinations.pop()
+            result.colorGrid.grid[i].push(colorComb);
+            // the key is the integer value of the color comb and the value
+            // is the location of the quadrangle in the grid.
+            result.comb[scrnread.colorToValueList(colorComb, possibleColors.length)] = {
+                screen: slaveID,
+                row: i,
+                col: j
+            }
+        }
+    }
+    // generate a color for the side and corner border.
+    var cornBorder = allColorCombinations.pop();
+    var sideBorder = allColorCombinations.pop();
+    result.colorGrid['cornBorder'] = cornBorder;
+    result.colorGrid['sideBorder'] = sideBorder;
 
-  return result;
-  }
+    return result;
+}
