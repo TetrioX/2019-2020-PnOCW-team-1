@@ -163,7 +163,12 @@ var pointsOnLine = function(points) {
    }
    return false;
 };
-*/
+
+
+const angleBetweenPoints = function (point1, point2) {
+    return Math.atan2(point2[1] - point1[1], point2[0] - point1[0])*(180/Math.PI);
+};
+
 
 module.exports = {
     pseudoAngle: pseudoAngle,
@@ -176,5 +181,7 @@ module.exports = {
     pointsOnLine: pointsOnLine,
     getLeftMost: getLeftMost,
     getRightMost: getRightMost
+    angleBetweenPoints: angleBetweenPoints
+
 };
 

@@ -3,7 +3,13 @@ var Vertex = function(x, y) {
     return {
         x: x,
         y: y,
+        connections: []
     };
+};
+
+//Kijkt of gegeven vertices dezelfde zijn
+const vertexIsEqual = function(vertex1, vertex2) {
+    return (vertex1.x === vertex2.x && vertex1.y === vertex2.y);
 };
 
 // Edge
@@ -143,12 +149,14 @@ var uniqueEdges = function(edges) {
     return uniqueEdges;
 };
 
+//hulpfuncties
+//Kijkt of alle punten op één lijn liggen
 var pointsOnLine = function(vertices) {
     const a = vertices[1].y - vertices[0].y;
     const b = vertices[0].x - vertices[1].x;
     const c = a*vertices[0].x + b*vertices[0].y;
 
-    for(var i=2; i < vertices.length; i++) {
+    for(let i = 2; i < vertices.length; i++) {
         if (a*vertices[i].x + b*vertices[i].y !== c) {
             return false;
         }
@@ -156,30 +164,80 @@ var pointsOnLine = function(vertices) {
     return true;
 };
 
+//Maakt vertex-elementen van array
+function makeVertices(list) {
+    var vertices = [];
+    for(let i = 0; i < list.length; i++) {
+        vertices.push(
+            new Vertex(
+                list[i][0],
+                list[i][1]
+            )
+        );
+    }
+    return vertices;
+}
+
+const inConnections = function(point, pointToAdd) {
+    /*point.connections.forEach(function (vertex) {
+        return !!vertexIsEqual(vertex, pointToAdd);
+    });*/
+    for (let i=0; i < point.connections.length; i++){
+        if (vertexIsEqual(point.connections[i], pointToAdd)){
+            return true;
+        }
+    }
+    return false;
+};
+
 //voer triangulatie uit op gegeven vertices
-const triangulate = function(vertices) {
+const triangulate = function (vertices) {
+
+    if (vertices instanceof Array) {
+        vertices = makeVertices(vertices);
+    }
 
     if (pointsOnLine(vertices) === true) {
         let edges = [];
-        for (let i=0; i <vertices.length - 1; i++) {
-            edges.push(new Edge(vertices[i], vertices[i+1]));
+        for (let i = 0; i < vertices.length - 1; i++) {
+            edges.push(new Edge(vertices[i], vertices[i + 1]));
         }
         return edges;
-    }
-
-    else {
+    } else {
         var st = superTriangle(vertices);
         var triangles = [st];
 
-        vertices.forEach(function(vertex) {
+        vertices.forEach(function (vertex) {
             triangles = addVertex(vertex, triangles);
         });
 
         // Verwijder triangles met met zijden van supertriangle
-        triangles = triangles.filter(function(triangle) {
+        triangles = triangles.filter(function (triangle) {
             return !(triangle.v0 === st.v0 || triangle.v0 === st.v1 || triangle.v0 === st.v2 ||
                 triangle.v1 === st.v0 || triangle.v1 === st.v1 || triangle.v1 === st.v2 ||
                 triangle.v2 === st.v0 || triangle.v2 === st.v1 || triangle.v2 === st.v2);
+        });
+
+        //voor elk punt in triangle andere punten toevoegen aan zijn connections
+        triangles.forEach(function (triangle) {
+            if (!inConnections(triangle.v0, triangle.v1)){
+                triangle.v0.connections.push(triangle.v1);
+            }
+            if (!inConnections(triangle.v0, triangle.v2)) {
+                triangle.v0.connections.push(triangle.v2);
+            }
+            if (!inConnections(triangle.v1, triangle.v0)) {
+                triangle.v1.connections.push(triangle.v0);
+            }
+            if (!inConnections(triangle.v1, triangle.v2)) {
+                triangle.v1.connections.push(triangle.v2);
+            }
+            if (!inConnections(triangle.v2, triangle.v0)) {
+                triangle.v2.connections.push(triangle.v0);
+            }
+            if (!inConnections(triangle.v2, triangle.v1)) {
+                triangle.v2.connections.push(triangle.v1);
+            }
         });
 
         return triangles;

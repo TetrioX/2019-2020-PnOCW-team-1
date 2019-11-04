@@ -1,5 +1,15 @@
+var passwd = prompt("master password");
 // Make Connection
-var socket = io('/master');
+var socket = io('/master', { query: "passwd="+passwd });
+// if authentication failed notify the user and become a slave
+console.log(socket)
+// if not connected in 1 second become a slave
+setTimeout(function() {
+	if (socket.connected == false){
+		alert("authentication failed")
+		window.location.href="/";
+	}
+}, 1000);
 
 //listen for events from server
 socket.on('registerMaster', function (data) {
@@ -10,27 +20,48 @@ socket.on('registerMaster', function (data) {
 var backgroundButton = document.getElementById('changeBackgroundColor');
 var colorPicker = document.getElementById('color');
 var colorValue = colorPicker.value;
+
 var entirePage =document.getElementById('entirePage');
+var slaveButtons = {};
+var numberOnButton = 0;
+var drawButtonLine = document.getElementById('drawLine');
+var drawstarButton = document.getElementById('drawStar');
+//var triangulateButton = document.getElementById('triangulate');
+var anglePicker = document.getElementById('anglePicker');
+
+var canvas = document.getElementById("canvas");
+var makeGridButton = document.getElementById("calibrateButton");
+var rowPicker =document.getElementById("rowPicker");
+var columnPicker =document.getElementById("columnPicker");
+
+var numberOfRows = rowPicker.valueAsNumber;
+var numberOfColumns =columnPicker.valueAsNumber;
+
+
+console.log(numberOfColumns);
+var angle = 0;
+rowPicker.addEventListener('input', function(){
+	numberOfRows = rowPicker.valueAsNumber
+});
+
+columnPicker.addEventListener('input', function(){
+	numberOfColumns =columnPicker.valueAsNumber
+})
 
 colorPicker.addEventListener('input', function () {
 		colorValue = colorPicker.value
 });
 
-var slaveButtons = {};
-var numberOnButton = 0;
-
-var drawButtonLine = document.getElementById('drawLine');
-var drawstarButton = document.getElementById('drawStar')
-var anglePicker = document.getElementById('anglePicker');
-var calibrateButton = document.getElementById("calibrateButton");
-
-var angle = 0;
 anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
 
-drawstarButton.addEventListener('click', function() {
+drawstarButton.addEventListener('click', function () {
 	socket.emit('drawStar')
+});
+
+triangulateButton.addEventListener('click', function () {
+	socket.emit('triangulate')
 });
 
 drawButtonLine.addEventListener('click', function() {
@@ -79,8 +110,9 @@ socket.on('removeSlave', function (data) {
 
 //Foto nemen
 
-var useCameraButton =document.getElementById('useCamBtn');
+var useCameraButton = document.getElementById('useCamBtn');
 useCameraButton.addEventListener('click',function(){
+	console.log("Hoi")
 	document.getElementById("cameraDiv").style.display = "";
 });
 
@@ -118,28 +150,38 @@ function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+socket.on('takeOnePicture', function(data, callback){
+	var context = canvas.getContext('2d');
+	canvas.width = video.videoWidth;
+	canvas.height = video.videoHeight;
+	context.drawImage(video, 0, 0);
+	callback(canvas.toDataURL('image/png'))
+})
+
 socket.on('takePictures', async function(data, callback){
 	for (var key in data.slaves) {
 		if (key) socket.emit('changeBackgroundColor', {
-						colorValue: '#ffffff',
-						id: key
+					colorValue: '#ffffff',
+					id: key
 					});
-		
-		await sleep(1000);
-		// console.log(key, " ", data.slaves[key])
-		takePicture({destination: data.slaves[key]});
-		await sleep(100)
-		
-		if (key) socket.emit('changeBackgroundColor', {
-						colorValue: '#000000',
-						id: key
-					});
+
+
+
 	}
-	
+	await sleep(1000);
+		// console.log(key, " ", data.slaves[key])
+	takePicture({destination: data.slaves[key]});
+	await sleep(100)
+
 	callback(true);
 });
 
+
 // Starts the calibration process and shows the result
-calibrateButton.addEventListener('click',function(){
-	socket.emit('calibrate');
+makeGridButton.addEventListener('click',function(){
+	console.log("i will send");
+	socket.emit('changeBackgroundOfAllSlaves',{
+		numberOfRows:numberOfRows,
+		numberOfColumns:numberOfColumns
+	});
 });
