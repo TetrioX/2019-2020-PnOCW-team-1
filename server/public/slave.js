@@ -6,6 +6,11 @@ var masterButton = document.getElementById("masterButton");
 var socketID = null;
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext('2d');
+var gridData = {
+	grid: [],
+	sideBorder: [],
+	cornBorder: []
+}
 
 var length = 350;
 
@@ -42,6 +47,105 @@ function drawStar() {
 	context.stroke();
 	context.fillStyle = 'black';
 	context.fill();
+}
+
+
+//listen for events from server
+socket.on('connect',function(){
+	socketID =socket.id;
+	console.log(socketID);
+});
+
+socket.on('changeBackgroundColor',function(data){
+    document.body.style.backgroundColor = data.colorValue;
+    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
+});
+
+socket.on('SendingPicture', function(data){
+	console.log("picture recieved");
+});
+// Sending number to slave (also usefull for angle of arrow!)
+socket.on('slaveID', function (id) {
+    console.log(id)
+    document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
+})
+
+
+socket.on('drawLine', function(data){
+    draw(data.angle);
+});
+
+
+socket.on('changeBackgroundOfAllSlaves', function(data, callback){
+	document.body.innerHTML=""
+	var entirePage = document.createElement('th');
+	entirePage.setAttribute("id","entirePage");
+	document.body.appendChild(entirePage);
+	saveGrid(data);
+	createGrid();
+	// callback after 300ms
+	setTimeout(function() {
+		callback()
+	}, 300);
+});
+
+socket.on('changeGrid', function(data, callback){
+	updateGrid(data)
+	// callback after 200ms
+	setTimeout(function() {
+		callback()
+	}, 200);
+});
+
+masterButton.addEventListener('click',function(){
+	window.location.href="/master";
+});
+
+function createGrid(){
+	var numberOfrows=gridData.grid.length;
+	var numberOfColumns = gridData.grid[0].length;
+	for (i=0; i<4;i++){
+		var corner =document.createElement('div');
+		corner.setAttribute("class","corner");
+		corner.setAttribute("id", "corner"+i.toString());
+		document.body.appendChild(corner);
+		document.getElementById("corner"+i.toString()).style.backgroundColor=gridData.cornBorder[0];
+	}
+	for (i=0; i<numberOfrows;i++){
+		var row =document.createElement('div');
+		row.setAttribute("class","row");
+		row.setAttribute("id", i.toString());
+		document.getElementById("entirePage").appendChild(row);
+
+		for (j=0; j<numberOfColumns; j++){
+
+			var grid = document.createElement('div');
+			grid.setAttribute("id","grid"+i.toString()+j.toString());
+			grid.setAttribute("class", "grid");
+			document.getElementById(i.toString()).appendChild(grid);
+			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=gridData.grid[i][j][0];
+		}
+	}
+	document.body.style.backgroundColor = gridData.sideBorder[0];
+}
+
+function updateGrid(c){
+	var numberOfrows=gridData.grid.length;
+	var numberOfColumns = gridData.grid[0].length;
+	for (i=0; i<4;i++){
+		document.getElementById("corner"+i.toString()).style.backgroundColor=gridData.cornBorder[c];
+	}
+	for (i=0; i<numberOfrows;i++){
+		for (j=0; j<numberOfColumns; j++){
+			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=gridData.grid[i][j][c];
+		}
+	}
+	document.body.style.backgroundColor = gridData.sideBorder[c];
+}
+
+function saveGrid(data){
+	// save the grid data in global variable
+	gridData = data
 }
 
 function drawArrowHead(from, to, radius){
@@ -113,7 +217,6 @@ function draw(radianAngle) {
 	//drawArrowHead(from, to, 60);
 
 }
-
 
 
 //listen for events from server

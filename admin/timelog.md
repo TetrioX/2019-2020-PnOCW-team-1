@@ -26,3 +26,11 @@ Because it was the first session, we all did the same.
 
 # Meeting 4 - 14/10/2019
 
+- 14:00 - 16:00 : Finished task 2 and wrote report and code reviews (Dennis, Maxel, Geert, Simon C) and worked on task 3 (Simon T and Xander)
+- 16:00 - 19:00 : Worked on task 3 (Everyone)
+
+# Meeting 5 - 21/10/2019
+
+- 14:00 - 19:00 : Finished task 3, wrote report and tested algorithms for screen detection (Everyone)
+
+# Meeting 6 - 28/10/2019
