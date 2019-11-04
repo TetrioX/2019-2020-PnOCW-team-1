@@ -18,12 +18,16 @@ var triangles2 = delaunay.triangulate(list2);
 var triangles_pol = delaunay.triangulate(pointsoneline);
 
 //tests voor punten op één lijn
-//console.log(delaunay.pointsOnLine(vertices_pol));
-//console.log(delaunay.pointsOnLine(vertices2));
+//console.log(delaunay.pointsOnLine(delaunay.makeVertices(pointsoneline)));
+//console.log(triangles_pol);
+//var vertices_pol = delaunay.getAllVertices(triangles_pol);
+//console.log(vertices_pol);
 
 //triangulatie
-console.log(triangles1);
-console.log([triangles1[0].v0.x, triangles1[0].v0.y], " || ", triangles1[0].v0.connections);
+//console.log(triangles1);
+var vertices1 = delaunay.getAllVertices(triangles1);
+console.log(vertices1[0].connections);
+console.log(delaunay.getAngles(vertices1[0]));
 //console.log(triangles2);
 //console.log(triangles_pol);
 

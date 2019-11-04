@@ -214,8 +214,7 @@ function draw(radianAngle) {
 	// Make the line visible
 
 	context.stroke();
-	//drawArrowHead(from, to, 60);
-
+	drawArrowHead(from, to, 60);
 }
 
 
@@ -243,8 +242,9 @@ socket.on('drawStar', function(data){
 	drawStar();
 });
 
-socket.on('triangulate', function(){
-
+socket.on('triangulate', function(data){
+	drawStar();
+	let horizontalangle = null;
 });
 
 socket.on('drawLine', function(data){

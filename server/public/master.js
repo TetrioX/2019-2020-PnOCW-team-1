@@ -26,10 +26,9 @@ var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
 var drawstarButton = document.getElementById('drawStar');
-//var triangulateButton = document.getElementById('triangulate');
+var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
 
-var canvas = document.getElementById("canvas");
 var makeGridButton = document.getElementById("calibrateButton");
 var rowPicker =document.getElementById("rowPicker");
 var columnPicker =document.getElementById("columnPicker");

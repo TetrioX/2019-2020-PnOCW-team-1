@@ -178,10 +178,8 @@ function makeVertices(list) {
     return vertices;
 }
 
+//check of pointToAdd in connections van point zit
 const inConnections = function(point, pointToAdd) {
-    /*point.connections.forEach(function (vertex) {
-        return !!vertexIsEqual(vertex, pointToAdd);
-    });*/
     for (let i=0; i < point.connections.length; i++){
         if (vertexIsEqual(point.connections[i], pointToAdd)){
             return true;
@@ -189,6 +187,17 @@ const inConnections = function(point, pointToAdd) {
     }
     return false;
 };
+
+//checkt of vertex in gegeven set is
+const vertexInSet = function(set, vertex) {
+    for (let i=0; i < set.length; i++){
+        if (vertexIsEqual(set[i], vertex)){
+            return true;
+        }
+    }
+    return false;
+};
+
 
 //voer triangulatie uit op gegeven vertices
 const triangulate = function (vertices) {
@@ -201,6 +210,8 @@ const triangulate = function (vertices) {
         let edges = [];
         for (let i = 0; i < vertices.length - 1; i++) {
             edges.push(new Edge(vertices[i], vertices[i + 1]));
+            vertices[i].connections.push(vertices[i+1]);
+            vertices[i+1].connections.push(vertices[i]);
         }
         return edges;
     } else {
@@ -219,6 +230,7 @@ const triangulate = function (vertices) {
         });
 
         //voor elk punt in triangle andere punten toevoegen aan zijn connections
+        //kan beter
         triangles.forEach(function (triangle) {
             if (!inConnections(triangle.v0, triangle.v1)){
                 triangle.v0.connections.push(triangle.v1);
@@ -239,9 +251,42 @@ const triangulate = function (vertices) {
                 triangle.v2.connections.push(triangle.v1);
             }
         });
-
         return triangles;
     }
+};
+
+const getAllVertices = function(triangles) {
+    let vertices = [];
+    for (let i = 0; i < triangles.length; i++) {
+        if (!vertexInSet(vertices, triangles[i].v0)){
+            vertices.push(triangles[i].v0);
+        }
+        if (!vertexInSet(vertices, triangles[i].v1)){
+            vertices.push(triangles[i].v1);
+        }
+        //als ze niet op 1 lijn liggen
+        //mooier formuleren
+        if (triangles[i].v2 != undefined){
+            if (!vertexInSet(vertices, triangles[i].v2)) {
+                vertices.push(triangles[i].v2);
+            }
+        }
+    }
+    return vertices;
+};
+
+//berekent hoek tussen twee punten en horizontale
+const angleBetweenPoints = function (point1, point2) {
+    return Math.atan2(point2[1] - point1[1], point2[0] - point1[0])*(180/Math.PI);
+};
+
+//returnt de hoeken tussen een punt en zijn connections met de horizontale
+const getAngles = function(vertex) {
+    let angles = [];
+    vertex.connections.forEach( function (point) {
+        angles.push(angleBetweenPoints([vertex.x, vertex.y], [point.x, point.y]))
+    });
+    return angles;
 };
 
 module.exports = {
@@ -249,5 +294,8 @@ module.exports = {
     Edge: Edge,
     Triangle: Triangle,
     triangulate: triangulate,
-    pointsOnLine: pointsOnLine
+    makeVertices: makeVertices,
+    pointsOnLine: pointsOnLine,
+    getAllVertices: getAllVertices,
+    getAngles: getAngles
 };
