@@ -3,21 +3,25 @@ const { argv } = require('yargs') // command line arguments
                .count('verbose')
                .alias('v', 'verbose')
 const assert = require('assert')  // asserting pre-conditions
+var algebra = require('algebra.js'); // Solving equations
 
 const getSquareOrientation = function(corners) {
 	assert(corners.length == 4)
 	corners = getCornerPositions(corners)
-	console.log(corners)
 	center = getCenter(corners)
-	angles = getAngles(corners)
-	diagonals = getDiagonalLength(corners, center)
-	sides = getSideLength(corners)
+
 	
-	console.log(" Center: ", center)
-	console.log(" Verhouding Zijden: ", sides.AB / sides.CD, ' - ',  sides.AD / sides.BC )
-	console.log(" Verhouding Diagonalen: ", diagonals.AO / diagonals.DO , ' - ',  diagonals.BO / diagonals.CO )
-	console.log(" Cos: ", 1.0769/(Math.PI/3 + Math.PI/18*5))
-	return angles
+	// console.log(" Center: ", center)
+	// console.log(" Verhouding Zijden: ", sides.AB / sides.CD, ' - ',  sides.AD / sides.BC )
+	// console.log(" Verhouding Diagonalen: ", diagonals.AO / diagonals.DO , ' - ',  diagonals.BO / diagonals.CO )
+	// console.log(" Cos: ", 1.0769/(Math.PI/3 + Math.PI/18*5))
+	
+	corners.A.z = 0
+	corners.B.z = 0
+	corners.C.z = 0
+	corners.D.z = 0
+
+	return corners
 }
 
 
@@ -106,16 +110,62 @@ const getDiagonalLength = function(corners, center) {
 }
 
 
-
-
-const allignCorners = function(corners) {
-	theta = Math.atan((corners.B.y - corners.A.y)/(corners.B.x - corners.A.x))
+const get3DCoordinate = function(point) {
 	
+	cx = 675
+	cy = 339.5
+	fx = 4.8 * 72 / 25.4
+	fy = fx
+	
+	x1 = - (cx - point.x) / fx
+	y1 = - (cy - point.y) / fy
+	return { x1 : x1, y1 : y1 }
 }
 
-const rotateCorner = function(pos, angle, refPos) {
-	return { x: Math.cos(angle)}
+const getCoefficient = function(point1, point2) {
+	return point1.x1 * point2.x1 + point1.y1 * point2.y1 + 1
 }
+
+const transfer2Dto3D = function(corners) {
+	
+	A = get3DCoordinate(corners.A)
+	B = get3DCoordinate(corners.B)
+	C = get3DCoordinate(corners.C)
+	D = get3DCoordinate(corners.D)
+	
+	a = getCoefficient(A, A)
+	b = getCoefficient(B, D)
+	c = getCoefficient(A, B)
+	d = getCoefficient(A, D)
+	
+	e = getCoefficient(B, B)
+	f = getCoefficient(C, A)
+	g = getCoefficient(B, C)
+	h = getCoefficient(B, A)
+	
+	i = getCoefficient(C, C)
+	j = getCoefficient(D, B)
+	k = getCoefficient(C, D)
+	l = getCoefficient(C, B)
+	
+	m = getCoefficient(D, D)
+	n = getCoefficient(A, C)
+	o = getCoefficient(D, A)
+	p = getCoefficient(D, C)
+	
+	console.log(A, " ", B, " ", C, " ", D)
+	console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f, " ", g, " ", h, " ", i , " ", j, " ", k, " ", l, " ", m, " ", n, " ", o, " ", p)
+	// eq = algebra.parse(`${a} * z1 ^ 2 + ${b} * z2 * z3 - ${c} * z1 * z2 - ${d} * z1 * z3 = 0`)
+
+	// console.log(eq.toString());
+	
+	// var Answer1 = eq.solveFor("z2");
+	
+	// console.log("x = " + Answer1.toString());
+
+
+}
+
 	
 testCorners = [{x:566,y:239},{x:1009,y:454},{x:585,y:417},{x:988,y:620}]
 testCornersReg = [{x:10,y:50},{x:100,y:10},{x:10,y:10},{x:100,y:50}]
@@ -131,4 +181,6 @@ test40_2 = [{x:361,y:195},{x:371,y:532},{x:974,y:532},{x:983,y:195}]
 result = getSquareOrientation(test70)
 console.log(result)
 
-
+module.exports = {
+	getSquareOrientation: getSquareOrientation
+}
