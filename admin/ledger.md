@@ -16,3 +16,13 @@
 
 - 14:00 - 19:00
 - Everyone attended this meeting
+
+## Team meeting 5 - 21/10/2019
+
+- 14:00 - 19:00
+- Everyone attended this meeting
+
+## Team meeting 6 - 28/10/2019
+
+- 14:00 - 19:00
+- Everyone attended this meeting
