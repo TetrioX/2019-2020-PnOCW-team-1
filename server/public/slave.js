@@ -212,11 +212,6 @@ function draw(radianAngle) {
 		y: centreY+dy
 	};
 
-
-
-	// Reset the current path
-	context.beginPath();
-
 	// start point
 	context.moveTo(from.x, from.y);
 	// end point
@@ -226,7 +221,36 @@ function draw(radianAngle) {
 	// Make the line visible
 
 	context.stroke();
-	//drawArrowHead(from, to, 60);
+
+}
+
+function drawAnglesDegree(radianAngles) {
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+	var centreX = window.innerWidth / 2;
+	var centreY =  window.innerHeight / 2;
+	var from = {
+		x: centreX,
+		y: centreY
+	};
+	for(radianAngle of radianAngles){
+		var dx = length * Math.cos(Number(radianAngle) * Math.PI * 2 / 360);
+		var dy = length * Math.sin(Number(radianAngle) * Math.PI * 2 / 360);
+		var to = {
+			x: centreX+dx,
+			y: centreY+dy
+		};
+
+		// start point
+		context.moveTo(from.x, from.y);
+		// end point
+		context.lineTo(to.x, to.y);
+
+		context.lineWidth = 10;
+		// Make the line visible
+
+		context.stroke();
+	}
 }
 
 
@@ -258,9 +282,7 @@ socket.on('triangulate', function(angles){
 	wrapper.style.display = "none";
 	drawStar();
 	console.log(angles)
-	for (let angle in angles) {
-		draw(-1 * angle);
-	}
+	drawAnglesDegree(angles)
 });
 
 socket.on('drawLine', function(data){

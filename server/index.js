@@ -277,7 +277,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }
 
     socket.on('changeBackgroundOfAllSlaves', async function(data){
-      var screens = await calibrate(data.numberOfRows, data.numberOfColumns))
+      var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
       var screenKeys = Object.keys(screens)
       if (screenKeys.length == 0){
         socket.emit('alert', "didn't find any screens.")
