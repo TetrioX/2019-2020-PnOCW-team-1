@@ -4,6 +4,8 @@ const geometry = require('./geometry')
 function merge(adj, L, R){
 
     while(true){
+
+
         //common lower tangent
         adj[L].insertP(R);
         adj[R].insertP(L)
@@ -12,6 +14,8 @@ function merge(adj, L, R){
         //getRightCandidate
         let rightCandidate = false
         while(true){
+
+
             const R$ = adj[R].getNext(L)
 
             if(geometry.rightOf(R$, [R, L])){
@@ -31,6 +35,7 @@ function merge(adj, L, R){
         //getLeftCandidate
         let leftCandidate = false
         while(true){
+
             const L$ = adj[L].getPrevious(R)
 
             if(!geometry.rightOf(L$, [L,R])){
@@ -49,6 +54,7 @@ function merge(adj, L, R){
 
         //No more candidates
         if(!rightCandidate && !leftCandidate){
+
             return adj
         }
 
