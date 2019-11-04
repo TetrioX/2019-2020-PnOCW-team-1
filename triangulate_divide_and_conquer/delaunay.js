@@ -11,10 +11,68 @@ function sortPoints(points) {
     });
 }
 
+
+
+function getAngles(slaves){
+    var result = {}
+    var coords = []
+    var temp = {}
+
+
+    for(var id in slaves){
+        var X = slaves[id].center.x
+        var Y = slaves[id].center.y
+        var rot = slaves[id].rotations.z
+
+        var point = [X,Y, rot]
+
+        coords.push(point)
+        temp[point] = slaves[id].id
+
+    }
+
+    /*
+    slaves.forEach(function (id){
+        var X = slaves[id].center.x
+        var Y = slaves[id].center.y
+        var point = [X,Y]
+        coords.push(point)
+    }) */
+    var triangulation = Delaunay(coords)
+    coords.forEach(function (pt){
+        var angles = []
+        var currentId = temp[pt]
+        var connections = triangulation[pt].toArray()
+        for(var ind=0;ind < connections.length; ind++){
+            
+
+            var angleBetween = geometry.angleBetweenPoints(pt, connections[ind])
+
+            angleBetween -= pt[2]
+
+            angles.push(angleBetween)
+            result[currentId] = angles
+        }
+
+    })
+    return result
+
+}
+
+
+
 function Delaunay(pts){
     adj = {}
     geometry.sortPoints(pts)
+    if(geometry.pointsOnLine(pts) && pts.length > 3){
+        for(let i=1; i < pts.length; i++){
+            triangulate.triangulate2(adj, pts[i-1], pts[i])
 
+        }
+
+
+        return adj
+    }
 
     delaunay(pts, adj, 0, pts.length -1)
     return adj
@@ -45,6 +103,30 @@ function delaunay(pts, adj, l, r){
     merge.merge(adj, L, R)
 
 }
+
+var point = function(x,y){
+    return {
+        x : x,
+        y : y
+    }
+}
+var slave = function(id, rotation, x, y){
+    return {
+        id : id,
+        center: new point(x,y),
+        rotation: rotation
+    }
+}
+
+var slav = new slave('1', 0, 1,1 )
+
+var slave1 = new slave('1', 10, 1, 2)
+var slave2 = new slave('2', 0, 2, 1)
+var slave3 = new slave('3', 0, 3, 2)
+const testArray = [slave1, slave2, slave3]
+
+console.log(getAngles(testArray))
+
 
 function removeDuplicates(pts){
 

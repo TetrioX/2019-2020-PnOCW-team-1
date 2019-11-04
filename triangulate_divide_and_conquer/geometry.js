@@ -150,7 +150,7 @@ function findLowerCommonTangent(adj, X, Y) {
 }
 
 
-/*
+
 var pointsOnLine = function(points) {
    const a = points[1][1] - points[0][1];
    const b = points[0][0] - points[1][0];
@@ -180,7 +180,7 @@ module.exports = {
     circumscribed: circumscribed,
     pointsOnLine: pointsOnLine,
     getLeftMost: getLeftMost,
-    getRightMost: getRightMost
+    getRightMost: getRightMost,
     angleBetweenPoints: angleBetweenPoints
 
 };
