@@ -37,7 +37,7 @@ socket.on('SendingPicture', function(data){
 });
 // Sending number to slave (also usefull for angle of arrow!)
 socket.on('slaveID', function (id) {
-    console.log(id)
+    
     document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
 })
 
