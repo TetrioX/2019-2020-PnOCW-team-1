@@ -386,131 +386,149 @@ const findBorderOrderedRgb = function (matrix, start,color) {
     return border
 }
 
-function checkNeighborsColor(corners, matrix, square, screens){
-	// distance to check for color
-	const distance = 8;
-	// check if there are pixels around the current pixel with certain colors
-	// within a certain distance and returns true if all colors are present.
-	function checkNeighbors(current, colors){
-		// copy colors
-		var colors = colors.slice()
-		//possible angles to go to
-		const angles = [
-			{x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1},
-			{x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1},
-			{x: 0, y: -1}, {x: 1, y: -1}
-	  ]
-		// for each angle
-		for (ang of angles){
-			// for each distance
-			for (var i = 0; i < distance; i++){
-				var neighbor = matrix[current.y + i * ang.y]
-				if (typeof neighbor === 'undefined'){
-					break;
-				}
-				neighbor = neighbor[current.x + i * ang.x]
-				if (typeof neighbor === 'undefined'){
-					break;
+function checkNeighborsColor(corners, matrix, square, screens) {
+    // distance to check for color
+    const distance = 8;
+    // check if there are pixels around the current pixel with certain colors
+    // within a certain distance and returns true if all colors are present.
+    function checkNeighbors(current, colors) {
+        // copy colors
+        var colors = colors.slice()
+        //possible angles to go to
+        const angles = [
+            { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 1 },
+            { x: -1, y: 1 }, { x: -1, y: 0 }, { x: -1, y: -1 },
+            { x: 0, y: -1 }, { x: 1, y: -1 }
+        ]
+        // for each angle
+        for (ang of angles) {
+            // for each distance
+            for (var i = 0; i < distance; i++) {
+                var neighbor = matrix[current.y + i * ang.y]
+                if (typeof neighbor === 'undefined') {
+                    break;
+                }
+                neighbor = neighbor[current.x + i * ang.x]
+                if (typeof neighbor === 'undefined') {
+                    break;
                 }
                 //check if the color is equal to one in the list (if so, remove it)
-				for (var j in colors){
-					var color = colorToValueList(colors[j], 6) //review: this 6 == amount of colors used is hard coded
-					if (neighbor == color){
-						// we remove the found color
-						colors.splice(j, 1)
-						// if there are no colors left to be found return true
-						if (colors.length == 0){
-							return true
-						}
-						break;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	// Returns the color of the neigbor of the current square as shown in the
+                for (var j in colors) {
+                    var color = colorToValueList(colors[j], 6) //review: this 6 == amount of colors used is hard coded
+                    if (neighbor == color) {
+                        // we remove the found color
+                        colors.splice(j, 1)
+                        // if there are no colors left to be found return true
+                        if (colors.length == 0) {
+                            return true
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    // Returns the color of the neigbor of the current square as shown in the
     // figure below in an array. 
     // If the current square is at the corner of the screen,
     //   return the color of the border in the corner (see case 1)
     // If the current square is at the side of the screen (not corner),
     //   return the color of the side border and a color square next to it (see case 2/3)
-	//
-	//	  i=3  |       | i=0			NOTE: this is orientated according to screen
-	//	_______|_______|_______					and not the picture so i=0 is the upper
-	//	       |current|								right corner of the screen.
-	//         | square|
-	//	_______|_______|_______
-	//	       |       |
-	//	  i=2  |       | i=1
+    //
+    //	  i=3  |       | i=0			NOTE: this is orientated according to screen
+    //	_______|_______|_______					and not the picture so i=0 is the upper
+    //	       |current|								right corner of the screen.
+    //         | square|
+    //	_______|_______|_______
+    //	       |       |
+    //	  i=2  |       | i=1
     function getColorsNeighbor(i) {
         //data of the current square you're working with
-		var screen = screens[square.screen]
-		var nbOfRows = screen.grid.length
-		var nbOfCols = screen.grid[0].length
-		// possible angles
-		const angles = [
-			{x: 1, y: -1}, {x: 1, y: 1},
-			{x: -1, y: 1}, {x: -1, y: -1}
-	  ]
-		// get row and column from i
-		var rowI = square.row + angles[i].y
-		var colI = square.col + angles[i].x
-		// check if are col or row is out of bounds
-		var rowInRange = ((0 <= rowI) && (rowI < nbOfRows))
+        var screen = screens[square.screen]
+        var nbOfRows = screen.grid.length
+        var nbOfCols = screen.grid[0].length
+        // possible angles
+        const angles = [
+            { x: 1, y: -1 }, { x: 1, y: 1 },
+            { x: -1, y: 1 }, { x: -1, y: -1 }
+        ]
+        // get row and column from i
+        var rowI = square.row + angles[i].y
+        var colI = square.col + angles[i].x
+        // check if are col or row is out of bounds
+        var rowInRange = ((0 <= rowI) && (rowI < nbOfRows))
         var colInRange = ((0 <= colI) && (colI < nbOfCols))
         // visual representation of edge cases (literal edge cases)
         //  __________________________
         //  \\\\\\\\\\\side  \\\\\\|          |
         //	\\\\\\\\\\\border\\\\\\|cornBorder|
-	    //	\\\\\\\\\\\\\\\\\\\\\\\|__________|
+        //	\\\\\\\\\\\\\\\\\\\\\\\|__________|
         //	          |            |\\\\\\\\\\|
         //	          |            |\\\\\\\\\\|
         //	  2       |     1      |\\\\\\\\\\|
         //	          |            |\\\\\\\\\\|
-	    //	__________|____________|\\side  \\|
-	    //	          |            |\\border\\|
-	    //	          |     3      |\\\\\\\\\\|
+        //	__________|____________|\\side  \\|
+        //	          |            |\\border\\|
+        //	          |     3      |\\\\\\\\\\|
 
-		// 1) if both are not in range take corner border color
-		if (!rowInRange && !colInRange){
-			return [screen.cornBorder]
-		}
-		// 2) if only row is not in range return sideBorder and the horizontal side neigbor
-		if (!rowInRange){
-			return [
-				screen.sideBorder,
-				screen.grid[rowI - angles[i].y][colI]
-			]
-		}
-		// 3) if only col is not in range return sideBorder and the vertical side neigbor
-		if (!colInRange){
-			return [
-				screen.sideBorder,
-				screen.grid[rowI][colI - angles[i].x]
-			]
-		}
-		return [screen.grid[rowI][colI]];
+        // 1) if both are not in range take corner border color
+        if (!rowInRange && !colInRange) {
+            return [screen.cornBorder]
+        }
+        // 2) if only row is not in range return sideBorder and the horizontal side neigbor
+        if (!rowInRange) {
+            return [
+                screen.sideBorder,
+                screen.grid[rowI - angles[i].y][colI]
+            ]
+        }
+        // 3) if only col is not in range return sideBorder and the vertical side neigbor
+        if (!colInRange) {
+            return [
+                screen.sideBorder,
+                screen.grid[rowI][colI - angles[i].x]
+            ]
+        }
+        return [screen.grid[rowI][colI]];
 
-	}
+    }
 
-	// array in which we'll put the corners in orientated sequence
-	var cornersOrientated = [];
-	// check each angle and see if edge corner exists around the corners provided
-	// and use this information to also order the corners
-	for (var i = 0; i < 4; i++){
-		var colors = getColorsNeighbor(i)
-		for (var c in corners){
-			if (checkNeighbors(corners[c], colors)){
-				cornersOrientated.push(corners[c])
-				// remove color so it won't be used twice and skip to next i
-				corners.splice(c, 1)
-				break;
-			}
-		}
-	}
-	return cornersOrientated
+    // array in which we'll put the corners in orientated sequence
+    var cornersOrientated = [];
+    // check each angle and see if edge corner exists around the corners provided
+    // and use this information to also order the corners
+    for (var i = 0; i < 4; i++) {
+        var colors = getColorsNeighbor(i)
+        for (var c in corners) {
+            if (checkNeighbors(corners[c], colors)) {
+                cornersOrientated.push(corners[c])
+                // remove color so it won't be used twice and skip to next i
+                corners.splice(c, 1)
+                break;
+            }
+        }
+    }
+    return cornersOrientated
 }
+
+function allElementsOfNoise(firstElement, matrix, noise) {
+    var current = sortColorOut(matrix, NeighborsAndDiagonal(matrix, firstElement), matrix[firstElement.y][firstElement.x])
+    for (var i of current) {
+        if (noise[i.y] === 'undefined') {
+            noise[i.y] = {}
+            noise[i.y][i.x] = 1
+            allElementsOfNoise(i, matrix, noise)
+        }
+        else {
+            if (noise[i.y][i.x] != 1) {
+                noise[i.y][i.x] = 1
+                allElementsOfNoise(i, matrix, noise)
+            }
+        }
+    }
+}
+
 
 /** returns the screens of the given matrixes
 	*
@@ -532,35 +550,48 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	//}
 	// a set of all colors that have been checked
 	// 0 is the value for noise and shouldn't be checked
-	var foundColValues = new Set([0])
+
+    var foundColValues = new Set([0])
+    var noise = {}
 	// an array of all valide screen squares
 	var foundScreenSquares = []
 	// iterate through the matrix with j the y value and i the x value
 	for (var j = 0; j < matrix.length; j++){
 		for (var i = 0; i < matrix.length; i++){
 			// check if we have found a new color
-			if (!foundColValues.has(matrix[j][i])) {
-				// check if the found color is in colorComb
-				// if not skip it and ad to colors to be ignored
-				if (!colorCombs.hasOwnProperty(matrix[j][i])){
-					foundColValues.add(matrix[j][i])
-					break;
-				}
-				var border = findBorderOrderedRgb(matrix, {x: i, y: j}, matrix[j][i])
-				var corners = getCorners(border)
+            if (!foundColValues.has(matrix[j][i])) {
+                // check if the found color is in colorComb
+                // if not skip it and ad to colors to be ignored
+                if (!colorCombs.hasOwnProperty(matrix[j][i])) {
+                    foundColValues.add(matrix[j][i])
+                    break;
+                }
+
+                if (!(noise[j] === 'undefined' && noise[j][i] === 'undefinded')){
+                    break;
+                }
+
+                var border = findBorderOrderedRgb(matrix, { x: i, y: j }, matrix[j][i])
+                var corners = getCorners(border)
+
 				// found square is too small
 				if (corners.length != 4){
-					foundColValues.add(matrix[j][i])
+                    //foundColValues.add(matrix[j][i])
+                    allElementsOfNoise(border[0],matrix,noise)
 					break;
 				}
 				var cornersOrientated = checkNeighborsColor(corners, matrix, colorCombs[matrix[j][i]], screens)
 				// check if we've found all corners
-				if (cornersOrientated.length == 4){
-					foundScreenSquares.push({
-						corners: cornersOrientated,
-						square: colorCombs[matrix[j][i]]
-					})
-				}
+                if (cornersOrientated.length == 4) {
+                    foundScreenSquares.push({
+                        corners: cornersOrientated,
+                        square: colorCombs[matrix[j][i]]
+                    })
+                }
+                else {
+                    allElementsOfNoise(border[0], matrix, noise)
+                    break;
+                }
 				foundColValues.add(matrix[j][i])
 			}
 		}
