@@ -36,20 +36,23 @@ const buftomat = require('./bufferToMatrix.js');
 
 let verbose = argv.verbose;
 
-if(argv._.length < 2) {
-    console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
-    console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
-    console.log('If --same-size is present then all inputs must have the same size.')
-} else {
-    // Note: we are calling an 'async' function, so we need to catch errors by
-    // attaching an error handler to the promise:
-    let result = doImgDiff(argv._, argv['same-size']).catch(console.error)
-	// The following line will not print first, but almost... This is what you should
-    // understand if you have studied how call backs, promises and async/await work.
-	if(verbose) console.log('0. result =', result)
-    // Alternatively we pass in buffers of image data directly:
-    //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
-    //doImgDiff(imgs, argv['same-size']).catch(console.error)
+// only run when this is the main program, not when it is a dependency
+if (require.main === module) {
+  if(argv._.length < 2) {
+      console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
+      console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
+      console.log('If --same-size is present then all inputs must have the same size.')
+  } else {
+      // Note: we are calling an 'async' function, so we need to catch errors by
+      // attaching an error handler to the promise:
+      let result = doImgDiff(argv._, argv['same-size']).catch(console.error)
+  	// The following line will not print first, but almost... This is what you should
+      // understand if you have studied how call backs, promises and async/await work.
+  	if(verbose) console.log('0. result =', result)
+      // Alternatively we pass in buffers of image data directly:
+      //let imgs = argv._.map( f => { return fs.readFileSync(f) } )
+      //doImgDiff(imgs, argv['same-size']).catch(console.error)
+  }
 }
 
 
@@ -76,8 +79,8 @@ if(argv._.length < 2) {
  * awaiting on have settled, at the same time we are giving the Node.js event
  * loop the time to do other things.
  */
-async function doImgDiff(imgs, demand_same_size=false) {
-	
+async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
+
     assert(imgs.length > 0)
 
     // For every image in imgs we want to know width-by-height.
@@ -107,7 +110,7 @@ async function doImgDiff(imgs, demand_same_size=false) {
     //}
 
     // Figure out if all images are all the same size and prepare to rescale them.
-    const extend = 100 //The number of pixels we want in the largest dimension.
+    const extend = 1000 //The number of pixels we want in the largest dimension.
     // We know there is at least one image because of the assert above...
     const w_orig = imgs_metas[0].width
     const h_orig = imgs_metas[0].height
@@ -119,8 +122,8 @@ async function doImgDiff(imgs, demand_same_size=false) {
     }
     const new_size = { width: extend, height: extend }
     // 'x | 0' is a hack to obtain the integer part by bitwise operator |.
-    if(w_orig > h_orig) new_size.height = (extend * h_orig / w_orig) | 0
-    else                new_size.width  = (extend * w_orig / h_orig) | 0
+    new_size.height = h_orig
+    new_size.width  = w_orig
     // Maybe you would want the minimum dimension to be 'extend' instead of the maximum...
 
     // Extract the sharp objects:
@@ -131,7 +134,6 @@ async function doImgDiff(imgs, demand_same_size=false) {
                  // .toColorspace('srgb')
                  .resize(new_size)
                  .normalize()
-                 .blur() // note: blur after resize...
                  .raw()
                  .toBuffer()
     })
@@ -158,27 +160,27 @@ async function doImgDiff(imgs, demand_same_size=false) {
 		// We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
         assert(imgs_buffs[i].length == new_size.width * new_size.height * channel)
-		imgread.imageReading(imgs_buffs[i], tempResult[i], channel)
+		imgread.imageReading(imgs_buffs[i], tempResult[i], channel, save_diff)
 		assert(tempResult[i].length == new_size.width * new_size.height)
 		if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
-        to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./ diff-${i+1}.png`) )
+    if (save_diff) to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./ diff-${i+1}.png`) )
 		tempResult[i] = buftomat.createMatrix(tempResult[i], new_size)
     }
-	
+
     if(verbose) console.log('8. to_file_promises =', to_file_promises)
 
     // If we put an await here, then the first console.log in the main code will still
     // print a promise... Can you figure out why?
     const to_files = await Promise.all(to_file_promises) // .then(result => {return result})
     if(verbose > 2) console.log('9. to_files = ', to_files) // Prints file names and sizes etc...
-	
+
 	return {
-		matrix: tempResult, 
+		matrix: tempResult,
 		dimensions: { width: new_size.width, height: new_size.height }
 	}
-}	
+}
 
 // To make the function accesible in other .js files
 module.exports = {

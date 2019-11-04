@@ -18,22 +18,26 @@ precision = 30 // reference number to determine difference precision
  *
  * @note All arguments are allowed to alias each other since we never reuse data in the
  *  for loop below.
- * @note By working with Lab color schemes we aquire problems with the length of the buffers, 
+ * @note By working with Lab color schemes we aquire problems with the length of the buffers,
  *	therefore we introduced a changable variable that can easy cope with this problem.
- * 
+ *
  * @see https://nodejs.org/api/buffer.html
  */
-const imageReading = function(buff, toBuff, channel) {
+const imageReading = function(buff, toBuff, channel, scale=true) {
     assert(buff.length == channel * toBuff.length)
-	
+	if (scale){
+    var scaleValue = 255 / 6
+  } else{
+    var scaleValue = 1
+  }
 	for(let i = 0; i < buff.length; i += channel) {
 		rgb = new Array(buff[i], buff[i+1], buff[i+2])
-		
+
 		k = clrdis.pixelColor(rgb)
-		
+
 		// console.log(i," ", rgb, " ", k)
-		
-		toBuff[i/channel] = k * 255 / 6
+
+		toBuff[i/channel] = k * scaleValue
     }
 }
 
