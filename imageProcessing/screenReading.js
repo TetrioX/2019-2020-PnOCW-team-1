@@ -163,10 +163,8 @@ const NeighborsAndDiagonal = function (matrix, loc) {//loc = key value pair x: y
     temp2 = [];
 	for (let j = loc.y - 1; j <= loc.y + 1; j++) {
         for (let i = loc.x - 1; i <= loc.x + 1; i++) {
-            console.log(i, j);
             if (j >= 0 && i >= 0 && j < matrix.length && i < matrix[0].length
                 && !(i == loc.x && j == loc.y)) { //inside matrix & not loc & white
-                console.log("ook schuin");
                 temp2.push({ x: i, y: j })
             }
         }
@@ -383,6 +381,9 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 				}
 
     }
+		if (border.length == 0){
+			border.push(start)
+		}
     return border
 }
 
@@ -430,7 +431,7 @@ function checkNeighborsColor(corners, matrix, square, screens) {
         return false;
     }
     // Returns the color of the neigbor of the current square as shown in the
-    // figure below in an array. 
+    // figure below in an array.
     // If the current square is at the corner of the screen,
     //   return the color of the border in the corner (see case 1)
     // If the current square is at the side of the screen (not corner),
@@ -513,22 +514,25 @@ function checkNeighborsColor(corners, matrix, square, screens) {
 }
 
 function allElementsOfNoise(firstElement, matrix, noise) {
-    var current = sortColorOut(matrix, NeighborsAndDiagonal(matrix, firstElement), matrix[firstElement.y][firstElement.x])
-    for (var i of current) {
-        if (noise[i.y] === 'undefined') {
-            noise[i.y] = {}
-            noise[i.y][i.x] = 1
-            allElementsOfNoise(i, matrix, noise)
-        }
-        else {
-            if (noise[i.y][i.x] != 1) {
-                noise[i.y][i.x] = 1
-                allElementsOfNoise(i, matrix, noise)
-            }
-        }
-    }
+	var elementsToCheck = [firstElement]
+	while(elementsToCheck.length != 0){
+		var element = elementsToCheck.pop()
+		var neighbors = sortColorOut(matrix, NeighborsAndDiagonal(matrix, element), matrix[element.y][element.x])
+		for (var i of neighbors) {
+				if (typeof noise[i.y] === 'undefined') {
+						noise[i.y] = {}
+						noise[i.y][i.x] = 1
+						elementsToCheck.push(i)
+				}
+				else {
+						if (noise[i.y][i.x] != 1) {
+								noise[i.y][i.x] = 1
+								elementsToCheck.push(i)
+						}
+				}
+		}
+	}
 }
-
 
 /** returns the screens of the given matrixes
 	*
@@ -566,36 +570,35 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
                     foundColValues.add(matrix[j][i])
                     break;
                 }
-
-                if (!(noise[j] === 'undefined' && noise[j][i] === 'undefinded')){
+                if (!(typeof noise[j] === 'undefined' || typeof noise[j][i] === 'undefinded')){
                     break;
                 }
 
                 var border = findBorderOrderedRgb(matrix, { x: i, y: j }, matrix[j][i])
                 var corners = getCorners(border)
 
-				// found square is too small
-				if (corners.length != 4){
-                    //foundColValues.add(matrix[j][i])
-                    allElementsOfNoise(border[0],matrix,noise)
-					break;
+								// found square is too small
+								if (corners.length != 4){
+				            //foundColValues.add(matrix[j][i])
+				            allElementsOfNoise(border[0],matrix,noise)
+									break;
+								}
+								var cornersOrientated = checkNeighborsColor(corners, matrix, colorCombs[matrix[j][i]], screens)
+								// check if we've found all corners
+				                if (cornersOrientated.length == 4) {
+				                    foundScreenSquares.push({
+				                        corners: cornersOrientated,
+				                        square: colorCombs[matrix[j][i]]
+				                    })
+				                }
+				                else {
+				                    allElementsOfNoise(border[0], matrix, noise)
+				                    break;
+				                }
+								foundColValues.add(matrix[j][i])
+							}
 				}
-				var cornersOrientated = checkNeighborsColor(corners, matrix, colorCombs[matrix[j][i]], screens)
-				// check if we've found all corners
-                if (cornersOrientated.length == 4) {
-                    foundScreenSquares.push({
-                        corners: cornersOrientated,
-                        square: colorCombs[matrix[j][i]]
-                    })
-                }
-                else {
-                    allElementsOfNoise(border[0], matrix, noise)
-                    break;
-                }
-				foundColValues.add(matrix[j][i])
-			}
 		}
-	}
 	return foundScreenSquares
 }
 
@@ -704,7 +707,7 @@ function getCorners(rand){
 	}
 
 	var angles = [];
-    // Walk through each pixel in the border 
+    // Walk through each pixel in the border
 	for (var i = 0; i < rand.length; i++){
     var avgAngle = 0;
     // Apply the cosinus rule four times using the distance
