@@ -169,9 +169,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		  };
   	});
 
-    socket.on('changeBackgroundOfAllSlaves', async function(data){
+    async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
-      var nbOfColorCombs = Object.keys(slaves).length * (data.numberOfRows * data.numberOfColumns + 2)
+      var nbOfColorCombs = Object.keys(slaves).length * (numberOfRows * numberOfColumns + 2)
       // calculate how many pictues should be taken
       var nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
       var allColorCombinations = getColorComb(nbOfPictures)
@@ -181,7 +181,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var createGridPromises = [];
       Object.keys(slaves).forEach(function(slave, index) {
         // slaves[slave] is the slave ID
-        var gridAndCombs = createColorGrid(data.numberOfRows,data.numberOfColumns, allColorCombinations, slaves[slave])
+        var gridAndCombs = createColorGrid(numberOfRows,numberOfColumns, allColorCombinations, slaves[slave])
         createGridPromises.push(new Promise(function(resolve, reject) {
           salveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
@@ -216,12 +216,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
       if (saveDebugFiles) {
         fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
       }
-      var screens = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
-      console.log(screens)
-    });
-
-    function sleep(ms){
-    	return new Promise(resolve => setTimeout(resolve, ms));
+      var squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
+      return scrnread.getScreenFromSquares(squares, screens)
     }
 
     // takes a picture with i the current picture and n the total number of pictures
@@ -268,6 +264,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
         }
       }
       return pictures
+    }
+
+    socket.on('changeBackgroundOfAllSlaves', async function(data){
+      console.log(await calibrate(data.numberOfRows, data.numberOfColumns))
+    });
+
+    function sleep(ms){
+    	return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     socket.on('upload-image', function (data) {

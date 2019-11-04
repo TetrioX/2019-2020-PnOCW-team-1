@@ -602,6 +602,40 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	return foundScreenSquares
 }
 
+// returns a list with the best possible screens it can recognize from the calculated squares
+// This is not the best solution and could be in proofd in the future
+function getScreenFromSquares(squares, screens){
+	let screenCorners = {}
+	// calculate all the screens
+	for (let sq of squares){
+		if (typeof screenCorners[sq.square.screen] === 'undefined'){
+			screenCorners[sq.square.screen] = []
+		}
+		screenCorners[sq.square.screen].push(getScreenFromSquare(sq, screens))
+	}
+	let results = {}
+	// get the average of the screens
+	// NOTE: this could be improved by using the squares that are close to the corner
+	Object.keys(screenCorners).forEach(async function(screens, index) {
+		for (let i = 1; i < screenCorners[screens].length; i++){
+			//for each corner
+			for (let j = 0; j < 4; j++){
+
+				screenCorners[screens][0][j].x += screenCorners[screens][i][j].x
+				screenCorners[screens][0][j].y += screenCorners[screens][i][j].y
+			}
+		}
+		results[screens] = []
+		for (let j = 0; j < 4; j++){
+			results[screens].push({
+				x: Math.ceil(screenCorners[screens][0][j].x/screenCorners[screens].length),
+				y: Math.ceil(screenCorners[screens][0][j].y/screenCorners[screens].length)
+			})
+		}
+	})
+	return results
+}
+
 // returns the corners of the screen from a given square located in that screen
 function getScreenFromSquare(locSquare, screens){
 	// get the vectors that define the square
@@ -839,5 +873,6 @@ module.exports = {
 	colorToValue: colorToValue,
 	colorToValueList: colorToValueList,
 	getScreens: getScreens,
-	getScreenFromSquare: getScreenFromSquare
+	getScreenFromSquare: getScreenFromSquare,
+	getScreenFromSquares: getScreenFromSquares
 };
