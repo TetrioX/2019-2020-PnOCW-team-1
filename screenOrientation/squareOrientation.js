@@ -13,19 +13,13 @@ const getSquareOrientation = function(corners) {
 	assert(corners.length == 4)
 	var corners = getCornerPositions(corners)
 	var center = getCenter(corners)
-
-	
-	// console.log(" Center: ", center)
-	// console.log(" Verhouding Zijden: ", sides.AB / sides.CD, ' - ',  sides.AD / sides.BC )
-	// console.log(" Verhouding Diagonalen: ", diagonals.AO / diagonals.DO , ' - ',  diagonals.BO / diagonals.CO )
-	// console.log(" Cos: ", 1.0769/(Math.PI/3 + Math.PI/18*5))
 	
 	corners.A.z = 0
 	corners.B.z = 0
 	corners.C.z = 0
 	corners.D.z = 0
 	
-	return transfer2Dto3D(corners)
+	return corners // transfer2Dto3D(corners)
 }
 
 
@@ -33,13 +27,10 @@ const getSquareOrientation = function(corners) {
 const getCornerPositions = function(corners) {
 	assert(corners.length == 4)
 	var dict = {}
-	dict.A = corners.reduce((A, corner) => corner.y < A.y || corner.y == A.y && corner.x < A.x ? corner : A);
-	corners.splice(corners.indexOf(dict.A), 1)
-	dict.B = corners.reduce((B, corner) => getCos(dict.A, corner) >= getCos(dict.A, B) ? corner : B);
-	corners.splice(corners.indexOf(dict.B), 1)
-	dict.D = corners.reduce((D, corner) => getCos(dict.A, corner) <= getCos(dict.A, D) ? corner : D);
-	corners.splice(corners.indexOf(dict.D), 1)
-	dict.C = corners[0]
+	dict.A = corners[3]
+	dict.B = corners[0]
+	dict.C = corners[1]
+	dict.D = corners[2]
 	return dict
 }
 
@@ -185,7 +176,10 @@ const transfer2Dto3D = function(corners) {
 	retval.B = {x: B.x1 * opl.z2, y: B.y1 * opl.z2, z: opl.z2}
 	retval.C = {x: C.x1 * opl.z3, y: C.y1 * opl.z3, z: opl.z3}
 	retval.D = {x: D.x1 * opl.z4, y: D.y1 * opl.z4, z: opl.z4}
-
+	
+	console.log(get3DCoordinate({x:0, y:0, z:0}))
+	
+	
 	return retval
 }
 

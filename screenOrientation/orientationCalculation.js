@@ -30,7 +30,7 @@ const getOrientation = function(corners) {
 	else zRotation = 0
 	// xRotation = calcAngleDirection(corners, "x")
 	// yRotation = calcAngleDirection(corners, "y")
-	calcAngles(corners)
+	// calcAngles(corners)
 	return {center: center, rotations : {z: zRotation}}
 }
 
@@ -69,7 +69,7 @@ const calcAngles = function(corners) {
 	e = AD.y
 	f = AD.z
 	
-	console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f)
+	// console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f)
 	
 	eq = []
 	eq[0] = `${a}=t*v+s*u*w`
@@ -77,13 +77,13 @@ const calcAngles = function(corners) {
 	eq[2] = `${c}=s*t*w-u*v`
 	eq[3] = `${d}=s*u*v-t*w`
 	eq[4] = `${e}=r*v`
-	eq[5] = `${f}=u*w+s*t*v`
+	eq[5] = `${f}=u*  w+s*t*v`
 
 	eq[6] = `s=r*tan(x)`
 	eq[7] = `u=t*tan(y)`
 	eq[8] = `w=v*tan(z)`
 		
-	console.log(eq)
+	// console.log(eq)
 	// opl = nerdamer.solveEquations([eq[0], eq[1], eq[2], eq[3], eq[4], eq[5]])
 	// console.log(opl.toString())
 	// opl = nerdamer.solveEquations([eq[0], eq[1], eq[2], eq[3], eq[4], eq[5]])
