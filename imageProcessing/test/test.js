@@ -14,7 +14,7 @@ describe('findscreen', function() {
 
   // allowed pixel distance
   bwdelta = 3
-  rgbDelta = 50
+  rgbDelta = 22
 
   function parseJsonFile(path){
     var contents = fs.readFileSync(path);
