@@ -303,4 +303,5 @@ class VertexCycle extends CircularDoublyLinkedList {
 
 module.exports = {
     VertexCycle: VertexCycle
+
 }

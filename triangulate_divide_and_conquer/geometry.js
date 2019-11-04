@@ -46,7 +46,7 @@ function rightOf(pt, line){
     const c = pt[1] - x[1]
     const d = y[1] - x[1]
 
-    return 0 > (a * d) - (b * c)
+    return 0 >= (a * d) - (b * c)
 }
 function cross(a, b, o) {
     return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
@@ -104,17 +104,35 @@ function circumscribed(A, B, C, D){
 
 
 }
+function pointsOnLine(pts) {
+    const a = pts[1][1] - pts[0][1];
+    const b = pts[0][0] - pts[1][0];
+    const c = a*pts[0][0] + b*pts[0][1];
+
+    for(var i=2; i < pts.length; i++) {
+
+        if ((a*pts[i][0] + b*pts[i][1]) !== c) {
+            return false;
+        }
+    }
+    return true;
+};
+
+var testPts = [[1,1], [1,2], [1,3], [2,2], [3,3],[4,4]]
+//console.log(pointsOnLine(testPts))
+
 
 function findLowerCommonTangent(adj, X, Y) {
     let Z = adj[Y].get(0)
     let Z$$ = adj[X].get(0);
-    //let Z$$ = adj[X].getPrevious(Z$);
-    //console.log(Z$$)
 
+   // console.log("Z =", Z)
+    //console.log("Z$$ =", Z$$)
 
     while(true){
+
         if(!rightOf(Z, [X,Y])){
-           // console.log('zzz', Z)
+           //console.log('zzz', Z)
            // console.log(adj[X].toArray(),"–––––––––––––", adj[Y].toArray())
             let Y$ = adj[Z].getNext(Y)
             Y = Z;
@@ -131,6 +149,8 @@ function findLowerCommonTangent(adj, X, Y) {
     }
 }
 
+
+/*
 var pointsOnLine = function(points) {
    const a = points[1][1] - points[0][1];
    const b = points[0][0] - points[1][0];
@@ -144,9 +164,11 @@ var pointsOnLine = function(points) {
    return false;
 };
 
+
 const angleBetweenPoints = function (point1, point2) {
     return Math.atan2(point2[1] - point1[1], point2[0] - point1[0])*(180/Math.PI);
 };
+
 
 module.exports = {
     pseudoAngle: pseudoAngle,
@@ -157,6 +179,9 @@ module.exports = {
     convexHull: convexHull,
     circumscribed: circumscribed,
     pointsOnLine: pointsOnLine,
+    getLeftMost: getLeftMost,
+    getRightMost: getRightMost
     angleBetweenPoints: angleBetweenPoints
+
 };
 

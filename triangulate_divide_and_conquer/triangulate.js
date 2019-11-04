@@ -49,30 +49,7 @@ function findAngle(point, {baseline}){
 
 }
 
-function delaunay(pts, adj, l, r){
-    const size = r - l;
 
-    if (size < 1) return
-
-    if (size == 1) return triangulate2()
-
-    if (size == 2) return triangulate3()
-
-    const m = l + ((r - l) >>> 1)
-    const m2 = m + 1
-
-    delaunay(pts, adj, l, m)
-    delaunay(pts, adj, m2, r)
-
-    //Merge
-    const [L, R] = LowerCommonTangent(adj, pts[m], pts[m2])
-    Merge(adj, L, R)
-
-}
-
-function Merge(adj, L, R){
-
-}
 
 function triangulate2(adj, A, B){
     const cycleA = new VC.VertexCycle(A)
