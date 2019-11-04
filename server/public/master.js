@@ -25,14 +25,17 @@ var entirePage =document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
+var drawstarButton = document.getElementById('drawStar');
+var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
-var canvas = document.getElementById("canvas");
+
 var makeGridButton = document.getElementById("calibrateButton");
 var rowPicker =document.getElementById("rowPicker");
 var columnPicker =document.getElementById("columnPicker");
 
 var numberOfRows = rowPicker.valueAsNumber;
 var numberOfColumns =columnPicker.valueAsNumber;
+
 
 console.log(numberOfColumns);
 var angle = 0;
@@ -52,8 +55,18 @@ anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
 
+drawstarButton.addEventListener('click', function () {
+	socket.emit('drawStar')
+});
 
-drawButtonLine.addEventListener('click', function(){
+triangulateButton.addEventListener('click', function () {
+	socket.emit('triangulate',{
+		numberOfRows:numberOfRows,
+		numberOfColumns:numberOfColumns
+	})
+});
+
+drawButtonLine.addEventListener('click', function() {
     socket.emit('drawLine',{
         angle:angle
     })
@@ -65,7 +78,7 @@ colorPicker.addEventListener('input',function(){
 
 function createSlaveButton(number,id) {
 		var btn = document.createElement("BUTTON");
-		btn.innerHTML = "Change collor of " + number;
+		btn.innerHTML = "Change color of " + number;
 		entirePage.appendChild(btn);
 		btn.addEventListener('click', function () {
 				socket.emit('changeBackgroundColor', {
@@ -165,6 +178,9 @@ socket.on('takePictures', async function(data, callback){
 	callback(true);
 });
 
+socket.on('alert', function(data){
+	alert(data)
+})
 
 // Starts the calibration process and shows the result
 makeGridButton.addEventListener('click',function(){

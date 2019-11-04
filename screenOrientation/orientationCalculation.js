@@ -23,7 +23,7 @@ const getScreens = function(screens) {
 const getOrientation = function(corners) {
 	// console.log(corners)
 	var corners = sqor.getSquareOrientation(corners)
-	
+
 	center = getCenter(corners)
 	tiltDir = getTiltDir(corners)
 	if (getTiltDir(corners).z) zRotation = calcAngle(getDirVector(corners.B, corners.C), {x:0,y:1,z:0})
@@ -41,7 +41,7 @@ const getCenter = function(corners) {
 	zValue = values.reduce((sum, element) => sum + element.z, 0)
 	return { x: xValue / 4, y: yValue / 4, z: zValue / 4 }
 }
-	
+
 const getLine3D = function(pos1, pos2) {
 	p = getDirVector(pos1, pos2)
 	return { p: p, q: pos1 }
@@ -61,16 +61,16 @@ const normalizeVector = function(vector) {
 const calcAngles = function(corners) {
 	AB = normalizeVector(getDirVector(corners.A, corners.B))
 	AD = normalizeVector(getDirVector(corners.A, corners.D))
-	
+
 	a = AB.x
 	b = AB.y
 	c = AB.z
 	d = AD.x
 	e = AD.y
 	f = AD.z
-	
+
 	// console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f)
-	
+
 	eq = []
 	eq[0] = `${a}=t*v+s*u*w`
 	eq[1] = `${b}=r*w`
@@ -82,7 +82,7 @@ const calcAngles = function(corners) {
 	eq[6] = `s=r*tan(x)`
 	eq[7] = `u=t*tan(y)`
 	eq[8] = `w=v*tan(z)`
-		
+
 	// console.log(eq)
 	// opl = nerdamer.solveEquations([eq[0], eq[1], eq[2], eq[3], eq[4], eq[5]])
 	// console.log(opl.toString())
@@ -110,7 +110,7 @@ const getTiltDir = function(corners) {
 	return { x: xTilt, y: yTilt, z: zTilt }
 }
 
-
+/*
 testCornersXTilt = {A: {x:10,y:10,z:0}, C: {x:30,y:30,z:20}, D: {x:10,y:30,z:20}, B: {x:30,y:10,z:0}}
 testCornersYTilt = {A: {x:10,y:10,z:0}, C: {x:20,y:30,z:20}, D: {x:10,y:30,z:0}, B: {x:20,y:10,z:20}}
 testCornersZTilt = {A: {x:100,y:10,z:0}, C: {x:90,y:120,z:0}, D: {x:40,y:70,z:0}, B: {x:150,y:60,z:0}}
@@ -123,4 +123,8 @@ testCornersZTilt = [{x:100,y:10},{x:90,y:120},{x:40,y:70},{x:150,y:60}]
 vectorTest = {x:4,y:0,z:0}
 
 console.log(getScreens(testScreens))
-// console.log(getOrientation(test40))
+// console.log(getOrientation(testCornersZTilt))
+*/
+module.exports = {
+	getScreens: getScreens
+}

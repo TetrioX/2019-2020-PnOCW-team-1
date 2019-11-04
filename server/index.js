@@ -4,6 +4,8 @@ var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
+const screenorientation = require('../screenOrientation/orientationCalculation.js')
+const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
 const config = require('./config.json');
 
@@ -23,7 +25,7 @@ var server = app.listen(config.port, function(){
 var io = socket(server);
 
 var slaves = {}
-var salveSockets = {}
+var slaveSockets = {}
 var number = 0
 
 //adjust this if you want to have more colorlist
@@ -37,7 +39,7 @@ function deleteSlave(socket) {
 
 function addSlave(socket) {
     slaves[socket.id] = ++number
-    salveSockets[socket.id] = socket
+    slaveSockets[socket.id] = socket
     masterIo.emit('registerSlave', {
         number: number,
         socket_id: socket.id
@@ -166,12 +168,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		if (data.id) slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
 		else {
 			slaveIo.emit('changeBackgroundColor', data);
-		  };
+		  }
   	});
 
-    socket.on('changeBackgroundOfAllSlaves', async function(data){
+    async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
-      var nbOfColorCombs = Object.keys(slaves).length * (data.numberOfRows * data.numberOfColumns + 2)
+      var nbOfColorCombs = Object.keys(slaves).length * (numberOfRows * numberOfColumns + 2)
       // calculate how many pictues should be taken
       var nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
       var allColorCombinations = getColorComb(nbOfPictures)
@@ -181,14 +183,15 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var createGridPromises = [];
       Object.keys(slaves).forEach(function(slave, index) {
         // slaves[slave] is the slave ID
-        var gridAndCombs = createColorGrid(data.numberOfRows,data.numberOfColumns, allColorCombinations, slaves[slave])
+        var gridAndCombs = createColorGrid(numberOfRows,numberOfColumns, allColorCombinations, slaves[slave])
         createGridPromises.push(new Promise(function(resolve, reject) {
-          salveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
+          slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
           setTimeout(function() {
             // if it takes longer than 1 seconds reject the promise
-            reject()
+            // TODO: should be rejected and handled
+            resolve()
           }, 1000);
         }))
         // add the grid to screens
@@ -199,6 +202,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       var pictures = await takePicture(nbOfPictures)
+      // remove all the grids
+      // TODO: use the callback
+      Object.keys(slaves).forEach(function(slave, index) {
+        slaveSockets[slave].emit('removeGrid')
+      })
       if (saveDebugFiles) {
         fs.writeFileSync(`screens.json`, JSON.stringify(screens))
         fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
@@ -216,12 +224,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
       if (saveDebugFiles) {
         fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
       }
-      var screens = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
-      console.log(screens)
-    });
-
-    function sleep(ms){
-    	return new Promise(resolve => setTimeout(resolve, ms));
+      var squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
+      return scrnread.getScreenFromSquares(squares, screens)
     }
 
     // takes a picture with i the current picture and n the total number of pictures
@@ -237,7 +241,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
           })
           setTimeout(function() {
             // if it takes longer than 0.5 seconds reject the promise
-            reject()
+            // TODO: should be rejected and handled
+            resolve()
           }, 500);
         })
         var picture = await picPromise
@@ -249,13 +254,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
           await sleep(Number(gridPause))
           Object.keys(slaves).forEach(async function(slave, index) {
             var promise = new Promise(function(resolve, reject) {
-              salveSockets[slave].emit('changeGrid', i, function(callBackData){
+              slaveSockets[slave].emit('changeGrid', i, function(callBackData){
               // fulfill promise
               resolve()
               })
               setTimeout(function() {
                 // if it takes longer than 0.5 seconds reject the promise
-              	reject()
+                // TODO: should be rejected and handled
+              	resolve()
               }, 500);
             })
             promises.push(promise)
@@ -270,9 +276,25 @@ var masterIo = io.of('/master').on('connect', function(socket){
       return pictures
     }
 
+    socket.on('changeBackgroundOfAllSlaves', async function(data){
+      var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
+      var screenKeys = Object.keys(screens)
+      if (screenKeys.length == 0){
+        socket.emit('alert', "didn't find any screens.")
+        return
+      } else{
+        socket.emit('alert', "found these screens: "+screenKeys.toString() )
+      }
+      console.log(screens)
+    });
+
+    function sleep(ms){
+    	return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     socket.on('upload-image', function (data) {
-		if (data.destination) fs.writeFileSync(`./Pictures/slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
-		else fs.writeFileSync(`./Pictures/image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
+		if (data.destination) fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+		else fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
         masterIo.emit('imageSaved')
         imageIndex += 1;
     });
@@ -281,19 +303,42 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('drawLine', data);
   	});
 
-    socket.on('calibrate', function(data){
-		slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
-		socket.emit('takePictures', {slaves: {0:'m'}}, function(callbackData){
-			socket.emit('takePictures', {slaves: slaves},
-				function(callbackData){
-					console.log('Took enough pictures.')
-					imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
-					for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
-					scrnrec.findScreen(imgs) // Implement the screen recognition
-				})
-		  })
-    })
-})
+    socket.on('drawStar', function () {
+        slaveIo.emit('drawStar');
+    });
+
+    socket.on('triangulate', async function(data){
+        var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
+        console.log(screens)
+        var screenKeys = Object.keys(screens)
+        if (screenKeys.length == 0){
+          socket.emit('alert', "didn't find any screens.")
+          return
+        } else{
+          socket.emit('alert', "found these screens: "+screenKeys.toString() )
+        }
+        var data = screenorientation.getScreens(screens);
+        console.log(data)
+        var angles = delaunay.getAngles(data);
+        console.log(angles)
+        Object.keys(slaves).forEach(function(slave, index) {
+           slaveSockets[slave].emit('triangulate', angles[slave.id]);
+        });
+    });
+
+    socket.on('calibrate', function(data) {
+        slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
+        socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
+            socket.emit('takePictures', {slaves: slaves},
+                function (callbackData) {
+                    console.log('Took enough pictures.')
+                    imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
+                    for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
+                    scrnrec.findScreen(imgs) // Implement the screen recognition
+                })
+        })
+    });
+});
 
 var slaveIo = io.of('/slave').on('connect', function(socket){
   addSlave(socket)
@@ -311,32 +356,31 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 });
 
 
-
 //creating grids with a number of columns and a number of rows
-function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID){
-  var result = {
-    colorGrid: {grid: []},
-    comb: {}
-  }
-  for (var i = 0; i<nbrows; i++){
-    result.colorGrid.grid.push([]);
-    for (var j = 0; j<nbcolumns; j++){
-      var colorComb = allColorCombinations.pop()
-      result.colorGrid.grid[i].push(colorComb);
-      // the key is the integer value of the color comb and the value
-      // is the location of the quadrangle in the grid.
-      result.comb[scrnread.colorToValueList(colorComb, possibleColors.length)] = {
-        screen:slaveID,
-        row:i,
-        col:j
-      }
+function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
+    var result = {
+        colorGrid: {grid: []},
+        comb: {}
     }
-  }
-  // generate a color for the side and corner border.
-  var cornBorder = allColorCombinations.pop()
-  var sideBorder = allColorCombinations.pop()
-  result.colorGrid['cornBorder'] = cornBorder
-  result.colorGrid['sideBorder'] = sideBorder
+    for (var i = 0; i < nbrows; i++) {
+        result.colorGrid.grid.push([]);
+        for (var j = 0; j < nbcolumns; j++) {
+            var colorComb = allColorCombinations.pop()
+            result.colorGrid.grid[i].push(colorComb);
+            // the key is the integer value of the color comb and the value
+            // is the location of the quadrangle in the grid.
+            result.comb[scrnread.colorToValueList(colorComb, possibleColors.length)] = {
+                screen: slaveID,
+                row: i,
+                col: j
+            }
+        }
+    }
+    // generate a color for the side and corner border.
+    var cornBorder = allColorCombinations.pop();
+    var sideBorder = allColorCombinations.pop();
+    result.colorGrid['cornBorder'] = cornBorder;
+    result.colorGrid['sideBorder'] = sideBorder;
 
-  return result;
-  }
+    return result;
+}
