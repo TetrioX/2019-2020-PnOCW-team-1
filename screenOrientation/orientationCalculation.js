@@ -20,7 +20,7 @@ const getOrientation = function(corners) {
 	// xRotation = calcAngleDirection(corners, "x")
 	// yRotation = calcAngleDirection(corners, "y")
 	// calcAngles(corners)
-	return zRotation
+	return {center: center, rotations : {z: zRotation}}
 }
 
 const getCenter = function(corners) {
@@ -40,9 +40,16 @@ const getDirVector = function(pos1, pos2) {
 	return { x : pos2.x - pos1.x, y : pos2.y - pos1.y, z : pos2.z - pos1.z }
 }
 
+const normalizeVector = function(vector) {
+	len = calcDistance(vector)
+	for (var key in vector) vector[key] = vector[key]/len
+	return vector
+}
+
+
 const calcAngles = function(corners) {
-	AB = getDirVector(corners.A, corners.B)
-	AD = getDirVector(corners.A, corners.D)
+	AB = normalizeVector(getDirVector(corners.A, corners.B))
+	AD = normalizeVector(getDirVector(corners.A, corners.D))
 	
 	a = AB.x
 	b = AB.y
@@ -98,5 +105,6 @@ testCornersZTilt = {A: {x:100,y:10,z:0}, C: {x:90,y:120,z:0}, D: {x:40,y:70,z:0}
 
 testCornersZTilt = [{x:100,y:10},{x:90,y:120},{x:40,y:70},{x:150,y:60}]
 
+vectorTest = {x:4,y:0,z:0}
 
 console.log(getOrientation(testCornersZTilt))

@@ -3,7 +3,10 @@ const { argv } = require('yargs') // command line arguments
                .count('verbose')
                .alias('v', 'verbose')
 const assert = require('assert')  // asserting pre-conditions
-var algebra = require('algebra.js'); // Solving equations
+let nerdamer = require('nerdamer');  // cannot be const, nerdamer object is updated below
+require('nerdamer/Algebra.js');
+require('nerdamer/Calculus.js');
+require('nerdamer/Solve.js');
 
 const getSquareOrientation = function(corners) {
 	assert(corners.length == 4)
@@ -20,8 +23,8 @@ const getSquareOrientation = function(corners) {
 	corners.B.z = 0
 	corners.C.z = 0
 	corners.D.z = 0
-
-	return corners
+	
+	return transfer2Dto3D(corners)
 }
 
 
@@ -153,15 +156,19 @@ const transfer2Dto3D = function(corners) {
 	o = getCoefficient(D, A)
 	p = getCoefficient(D, C)
 	
-	console.log(A, " ", B, " ", C, " ", D)
-	console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f, " ", g, " ", h, " ", i , " ", j, " ", k, " ", l, " ", m, " ", n, " ", o, " ", p)
-	// eq = algebra.parse(`${a} * z1 ^ 2 + ${b} * z2 * z3 - ${c} * z1 * z2 - ${d} * z1 * z3 = 0`)
+	// console.log(A, " ", B, " ", C, " ", D)
+	// console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f, " ", g, " ", h, " ", i , " ", j, " ", k, " ", l, " ", m, " ", n, " ", o, " ", p)
+	eq = []
+	eq[0] = `${a} * z1 ^ 2 + ${b} * z2 * z4 - ${c} * z1 * z2 - ${d} * z1 * z4 = 0`
+	eq[1] = `${e} * z2 ^ 2 + ${f} * z3 * z1 - ${g} * z2 * z3 - ${h} * z2 * z1 = 0`
+	eq[2] = `${i} * z3 ^ 2 + ${j} * z4 * z2 - ${k} * z3 * z4 - ${l} * z3 * z2 = 0`
+	eq[3] = `${m} * z4 ^ 2 + ${n} * z1 * z3 - ${o} * z4 * z1 - ${p} * z4 * z3 = 0`
 
-	// console.log(eq.toString());
+	console.log(eq);
 	
-	// var Answer1 = eq.solveFor("z2");
+	opl = nerdamer.solveEquations(eq)
 	
-	// console.log("x = " + Answer1.toString());
+	console.log(opl.toString());
 
 
 }
