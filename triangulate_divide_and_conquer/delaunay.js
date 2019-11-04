@@ -2,6 +2,15 @@ const geometry = require('./geometry');
 const triangulate = require('./triangulate')
 const merge = require('./Merge')
 
+function sortPoints(points) {
+    points.sort(function (item1, item2) {
+        if (item1[0] !== item2[0]) {
+            return item1[0] - item2[0];
+        } else
+            return item1[1] - item2[1];
+    });
+}
+
 function Delaunay(pts){
     adj = {}
     geometry.sortPoints(pts)

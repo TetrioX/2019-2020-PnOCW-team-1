@@ -20,7 +20,8 @@ var slaveButtons = {};
 var numberOnButton = 0;
 
 var drawButtonLine = document.getElementById('drawLine');
-var drawstarButton = document.getElementById('drawStar')
+var drawstarButton = document.getElementById('drawStar');
+//var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
 var calibrateButton = document.getElementById("calibrateButton");
 
@@ -29,8 +30,12 @@ anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
 
-drawstarButton.addEventListener('click', function() {
+drawstarButton.addEventListener('click', function () {
 	socket.emit('drawStar')
+});
+
+triangulateButton.addEventListener('click', function () {
+	socket.emit('triangulate')
 });
 
 drawButtonLine.addEventListener('click', function() {

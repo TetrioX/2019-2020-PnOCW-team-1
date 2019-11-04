@@ -86,6 +86,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('drawLine', data);
   	});
 
+    socket.on('drawStar', function () {
+        slaveIo.emit('drawStar');
+    });
+
     socket.on('calibrate', function(data){
 		slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
 		socket.emit('takePictures', {slaves: {0:'m'}}, function(callbackData){
