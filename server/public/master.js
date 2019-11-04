@@ -178,6 +178,9 @@ socket.on('takePictures', async function(data, callback){
 	callback(true);
 });
 
+socket.on('alert', function(data){
+	alert(data)
+})
 
 // Starts the calibration process and shows the result
 makeGridButton.addEventListener('click',function(){

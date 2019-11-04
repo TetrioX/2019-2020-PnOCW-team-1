@@ -277,7 +277,15 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }
 
     socket.on('changeBackgroundOfAllSlaves', async function(data){
-      console.log(await calibrate(data.numberOfRows, data.numberOfColumns))
+      var screens = await calibrate(data.numberOfRows, data.numberOfColumns))
+      var screenKeys = Object.keys(screens)
+      if (screenKeys.length == 0){
+        socket.emit('alert', "didn't find any screens.")
+        return
+      } else{
+        socket.emit('alert', "found these screens: "+screenKeys.toString() )
+      }
+      console.log(screens)
     });
 
     function sleep(ms){
@@ -285,8 +293,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }
 
     socket.on('upload-image', function (data) {
-		if (data.destination) fs.writeFileSync(`./Pictures/slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
-		else fs.writeFileSync(`./Pictures/image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
+		if (data.destination) fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+		else fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
         masterIo.emit('imageSaved')
         imageIndex += 1;
     });
@@ -302,6 +310,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
     socket.on('triangulate', async function(data){
         var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
         console.log(screens)
+        var screenKeys = Object.keys(screens)
+        if (screenKeys.length == 0){
+          socket.emit('alert', "didn't find any screens.")
+          return
+        } else{
+          socket.emit('alert', "found these screens: "+screenKeys.toString() )
+        }
         var data = screenorientation.getScreens(screens);
         console.log(data)
         var angles = delaunay.getAngles(data);
