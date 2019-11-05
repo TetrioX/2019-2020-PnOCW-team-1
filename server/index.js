@@ -237,13 +237,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
       while(true){
         var picPromise = new Promise(function(resolve, reject) {
           socket.emit('takeOnePicture', {}, async function(callBackData){
+            console.log(callBackData)
             resolve(callBackData)
           })
           setTimeout(function() {
-            // if it takes longer than 0.5 seconds reject the promise
+            // if it takes longer than 2 seconds reject the promise
             // TODO: should be rejected and handled
             resolve()
-          }, 500);
+          }, 2000);
         })
         var picture = await picPromise
         pictures.push(decodeBase64Image(picture).data)
@@ -322,7 +323,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         var angles = delaunay.getAngles(data);
         console.log(angles)
         Object.keys(slaves).forEach(function(slave, index) {
-           slaveSockets[slave].emit('triangulate', angles[slave.id]);
+           slaveSockets[slave].emit('triangulate', angles[slaves[slave]]);
         });
     });
 
