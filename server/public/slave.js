@@ -15,41 +15,6 @@ var entirePage = document.createElement('th');
 var length = 1000;
 var gridElements = []
 
-//ster
-function drawStar() {
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
-	const cx = window.innerWidth / 2;
-	const cy = window.innerHeight / 2;
-	const outerRadius = 40;
-	const innerRadius = 15;
-	var rot = Math.PI / 2 * 3;
-	var x = cx;
-	var y = cy;
-	var step = Math.PI / 5;
-
-	context.beginPath();
-	context.moveTo(cx, cy - outerRadius);
-	for (let i = 0; i < 5; i++) {
-		x = cx + Math.cos(rot) * outerRadius;
-		y = cy + Math.sin(rot) * outerRadius;
-		context.lineTo(x, y);
-		rot += step;
-
-		x = cx + Math.cos(rot) * innerRadius;
-		y = cy + Math.sin(rot) * innerRadius;
-		context.lineTo(x, y);
-		rot += step
-	}
-	context.lineTo(cx, cy - outerRadius);
-	context.closePath();
-	context.lineWidth = 5;
-	context.strokeStyle = 'black';
-	context.stroke();
-	context.fillStyle = 'black';
-	context.fill();
-}
-
 
 //listen for events from server
 socket.on('connect',function(){
@@ -225,26 +190,50 @@ function draw(radianAngle) {
 }
 
 function drawAnglesDegree(radianAngles) {
+	context.clearRect(0, 0, canvas.width, canvas.height);
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
-	var centreX = window.innerWidth / 2;
-	var centreY =  window.innerHeight / 2;
-	var from = {
-		x: centreX,
-		y: centreY
-	};
+	// center
+	const cx = window.innerWidth / 2;
+	const cy = window.innerHeight / 2;
+	//draw star
+	const outerRadius = 40;
+	const innerRadius = 15;
+	var rot = Math.PI / 2 * 3;
+	var x = cx;
+	var y = cy;
+	var step = Math.PI / 5;
+
+	context.beginPath();
+	context.moveTo(cx, cy - outerRadius);
+	for (let i = 0; i < 5; i++) {
+		x = cx + Math.cos(rot) * outerRadius;
+		y = cy + Math.sin(rot) * outerRadius;
+		context.lineTo(x, y);
+		rot += step;
+
+		x = cx + Math.cos(rot) * innerRadius;
+		y = cy + Math.sin(rot) * innerRadius;
+		context.lineTo(x, y);
+		rot += step
+	}
+	context.lineTo(cx, cy - outerRadius);
+	context.closePath();
+	context.lineWidth = 5;
+	context.strokeStyle = 'black';
+	context.stroke();
+	context.fillStyle = 'black';
+	context.fill();
+
+	//draw lines
 	for(radianAngle of radianAngles){
 		var dx = length * Math.cos(Number(radianAngle) * Math.PI * 2 / 360);
 		var dy = length * Math.sin(Number(radianAngle) * Math.PI * 2 / 360);
-		var to = {
-			x: centreX+dx,
-			y: centreY+dy
-		};
 
 		// start point
-		context.moveTo(from.x, from.y);
+		context.moveTo(cx, cy);
 		// end point
-		context.lineTo(to.x, to.y);
+		context.lineTo(cx+dx, cy+dy);
 
 		context.lineWidth = 10;
 		// Make the line visible
