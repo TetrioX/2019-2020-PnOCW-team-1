@@ -237,7 +237,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
       while(true){
         var picPromise = new Promise(function(resolve, reject) {
           socket.emit('takeOnePicture', {}, async function(callBackData){
-            console.log(callBackData)
             resolve(callBackData)
           })
           setTimeout(function() {
