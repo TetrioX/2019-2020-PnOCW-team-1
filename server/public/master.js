@@ -17,9 +17,6 @@ socket.on('registerMaster', function (data) {
 });
 
 //Emit events to server
-var backgroundButton = document.getElementById('changeBackgroundColor');
-var colorPicker = document.getElementById('color');
-var colorValue = colorPicker.value;
 
 var entirePage =document.getElementById('entirePage');
 var slaveButtons = {};
@@ -47,9 +44,7 @@ columnPicker.addEventListener('input', function(){
 	numberOfColumns =columnPicker.valueAsNumber
 })
 
-colorPicker.addEventListener('input', function () {
-		colorValue = colorPicker.value
-});
+
 
 anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
@@ -71,10 +66,6 @@ drawButtonLine.addEventListener('click', function() {
         angle:angle
     })
 });
-
-colorPicker.addEventListener('input',function(){
-	colorValue = colorPicker.value
-})
 
 function createSlaveButton(number,id) {
 		var btn = document.createElement("BUTTON");
