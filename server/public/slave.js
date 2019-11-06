@@ -32,8 +32,17 @@ socket.on('SendingPicture', function(data){
 });
 // Sending number to slave (also usefull for angle of arrow!)
 socket.on('slaveID', function (id) {
+	if (id ==1){
+		var text ="st "
+	}
+	else if(id ==2){
+		var text ="nd "
+	}
 
-    document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
+	else{
+		var text ="th "
+	}
+    document.getElementById("slaveID").innerHTML = id+text;
 })
 
 
@@ -65,6 +74,7 @@ socket.on('changeGrid', function(data, callback){
 
 socket.on('removeGrid', function(data){
 	document.body.style.backgroundColor = 'white'
+	wrapper.style.display="";
 	for (el of gridElements){
 		el.remove()
 	}
@@ -88,7 +98,7 @@ function createGrid(){
 	}
 	for (i=0; i<numberOfrows;i++){
 		var row =document.createElement('div');
-		row.setAttribute("class","row");
+		row.setAttribute("class","rowclass");
 		row.setAttribute("id", i.toString());
 		document.getElementById("entirePage").appendChild(row);
 		gridElements.push(row)
@@ -257,11 +267,6 @@ socket.on('changeBackgroundColor',function(data){
 socket.on('SendingPicture', function(data){
 	console.log("picture recieved");
 });
-// Sending number to slave (also usefull for angle of arrow!)
-socket.on('slaveID', function (id) {
-    console.log(id)
-    document.getElementById("slaveID").innerHTML = "Ik ben een slaaf nummer " + id
-})
 
 socket.on('drawStar', function(data){
 	drawStar();
