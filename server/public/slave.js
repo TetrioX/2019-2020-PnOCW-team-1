@@ -12,9 +12,17 @@ var gridData = {
 	cornBorder: []
 }
 var entirePage = document.createElement('th');
+var countdownTimer = document.getElementById('timer')
+var wrapper = document.getElementById("wrapper")
 var length = 1000;
 var gridElements = []
 
+function cleanHTML(){
+	removeGrid()
+	wrapper.style.display = "none"
+	countdownTimer.style.visibility = "hidden"
+	context.clearRect(0, 0, canvas.width, canvas.height);
+}
 
 //listen for events from server
 socket.on('connect',function(){
@@ -23,6 +31,7 @@ socket.on('connect',function(){
 });
 
 socket.on('changeBackgroundColor',function(data){
+		cleanHTML()
     document.body.style.backgroundColor = data.colorValue;
     document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
 });
@@ -52,8 +61,7 @@ socket.on('drawLine', function(data){
 
 
 socket.on('changeBackgroundOfAllSlaves', function(data, callback){
-	let wrapper = document.getElementById("wrapper")
-	wrapper.style.display = "none";
+	cleanHTML()
 	entirePage.setAttribute("id","entirePage");
 	document.body.appendChild(entirePage);
 	saveGrid(data);
@@ -72,13 +80,17 @@ socket.on('changeGrid', function(data, callback){
 	}, 200);
 });
 
-socket.on('removeGrid', function(data){
+function removeGrid(){
 	document.body.style.backgroundColor = 'white'
 	wrapper.style.display="";
 	for (el of gridElements){
 		el.remove()
 	}
 	gridElements = []
+}
+
+socket.on('removeGrid', function(data){
+	removeGrid()
 })
 
 masterButton.addEventListener('click',function(){
@@ -269,20 +281,133 @@ socket.on('SendingPicture', function(data){
 });
 
 socket.on('drawStar', function(data){
+	cleanHTML()
 	drawStar();
 });
 
 socket.on('triangulate', function(angles){
-	wrapper.style.display = "none";
-	drawStar();
-	console.log(angles)
+	cleanHTML()
 	drawAnglesDegree(angles)
 });
 
 socket.on('drawLine', function(data){
-    draw(data.angle);
+	cleanHTML()
+	draw(data.angle);
 });
 
 masterButton.addEventListener('click',function(){
 	window.location.href="/master";
 });
+
+// Original version https://gist.github.com/LogIN-/e1e3feff907066a1b5ed
+// Modified to work with socket.io and to be able to adjust the time from the server
+(function() {
+		// offset in ms of time difference between server en slave
+		var offset = 0
+		// start time
+		var timer_start
+		// pointer to the interval for finishing animation
+		var finishAnimTimer = null
+    socket.on('startCountdown', function(data){
+			cleanHTML()
+			countdownTimer.style.visibility = 'visible';
+			start_countdown(data)
+		})
+		socket.on('updateCountdown', function(data){
+			offset = new Date() - timer_start - data
+		})
+    function start_countdown(timeInSeconds){
+				stopfinishAnimation()
+				timer_start = new Date()
+        var main_container = document.getElementById('svg_download_countdown')
+          , loader = document.getElementById('loader')
+          , border = document.getElementById('border')
+          , countdown = document.getElementById('countdown')
+          , π = Math.PI
+          , total_seconds = timeInSeconds
+          , elipsed_seconds = 0
+          , refresh_rate = 25 // (100 / total_seconds) * 100
+          , α = 0
+          , last_loop = false
+          , finishAnimTimer = null
+          , scaleAnimation = 84;
+				console.log(countdown)
+        InitiateCountDownLoop();
+        function InitiateCountDownLoop(){
+            drawCountdown();
+            if(Math.round(elipsed_seconds % 60) != total_seconds){
+                setTimeout(InitiateCountDownLoop, refresh_rate);
+            }else if(last_loop === false){
+                last_loop = true;
+                setTimeout(InitiateCountDownLoop, refresh_rate);
+            }else{
+                appendCountdownSeconds();
+                countdown.innerHTML = "Done";
+                adjustCountDownOffset();
+                startfinishAnimation();
+                return;
+            }
+        };
+        function drawCountdown() {
+            getElapsedSeconds();
+            if(last_loop === false){
+                α = ((elipsed_seconds * (360 / (total_seconds * 1000))) * 1000);
+                α %= 360;
+                var r = ( α * π / 180 )
+                , x = Math.round((Math.sin( r ) * 125) * 100) / 100
+                , y = Math.round((Math.cos( r ) * - 125) * 100) / 100
+                , mid = ( α > 180 ) ? 1 : 0
+                , anim = 'M 0 0 v -125 A 125 125 1 '
+                + mid + ' 1 '
+                +  x  + ' '
+                +  y  + ' z';
+            }else{
+                var anim = 'M 0 0 v -125 A 125 125 1 1 1 -0.1 -125 z';
+            }
+            loader.setAttribute( 'd', anim );
+            border.setAttribute( 'd', anim );
+            appendCountdownSeconds();
+        }; // drawCountdown END
+        function getElapsedSeconds(){
+            var timeDifference = (new Date() - timer_start - offset) / 1000;
+            elipsed_seconds = timeDifference;
+        }; // getElapsedSeconds END
+        function appendCountdownSeconds(){
+            countdown.textContent = (total_seconds - Math.round(elipsed_seconds % 60)).toString();
+            adjustCountDownOffset();
+        }; // appendCountdowSeconds END
+        function adjustCountDownOffset(){
+            var main_container_width = main_container.getAttribute("width");
+            var main_container_height = main_container.getAttribute("height");
+            var counter_width = countdown.getBBox().width;
+            var counter_height = countdown.getBBox().height;
+            var countdown_x = Math.round((main_container_width - counter_width) / 2);
+            var countdown_y = Math.round((main_container_height - counter_height) - (counter_height / 2));
+            countdown.setAttribute("x", countdown_x);
+            countdown.setAttribute("y", countdown_y);
+        };
+        function startfinishAnimation() {
+            if(finishAnimTimer == null) {
+                finishAnimTimer = setInterval(finishAnimation, 100);
+            }
+        };
+        function stopfinishAnimation() {
+						console.log(stopfinishAnimation)
+            if(finishAnimTimer != null){
+                clearInterval(finishAnimTimer);
+                loader.setAttribute("transform", "translate(125, 125) scale(.84)");
+                finishAnimTimer = null;
+            }
+        };
+        function finishAnimation() {
+            var x = loader.getAttribute("transform");
+            if(scaleAnimation >= 84 & scaleAnimation < 95){
+                scaleAnimation = scaleAnimation + 1;
+            }else if(scaleAnimation == 95){
+                scaleAnimation = 84;
+            }
+            var transform = "translate(125, 125) scale(." + scaleAnimation + ")";
+            loader.setAttribute("transform", transform);
+        };
+    }; // start_countdown END
+})();

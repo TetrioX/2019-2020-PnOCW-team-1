@@ -338,6 +338,20 @@ var masterIo = io.of('/master').on('connect', function(socket){
                 })
         })
     });
+
+    socket.on('startCountdown', function(data){
+      let startTime = new Date()
+      slaveIo.emit('startCountdown', data)
+      // updates the offset every 50ms
+      let updater = setInterval(function(){
+        let offset = new Date() - startTime
+        slaveIo.emit('updateCountdown', offset)
+      }, 50)
+      // stop sending updates after the timer has been completed.
+      setTimeout(function() {
+      	clearInterval(updater)
+      }, data*1000);
+    })
 });
 
 var slaveIo = io.of('/slave').on('connect', function(socket){
