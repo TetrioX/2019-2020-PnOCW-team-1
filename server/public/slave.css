@@ -27,7 +27,7 @@
 }
 #svg_download_countdown #countdown {
   font-size: 64px;
-  display: block;
+  display: none;
   cursor: pointer;
   font-weight: bold;
 }

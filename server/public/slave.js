@@ -317,21 +317,21 @@ masterButton.addEventListener('click',function(){
 			offset = new Date() - timer_start - data
 		})
     function start_countdown(timeInSeconds){
-				stopfinishAnimation()
 				timer_start = new Date()
         var main_container = document.getElementById('svg_download_countdown')
-          , loader = document.getElementById('loader')
-          , border = document.getElementById('border')
-          , countdown = document.getElementById('countdown')
-          , π = Math.PI
+        var loader = document.getElementById('loader')
+       	var border = document.getElementById('border')
+        var countdown = document.getElementById('countdown')
+				countdown.style.display = 'block';
+				// stop finishing animation if it's running
+				stopfinishAnimation()
+        var π = Math.PI
           , total_seconds = timeInSeconds
           , elipsed_seconds = 0
           , refresh_rate = 25 // (100 / total_seconds) * 100
           , α = 0
           , last_loop = false
-          , finishAnimTimer = null
           , scaleAnimation = 84;
-				console.log(countdown)
         InitiateCountDownLoop();
         function InitiateCountDownLoop(){
             drawCountdown();
@@ -392,7 +392,6 @@ masterButton.addEventListener('click',function(){
             }
         };
         function stopfinishAnimation() {
-						console.log(stopfinishAnimation)
             if(finishAnimTimer != null){
                 clearInterval(finishAnimTimer);
                 loader.setAttribute("transform", "translate(125, 125) scale(.84)");
