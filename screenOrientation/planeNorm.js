@@ -47,5 +47,7 @@ const calcDistance = function(pos1, pos2 = {x:0, y:0, z:0}) {
 
 
 module.exports = {
-	getAngles: getAngles
+	getAngles: getAngles,
+	normalizeVector: normalizeVector,
+	getDirVector: getDirVector
 }

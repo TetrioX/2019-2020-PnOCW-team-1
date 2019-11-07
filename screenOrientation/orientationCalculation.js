@@ -3,38 +3,21 @@ const { argv } = require('yargs') // command line arguments
                .count('verbose')
                .alias('v', 'verbose')
 const assert = require('assert')  // asserting pre-conditions
-let nerdamer = require('nerdamer');  // cannot be const, nerdamer object is updated below
-require('nerdamer/Algebra.js');
-require('nerdamer/Calculus.js');
-require('nerdamer/Solve.js');
+
 const sqor = require('./squareOrientation.js')
-const newt = require('./methodOfNewton.js')
 const rot = require('./rotationMatrixes.js')
-const plno = require('./planeNorm.js')
 
 
 const getScreens = function(screens) {
 	var scrRes = {}
-	for (var id in screens) {
-		// console.log(id, " ", screens[id])
+	for (var id in screens) 
 		scrRes[id] = getOrientation(screens[id])
-		// console.log(getOrientation(screens[id]))
-	}
 	return scrRes
 }
 
 const getOrientation = function(corners) {
-	// console.log(corners)
-	// var corners = sqor.getSquareOrientation(corners)
-	
-	center = getCenter(corners)
-	tiltDir = getTiltDir(corners)
-	if (getTiltDir(corners).z) zRotation = calcAngle(getDirVector(corners.B, corners.C), {x:0,y:1,z:0})
-	else zRotation = 0
-	// xRotation = calcAngleDirection(corners, "x")
-	// yRotation = calcAngleDirection(corners, "y")
-	
-	return {center: center, rotations : calcAngles(corners)}
+	// corners = sqor.getSquareOrientation(corners)
+	return {center: getCenter(corners), rotations : calcAngles(corners)}
 }
 
 const getCenter = function(corners) {
@@ -44,49 +27,12 @@ const getCenter = function(corners) {
 	zValue = values.reduce((sum, element) => sum + element.z, 0)
 	return { x: xValue / 4, y: yValue / 4, z: zValue / 4 }
 }
-	
-const getLine3D = function(pos1, pos2) {
-	p = getDirVector(pos1, pos2)
-	return { p: p, q: pos1 }
-}
-
-const getDirVector = function(pos1, pos2) {
-	return { x : pos2.x - pos1.x, y : pos2.y - pos1.y, z : pos2.z - pos1.z }
-}
-
-const normalizeVector = function(vector) {
-	len = calcDistance(vector)
-	for (var key in vector) vector[key] = vector[key]/len
-	return vector
-}
-
 
 const calcAngles = function(corners) {
-	
-	angles = rot.getRotationZ(corners)
-
-	return angles
-}
-
-const calcAngle = function(vector1, vector2) {
-	vector1.l = calcDistance(vector1)
-	vector2.l = calcDistance(vector2)
-	return 180 * Math.acos((vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z)
-			/(vector1.l * vector2.l)) / (Math.PI)
+	return rot.getRotationZ(corners)
 }
 
 
-const calcDistance = function(pos1, pos2 = {x:0, y:0, z:0}) {
-	return Math.sqrt((pos2.x - pos1.x)**2 + (pos2.y - pos1.y)**2 + (pos2.z - pos1.z)**2)
-}
-
-
-const getTiltDir = function(corners) {
-	xTilt = corners.A.z != corners.D.z ? true : false
-	yTilt = corners.A.z != corners.B.z ? true : false
-	zTilt = corners.A.y != corners.B.y ? true : false
-	return { x: xTilt, y: yTilt, z: zTilt }
-}
 
 
 testCornersXTilt = {A: {x:10,y:10,z:0}, C: {x:30,y:30,z:20}, D: {x:10,y:30,z:20}, B: {x:30,y:10,z:0}}
@@ -104,4 +50,4 @@ vectorTest = {x:4,y:0,z:0}
 
 // console.log(getScreens(testScreens))
 
-console.log(getOrientation(testCornersXZTilt))
+console.log(getOrientation(testCornersXTilt))

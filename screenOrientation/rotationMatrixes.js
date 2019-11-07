@@ -23,7 +23,7 @@ const getRotationZ = function(corners) {
 	val = plno.getAngles(corners)
 	R = getRotationMatrix(val)
 	
-	AB = normalizeVector(getDirVector(corners.A, corners.B))
+	AB = plno.normalizeVector(plno.getDirVector(corners.A, corners.B))
 	eq = matrixMultiply(R, [[1], [0], [0]])
 	
 	console.log(corners.A, " ", corners.B, " ", AB)
@@ -81,12 +81,11 @@ const substituteMatrix = function(matrix, values) {
 }
 
 const matrixMultiply = function(matrix1, matrix2) {
-	
 	result = Array.from(new Array(matrix1.length), (d) => new Array(matrix2[0].length ).fill(0))
-	
-	for (let i in matrix1) for (let j in matrix2[0])
-		for (let k in matrix1[i]) result[i][j] = add(result[i][j], multiply(matrix1[i][k], matrix2[k][j]))
-	
+	for (let i in matrix1) 
+		for (let j in matrix2[0])
+			for (let k in matrix1[i]) 
+				result[i][j] = add(result[i][j], multiply(matrix1[i][k], matrix2[k][j]))
 	return result
 }
 
@@ -96,20 +95,6 @@ const multiply = function(expr1, expr2) {
 
 const add = function(expr1, expr2) {
 	return nerdamer(expr1).add(expr2).text()
-}
-
-const normalizeVector = function(vector) {
-	len = calcDistance(vector)
-	for (var key in vector) vector[key] = vector[key]/len
-	return vector
-}
-
-const getDirVector = function(pos1, pos2) {
-	return { x : pos2.x - pos1.x, y : pos2.y - pos1.y, z : pos2.z - pos1.z }
-}
-
-const calcDistance = function(pos1, pos2 = {x:0, y:0, z:0}) {
-	return Math.sqrt((pos2.x - pos1.x)**2 + (pos2.y - pos1.y)**2 + (pos2.z - pos1.z)**2)
 }
 
 
