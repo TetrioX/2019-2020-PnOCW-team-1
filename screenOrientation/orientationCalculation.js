@@ -8,6 +8,9 @@ require('nerdamer/Algebra.js');
 require('nerdamer/Calculus.js');
 require('nerdamer/Solve.js');
 const sqor = require('./squareOrientation.js')
+const newt = require('./methodOfNewton.js')
+const rot = require('./rotationMatrixes.js')
+const plno = require('./planeNorm.js')
 
 
 const getScreens = function(screens) {
@@ -22,7 +25,7 @@ const getScreens = function(screens) {
 
 const getOrientation = function(corners) {
 	// console.log(corners)
-	var corners = sqor.getSquareOrientation(corners)
+	// var corners = sqor.getSquareOrientation(corners)
 	
 	center = getCenter(corners)
 	tiltDir = getTiltDir(corners)
@@ -30,8 +33,8 @@ const getOrientation = function(corners) {
 	else zRotation = 0
 	// xRotation = calcAngleDirection(corners, "x")
 	// yRotation = calcAngleDirection(corners, "y")
-	// calcAngles(corners)
-	return {center: center, rotations : {z: zRotation}}
+	
+	return {center: center, rotations : calcAngles(corners)}
 }
 
 const getCenter = function(corners) {
@@ -59,35 +62,10 @@ const normalizeVector = function(vector) {
 
 
 const calcAngles = function(corners) {
-	AB = normalizeVector(getDirVector(corners.A, corners.B))
-	AD = normalizeVector(getDirVector(corners.A, corners.D))
 	
-	a = AB.x
-	b = AB.y
-	c = AB.z
-	d = AD.x
-	e = AD.y
-	f = AD.z
-	
-	// console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f)
-	
-	eq = []
-	eq[0] = `${a}=t*v+s*u*w`
-	eq[1] = `${b}=r*w`
-	eq[2] = `${c}=s*t*w-u*v`
-	eq[3] = `${d}=s*u*v-t*w`
-	eq[4] = `${e}=r*v`
-	eq[5] = `${f}=u*  w+s*t*v`
+	angles = rot.getRotationZ(corners)
 
-	eq[6] = `s=r*tan(x)`
-	eq[7] = `u=t*tan(y)`
-	eq[8] = `w=v*tan(z)`
-		
-	// console.log(eq)
-	// opl = nerdamer.solveEquations([eq[0], eq[1], eq[2], eq[3], eq[4], eq[5]])
-	// console.log(opl.toString())
-	// opl = nerdamer.solveEquations([eq[0], eq[1], eq[2], eq[3], eq[4], eq[5]])
-	return 1
+	return angles
 }
 
 const calcAngle = function(vector1, vector2) {
@@ -115,12 +93,15 @@ testCornersXTilt = {A: {x:10,y:10,z:0}, C: {x:30,y:30,z:20}, D: {x:10,y:30,z:20}
 testCornersYTilt = {A: {x:10,y:10,z:0}, C: {x:20,y:30,z:20}, D: {x:10,y:30,z:0}, B: {x:20,y:10,z:20}}
 testCornersZTilt = {A: {x:100,y:10,z:0}, C: {x:90,y:120,z:0}, D: {x:40,y:70,z:0}, B: {x:150,y:60,z:0}}
 
+testCornersXYTilt = {A: {x:0,y:0,z:0}, C: {x:10,y:10,z:10}, D: {x:0,y:5,z:5}, B: {x:5,y:0,z:5}}
+
 test40 = [{x:102,y:25},{x:1224,y:26},{x:132,y:630},{x:1195,y:630}]
 test70 = [{x:95,y:204},{x:139,y:471},{x:1231,y:204},{x:1188,y:472}]
 testScreens = {0: test40, 1: test50}
-testCornersZTilt = [{x:100,y:10},{x:90,y:120},{x:40,y:70},{x:150,y:60}]
+// testCornersZTilt = [{x:100,y:10},{x:90,y:120},{x:40,y:70},{x:150,y:60}]
 
 vectorTest = {x:4,y:0,z:0}
 
-console.log(getScreens(testScreens))
-// console.log(getOrientation(test40))
+// console.log(getScreens(testScreens))
+
+console.log(getOrientation(testCornersXZTilt))

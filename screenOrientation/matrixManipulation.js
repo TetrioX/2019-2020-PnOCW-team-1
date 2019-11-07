@@ -43,3 +43,4 @@ const equalsZeroArray = function(arr) {
 const equalsIllegalArray = function(arr) {
 	return equalsZeroArray(arr.slice(0, arr.length - 2)) && arr[-1] != 0
 }
+ 
