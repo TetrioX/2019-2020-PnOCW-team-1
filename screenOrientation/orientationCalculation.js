@@ -41,6 +41,7 @@ testCornersZTilt = {A: {x:100,y:10,z:0}, C: {x:90,y:120,z:0}, D: {x:40,y:70,z:0}
 
 testCornersXYTilt = {A: {x:0,y:0,z:0}, C: {x:10,y:10,z:10}, D: {x:0,y:5,z:5}, B: {x:5,y:0,z:5}}
 
+test_60 = [{x:1230,y:504},{x:1190,y:110},{x:137,y:110},{x:96,y:504}]
 test40 = [{x:102,y:25},{x:1224,y:26},{x:132,y:630},{x:1195,y:630}]
 test70 = [{x:95,y:204},{x:139,y:471},{x:1231,y:204},{x:1188,y:472}]
 testScreens = {0: test40, 1: test50}
@@ -50,4 +51,4 @@ vectorTest = {x:4,y:0,z:0}
 
 // console.log(getScreens(testScreens))
 
-console.log(getOrientation(testCornersXTilt))
+console.log(getOrientation(testCornersZTilt))

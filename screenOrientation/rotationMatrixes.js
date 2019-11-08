@@ -8,7 +8,7 @@ const assert = require('assert')  // asserting pre-conditions
 const plno = require('./planeNorm.js')
 
 
-const PRECISION = 10**10
+const PRECISION = 10**6
 
 const Rx = [[1, 0, 0], [0, 'cos(x)', '-sin(x)'], [0, 'sin(x)', 'cos(x)']];
 // const Rx = [[1, 0, 0], [0, 'a', '-b'], [0, 'b', 'a']];
@@ -32,6 +32,8 @@ const getRotationZ = function(corners) {
 	eq[1] = eq[1] + '-' + AB.y
 	eq[2] = eq[2] + '-' + AB.z
 	
+	console.log(eq)
+	
 	z2 = nerdamer.solve(eq[1], 'z').text()
 	z1 = nerdamer(eq[0]) == 0 ? z2 : nerdamer.solve(eq[0], 'z').text()
 	z3 = nerdamer(eq[2]) == 0 ? z1 : nerdamer.solve(eq[2], 'z').text()
@@ -40,12 +42,14 @@ const getRotationZ = function(corners) {
 	z2 = readSolution(z2)
 	z3 = readSolution(z3)
 	
-	// console.log(z1, z2, z3)
+	console.log(z1, z2, z3)
 	
 	z = []
 	for (let zi of z1)
 		if (z2.includes(zi) && z3.includes(zi))
-			z.push(modulo(zi, 2 * Math.PI))	
+			z.push(zi)	
+	
+	z
 	
 	z = z.reduce((sum, d) => sum + d, 0) / z.length
 	
@@ -65,11 +69,15 @@ const readSolution = function(solution) {
 	str = []
 	substr = ''
 	for (var character of solution) 
-		if (character == ',') { str.push(parseFloat(nerdamer(substr).evaluate().text())); substr = '' } 
+		if (character == ',') { str.push(roundNumber(modulo(parseFloat(nerdamer(substr).evaluate().text()), 2 * Math.PI))) ; substr = '' } 
 		else if (character == '[' || character == ']') continue
 		else substr += character;
-	str.push(parseFloat(nerdamer(substr).evaluate().text()))
+	str.push(roundNumber(modulo(parseFloat(nerdamer(substr).evaluate().text()), 2 * Math.PI)))
 	return str
+}
+
+const roundNumber = function(numb) {
+	return Math.round(numb * PRECISION) / PRECISION
 }
 
 const getRotationMatrix = function(values) {
