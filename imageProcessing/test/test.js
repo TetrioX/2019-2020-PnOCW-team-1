@@ -6,6 +6,7 @@ var assert = chai.assert;    // Using Assert style
 // var should = chai.should();  // Using Should style
 var screenRecognition = require('../screenRecognition.js')
 const screenReading = require('../screenReading.js');
+const imgprcssrgb = require('../../ImageProcessingRGB/imageProcessingRGB.js')
 
 describe('findscreen', function() {
 
@@ -47,9 +48,15 @@ describe('findscreen', function() {
     matrixes3 = parseJsonFile(rgbCasesPath + '/case3/matrixes.json')
     colorCombs3 = parseJsonFile(rgbCasesPath + '/case3/colorCombs.json')
     screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json')
-    matrixes5 = parseJsonFile(rgbCasesPath + 'case5/matrixes.json');
+
+    colorCombs4 = parseJsonFile(rgbCasesPath + '/case4/colorCombs.json')
+    screens4 = parseJsonFile(rgbCasesPath + '/case4/screens.json')
+    matrixes4 = await imgprcssrgb.doImgDiff(['./case4/image-0.png', './case4/image-1.png'], false, false)
+
+    matrixes5 = await imgprcssrgb.doImgDiff(['./case5/image-0.png', './case5/image-1.png'], false, false)
     colorCombs5 = parseJsonFile(rgbCasesPath + '/case5/colorCombs.json');
     screens5 = parseJsonFile(rgbCasesPath + '/case5/screens.json');
+
     /*
       colorMatrix1 =
           [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
@@ -448,6 +455,10 @@ describe('findscreen', function() {
       }
       console.log("found " + squares.length + " of the 24 squares")
     })
+      it('Returns the corners of TestCase4', function () {
+          var squares = screenReading.getScreens(matrixes4, screens4, colorCombs4, 6)
+          console.log(squares)
+      })
 
   })
 });

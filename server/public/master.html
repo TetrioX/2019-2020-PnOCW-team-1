@@ -12,7 +12,7 @@
 <body>
 	<div id ="entirePage" class="mx-auto col-12 col-sm-12 col-md-8 col-lg-4 border border-lg border-dark rounded">
 		<h1>Master Page</h1>
-		
+
 		<div id ="cameradiv" class="border border-lg border-danger rounded">
 			<div id="cameratext">
 				Use camera for taking a picture
@@ -29,7 +29,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 
 		<div id="draw"class="border border-lg border-warning rounded">
 			<div class="mx-auto">
@@ -58,27 +58,32 @@
 			<div id="screenrecognitiontitle">
 				Screenrecognition!
 			</div>
-	
 			<div>
 				Choose the amount of rows and columns and press 'Execute screenrecognition'. Let the algoritm do de rest. Hold your camera still while doing it!
 			</div>
 			<form class="input">
-				<input id="rowPicker" type="number" name="nbrows" min="1" max ="3" placeholder="Number of rows">
+				<input id="rowPicker" type="number" name="nbrows" min="1" max ="5" placeholder="Number of rows">
 			</form>
 			<form class="input">
-				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="3" placeholder="Number of columns">
+				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="5" placeholder="Number of columns">
 			</form>
-		
 			<button type="button" id="calibrateButton" class="btn btn-outline-success">Execute screenrecognition</button>
 		</div>
+
+		<div class="border border-lg border-primary rounded countdown">
+			<div id="countdowntitle">
+				Countdown!
+			</div>
+			<div>
+				Choose the amount of seconds that you want the countdown to take in seconds
+			</div>
+			<form class="input">
+				<input id="countdownPicker" type="number" name="nbofseconds" min="1" max ="360" placeholder="Number of seconds">
+			</form>
+			<button type="button" id="countdownButton" class="btn btn-outline-success">Start countdown</button>
+		</div>
 	</div>
-			
 
-
-
-
-
-		
 	<script src="static/master.js"></script>
 </body>
 </html>
