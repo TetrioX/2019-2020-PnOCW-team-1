@@ -48,9 +48,15 @@ describe('findscreen', function() {
     matrixes3 = parseJsonFile(rgbCasesPath + '/case3/matrixes.json')
     colorCombs3 = parseJsonFile(rgbCasesPath + '/case3/colorCombs.json')
     screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json')
+
     colorCombs4 = parseJsonFile(rgbCasesPath + '/case4/colorCombs.json')
     screens4 = parseJsonFile(rgbCasesPath + '/case4/screens.json')
     matrixes4 = await imgprcssrgb.doImgDiff(['./case4/image-0.png', './case4/image-1.png'], false, false)
+
+    matrixes5 = await imgprcssrgb.doImgDiff(['./case5/image-0.png', './case5/image-1.png'], false, false)
+    colorCombs5 = parseJsonFile(rgbCasesPath + '/case5/colorCombs.json');
+    screens5 = parseJsonFile(rgbCasesPath + '/case5/screens.json');
+
     /*
       colorMatrix1 =
           [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
