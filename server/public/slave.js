@@ -17,19 +17,12 @@ var gridElements = []
 
 
 //listen for events from server
-socket.on('connect',function(){
-	socketID =socket.id;
-	console.log(socketID);
-});
 
 socket.on('changeBackgroundColor',function(data){
     document.body.style.backgroundColor = data.colorValue;
     document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
 });
 
-socket.on('SendingPicture', function(data){
-	console.log("picture recieved");
-});
 // Sending number to slave (also usefull for angle of arrow!)
 socket.on('slaveID', function (id) {
 	if (id ==1){
@@ -81,10 +74,52 @@ socket.on('removeGrid', function(data){
 	gridElements = []
 })
 
+socket.on('connect',function(){
+	socketID =socket.id;
+	console.log(socketID);
+});
+
+socket.on('changeBackgroundColor',function(data){
+    document.body.style.backgroundColor = data.colorValue;
+    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
+});
+
+socket.on('SendingPicture', function(data){
+	console.log("picture recieved");
+});
+
+socket.on('drawStar', function(data){
+	drawStar();
+});
+
+socket.on('triangulate', function(angles){
+	wrapper.style.display = "none";
+	drawStar();
+	console.log(angles)
+	drawAnglesDegree(angles)
+});
+
+socket.on('drawLine', function(data){
+    draw(data.angle);
+});
+
+
+
+
+socket.on('drawImage',function(data){
+	wrapper.style.display ="none";
+	var imgcanvas = document.createElement('canvas');
+	imgcanvas.setAttribute('id','imgcanvas');
+	document.body.appendChild(imgcanvas);
+	var slavecorners = data
+})
+
+//events on client side
 masterButton.addEventListener('click',function(){
 	window.location.href="/master";
 });
 
+//functions
 function createGrid(){
 	var numberOfrows=gridData.grid.length;
 	var numberOfColumns = gridData.grid[0].length;
@@ -251,38 +286,49 @@ function drawAnglesDegree(radianAngles) {
 		context.stroke();
 	}
 }
+var slavecorners = [[0,2280],[0,1000],[500,1000],[500,2280]];
+var imgcanvas =document.getElementById('imgcanvas');
+var tempcanvas = document.createElement('canvas');
+var tempctx = tempcanvas.getContext('2d');
+
+//create a new image object
+var img = new Image();
+
+//the canvas needs to be off the size of the picture taken by the master
+// this is to make sure that the corners from the screenrecognition are used in their real size
+//assumption: size of picture is 2280X1080
+tempcanvas.height = 2280;
+tempcanvas.width = 1080;
+//Get a reference to the 2d drawing context
+var ctx = imgcanvas.getContext("2d");
+
+img.onload =function(){
+
+	tempctx.beginPath();
+ 	tempctx.moveTo(slavecorners[0][0],slavecorners[0][1]);
+    slavecorners.forEach(([x, y]) => {
+		tempctx.lineTo(x, y);
+     });
+    tempctx.clip();
+ 	tempctx.drawImage(img,0,0);
 
 
-//listen for events from server
-socket.on('connect',function(){
-	socketID =socket.id;
-	console.log(socketID);
-});
+ 	
 
-socket.on('changeBackgroundColor',function(data){
-    document.body.style.backgroundColor = data.colorValue;
-    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
-});
+}
 
-socket.on('SendingPicture', function(data){
-	console.log("picture recieved");
-});
 
-socket.on('drawStar', function(data){
-	drawStar();
-});
+//callback, when the image is loaded
 
-socket.on('triangulate', function(angles){
-	wrapper.style.display = "none";
-	drawStar();
-	console.log(angles)
-	drawAnglesDegree(angles)
-});
+//start the image loading
+img.src ='/static/ImageShowOffTest2.jpg';
 
-socket.on('drawLine', function(data){
-    draw(data.angle);
-});
 
-masterButton.addEventListener('click',function(){
-	window.location.href="/master";
-});
+
+
+
+
+
+
+
+
