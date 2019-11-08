@@ -107,8 +107,8 @@ const getDiagonalLength = function(corners, center) {
 
 const get3DCoordinate = function(point) {
 	
-	cx = 4032
-	cy = 3024
+	cx = 4032 / 2
+	cy = 3024 / 2
 	fx = 4 * 72 / 25.4
 	fy = fx
 	
@@ -128,7 +128,7 @@ const transfer2Dto3D = function(corners) {
 	C = get3DCoordinate(corners.C)
 	D = get3DCoordinate(corners.D)
 	
-	console.log(A, " ", B, " ", C, " ", D)
+	// console.log(A, " ", B, " ", C, " ", D)
 	
 	r = 1920
 	s = 1080
@@ -150,10 +150,10 @@ const transfer2Dto3D = function(corners) {
 	eqxy.y3 = `${C.y_}*z3`
 	eqxy.y4 = `${D.y_}*z4`
 	
-	eqz[0] = `(x4-x1)^2+(y4-y1)^2+(z4-z1)^2+(x3-x2)^2+(y3-y2)^2+(z3-z2)^2-2*${s}` // AD = s
-	eqz[1] = `(x2-x1)^2+(y2-y1)^2+(z2-z1)^2+(x3-x4)^2+(y3-y4)^2+(z3-z4)^2-2*${r}` // AB = r
-	eqz[2] = `(x3-x1)^2+(y3-y1)^2+(z3-z1)^2-(x4-x2)^2-(y4-y2)^2-(z4-z2)^2`
-	eqz[3] = `(x1-x4)*(x2-x4)+(y1-y4)*(y2-y4)+(z1-z4)*(z2-z4)-${v}`
+	eqz[0] = `(x4-x1)^2+(y4-y1)^2+(z4-z1)^2-(x3-x2)^2-(y3-y2)^2-(z3-z2)^2` // AD = s
+	eqz[1] = `(x2-x1)^2+(y2-y1)^2+(z2-z1)^2-(x3-x4)^2-(y3-y4)^2-(z3-z4)^2` // AB = r
+	eqz[2] = `(x3-x1)^2+(y3-y1)^2+(z3-z1)^2-(x4-x2)^2-(y4-y2)^2-(z4-z2)^2` // AC = DB
+	eqz[3] = `(x2-x1)^2+(y2-y1)^2+(z2-z1)^2=${r**2}` // ADC = 90°
 	
 	eq = Array.from(eqz, (d) => nerdamer(d, eqxy).text())
 	
@@ -162,9 +162,6 @@ const transfer2Dto3D = function(corners) {
 
 	for (let key in eqxy) opl[key] = nerdamer(eqxy[key]).evaluate(opl)
 	
-	console.log(opl.x1.text())
-	
-
 	retval = {}
 	retval.A = { x: roundNumber(opl.x1.text()), y: roundNumber(opl.y1.text()), z: roundNumber(opl.z1.text()) }
 	retval.B = { x: roundNumber(opl.x2.text()), y: roundNumber(opl.y2.text()), z: roundNumber(opl.z2.text()) }
@@ -175,7 +172,7 @@ const transfer2Dto3D = function(corners) {
 }
 
 const roundNumber = function(numb) {
-	PRECISION = 10**2
+	PRECISION = 10**10
 	return Math.round(nerdamer(numb).text() * PRECISION) / PRECISION
 }
 
@@ -207,14 +204,14 @@ test40_2 = [{x:361,y:195},{x:371,y:532},{x:974,y:532},{x:983,y:195}]
 
 testReal = [{x:2653,y:1093},{x:2733,y:2185},{x:657,y:2313},{x:661,y:1129}]
 
-result = getSquareOrientation(testReal)
+/* result = getSquareOrientation(testReal)
 console.log(getDistance(result.A, result.B))
 console.log(getDistance(result.C, result.D))
 console.log(getDistance(result.A, result.D))
 console.log(getDistance(result.B, result.C))
 console.log(getDistance(result.A, result.C))
 console.log(getDistance(result.B, result.D))
-console.log(result)
+console.log(result) */
 
 module.exports = {
 	getSquareOrientation: getSquareOrientation

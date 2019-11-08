@@ -14,8 +14,8 @@ const Rx = [[1, 0, 0], [0, 'cos(x)', '-sin(x)'], [0, 'sin(x)', 'cos(x)']];
 // const Rx = [[1, 0, 0], [0, 'a', '-b'], [0, 'b', 'a']];
 const Ry = [['cos(y)', 0, 'sin(y)'], [0, 1, 0], ['-sin(y)', 0, 'cos(y)']];
 // const Ry = [['c', 0, 'd'], [0, 1, 0], ['-d', 0, 'c']];
-const Rz = [['cos(z)', '-sin(z)', 0], ['sin(z)', 'cos(z)', 0], [0, 0, 1]];
-// const Rz = [['r', '-s', 0], ['s', 'r', 0], [0, 0, 1]];
+// const Rz = [['cos(z)', '-sin(z)', 0], ['sin(z)', 'cos(z)', 0], [0, 0, 1]];
+const Rz = [['r', '-s', 0], ['s', 'r', 0], [0, 0, 1]];
 
 // R = Ry * Rx * Rz
 
@@ -23,40 +23,84 @@ const getRotationZ = function(corners) {
 	val = plno.getAngles(corners)
 	R = getRotationMatrix(val)
 	
+	console.log(val.x.text(), " ", val.y.text())
+	
 	AB = plno.normalizeVector(plno.getDirVector(corners.A, corners.B))
 	eq = matrixMultiply(R, [[1], [0], [0]])
-	
-	console.log(corners.A, " ", corners.B, " ", AB)
-	
+
 	eq[0] = eq[0] + '-' + AB.x
 	eq[1] = eq[1] + '-' + AB.y
 	eq[2] = eq[2] + '-' + AB.z
 	
-	console.log(eq)
+	z1 = isSquareSystem(eq[0], eq[1]) ? nerdamer.solveEquations([eq[0], eq[1]]).toString() : false
+	z2 = isSquareSystem(eq[1], eq[2]) ? nerdamer.solveEquations([eq[1], eq[2]]).toString() : false
+	z3 = isSquareSystem(eq[0], eq[2]) ? nerdamer.solveEquations([eq[0], eq[2]]).toString() : false
 	
-	z2 = nerdamer.solve(eq[1], 'z').text()
-	z1 = nerdamer(eq[0]) == 0 ? z2 : nerdamer.solve(eq[0], 'z').text()
-	z3 = nerdamer(eq[2]) == 0 ? z1 : nerdamer.solve(eq[2], 'z').text()
+	z1 = z1 ? readSolution(z1) : z1
+	z2 = z2 ? readSolution(z2) : z2
+	z3 = z3 ? readSolution(z3) : z3
 	
-	z1 = readSolution(z1)
-	z2 = readSolution(z2)
-	z3 = readSolution(z3)
+	// console.log("z1: ", z1, " z2 ", z2, " z3: ", z3)
 	
-	console.log(z1, z2, z3)
+	z = getAverageZ(z1, z2, z3)
 	
-	z = []
-	for (let zi of z1)
-		if (z2.includes(zi) && z3.includes(zi))
-			z.push(zi)	
+	console.log(Math.asin(z.s), " ", Math.acos(z.r))
 	
-	z
-	
-	z = z.reduce((sum, d) => sum + d, 0) / z.length
-	
-	console.log("r1: ", nerdamer(eq[0]).evaluate({z: z}).text(), " r2: ", nerdamer(eq[1]).evaluate({z: z}).text(), " r3: ", nerdamer(eq[2]).evaluate({z: z}).text()) 
-	
+	return substituteMatrix(R, z)
+}
 
-	return {x: parseFloat(nerdamer(val.x).text()), y: parseFloat(nerdamer(val.y).text()), z: z}
+const getAverageZ = function(z1, z2, z3) {
+	if (z1 && z2 && z3 && isKindaEqualDict(z1, z2) && isKindaEqualDict(z1, z3)) 
+		z = getAverageDict([z1, z2, z3])
+	else if (z1 && z2 && !z3 && isKindaEqualDict(z1, z2)) 
+		z = getAverageDict([z1, z2])
+	else if (!z1 && z2 && z3 && isKindaEqualDict(z2, z3)) 
+		z = getAverageDict([z2, z3])
+	else if (z1 && !z2 && z3 && isKindaEqualDict(z1, z3)) 
+		z = getAverageDict([z1, z3])
+	else if (z1 && !z2 && !z3) 
+		z = z1
+	else if (!z1 && z2 && !z3) 
+		z = z2
+	else if (!z1 && !z2 && z3) 
+		z = z3
+	else console.log("wtf you doing bruh")
+	return z
+}
+
+const getAverageDict = function(dicts) {
+	avDict = {}
+	for (let key in dicts[0]) {
+		sum = 0
+		for (let dict of dicts) sum += dict[key]
+		avDict[key] = sum / dicts.length
+	}
+	return avDict
+}
+
+const isKindaEqualDict = function(dict1, dict2) {
+	for (var key in dict1) 
+		if (! isKindaEqual(dict1[key], dict2[key])) {
+			console.log("Whut?")
+			return false
+		}
+	return true
+}
+
+const kindaContains = function(arr, num) {
+	for (var elem of arr) 
+		if (isKindaEqual(num, elem)) 
+			return true
+	return false
+}
+
+const isKindaEqual = function(number1, number2) {
+	Precision = 10**(-5)
+	return number1 - Precision <= number2 && number2 <= number1 + Precision
+}
+
+const isSquareSystem = function(eq1, eq2) {
+	return (eq1.includes('r') && eq2.includes('s')) || (eq1.includes('s') && eq2.includes('r'))
 }
 
 const modulo = function(numb, mod) {
@@ -69,11 +113,18 @@ const readSolution = function(solution) {
 	str = []
 	substr = ''
 	for (var character of solution) 
-		if (character == ',') { str.push(roundNumber(modulo(parseFloat(nerdamer(substr).evaluate().text()), 2 * Math.PI))) ; substr = '' } 
-		else if (character == '[' || character == ']') continue
+		if (character == ',') { 
+			str.push(substr); 
+			substr = '';
+		} 
 		else substr += character;
-	str.push(roundNumber(modulo(parseFloat(nerdamer(substr).evaluate().text()), 2 * Math.PI)))
-	return str
+	str.push(substr)
+	
+	retval = {}
+	for (let i = 0; i < str.length; i += 2) 
+		retval[str[i]] = roundNumber(parseFloat(nerdamer(str[i+1]).evaluate().text()))
+	
+	return retval
 }
 
 const roundNumber = function(numb) {
@@ -104,7 +155,6 @@ const multiply = function(expr1, expr2) {
 const add = function(expr1, expr2) {
 	return nerdamer(expr1).add(expr2).text()
 }
-
 
 module.exports = {
 	getRotationZ: getRotationZ,

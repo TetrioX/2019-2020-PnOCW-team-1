@@ -9,9 +9,13 @@ const getAngles = function(corners) {
 
 const getAnglesNorm = function(norm) {
 	theta = Math.atan(norm.x / norm.z)
-	gamma = Math.asin(-norm.y)
+	gamma = Math.atan(- norm.y * Math.cos(theta) / norm.z )
 	
 	return { x: gamma, y: theta }
+}
+
+const roundNumber = function(numb) {
+	return Math.round(numb * PRECISION) / PRECISION
 }
 
 const getNorm = function(corners) {
@@ -33,7 +37,7 @@ const crossProduct = function(vector1, vector2) {
 
 const normalizeVector = function(vector) {
 	len = calcDistance(vector)
-	for (var key in vector) vector[key] = Math.round( vector[key]/len * PRECISION) / PRECISION
+	for (var key in vector) vector[key] = vector[key]/len
 	return vector
 }
 
