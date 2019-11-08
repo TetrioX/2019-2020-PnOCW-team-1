@@ -47,6 +47,9 @@ describe('findscreen', function() {
     matrixes3 = parseJsonFile(rgbCasesPath + '/case3/matrixes.json')
     colorCombs3 = parseJsonFile(rgbCasesPath + '/case3/colorCombs.json')
     screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json')
+    matrixes5 = parseJsonFile(rgbCasesPath + 'case5/matrixes.json');
+    colorCombs5 = parseJsonFile(rgbCasesPath + '/case5/colorCombs.json');
+    screens5 = parseJsonFile(rgbCasesPath + '/case5/screens.json');
     /*
       colorMatrix1 =
           [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
