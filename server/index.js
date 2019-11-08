@@ -273,6 +273,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           break
         }
       }
+      await sleep(Number(gridPause))
       return pictures
     }
 
