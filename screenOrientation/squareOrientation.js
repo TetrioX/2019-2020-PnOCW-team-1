@@ -130,74 +130,67 @@ const transfer2Dto3D = function(corners) {
 	
 	console.log(A, " ", B, " ", C, " ", D)
 	
-	/* a = getCoefficient(A, A)
-	b = getCoefficient(B, D)
-	c = getCoefficient(A, B)
-	d = getCoefficient(A, D)
+	r = 1920
+	s = 1080
 	
-	e = getCoefficient(B, B)
-	f = getCoefficient(C, A)
-	g = getCoefficient(B, C)
-	h = getCoefficient(B, A)
+	verh = r / s // AB / AD
 	
-	i = getCoefficient(C, C)
-	j = getCoefficient(D, B)
-	k = getCoefficient(C, D)
-	l = getCoefficient(C, B)
+	v = Math.cos(Math.atan(verh)) * Math.sqrt(1 + verh**2) * s**2 // cos ( bgtan ( AB / AD )) * sqrt( AB / AD^2 + 1 ) * AD ^2
+
+	eqxy = {}
+	eqz = []
 	
-	m = getCoefficient(D, D)
-	n = getCoefficient(A, B)
-	o = getCoefficient(D, A)
-	p = getCoefficient(D, B) */
+	eqxy.x1 = `${A.x_}*z1`
+	eqxy.x2 = `${B.x_}*z2`
+	eqxy.x3 = `${C.x_}*z3`
+	eqxy.x4 = `${D.x_}*z4`
 	
-	verh = 1920/1080
-	v = verh * Math.sqrt(1 + verh**2) * 1080**2 // Taak: Schatting maken van r en verhouding meekrijgen
+	eqxy.y1 = `${A.y_}*z1`
+	eqxy.y2 = `${B.y_}*z2`
+	eqxy.y3 = `${C.y_}*z3`
+	eqxy.y4 = `${D.y_}*z4`
 	
-	// console.log(A, " ", B, " ", C, " ", D)
-	// console.log(a, " ", b, " ", c, " ", d, " ", e, " ", f, " ", g, " ", h, " ", i , " ", j, " ", k, " ", l, " ", m, " ", n, " ", o, " ", p)
-	eq = []
-	eq[0] = `x1 = z1 * ${A.x_}`
-	eq[1] = `x2 = z2 * ${B.x_}`
-	eq[2] = `x3 = z3 * ${C.x_}`
-	eq[3] = `x4 = z4 * ${D.x_}`
+	eqz[0] = `(x4-x1)^2+(y4-y1)^2+(z4-z1)^2+(x3-x2)^2+(y3-y2)^2+(z3-z2)^2-2*${s}` // AD = s
+	eqz[1] = `(x2-x1)^2+(y2-y1)^2+(z2-z1)^2+(x3-x4)^2+(y3-y4)^2+(z3-z4)^2-2*${r}` // AB = r
+	eqz[2] = `(x3-x1)^2+(y3-y1)^2+(z3-z1)^2-(x4-x2)^2-(y4-y2)^2-(z4-z2)^2`
+	eqz[3] = `(x1-x4)*(x2-x4)+(y1-y4)*(y2-y4)+(z1-z4)*(z2-z4)-${v}`
 	
-	eq[4] = `y1 = z1 * ${A.y_}`
-	eq[5] = `y2 = z1 * ${B.y_}`
-	eq[6] = `y3 = z1 * ${C.y_}`
-	eq[7] = `y4 = z1 * ${D.y_}`
+	eq = Array.from(eqz, (d) => nerdamer(d, eqxy).text())
 	
-	console.log(eq[0])
+	opl = nerdamer.solveEquations(eq).toString();
+	opl = readSolution(opl)
+
+	for (let key in eqxy) opl[key] = nerdamer(eqxy[key]).evaluate(opl)
 	
-	/* 
-	eq[0] = `${a} * z1 ^ 2 + ${b} * z2 * z4 - ${c} * z1 * z2 - ${d} * z1 * z4 = 0`
-	eq[1] = `${e} * z2 ^ 2 + ${f} * z3 * z1 - ${g} * z2 * z3 - ${h} * z2 * z1 = 0`
-	eq[2] = `${i} * z3 ^ 2 + ${j} * z4 * z2 - ${k} * z3 * z4 - ${l} * z3 * z2 = 0`
-	eq[3] = `${m} * z4 ^ 2 + ${n} * z1 * z2 - ${o} * z4 * z1 - ${p} * z4 * z2 = ${v}` */
+	console.log(opl.x1.text())
 	
-	/* opl = nerdamer.solveEquations(eq).toString();
-	
+
+	retval = {}
+	retval.A = { x: roundNumber(opl.x1.text()), y: roundNumber(opl.y1.text()), z: roundNumber(opl.z1.text()) }
+	retval.B = { x: roundNumber(opl.x2.text()), y: roundNumber(opl.y2.text()), z: roundNumber(opl.z2.text()) }
+	retval.C = { x: roundNumber(opl.x3.text()), y: roundNumber(opl.y3.text()), z: roundNumber(opl.z3.text()) }
+	retval.D = { x: roundNumber(opl.x4.text()), y: roundNumber(opl.y4.text()), z: roundNumber(opl.z4.text()) }
+
+	return retval
+}
+
+const roundNumber = function(numb) {
+	PRECISION = 10**2
+	return Math.round(nerdamer(numb).text() * PRECISION) / PRECISION
+}
+
+const readSolution = function(solution) {
 	str = []
 	substr = ''
 	for (var character of opl) 
 		if (character == ',') { str.push(substr); substr = '' } 
 		else substr += character;
 	str.push(substr)
-
-	opl = {}
-	Array.from(str, (d,i) => d[0] == 'z' ? opl[d] = parseFloat(str[i+1]) : false)
-
-	PRECISION = 10**0
-
+	
 	retval = {}
-	retval.A = {x: Math.round(PRECISION * A.x1 * opl.z1) / PRECISION, y: Math.round(PRECISION * A.y1 * opl.z1) / PRECISION, z: Math.round(PRECISION * opl.z1) / PRECISION}
-	retval.B = {x: Math.round(PRECISION * B.x1 * opl.z2) / PRECISION, y: Math.round(PRECISION * B.y1 * opl.z2) / PRECISION, z: Math.round(PRECISION * opl.z2) / PRECISION}
-	retval.C = {x: Math.round(PRECISION * C.x1 * opl.z3) / PRECISION, y: Math.round(PRECISION * C.y1 * opl.z3) / PRECISION, z: Math.round(PRECISION * opl.z3) / PRECISION}
-	retval.D = {x: Math.round(PRECISION * D.x1 * opl.z4) / PRECISION, y: Math.round(PRECISION * D.y1 * opl.z4) / PRECISION, z: Math.round(PRECISION * opl.z4) / PRECISION}
+	for (let i = 0; i < str.length; i += 2) retval[str[i]] = parseFloat(str[i+1])
 	
-	console.log(get3DCoordinate({x:0, y:0, z:0}))
-	
-	
-	return retval */
+	return retval
 }
 
 	

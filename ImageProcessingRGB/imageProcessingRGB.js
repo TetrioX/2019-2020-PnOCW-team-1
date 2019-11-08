@@ -154,7 +154,7 @@ async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
     // finally call our algorithm to calculate pixel differences:
     let tempResult = [] // Buffer list on which our output buffers will be printed
 	let to_file_promises = []
-    let output_meta = { raw: { width: new_size.width, height: new_size.height, channels: 1 } }
+    let output_meta = { raw: { width: new_size.width, height: new_size.height, channels: 1 } } // Channels:  1 -> Bw ; 3 -> rgb
     for(let i = 0; i < imgs_buffs.length; ++i) {
 		tempResult.push( Buffer.alloc(new_size.width * new_size.height))
 		// We store the output in the array of the first image.
