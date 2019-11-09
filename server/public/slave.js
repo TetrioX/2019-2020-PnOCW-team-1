@@ -12,6 +12,7 @@ var gridData = {
 	cornBorder: []
 }
 var entirePage = document.createElement('th');
+var countdown = document.getElementById('countdown')
 var countdownTimer = document.getElementById('timer')
 var wrapper = document.getElementById("wrapper")
 var length = 1000;
@@ -33,7 +34,11 @@ socket.on('connect',function(){
 socket.on('changeBackgroundColor',function(data){
 		cleanHTML()
     document.body.style.backgroundColor = data.colorValue;
-    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
+    wrapper.style.display = "none"
+		countdown.style.display = "none"
+		countdownTimer.style.display = "none"
+		entirePage.style.display = "none"
+		canvas.style.display = "none"
 });
 
 socket.on('SendingPicture', function(data){
@@ -82,11 +87,14 @@ socket.on('changeGrid', function(data, callback){
 
 function removeGrid(){
 	document.body.style.backgroundColor = 'white'
-	wrapper.style.display="";
 	for (el of gridElements){
 		el.remove()
 	}
 	gridElements = []
+	// show the start page again.
+	wrapper.style.display = "block"
+	// show scroll bar again
+	document.body.style.overflow = 'visible';
 }
 
 socket.on('removeGrid', function(data){
@@ -98,6 +106,9 @@ masterButton.addEventListener('click',function(){
 });
 
 function createGrid(){
+	entirePage.style.display = ""
+	// hide scrollbar
+	document.body.style.overflow = 'hidden';
 	var numberOfrows=gridData.grid.length;
 	var numberOfColumns = gridData.grid[0].length;
 	let width  = window.innerWidth
@@ -159,6 +170,7 @@ function saveGrid(data){
 }
 
 function drawArrowHead(from, to, radius){
+	canvas.style.display = "block"
 
 	var x_center = to.x;
 	var y_center = to.y;
@@ -194,6 +206,7 @@ function drawArrowHead(from, to, radius){
 
 
 function draw(radianAngle) {
+	canvas.style.display = "block"
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 
@@ -223,6 +236,7 @@ function draw(radianAngle) {
 }
 
 function drawAnglesDegree(radianAngles) {
+	canvas.style.display = "block"
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
@@ -283,8 +297,8 @@ socket.on('connect',function(){
 });
 
 socket.on('changeBackgroundColor',function(data){
-    document.body.style.backgroundColor = data.colorValue;
-    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
+	cleanHTML()
+  document.body.style.backgroundColor = data.colorValue;
 });
 
 socket.on('SendingPicture', function(data){
@@ -321,7 +335,7 @@ masterButton.addEventListener('click',function(){
 		var finishAnimTimer = null
     socket.on('startCountdown', function(data){
 			cleanHTML()
-			countdownTimer.style.visibility = 'visible';
+			countdownTimer.style.display = 'block';
 			start_countdown(data)
 		})
 		socket.on('updateCountdown', function(data){
@@ -332,7 +346,6 @@ masterButton.addEventListener('click',function(){
         var main_container = document.getElementById('svg_download_countdown')
         var loader = document.getElementById('loader')
        	var border = document.getElementById('border')
-        var countdown = document.getElementById('countdown')
 				countdown.style.display = 'block';
 				// stop finishing animation if it's running
 				stopfinishAnimation()

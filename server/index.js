@@ -323,7 +323,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
         var angles = delaunay.getAngles(data);
         console.log(angles)
         Object.keys(slaves).forEach(function(slave, index) {
-           slaveSockets[slave].emit('triangulate', angles[slaves[slave]]);
+          // if we found the screen send it which angles it should draw
+          if (typeof angles[slaves[slave]] !== 'undefined'){
+            slaveSockets[slave].emit('triangulate', angles[slaves[slave]]);
+          }
         });
     });
 
