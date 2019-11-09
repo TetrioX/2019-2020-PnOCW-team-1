@@ -23,8 +23,6 @@ const getRotationZ = function(corners) {
 	val = plno.getAngles(corners)
 	R = getRotationMatrix(val)
 	
-	console.log(val.x.text(), " ", val.y.text())
-	
 	AB = plno.normalizeVector(plno.getDirVector(corners.A, corners.B))
 	eq = matrixMultiply(R, [[1], [0], [0]])
 
@@ -44,7 +42,8 @@ const getRotationZ = function(corners) {
 	
 	z = getAverageZ(z1, z2, z3)
 	
-	console.log(Math.asin(z.s), " ", Math.acos(z.r))
+	// console.log(corners)
+	// console.log(180*nerdamer(val.x).text()/Math.PI, " ", 180*nerdamer(val.y).text()/Math.PI, " ", 180*Math.asin(z.s)/Math.PI)
 	
 	return substituteMatrix(R, z)
 }
@@ -85,13 +84,6 @@ const isKindaEqualDict = function(dict1, dict2) {
 			return false
 		}
 	return true
-}
-
-const kindaContains = function(arr, num) {
-	for (var elem of arr) 
-		if (isKindaEqual(num, elem)) 
-			return true
-	return false
 }
 
 const isKindaEqual = function(number1, number2) {

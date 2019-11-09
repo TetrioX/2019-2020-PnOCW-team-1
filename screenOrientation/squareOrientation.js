@@ -128,14 +128,10 @@ const transfer2Dto3D = function(corners) {
 	C = get3DCoordinate(corners.C)
 	D = get3DCoordinate(corners.D)
 	
-	// console.log(A, " ", B, " ", C, " ", D)
-	
-	r = 1920
-	s = 1080
+	r = 1920 // AB
+	s = 1080 // AD
 	
 	verh = r / s // AB / AD
-	
-	v = Math.cos(Math.atan(verh)) * Math.sqrt(1 + verh**2) * s**2 // cos ( bgtan ( AB / AD )) * sqrt( AB / AD^2 + 1 ) * AD ^2
 
 	eqxy = {}
 	eqz = []
@@ -189,29 +185,6 @@ const readSolution = function(solution) {
 	
 	return retval
 }
-
-	
-testCorners = [{x:566,y:239},{x:1009,y:454},{x:585,y:417},{x:988,y:620}]
-testCornersReg = [{x:100,y:10},{x:100,y:50},{x:10,y:50},{x:10,y:10}]
-test_60 = [{x:1230,y:504},{x:1190,y:110},{x:137,y:110},{x:96,y:504}]
-test80 = [{x:93,y:272},{x:1231,y:272},{x:1187,y:411},{x:140,y:411}]
-test50 = [{x:98,y:75},{x:1227,y:75},{x:1192,y:585},{x:134,y:586}] 
-test70 = [{x:95,y:204},{x:139,y:471},{x:1231,y:204},{x:1188,y:472}]
-test85 = [{x:95,y:307},{x:142,y:380},{x:1233,y:307},{x:1188,y:380}]
-test40 = [{x:102,y:25},{x:1224,y:26},{x:132,y:630},{x:1195,y:630}]
-test40_ = [{x:115,y:295},{x:132,y:630},{x:735,y:630},{x:737,y:296}]
-test40_2 = [{x:361,y:195},{x:371,y:532},{x:974,y:532},{x:983,y:195}]
-
-testReal = [{x:2653,y:1093},{x:2733,y:2185},{x:657,y:2313},{x:661,y:1129}]
-
-/* result = getSquareOrientation(testReal)
-console.log(getDistance(result.A, result.B))
-console.log(getDistance(result.C, result.D))
-console.log(getDistance(result.A, result.D))
-console.log(getDistance(result.B, result.C))
-console.log(getDistance(result.A, result.C))
-console.log(getDistance(result.B, result.D))
-console.log(result) */
 
 module.exports = {
 	getSquareOrientation: getSquareOrientation
