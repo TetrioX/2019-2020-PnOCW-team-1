@@ -1,15 +1,10 @@
 #entirePage{
   position: fixed;
-  top: 100px;
-  left: 100px;
-  bottom: 100px;
-  right: 100px;
   overflow: auto;
   display: grid;
 }
 
 #timer{
-  border-bottom: 1px solid #6666CC;
   margin: 0;
   padding-bottom: 20px;
   padding-top: 20px;
@@ -28,7 +23,6 @@
 #svg_download_countdown #countdown {
   font-size: 64px;
   display: none;
-  cursor: pointer;
   font-weight: bold;
 }
 
@@ -41,19 +35,18 @@
     width: 100%;
     height: 100%;
     table-layout: fixed;
-
+    margin: 0
 }
 .grid {
     display: table-cell;
     text-align: center;
     height:100%;
     width: 100%;
+    margin: 0
 }
 
 .corner{
   background-color: black;
-  height:100px;
-  width: 100px;
   position: absolute;
 }
 

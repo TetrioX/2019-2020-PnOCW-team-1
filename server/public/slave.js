@@ -100,19 +100,30 @@ masterButton.addEventListener('click',function(){
 function createGrid(){
 	var numberOfrows=gridData.grid.length;
 	var numberOfColumns = gridData.grid[0].length;
+	let width  = window.innerWidth
+	let height = window.innerHeight
+	// this will make the border 25% of the size of the squares
+	let spaceTop = (height / (4*numberOfrows + 0.5)).toString() + "px"
+	let spaceSide = (width / (4*numberOfColumns + 0.5)).toString() + "px"
+	entirePage.style.top = spaceTop
+	entirePage.style.bottom = spaceTop
+	entirePage.style.left = spaceSide
+	entirePage.style.right = spaceSide
 	for (i=0; i<4;i++){
 		var corner =document.createElement('div');
 		corner.setAttribute("class","corner");
 		corner.setAttribute("id", "corner"+i.toString());
+		corner.style.height = spaceTop
+		corner.style.width = spaceSide
 		document.body.appendChild(corner);
-		document.getElementById("corner"+i.toString()).style.backgroundColor=gridData.cornBorder[0];
+		corner.style.backgroundColor=gridData.cornBorder[0];
 		gridElements.push(corner)
 	}
 	for (i=0; i<numberOfrows;i++){
 		var row =document.createElement('div');
 		row.setAttribute("class","rowclass");
 		row.setAttribute("id", i.toString());
-		document.getElementById("entirePage").appendChild(row);
+		entirePage.appendChild(row);
 		gridElements.push(row)
 
 		for (j=0; j<numberOfColumns; j++){
@@ -120,8 +131,8 @@ function createGrid(){
 			var grid = document.createElement('div');
 			grid.setAttribute("id","grid"+i.toString()+j.toString());
 			grid.setAttribute("class", "grid");
-			document.getElementById(i.toString()).appendChild(grid);
-			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=gridData.grid[i][j][0];
+			row.appendChild(grid);
+			grid.style.backgroundColor=gridData.grid[i][j][0];
 			gridElements.push(grid)
 		}
 	}
