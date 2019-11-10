@@ -225,6 +225,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
       }
       var squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
+      console.log(squares)
       return scrnread.getScreenFromSquares(squares, screens)
     }
 

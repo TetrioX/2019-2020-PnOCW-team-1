@@ -134,7 +134,6 @@ async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
                  // .toColorspace('srgb')
                  .resize(new_size)
                  .normalize()
-                 .blur()
                  .raw()
                  .toBuffer()
     })
