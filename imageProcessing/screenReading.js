@@ -661,12 +661,12 @@ function getScreenFromSquare(locSquare, screens){
 	// we'll calculate all corners off te screen relative to this one.
 	let corn = corners[3]
 	// calculate how many times we have to add the vector to find the size of the screen
-	// 0.25 is used to take into account the border around the screens which is
-	// 25% the size of the blocks
-	let spaceTop = square.row + 0.25
-	let spaceBot = nbOfRows - square.row + 0.25
-	let spaceLeft = square.col + 0.25
-	let spaceRight = nbOfCols - square.col + 0.25
+	// 0.5 is used to take into account the border around the screens which is
+	// 50% the size of the blocks
+	let spaceTop = square.row + 0.5
+	let spaceBot = nbOfRows - square.row + 0.5
+	let spaceLeft = square.col + 0.5
+	let spaceRight = nbOfCols - square.col + 0.5
 	return [
 		{
 			x: corn.x + spaceRight * vectorTop.x - spaceTop * vectorRight.x - 1,

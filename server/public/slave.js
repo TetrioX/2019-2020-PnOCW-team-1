@@ -113,9 +113,9 @@ function createGrid(){
 	var numberOfColumns = gridData.grid[0].length;
 	let width  = window.innerWidth
 	let height = window.innerHeight
-	// this will make the border 25% of the size of the squares
-	let spaceTop = (height / (4*numberOfrows + 0.5)).toString() + "px"
-	let spaceSide = (width / (4*numberOfColumns + 0.5)).toString() + "px"
+	// this will make the border 50% of the size of the squares
+	let spaceTop = (height / (2*numberOfrows + 2)).toString() + "px"
+	let spaceSide = (width / (2*numberOfColumns + 2)).toString() + "px"
 	entirePage.style.top = spaceTop
 	entirePage.style.bottom = spaceTop
 	entirePage.style.left = spaceSide
