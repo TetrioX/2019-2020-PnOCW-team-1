@@ -558,10 +558,10 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	      // if not skip it and ad to colors to be ignored
 	      if (!colorCombs.hasOwnProperty(matrix[j][i])) {
 	        foundColValues.add(matrix[j][i])
-	        break;
+	        continue;
 	      }
 	      if (!(typeof noise[j] === 'undefined' || typeof noise[j][i] === 'undefinded')){
-	        break;
+	        continue;
 	      }
 
 	      let border = findBorderOrderedRgb(matrix, { x: i, y: j }, matrix[j][i])
@@ -571,7 +571,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 				if (corners.length < 4){
 	        //foundColValues.add(matrix[j][i])
 	        allElementsOfNoise(border[0],matrix,noise)
-					break;
+					continue;
 				}
 				let cornersOrientated = checkNeighborsColor(corners, matrix, colorCombs[matrix[j][i]], screens, border, nbOfColors)
 				// check if we've found all corners
@@ -584,7 +584,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	      }
 	      else {
 		      allElementsOfNoise(border[0], matrix, noise)
-		      break;
+		      continue;
 	      }
 			}
 		}
