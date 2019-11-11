@@ -11,11 +11,11 @@ const plno = require('./planeNorm.js')
 const PRECISION = 10**6
 
 const Rx = [[1, 0, 0], [0, 'cos(x)', '-sin(x)'], [0, 'sin(x)', 'cos(x)']];
-// const Rx = [[1, 0, 0], [0, 'a', '-b'], [0, 'b', 'a']];
+const Rx_ = [[1, 0, 0], [0, 'a', '-b'], [0, 'b', 'a']];
 const Ry = [['cos(y)', 0, 'sin(y)'], [0, 1, 0], ['-sin(y)', 0, 'cos(y)']];
-// const Ry = [['c', 0, 'd'], [0, 1, 0], ['-d', 0, 'c']];
-// const Rz = [['cos(z)', '-sin(z)', 0], ['sin(z)', 'cos(z)', 0], [0, 0, 1]];
-const Rz = [['r', '-s', 0], ['s', 'r', 0], [0, 0, 1]];
+const Ry_ = [['c', 0, 'd'], [0, 1, 0], ['-d', 0, 'c']];
+const Rz = [['cos(z)', '-sin(z)', 0], ['sin(z)', 'cos(z)', 0], [0, 0, 1]];
+const Rz_ = [['r', '-s', 0], ['s', 'r', 0], [0, 0, 1]];
 
 // R = Ry * Rx * Rz
 
@@ -133,7 +133,7 @@ const roundNumber = function(numb) {
 
 
 const getRotationMatrix = function(values) {
-	return matrixMultiply(matrixMultiply(substituteMatrix(Ry, values), substituteMatrix(Rx, values)), Rz)
+	return matrixMultiply(matrixMultiply(substituteMatrix(Ry, values), substituteMatrix(Rx, values)), Rz_)
 }
 
 
@@ -161,8 +161,42 @@ const add = function(expr1, expr2) {
 	return nerdamer(expr1).add(expr2).text()
 }
 
+const getRotatedTest = function() {
+	A = [[100], [100], [500]]
+	B = [[1000], [100], [500]]
+	C = [[1000], [1000], [500]]
+	D = [[100], [1000], [500]]
+	
+	R_ = matrixMultiply(matrixMultiply(Rx, Ry), Rz)
+	
+	Ri = []
+	
+	Ri[0] = substituteMatrix(R_, {x: 0, y: 0, z: Math.PI/4})
+	Ri[1] = substituteMatrix(R_, {x: 0, y: Math.PI/4, z: 0 })
+	Ri[2] = substituteMatrix(R_, {x: Math.PI/4, y: 0, z: 0 })
+	Ri[3] = substituteMatrix(R_, {x: 0, y: Math.PI/4, z: Math.PI/4})
+	Ri[4] = substituteMatrix(R_, {x: Math.PI/4, y: 0, z: Math.PI/4})
+	Ri[5] = substituteMatrix(R_, {x: Math.PI/4, y: Math.PI/4, z: 0})
+	Ri[6] = substituteMatrix(R_, {x: Math.PI/4, y: Math.PI/4, z: Math.PI/4})
+
+	result = []
+
+	// console.log(Ri)
+	
+	A = Array.from(Ri, (d) => matrixMultiply(d, A))
+	B = Array.from(Ri, (d) => matrixMultiply(d, B))
+	C = Array.from(Ri, (d) => matrixMultiply(d, C))
+	D = Array.from(Ri, (d) => matrixMultiply(d, D))
+	
+	// console.log(A)
+	
+	return {A: A, B: B, C: C, D: D}
+}
+
+console.log(getRotatedTest().A[0])
 
 module.exports = {
+	getRotatedTest: getRotatedTest,
 	getRotationZ: getRotationZ,
 	getRotationMatrix: getRotationMatrix,
 	matrixMultiply: matrixMultiply
