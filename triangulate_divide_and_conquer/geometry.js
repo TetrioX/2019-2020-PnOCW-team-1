@@ -62,7 +62,7 @@ function convexHull(points) {
 
     var lower = [];
     for (var i = 0; i < points.length; i++) {
-        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], points[i]) <= 0) {
+        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], points[ i]) <= 0) {
             lower.pop();
         }
         lower.push(points[i]);

@@ -8,6 +8,30 @@
   display: grid;
 }
 
+#timer{
+  border-bottom: 1px solid #6666CC;
+  margin: 0;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  width: 100%;
+  height: 100%;
+  visibility: : hidden;
+  display: block;
+}
+#svg_download_countdown {
+  display: block;
+  margin: 0 auto;
+}
+#svg_download_countdown #loader {
+    fill: #FFFFFF
+}
+#svg_download_countdown #countdown {
+  font-size: 64px;
+  display: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
 .container{
   margin-top: 100px;
 }
