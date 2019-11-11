@@ -122,8 +122,8 @@ async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
     }
     const new_size = { width: extend, height: extend }
     // 'x | 0' is a hack to obtain the integer part by bitwise operator |.
-    new_size.height = h_orig
-    new_size.width  = w_orig
+    new_size.height = 15
+    new_size.width  = 20
     // Maybe you would want the minimum dimension to be 'extend' instead of the maximum...
 
     // Extract the sharp objects:

@@ -116,6 +116,10 @@ var video = document.getElementById('video');
 var canvas = document.getElementById('canvas');
 var startbutton = document.getElementById('startbutton');
 
+video.setAttribute('autoplay', '');
+video.setAttribute('muted', '');
+video.setAttribute('playsinline', '');
+
 navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
 	.then(function (stream) {
 		video.srcObject = stream;
