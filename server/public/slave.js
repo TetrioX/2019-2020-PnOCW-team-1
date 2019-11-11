@@ -286,42 +286,110 @@ function drawAnglesDegree(radianAngles) {
 		context.stroke();
 	}
 }
-var slavecorners = [[0,2280],[0,1000],[500,1000],[500,2280]];
-var imgcanvas =document.getElementById('imgcanvas');
-var tempcanvas = document.createElement('canvas');
-var tempctx = tempcanvas.getContext('2d');
+
+
+//BROADCASTING IMAGES AND VIDEOS
+
+socket.on('broadcastingImage'),function(data){
+	console.log('willBroadcast')
+	var slaveCorners = [data[3],data[0],data[1],data[2]];
+	broadcast(slaveCorners);
+}
+
+//corners: LT,RT,RB,LB
+//var slaveCorners = [[200,200],[600,200],[600,400],[200,400]]
+//var slaveCorners = [[100,100],[300,200],[300,300],[100,200]];
+//var slaveCorners = [[0,400],[400,0],[600,200],[200,600]];
 
 //create a new image object
 var img = new Image();
 
-//the canvas needs to be off the size of the picture taken by the master
-// this is to make sure that the corners from the screenrecognition are used in their real size
-//assumption: size of picture is 2280X1080
-tempcanvas.height = 2280;
-tempcanvas.width = 1080;
-//Get a reference to the 2d drawing context
-var ctx = imgcanvas.getContext("2d");
 
-img.onload =function(){
+function broadcast(slaveCorners){
+	var angle = calculateAngle(slaveCorners)
+	var slaveWidth =(slaveCorners[1][0]-slaveCorners[0][0])/Math.cos(angle);
+	var slaveHeigth = (slaveCorners[2][1]-slaveCorners[1][1])/Math.cos(angle);
 
-	tempctx.beginPath();
- 	tempctx.moveTo(slavecorners[0][0],slavecorners[0][1]);
-    slavecorners.forEach(([x, y]) => {
-		tempctx.lineTo(x, y);
-     });
-    tempctx.clip();
- 	tempctx.drawImage(img,0,0);
+	//canvas for the real image
+	var imgcanvas = document.getElementById('imgcanvas');
+	var imgctx = imgcanvas.getContext('2d');
+	imgcanvas.width = window.innerWidth;
+	imgcanvas.height = window.innerHeight;
+
+	//canvas fot testing purposes
+	var tempcanvas = document.getElementById('tempcanvas');
+	var tempctx = tempcanvas.getContext('2d');
+	tempcanvas.height = window.innerHeight;
+	tempcanvas.width = window.innerWidth;
+
+	
+
+	img.onload =async function(){
+		//translation
+		const widthMultiplier =imgcanvas.width/slaveWidth;
+		const heightMultiplier = imgcanvas.height /slaveHeigth;
+		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier);
+		var	LeftTopcorner = [slaveCorners[0][0]*widthMultiplier, slaveCorners[0][1]*heightMultiplier]
+
+		//rotation
+		imgctx.translate(slaveCorners[0][0]*widthMultiplier, slaveCorners[0][1]*heightMultiplier)
+		imgctx.rotate(angle)
+		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier)
+
+		//skew werkt voorlopig nog niet helemaal
+
+		//var LeftBottomCorner =[slaveCorners[3][0]*widthMultiplier, slaveCorners[3][1]*heightMultiplier]
+		LeftBottomCorner = rotate_point(LeftTopcorner[0],LeftTopcorner[1],angle,LeftBottomCorner);
+		var horizontalskew = -(LeftBottomCorner[0]-LeftTopcorner[0])/(LeftBottomCorner[1]-LeftTopcorner[1]);
+		imgctx.translate(slaveCorners[0][0]*widthMultiplier,slaveCorners[0][1]*heightMultiplier);
+		imgctx.transform(1,0,horizontalskew,1,0,0)
+		
+		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier);
+
+		//now 3 of the 4 corners are perfect in place
+		imgctx.drawImage(img,0,0,imgcanvas.width*widthMultiplier,imgcanvas.height*heightMultiplier);
+
+		tempctx.beginPath();
+	 	tempctx.moveTo(slaveCorners[0][0],slaveCorners[0][1]);
+	  	for (let i =1; i<slaveCorners.length; i++){
+	  		tempctx.lineTo(slaveCorners[i][0],slaveCorners[i][1]);
+	  	}
+	  	tempctx.lineTo(slaveCorners[0][0],slaveCorners[0][1]);
+	    tempctx.clip();
+	 	tempctx.drawImage(img,0,0, tempcanvas.width,tempcanvas.height);
+	}
+} 
 
 
- 	
-
+function calculateAngle(corners){
+	let dx =corners[1][0] - corners[0][0];
+	let dy = corners[0][1] - corners[1][1];
+	let angle =Math.atan(dy/dx);
+	return angle
 }
 
+function rotate_point(cx,cy,angle,p){
+	var s =Math.sin(angle);
+	var c = Math.cos(angle);
+
+	//translate point back to origin:
+	p[0] -= cx;
+	p[1] -= cy;
+
+	//rotate point:
+	var xnew = p[0]*c -p[1]*s;
+	var ynew = p[0]*s + p[1]*c;
+
+	//translate point back:
+	p[0] = xnew+cx;
+	p[1] = ynew +cy;
+	return p;
+}
 
 //callback, when the image is loaded
 
 //start the image loading
-img.src ='/static/ImageShowOffTest2.jpg';
+img.src ='/static/Colorgrid.jpg';
 
 
 

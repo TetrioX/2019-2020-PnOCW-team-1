@@ -29,7 +29,7 @@ h1{
   color:#2a3d5c;
   margin-top: 20px;
 }
-#screenrecognitiontitle{
+.title{
 	margin-top: 10px;
 	font-size: 18pt;
 }
@@ -59,6 +59,10 @@ h1{
 	margin-bottom: 20px;
 }
 
+#broadcastPicture{
+	margin-top: 15px;
+	margin-bottom: 20px;	
+}
 .container{
 	margin: 20px;
 	width: 500px;
@@ -68,4 +72,6 @@ h1{
 	width: 100%;
 }
 
+.broadcast{
+	margin-bottom: 15px;
 }
