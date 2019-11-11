@@ -64,6 +64,10 @@ socket.on('drawLine', function(data){
     draw(data.angle);
 });
 
+socket.on('getDim', function (data, callback) {
+    cleanHTML()
+    callback({ height: window.innerHeight, width: window.innerWidth })
+});
 
 socket.on('changeBackgroundOfAllSlaves', function (data, callback) {
 	cleanHTML()
