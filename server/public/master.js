@@ -1,10 +1,10 @@
-var passwd = prompt("master password");
+const passwd = prompt("master password");
 // Make Connection
-var socket = io('/master', { query: "passwd="+passwd });
+const socket = io('/master', { query: "passwd="+passwd });
 // if authentication failed notify the user and become a slave
 setTimeout(function() {
-	if (socket.connected == false){
-		alert("authentication failed")
+	if (socket.connected === false){
+		alert("authentication failed");
 		window.location.href="/";
 	}
 }, 1000);
@@ -16,51 +16,47 @@ socket.on('registerMaster', function (data) {
 
 //Emit events to server
 
-var entirePage =document.getElementById('entirePage');
-var slaveButtons = {};
-var numberOnButton = 0;
-var drawButtonLine = document.getElementById('drawLine');
-var drawstarButton = document.getElementById('drawStar');
-var triangulateButton = document.getElementById('triangulate');
-var anglePicker = document.getElementById('anglePicker');
+const entirePage = document.getElementById('entirePage'),
+	slaveButtons = {},
+	numberOnButton = 0,
+	drawButtonLine = document.getElementById('drawLine'),
+	triangulateButton = document.getElementById('triangulate'),
+	anglePicker = document.getElementById('anglePicker'),
 
-var makeGridButton = document.getElementById("calibrateButton");
-var countdownButton = document.getElementById("countdownButton")
+	makeGridButton = document.getElementById("calibrateButton"),
+	countdownButton = document.getElementById("countdownButton"),
 
-var rowPicker = document.getElementById("rowPicker");
-var columnPicker = document.getElementById("columnPicker");
-var countdownPicker = document.getElementById("countdownPicker")
+	rowPicker = document.getElementById("rowPicker"),
+	columnPicker = document.getElementById("columnPicker"),
+	countdownPicker = document.getElementById("countdownPicker");
 
-var numberOfRows = rowPicker.valueAsNumber;
-var numberOfColumns = columnPicker.valueAsNumber;
-var countdownSeconds = countdownPicker.valueAsNumber
+let numberOfRows = rowPicker.valueAsNumber,
+	numberOfColumns = columnPicker.valueAsNumber,
+	countdownSeconds = countdownPicker.valueAsNumber;
 
-var angle = 0;
+let angle = 0;
+
+//EventListeners
 rowPicker.addEventListener('input', function(){
 	numberOfRows = rowPicker.valueAsNumber
 });
 
 columnPicker.addEventListener('input', function(){
 	numberOfColumns =columnPicker.valueAsNumber
-})
+});
+
 countdownPicker.addEventListener('input', function(){
 	countdownSeconds = countdownPicker.valueAsNumber
-})
-
-
+});
 
 anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
-})
-
-drawstarButton.addEventListener('click', function () {
-	socket.emit('drawStar')
 });
 
 triangulateButton.addEventListener('click', function () {
-	socket.emit('triangulate',{
-		numberOfRows:numberOfRows,
-		numberOfColumns:numberOfColumns
+	socket.emit('triangulate', {
+		numberOfRows: numberOfRows,
+		numberOfColumns: numberOfColumns
 	})
 });
 
@@ -71,7 +67,7 @@ drawButtonLine.addEventListener('click', function() {
 });
 
 function createSlaveButton(number,id) {
-		var btn = document.createElement("BUTTON");
+		let btn = document.createElement("BUTTON");
 		btn.innerHTML = "Change color of " + number;
 		entirePage.appendChild(btn);
 		btn.addEventListener('click', function () {
@@ -84,16 +80,16 @@ function createSlaveButton(number,id) {
 }
 
 function removeSlaveButton(slave) {
-		if (slave in slaveButtons) {
-				slaveButtons[slave].remove();
-				delete slaveButtons[slave];
-		}
+	if (slave in slaveButtons) {
+		slaveButtons[slave].remove();
+		delete slaveButtons[slave];
+	}
 }
 
 socket.on('slaveSet', function (data) {
-		for (socket_id in data.slaves) {
-				createSlaveButton(data.slaves[socket_id], socket_id);
-		}
+	for (let socket_id in data.slaves) {
+		createSlaveButton(data.slaves[socket_id], socket_id);
+	}
 });
 
 socket.on('registerSlave', function (data) {
@@ -105,22 +101,23 @@ socket.on('removeSlave', function (data) {
 });
 
 //Foto nemen
+let useCameraButton = document.getElementById('useCamBtn');
 
-var useCameraButton = document.getElementById('useCamBtn');
 useCameraButton.addEventListener('click',function(){
-	console.log("Hoi")
+	console.log("Hoi");
 	document.getElementById("cameraDiv").style.display = "";
 });
 
-var video = document.getElementById('video');
-var canvas = document.getElementById('canvas');
-var startbutton = document.getElementById('startbutton');
+let video = document.getElementById('video'),
+	canvas = document.getElementById('canvas'),
+	startbutton = document.getElementById('startbutton');
 
+//Fixt video op iPhone
 video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
-navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
+navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}, audio: false})
 	.then(function (stream) {
 		video.srcObject = stream;
 		video.play();
@@ -129,8 +126,8 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audi
 		console.log("An error occurred: " + err);
 	});
 
-function takePicture(data){
-	var context = canvas.getContext('2d');
+function takePicture(data) {
+	let context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
 	context.drawImage(video, 0, 0);
@@ -151,25 +148,22 @@ function sleep(ms){
 }
 
 socket.on('takeOnePicture', function(data, callback){
-	var context = canvas.getContext('2d');
+	let context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
 	context.drawImage(video, 0, 0);
 	callback(canvas.toDataURL('image/png'))
-})
+});
 
-socket.on('takePictures', async function(data, callback){
+socket.on('takePictures', async function (data, callback) {
 	for (var key in data.slaves) {
 		if (key) socket.emit('changeBackgroundColor', {
-					colorValue: '#ffffff',
-					id: key
-					});
-
-
-
+			colorValue: '#ffffff',
+			id: key
+		});
 	}
 	await sleep(1000);
-		// console.log(key, " ", data.slaves[key])
+	// console.log(key, " ", data.slaves[key])
 	takePicture({destination: data.slaves[key]});
 	await sleep(100)
 
@@ -178,7 +172,7 @@ socket.on('takePictures', async function(data, callback){
 
 socket.on('alert', function(data){
 	alert(data)
-})
+});
 
 // Starts the calibration process and shows the result
 makeGridButton.addEventListener('click',function(){
@@ -188,10 +182,10 @@ makeGridButton.addEventListener('click',function(){
 	});
 });
 
-countdownButton.addEventListener('click', function(){
-	if (typeof countdownSeconds === 'undefined'){
+countdownButton.addEventListener('click', function () {
+	if (typeof countdownSeconds === 'undefined') {
 		alert('Enter an amount of seconds first')
-	} else{
+	} else {
 		socket.emit('startCountdown', countdownSeconds)
 	}
-})
+});

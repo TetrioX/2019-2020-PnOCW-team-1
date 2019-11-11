@@ -1,0 +1,20 @@
+{
+  "name": "2019-2020-PnOCW-team-1",
+  "version": "1.0.0",
+  "dependencies": {
+    "sharp": "^0.23.1",
+    "yargs": "^14.2.0",
+    "algebra.js": "^0.2.6",
+    "calculus": "0.0.2",
+    "nerdamer": "^1.0.4",
+    "solve": "^1.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
+    "delaunay": "^0.4.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
+}

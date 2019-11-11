@@ -1,0 +1,16 @@
+lib/
+tests/
+dist/tests/
+dist/assets/
+dist/amd/*-tests.*
+tmp/
+bower_components/
+bower.json
+ember-cli-build.js
+npm-shrinkwrap.json
+testem.json
+.bowerrc
+.ember-cli
+.jshintrc
+.travis.yml
+.watchmanconfig
