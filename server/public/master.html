@@ -55,7 +55,7 @@
 
 
 		<div class="border border-lg border-success rounded triangulate">
-			<div id="screenrecognitiontitle">
+			<div class="title">
 				Screenrecognition!
 			</div>
 			<div>
@@ -68,7 +68,17 @@
 			<form class="input">
 				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="5" placeholder="Number of columns">
 			</form>
-			<button type="button" id="calibrateButton" class="btn btn-outline-success">Execute screenrecognition</button>
+
+			<button id="calibrateButton" class="btn btn-outline-success">Execute screenrecognition</button>
+		</div>
+		<div class ="border border-lg border-primary rounded broadcast">
+			<div class ="title">
+				Broadcast picture!
+			</div>
+			<div>
+				Press the button and the slaves will broadcast a picture
+			</div>
+			<button id="broadcastPicture" class="btn btn-outline-primary"> Broadcast Picture</button>
 		</div>
 
 		<div class="border border-lg border-primary rounded countdown">

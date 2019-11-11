@@ -48,6 +48,7 @@ describe('findscreen', function() {
     matrixes3 = parseJsonFile(rgbCasesPath + '/case3/matrixes.json')
     colorCombs3 = parseJsonFile(rgbCasesPath + '/case3/colorCombs.json')
     screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json')
+
       colorCombs4 = parseJsonFile(rgbCasesPath + '/case4/colorCombs.json')
       screens4 = parseJsonFile(rgbCasesPath + '/case4/screens.json')
       //console.log(matrixes3.length)
@@ -59,6 +60,7 @@ describe('findscreen', function() {
       //console.log(matrixes4)
       //console.log(matrixes4[0].length)
       //console.log(screenReading.joinMatrixes(matrixes4,6))
+
     /*
       colorMatrix1 =
           [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
@@ -461,5 +463,6 @@ describe('findscreen', function() {
           var squares = screenReading.getScreens(matrixes4, screens4, colorCombs4, 6)
           console.log(squares)
     })
+
   })
 });

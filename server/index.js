@@ -15,6 +15,7 @@ const { argv } = require('yargs')
 
 var saveDebugFiles = argv['save-debug-files']
 var gridPause = argv['grid-pause']
+var AllScreenPositions={};
 
 //App setup
 var app = express();
@@ -316,6 +317,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         socket.emit('alert', "found these screens: "+screenKeys.toString() )
       }
       console.log(screens)
+      AllScreenPositions = screens;
     });
 
     function sleep(ms){
@@ -371,6 +373,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
                 })
         })
     });
+    socket.on('broadcastImage', function(){
+      console.log('wil broadcast image');
+      Object.keys(slaves).forEach(function(slave, index) {
+      console.log(AllScreenPositions[slaves[slave]]);
+      slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
+      })
+    })
 
     socket.on('startCountdown', function(data){
       let startTime = new Date()
@@ -387,6 +396,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     })
 });
 
+
 var slaveIo = io.of('/slave').on('connect', function(socket){
   addSlave(socket)
 
@@ -401,6 +411,8 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
     deleteSlave(socket)
   })
 });
+
+
 
 
 //creating grids with a number of columns and a number of rows
