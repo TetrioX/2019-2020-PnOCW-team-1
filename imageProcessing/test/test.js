@@ -50,15 +50,15 @@ describe('findscreen', function() {
     screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json')
       colorCombs4 = parseJsonFile(rgbCasesPath + '/case4/colorCombs.json')
       screens4 = parseJsonFile(rgbCasesPath + '/case4/screens.json')
-      console.log(matrixes3.length)
-      console.log(matrixes3[0].length)
-      console.log("bla")
+      //console.log(matrixes3.length)
+      //console.log(matrixes3[0].length)
+      //console.log("bla")
       matrixes4 = await imgprcssrgb.doImgDiff([rgbCasesPath + '/case4/image-0.png', rgbCasesPath + '/case4/image-1.png'], false, false)
-      matrixes4 = await imgprcssrgb.doImgDiff([rgbCasesPath + '/case1/image-0.png', rgbCasesPath + '/case1/image-1.png'], false, false)
       matrixes4 = matrixes4.matrix
-      console.log(matrixes4)
-      console.log(matrixes4[0].length)
-      console.log(screenReading.joinMatrixes(matrixes4,6))
+      //console.log(matrixes4)
+      //console.log(matrixes4)
+      //console.log(matrixes4[0].length)
+      //console.log(screenReading.joinMatrixes(matrixes4,6))
     /*
       colorMatrix1 =
           [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],

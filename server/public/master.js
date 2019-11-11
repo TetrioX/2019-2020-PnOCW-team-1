@@ -2,6 +2,8 @@ var passwd = prompt("master password");
 // Make Connection
 var socket = io('/master', { query: "passwd="+passwd });
 // if authentication failed notify the user and become a slave
+console.log(socket)
+// if not connected in 1 second become a slave
 setTimeout(function() {
 	if (socket.connected == false){
 		alert("authentication failed")
@@ -25,16 +27,14 @@ var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
 
 var makeGridButton = document.getElementById("calibrateButton");
-var countdownButton = document.getElementById("countdownButton")
-
-var rowPicker = document.getElementById("rowPicker");
-var columnPicker = document.getElementById("columnPicker");
-var countdownPicker = document.getElementById("countdownPicker")
+var rowPicker =document.getElementById("rowPicker");
+var columnPicker =document.getElementById("columnPicker");
 
 var numberOfRows = rowPicker.valueAsNumber;
-var numberOfColumns = columnPicker.valueAsNumber;
-var countdownSeconds = countdownPicker.valueAsNumber
+var numberOfColumns =columnPicker.valueAsNumber;
 
+
+console.log(numberOfColumns);
 var angle = 0;
 rowPicker.addEventListener('input', function(){
 	numberOfRows = rowPicker.valueAsNumber
@@ -42,9 +42,6 @@ rowPicker.addEventListener('input', function(){
 
 columnPicker.addEventListener('input', function(){
 	numberOfColumns =columnPicker.valueAsNumber
-})
-countdownPicker.addEventListener('input', function(){
-	countdownSeconds = countdownPicker.valueAsNumber
 })
 
 
@@ -182,16 +179,9 @@ socket.on('alert', function(data){
 
 // Starts the calibration process and shows the result
 makeGridButton.addEventListener('click',function(){
+	console.log("i will send");
 	socket.emit('changeBackgroundOfAllSlaves',{
 		numberOfRows:numberOfRows,
 		numberOfColumns:numberOfColumns
 	});
 });
-
-countdownButton.addEventListener('click', function(){
-	if (typeof countdownSeconds === 'undefined'){
-		alert('Enter an amount of seconds first')
-	} else{
-		socket.emit('startCountdown', countdownSeconds)
-	}
-})
