@@ -144,6 +144,7 @@ app.get('/master', function(req,res){
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
+app.use('/debug', express.static(__dirname + '/'))
 
 app.use('/static', express.static(__dirname +  '/public'))
 
@@ -181,7 +182,29 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let colorCombs = {};
       // all promises that will be resolved when a grid has been created
       let createGridPromises = [];
-      Object.keys(slaves).forEach(function(slave, index) {
+        Object.keys(slaves).forEach(async function (slave, index) {
+            if (numberOfRows == null && numberOfColumns == null) {
+                //Get the dimensions of the screen and change the grid according to width and height of the screen.
+                let waitForDim = new Promise(function (resolve, reject) {
+                    slaveSockets[slave].emit('getDim', 0, function (callBackData) {
+                        var h = callBackData.height
+                        var w = callBackData.width
+                        var wDivH = w / h
+                        if (1.75 <= wDivH) { numberOfRows = 2, numberOfColumns = 4 } //Math.round(wDivH * 2)
+                        else if (1.25 <= wDivH && wDivH < 1.75) { numberOfRows = 2, numberOfColumns = 3 }
+                        else if (0.75 <= wDivH && wDivH < 1.25) { numberOfRows = 3, numberOfColumns = 3 }
+                        else if (0.5 <= wDivH && wDivH < 0.75) { numberOfRows = 3, numberOfColumns = 2 }
+                        else if (wDivH < 0.5) { numberOfRows = 4, numberOfColumns = 2 } //Math.round((1 / wDivH) * 2)
+                        else {
+                            throw new Error("Height & Width problem")
+                        }
+                        resolve({ nR: numberOfRows, nC: numberOfColumns })
+                    })
+                })
+                let dim = await waitForDim
+                numberOfRows = dim.nR
+                numberOfColumns = dim.nC
+            }
         // slaves[slave] is the slave ID
         let gridAndCombs = createColorGrid(numberOfRows,numberOfColumns, allColorCombinations, slaves[slave])
         createGridPromises.push(new Promise(function(resolve, reject) {
@@ -208,21 +231,26 @@ var masterIo = io.of('/master').on('connect', function(socket){
         slaveSockets[slave].emit('removeGrid')
       })
       if (saveDebugFiles) {
-        fs.writeFileSync(`screens.json`, JSON.stringify(screens))
-        fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
+          fs.writeFileSync(`screens.json`, JSON.stringify(screens))
+          fs.writeFileSync(`.debug/screens.json`, JSON.stringify(screens))
+          fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
+          fs.writeFileSync(`.debug/colorCombs.json`, JSON.stringify(colorCombs))
+
       }
       // we get all matrixes of the pictures asynchronously
       let matrixPromises = []
       for (let i in pictures){
         matrixPromises.push(new Promise(async function(resolve, reject){
           fs.writeFileSync(`./image-${i}.png`, pictures[i]);
+          fs.writeFileSync(`.debug/image-${i}.png`, pictures[i]);
           let result = await imgprcssrgb.doImgDiff([`./image-${i}.png`], false, false)
           resolve(result.matrix[0])
         }))
       }
       let matrixes = await Promise.all(matrixPromises)
       if (saveDebugFiles) {
-        fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
+          fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
+          fs.writeFileSync(`.debug/matrixes.json`, JSON.stringify(matrixes))
       }
       let squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
       console.log(squares)

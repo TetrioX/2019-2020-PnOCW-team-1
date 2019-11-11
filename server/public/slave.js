@@ -64,8 +64,12 @@ socket.on('drawLine', function(data){
     draw(data.angle);
 });
 
+socket.on('getDim', function (data, callback) {
+    cleanHTML()
+    callback({ height: window.innerHeight, width: window.innerWidth })
+});
 
-socket.on('changeBackgroundOfAllSlaves', function(data, callback){
+socket.on('changeBackgroundOfAllSlaves', function (data, callback) {
 	cleanHTML()
 	entirePage.setAttribute("id","entirePage");
 	document.body.appendChild(entirePage);
@@ -110,9 +114,9 @@ function createGrid(){
 	// hide scrollbar
 	document.body.style.overflow = 'hidden';
 	var numberOfrows=gridData.grid.length;
-	var numberOfColumns = gridData.grid[0].length;
+    var numberOfColumns = gridData.grid[0].length;
 	let width  = window.innerWidth
-	let height = window.innerHeight
+    let height = window.innerHeight
 	// this will make the border 50% of the size of the squares
 	let spaceTop = (height / (2*numberOfrows + 2)).toString() + "px"
 	let spaceSide = (width / (2*numberOfColumns + 2)).toString() + "px"
