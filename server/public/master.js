@@ -23,7 +23,7 @@ var drawButtonLine = document.getElementById('drawLine');
 var drawstarButton = document.getElementById('drawStar');
 var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
-
+var broadcastPicture = document.getElementById('broadcastPicture');
 var makeGridButton = document.getElementById("calibrateButton");
 var countdownButton = document.getElementById("countdownButton")
 
@@ -187,6 +187,12 @@ makeGridButton.addEventListener('click',function(){
 		numberOfColumns:numberOfColumns
 	});
 });
+
+broadcastPicture.addEventListener('click',function(){
+	console.log('will broadcast');
+	socket.emit('broadcastImage');
+})
+
 
 countdownButton.addEventListener('click', function(){
 	if (typeof countdownSeconds === 'undefined'){

@@ -25,10 +25,6 @@ function cleanHTML(){
 }
 
 //listen for events from server
-socket.on('connect',function(){
-	socketID =socket.id;
-	console.log(socketID);
-});
 
 socket.on('changeBackgroundColor',function(data){
 		cleanHTML()
@@ -36,9 +32,6 @@ socket.on('changeBackgroundColor',function(data){
     document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
 });
 
-socket.on('SendingPicture', function(data){
-	console.log("picture recieved");
-});
 // Sending number to slave (also usefull for angle of arrow!)
 socket.on('slaveID', function (id) {
 	if (id ==1){
@@ -93,10 +86,52 @@ socket.on('removeGrid', function(data){
 	removeGrid()
 })
 
+socket.on('connect',function(){
+	socketID =socket.id;
+	console.log(socketID);
+});
+
+socket.on('changeBackgroundColor',function(data){
+    document.body.style.backgroundColor = data.colorValue;
+    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
+});
+
+socket.on('SendingPicture', function(data){
+	console.log("picture recieved");
+});
+
+socket.on('drawStar', function(data){
+	drawStar();
+});
+
+socket.on('triangulate', function(angles){
+	wrapper.style.display = "none";
+	drawStar();
+	console.log(angles)
+	drawAnglesDegree(angles)
+});
+
+socket.on('drawLine', function(data){
+    draw(data.angle);
+});
+
+
+
+
+socket.on('drawImage',function(data){
+	wrapper.style.display ="none";
+	var imgcanvas = document.createElement('canvas');
+	imgcanvas.setAttribute('id','imgcanvas');
+	document.body.appendChild(imgcanvas);
+	var slavecorners = data
+})
+
+//events on client side
 masterButton.addEventListener('click',function(){
 	window.location.href="/master";
 });
 
+//functions
 function createGrid(){
 	var numberOfrows=gridData.grid.length;
 	var numberOfColumns = gridData.grid[0].length;
@@ -265,20 +300,114 @@ function drawAnglesDegree(radianAngles) {
 }
 
 
-//listen for events from server
-socket.on('connect',function(){
-	socketID =socket.id;
-	console.log(socketID);
-});
+//BROADCASTING IMAGES AND VIDEOS
 
-socket.on('changeBackgroundColor',function(data){
-    document.body.style.backgroundColor = data.colorValue;
-    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
-});
+socket.on('broadcastingImage'),function(data){
+	console.log('willBroadcast')
+	var slaveCorners = [data[3],data[0],data[1],data[2]];
+	broadcast(slaveCorners);
+}
 
-socket.on('SendingPicture', function(data){
-	console.log("picture recieved");
-});
+//corners: LT,RT,RB,LB
+//var slaveCorners = [[200,200],[600,200],[600,400],[200,400]]
+//var slaveCorners = [[100,100],[300,200],[300,300],[100,200]];
+//var slaveCorners = [[0,400],[400,0],[600,200],[200,600]];
+
+//create a new image object
+var img = new Image();
+
+
+function broadcast(slaveCorners){
+	var angle = calculateAngle(slaveCorners)
+	var slaveWidth =(slaveCorners[1][0]-slaveCorners[0][0])/Math.cos(angle);
+	var slaveHeigth = (slaveCorners[2][1]-slaveCorners[1][1])/Math.cos(angle);
+
+	//canvas for the real image
+	var imgcanvas = document.getElementById('imgcanvas');
+	var imgctx = imgcanvas.getContext('2d');
+	imgcanvas.width = window.innerWidth;
+	imgcanvas.height = window.innerHeight;
+
+	//canvas fot testing purposes
+	var tempcanvas = document.getElementById('tempcanvas');
+	var tempctx = tempcanvas.getContext('2d');
+	tempcanvas.height = window.innerHeight;
+	tempcanvas.width = window.innerWidth;
+
+
+
+	img.onload =async function(){
+		//translation
+		const widthMultiplier =imgcanvas.width/slaveWidth;
+		const heightMultiplier = imgcanvas.height /slaveHeigth;
+		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier);
+		var	LeftTopcorner = [slaveCorners[0][0]*widthMultiplier, slaveCorners[0][1]*heightMultiplier]
+
+		//rotation
+		imgctx.translate(slaveCorners[0][0]*widthMultiplier, slaveCorners[0][1]*heightMultiplier)
+		imgctx.rotate(angle)
+		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier)
+
+		//skew werkt voorlopig nog niet helemaal
+
+		//var LeftBottomCorner =[slaveCorners[3][0]*widthMultiplier, slaveCorners[3][1]*heightMultiplier]
+		LeftBottomCorner = rotate_point(LeftTopcorner[0],LeftTopcorner[1],angle,LeftBottomCorner);
+		var horizontalskew = -(LeftBottomCorner[0]-LeftTopcorner[0])/(LeftBottomCorner[1]-LeftTopcorner[1]);
+		imgctx.translate(slaveCorners[0][0]*widthMultiplier,slaveCorners[0][1]*heightMultiplier);
+		imgctx.transform(1,0,horizontalskew,1,0,0)
+
+		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier);
+
+		//now 3 of the 4 corners are perfect in place
+		imgctx.drawImage(img,0,0,imgcanvas.width*widthMultiplier,imgcanvas.height*heightMultiplier);
+
+		tempctx.beginPath();
+	 	tempctx.moveTo(slaveCorners[0][0],slaveCorners[0][1]);
+	  	for (let i =1; i<slaveCorners.length; i++){
+	  		tempctx.lineTo(slaveCorners[i][0],slaveCorners[i][1]);
+	  	}
+	  	tempctx.lineTo(slaveCorners[0][0],slaveCorners[0][1]);
+	    tempctx.clip();
+	 	tempctx.drawImage(img,0,0, tempcanvas.width,tempcanvas.height);
+	}
+}
+
+
+function calculateAngle(corners){
+	let dx =corners[1][0] - corners[0][0];
+	let dy = corners[0][1] - corners[1][1];
+	let angle =Math.atan(dy/dx);
+	return angle
+}
+
+function rotate_point(cx,cy,angle,p){
+	var s =Math.sin(angle);
+	var c = Math.cos(angle);
+
+	//translate point back to origin:
+	p[0] -= cx;
+	p[1] -= cy;
+
+	//rotate point:
+	var xnew = p[0]*c -p[1]*s;
+	var ynew = p[0]*s + p[1]*c;
+
+	//translate point back:
+	p[0] = xnew+cx;
+	p[1] = ynew +cy;
+	return p;
+}
+
+//callback, when the image is loaded
+
+//start the image loading
+img.src ='/static/Colorgrid.jpg';
+
+
+
+
+
+
 
 socket.on('drawStar', function(data){
 	cleanHTML()
