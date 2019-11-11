@@ -233,9 +233,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
       })
       if (saveDebugFiles) {
           fs.writeFileSync(`screens.json`, JSON.stringify(screens))
-          fs.writeFileSync(`.debug/screens.json`, JSON.stringify(screens))
+          fs.writeFileSync(`./debug/screens.json`, JSON.stringify(screens))
           fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
-          fs.writeFileSync(`.debug/colorCombs.json`, JSON.stringify(colorCombs))
+          fs.writeFileSync(`./debug/colorCombs.json`, JSON.stringify(colorCombs))
 
       }
       // we get all matrixes of the pictures asynchronously
@@ -243,7 +243,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       for (let i in pictures){
         matrixPromises.push(new Promise(async function(resolve, reject){
           fs.writeFileSync(`./image-${i}.png`, pictures[i]);
-          fs.writeFileSync(`.debug/image-${i}.png`, pictures[i]);
+          fs.writeFileSync(`./debug/image-${i}.png`, pictures[i]);
           let result = await imgprcssrgb.doImgDiff([`./image-${i}.png`], false, false)
           resolve(result.matrix[0])
         }))
@@ -251,7 +251,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let matrixes = await Promise.all(matrixPromises)
       if (saveDebugFiles) {
           fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
-          fs.writeFileSync(`.debug/matrixes.json`, JSON.stringify(matrixes))
+          fs.writeFileSync(`./debug/matrixes.json`, JSON.stringify(matrixes))
       }
       let squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
       console.log(squares)
