@@ -173,7 +173,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
-      var nbOfColorCombs = Object.keys(slaves).length * (numberOfRows * numberOfColumns + 2)
+      var nbOfColorCombs = Object.keys(slaves).length * 10
       // calculate how many pictues should be taken
       var nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
       var allColorCombinations = getColorComb(nbOfPictures)
