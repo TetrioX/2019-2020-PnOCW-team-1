@@ -21,6 +21,9 @@ const Rz = [['r', '-s', 0], ['s', 'r', 0], [0, 0, 1]];
 
 const getRotationZ = function(corners) {
 	val = plno.getAngles(corners)
+	
+	console.log(180/Math.PI*val.x, " ", 180/Math.PI*val.y)
+	
 	R = getRotationMatrix(val)
 	
 	AB = plno.normalizeVector(plno.getDirVector(corners.A, corners.B))
@@ -38,15 +41,13 @@ const getRotationZ = function(corners) {
 	z2 = z2 ? readSolution(z2) : z2
 	z3 = z3 ? readSolution(z3) : z3
 	
-	// console.log("z1: ", z1, " z2 ", z2, " z3: ", z3)
-	
 	z = getAverageZ(z1, z2, z3)
 	
-	// console.log(corners)
-	// console.log(180*nerdamer(val.x).text()/Math.PI, " ", 180*nerdamer(val.y).text()/Math.PI, " ", 180*Math.asin(z.s)/Math.PI)
+	console.log(180/Math.PI*Math.asin(z.s))
 	
 	return substituteMatrix(R, z)
 }
+
 
 const getAverageZ = function(z1, z2, z3) {
 	if (z1 && z2 && z3 && isKindaEqualDict(z1, z2) && isKindaEqualDict(z1, z3)) 
@@ -67,6 +68,7 @@ const getAverageZ = function(z1, z2, z3) {
 	return z
 }
 
+
 const getAverageDict = function(dicts) {
 	avDict = {}
 	for (let key in dicts[0]) {
@@ -77,6 +79,7 @@ const getAverageDict = function(dicts) {
 	return avDict
 }
 
+
 const isKindaEqualDict = function(dict1, dict2) {
 	for (var key in dict1) 
 		if (! isKindaEqual(dict1[key], dict2[key])) {
@@ -86,20 +89,24 @@ const isKindaEqualDict = function(dict1, dict2) {
 	return true
 }
 
+
 const isKindaEqual = function(number1, number2) {
 	Precision = 10**(-5)
 	return number1 - Precision <= number2 && number2 <= number1 + Precision
 }
 
+
 const isSquareSystem = function(eq1, eq2) {
 	return (eq1.includes('r') && eq2.includes('s')) || (eq1.includes('s') && eq2.includes('r'))
 }
+
 
 const modulo = function(numb, mod) {
 	while (Math.abs(numb) > mod/2)
 		numb = numb >= 0 ? numb - mod : numb + mod
 	return numb
 }
+
 
 const readSolution = function(solution) {
 	str = []
@@ -119,17 +126,21 @@ const readSolution = function(solution) {
 	return retval
 }
 
+
 const roundNumber = function(numb) {
 	return Math.round(numb * PRECISION) / PRECISION
 }
+
 
 const getRotationMatrix = function(values) {
 	return matrixMultiply(matrixMultiply(substituteMatrix(Ry, values), substituteMatrix(Rx, values)), Rz)
 }
 
+
 const substituteMatrix = function(matrix, values) {
 	return Array.from(matrix, (d) => Array.from(d, (e) => nerdamer(e).evaluate(values).text()))
 }
+
 
 const matrixMultiply = function(matrix1, matrix2) {
 	result = Array.from(new Array(matrix1.length), (d) => new Array(matrix2[0].length ).fill(0))
@@ -140,13 +151,16 @@ const matrixMultiply = function(matrix1, matrix2) {
 	return result
 }
 
+
 const multiply = function(expr1, expr2) {
 	return nerdamer(expr1).multiply(expr2).text()
 }
 
+
 const add = function(expr1, expr2) {
 	return nerdamer(expr1).add(expr2).text()
 }
+
 
 module.exports = {
 	getRotationZ: getRotationZ,
