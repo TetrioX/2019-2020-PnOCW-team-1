@@ -10,38 +10,80 @@
 	<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-	<div id="entirePage">
-		<h1  id="h1">Master Page</h1>
-		<button id="useCamBtn" class=" btn btn-outline-secondary">Use Camera</button>
-		<div class="contentarea" id="cameraDiv" style="display:none;">
-			<div class="camera">
-				<video id="video">Video stream not available.</video>
+	<div id ="entirePage" class="mx-auto col-12 col-sm-12 col-md-8 col-lg-4 border border-lg border-dark rounded">
+		<h1>Master Page</h1>
+
+		<div id ="cameradiv" class="border border-lg border-danger rounded">
+			<div id="cameratext">
+				Use camera for taking a picture
 			</div>
-			<canvas id="canvas">
-			</canvas>
-			<div class="interaction">
-				<button type="button" class="btn btn-outline-secondary" id="startbutton">Take Photo</button>
+			<button id="useCamBtn" class=" btn btn-outline-danger">Use Camera</button>
+			<div class="contentarea" id="cameraDiv" style="display:none;">
+				<div class="camera">
+					<video id="video">Video stream not available.</video>
+				</div>
+				<canvas id="canvas">
+				</canvas>
+				<div class="interaction">
+					<button type="button" class="btn btn-outline-danger" id="startbutton">Take Photo</button>
+				</div>
 			</div>
 		</div>
 
-		<div class="interaction">
-			<input id="anglePicker" placeholder="Enter angle (degrees)" type="number" name="name"/>
-			<button type="button" id="drawLine" class="btn btn-outline-secondary">Draw Line</button>
-			<form>
-				Choose the number of rows
-				<input id="rowPicker" type="number" name="nbrows" min="1" max ="3">
-			</form>
-			<form>
-				Choose the number of columns
-				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="3">
-			</form>
 
-			<button type="button" id="calibrateButton" class="btn btn-outline-secondary">calibrate Screens</button>
+		<div id="draw"class="border border-lg border-warning rounded">
+			<div class="mx-auto">
+				<div class="drawtext">
+					Choose an angle and draw an arrow
+				</div>
+				<input id="anglePicker" placeholder="Enter angle (degrees)" type="number" name="name"/>
+				<button type="button" id="drawLine" class="btn btn-outline-warning">Draw Arrow</button>
+			</div>
+			<div class="mx-auto">
+				<div class="drawtext">
+					Make a star in de middle of every screen
+				</div>
+				<button type="button" id="drawStar" class="btn btn-outline-warning">Draw Star</button>
+			</div>
+			<div>
+				<div class="drawtext">
+					Execute a triangulation on all the slave screens
+				</div>
+				<button type="button" id="triangulate" class="btn btn-outline-warning">triangulate</button>
+			</div>
 		</div>
-		<div>
-			<input type="color" id="color">
+
+
+		<div class="border border-lg border-success rounded triangulate">
+			<div id="screenrecognitiontitle">
+				Screenrecognition!
+			</div>
+			<div>
+				Choose the amount of rows and columns and press 'Execute screenrecognition'. Let the algoritm do de rest. Hold your camera still while doing it!
+			</div>
+			<form class="input">
+				<input id="rowPicker" type="number" name="nbrows" min="1" max ="5" placeholder="Number of rows">
+			</form>
+			<form class="input">
+				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="5" placeholder="Number of columns">
+			</form>
+			<button type="button" id="calibrateButton" class="btn btn-outline-success">Execute screenrecognition</button>
+		</div>
+
+		<div class="border border-lg border-primary rounded countdown">
+			<div id="countdowntitle">
+				Countdown!
+			</div>
+			<div>
+				Choose the amount of seconds that you want the countdown to take in seconds
+			</div>
+			<form class="input">
+				<input id="countdownPicker" type="number" name="nbofseconds" min="1" max ="360" placeholder="Number of seconds">
+			</form>
+			<button type="button" id="countdownButton" class="btn btn-outline-success">Start countdown</button>
 		</div>
 	</div>
+
 	<script src="static/master.js"></script>
 </body>
 </html>

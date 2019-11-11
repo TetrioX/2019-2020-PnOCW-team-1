@@ -1,23 +1,71 @@
 #entirePage{
-	margin: auto;
+	margin-top:20px;
+	margin-bottom: 20px;
 	text-align: center;
 }
 
 body{
-	background-color: #c2ccc5;
+	color:red;
+
 }
 
-.interaction{
-	margin: 20px;
+#draw{
+	text-align: center;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding-bottom:20px;
+	padding-right: 20px;
+	padding-left: 20px;
 }
 
-#h1{
+.drawtext{
+	margin-top: 15px;
+	margin-bottom: 5px;
+}
+
+h1{
   font-family: Arial;
   font-size: 50px;
   color:#2a3d5c;
+  margin-top: 20px;
+}
+#screenrecognitiontitle{
+	margin-top: 10px;
+	font-size: 18pt;
 }
 
-#cameraDiv{
-	
+#cameradiv{
+	padding-top: 15px;
+	padding-bottom: 20px;
+	text-align:center;
 }
 
+#cameratext{
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+.triangulate{
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.input{
+	margin-top: 15px;
+}
+
+#calibrateButton{
+	margin-top: 15px;
+	margin-bottom: 20px;
+}
+
+.container{
+	margin: 20px;
+	width: 500px;
+}
+
+#canvas{
+	width: 100%;
+}
+
+}

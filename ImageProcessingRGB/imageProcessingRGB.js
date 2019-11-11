@@ -38,7 +38,7 @@ let verbose = argv.verbose;
 
 // only run when this is the main program, not when it is a dependency
 if (require.main === module) {
-  if(argv._.length < 2) {
+  if(argv._.length < 1) {
       console.log(`Usage: node ${argv.$0} [--same-size] [--verbose] FILE1 FILE2 ...`)
       console.log('Output pixel difference of FILE(k) and FILE(k+1) in diff-k.png.')
       console.log('If --same-size is present then all inputs must have the same size.')
@@ -134,6 +134,7 @@ async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
                  // .toColorspace('srgb')
                  .resize(new_size)
                  .normalize()
+                 .blur()
                  .raw()
                  .toBuffer()
     })

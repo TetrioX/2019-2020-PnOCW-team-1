@@ -73,5 +73,7 @@ result = getOrientation(testReal3)
 console.log(result)
 
 
+module.exports = {
+	getScreens: getScreens
+}
 
-// console.log(0<1<2)

@@ -2,8 +2,6 @@ var passwd = prompt("master password");
 // Make Connection
 var socket = io('/master', { query: "passwd="+passwd });
 // if authentication failed notify the user and become a slave
-console.log(socket)
-// if not connected in 1 second become a slave
 setTimeout(function() {
 	if (socket.connected == false){
 		alert("authentication failed")
@@ -17,24 +15,26 @@ socket.on('registerMaster', function (data) {
 });
 
 //Emit events to server
-var backgroundButton = document.getElementById('changeBackgroundColor');
-var colorPicker = document.getElementById('color');
-var colorValue = colorPicker.value;
 
 var entirePage =document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
+var drawstarButton = document.getElementById('drawStar');
+var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
-var canvas = document.getElementById("canvas");
+
 var makeGridButton = document.getElementById("calibrateButton");
-var rowPicker =document.getElementById("rowPicker");
-var columnPicker =document.getElementById("columnPicker");
+var countdownButton = document.getElementById("countdownButton")
+
+var rowPicker = document.getElementById("rowPicker");
+var columnPicker = document.getElementById("columnPicker");
+var countdownPicker = document.getElementById("countdownPicker")
 
 var numberOfRows = rowPicker.valueAsNumber;
-var numberOfColumns =columnPicker.valueAsNumber;
+var numberOfColumns = columnPicker.valueAsNumber;
+var countdownSeconds = countdownPicker.valueAsNumber
 
-console.log(numberOfColumns);
 var angle = 0;
 rowPicker.addEventListener('input', function(){
 	numberOfRows = rowPicker.valueAsNumber
@@ -43,29 +43,36 @@ rowPicker.addEventListener('input', function(){
 columnPicker.addEventListener('input', function(){
 	numberOfColumns =columnPicker.valueAsNumber
 })
+countdownPicker.addEventListener('input', function(){
+	countdownSeconds = countdownPicker.valueAsNumber
+})
 
-colorPicker.addEventListener('input', function () {
-		colorValue = colorPicker.value
-});
+
 
 anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
 
+drawstarButton.addEventListener('click', function () {
+	socket.emit('drawStar')
+});
 
-drawButtonLine.addEventListener('click', function(){
+triangulateButton.addEventListener('click', function () {
+	socket.emit('triangulate',{
+		numberOfRows:numberOfRows,
+		numberOfColumns:numberOfColumns
+	})
+});
+
+drawButtonLine.addEventListener('click', function() {
     socket.emit('drawLine',{
         angle:angle
     })
 });
 
-colorPicker.addEventListener('input',function(){
-	colorValue = colorPicker.value
-})
-
 function createSlaveButton(number,id) {
 		var btn = document.createElement("BUTTON");
-		btn.innerHTML = "Change collor of " + number;
+		btn.innerHTML = "Change color of " + number;
 		entirePage.appendChild(btn);
 		btn.addEventListener('click', function () {
 				socket.emit('changeBackgroundColor', {
@@ -108,6 +115,10 @@ useCameraButton.addEventListener('click',function(){
 var video = document.getElementById('video');
 var canvas = document.getElementById('canvas');
 var startbutton = document.getElementById('startbutton');
+
+video.setAttribute('autoplay', '');
+video.setAttribute('muted', '');
+video.setAttribute('playsinline', '');
 
 navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
 	.then(function (stream) {
@@ -165,12 +176,22 @@ socket.on('takePictures', async function(data, callback){
 	callback(true);
 });
 
+socket.on('alert', function(data){
+	alert(data)
+})
 
 // Starts the calibration process and shows the result
 makeGridButton.addEventListener('click',function(){
-	console.log("i will send");
 	socket.emit('changeBackgroundOfAllSlaves',{
 		numberOfRows:numberOfRows,
 		numberOfColumns:numberOfColumns
 	});
 });
+
+countdownButton.addEventListener('click', function(){
+	if (typeof countdownSeconds === 'undefined'){
+		alert('Enter an amount of seconds first')
+	} else{
+		socket.emit('startCountdown', countdownSeconds)
+	}
+})
