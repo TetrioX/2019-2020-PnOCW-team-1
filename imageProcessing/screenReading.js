@@ -59,12 +59,28 @@ const createMatrix = function(buffer, dimensions) {
 }
 
 function joinMatrixes(matrixes, nbOfColors){
-	var result = matrixes[0]
-	for (var j = 0; j < result.length; j++){
-		for (var i = 0; i < result[0].length; i++){
-			for (var m = 1; m < matrixes.length; m++){
-				result[j][i] += matrixes[m][j][i] * (nbOfColors + 1) ** m
-			}
+    var result = matrixes[0]
+    console.log("len:" + matrixes.length)
+    for (var j = 0; j < result.length; j++){
+        for (var i = 0; i < result[0].length; i++){
+            var saveNumb = result[j][i]
+            var isEqual = false
+            var lastColor = matrixes[0][j][i]
+            for (var m = 1; m < matrixes.length; m++){
+                if (lastColor == matrixes[m][j][i]) {
+                    isEqual = true
+                    break;
+                }
+                else {
+                    saveNumb += matrixes[m][j][i] * (nbOfColors + 1) ** m
+                }
+            }
+            if (isEqual) {
+                result[j][i] = 0
+            }
+            else {
+                result[j][i] = saveNumb
+            }
 		}
 	}
 	return result
