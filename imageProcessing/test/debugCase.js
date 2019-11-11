@@ -1,10 +1,12 @@
 const { argv } = require('yargs')
                 .count('verbose')
                 .alias('v', 'verbose')
+                .boolean('get-screen')
 const fs = require('fs')
 const screenReading = require('../screenReading.js');
 
 let verbose = argv.verbose;
+let getScreen = argv['get-screen']
 
 if (require.main === module) {
   if(argv._.length < 1) {
@@ -24,12 +26,16 @@ function parseJsonFile(path){
 
 function runTestCase(paths) {
   for (let path of paths){
-    if(verbose > 2) console.log("---starting test case---")
+    if(verbose > 1) console.log("---starting test case---")
     matrixes = parseJsonFile(path + '/matrixes.json')
     colorCombs = parseJsonFile(path + '/colorCombs.json')
     screens = parseJsonFile(path + '/screens.json')
     let squares = screenReading.getScreens(matrixes, screens, colorCombs, 6)
-    if(verbose > 1) console.log("squares:", squares)
+    if(verbose >= 1) console.log("squares:", squares)
+    if (getScreen){
+      let screenPositions = screenReading.getScreenFromSquares(squares, screens)
+      if(verbose >= 1) console.log("squares:", screenPositions)
+    }
   }
   return
 }

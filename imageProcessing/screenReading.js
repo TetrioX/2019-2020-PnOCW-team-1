@@ -381,36 +381,66 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 
 function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColors) {
   // distance to check for color
-  const distance = Math.max(4, Math.ceil(border.length / 12));
+  const distance = Math.max(4, Math.ceil(border.length / 10));
   // check if there are pixels around the current pixel with certain colors
   // within a certain distance and returns true if all colors are present.
-  function checkNeighbors(current, colors) {
+  function checkNeighbors(current, colors, borderSizes) {
     // copy colors
     let colorsCopy = colors.slice()
     //possible angles to go to
     // for each angle and distance
-		for (let x = -1 * distance; x <= distance; x++){
-			for (let y = -1 * distance; y <= distance; y++){
-				let neighbor = matrix[current.y + y]
-        if (typeof neighbor !== 'undefined') {
-					neighbor = neighbor[current.x + x]
-	        if (typeof neighbor !== 'undefined') {
-						//check if the color is equal to one in the list (if so, remove it)
-		        for (let j in colorsCopy) {
-		          let color = colorToValueList(colorsCopy[j], nbOfColors)
-		          if (neighbor == color) {
-		            // we remove the found color
-		            colorsCopy.splice(j, 1)
-		            // if there are no colors left to be found return true
-		            if (colorsCopy.length == 0) {
-		              return true
-		            }
-		            break;
-			          }
-			        }
+		let d = 1
+		let i = 0
+		let x = 0
+		let y = 0
+		while(d <= distance){
+			// sets x and y to a value around the current square on a certain distance
+			// this will go to each neigbor from smallest distance to furthest distance
+			//	  i=6  |  i=7  | i=0
+			//	_______|_______|_______
+			//	       |current|
+			//    i=5  | square| i=1
+			//	_______|_______|_______
+			//	       |       |
+			//	  i=4  |  i=3  | i=2
+			if (i < 2*d){
+				x = d
+				y = i - d
+			} else if (i < 4*d){
+				x = d - (i - 2*d)
+				y = d
+			} else if (i < 6*d){
+				x = -d
+				y = d - (i - 4*d)
+			} else if (i < 8*d){
+				x = (i - 6*d) - d
+				y = -d
+			} else{
+				i = 0
+				d++
+				continue;
+			}
+			let neighbor = matrix[current.y + y]
+			if (typeof neighbor !== 'undefined') {
+				neighbor = neighbor[current.x + x]
+				if (typeof neighbor !== 'undefined') {
+					//check if the color is equal to one in the list (if so, remove it)
+					for (let j in colorsCopy) {
+						let color = colorToValueList(colorsCopy[j], nbOfColors)
+						if (neighbor == color) {
+							// we remove the found color
+							colorsCopy.splice(j, 1)
+							borderSizes[j] = d
+							// if there are no colors left to be found return true
+							if (colorsCopy.length == 0) {
+								return true
+							}
+							break;
+							}
 						}
-	        }
-        }
+					}
+				}
+				i++
 			}
 			return false;
     }
@@ -486,14 +516,19 @@ function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColor
   }
 
   // array in which we'll put the corners in orientated sequence
-  let cornersOrientated = [];
+	// and the border size untill the next square
+  let cornersOrientated = {
+		corners: [],
+		border: []
+	};
   // check each angle and see if edge corner exists around the corners provided
   // and use this information to also order the corners
   for (let i = 0; i < 4; i++) {
     let colors = getColorsNeighbor(i)
+		cornersOrientated.border.push(new Array(colors.length))
     for (let c in corners) {
-      if (checkNeighbors(corners[c], colors)) {
-        cornersOrientated.push(corners[c])
+      if (checkNeighbors(corners[c], colors, cornersOrientated.border[i])) {
+        cornersOrientated.corners.push(corners[c])
         // remove color so it won't be used twice and skip to next i
         corners.splice(c, 1)
         break;
@@ -575,7 +610,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 				}
 				let cornersOrientated = checkNeighborsColor(corners, matrix, colorCombs[matrix[j][i]], screens, border, nbOfColors)
 				// check if we've found all corners
-	      if (cornersOrientated.length == 4) {
+	      if (cornersOrientated.corners.length == 4) {
 	        foundScreenSquares.push({
 	          corners: cornersOrientated,
 	          square: colorCombs[matrix[j][i]]
@@ -637,22 +672,23 @@ function getScreenFromSquare(locSquare, screens){
 	//	___V___|_______|____V__
 	//corner[2]|Vbot-> |corner[1]
 	//	       |       |
-	let corners = locSquare.corners
+	let corners = locSquare.corners.corners
+	let borders = locSquare.corners.border
 	let square = locSquare.square
 	let screen = screens[square.screen]
 	let nbOfRows = screen.grid.length
 	let nbOfCols = screen.grid[0].length
 	let vectorTop = {
-		x: corners[0].x - corners[3].x + 1,
+		x: corners[0].x - corners[3].x,
 		y: corners[0].y - corners[3].y
 	}
 	let vectorBot = {
-		x: corners[1].x - corners[2].x + 1,
+		x: corners[1].x - corners[2].x,
 		y: corners[1].y - corners[2].y
 	}
 	let vectorRight = {
 		x: corners[1].x - corners[0].x,
-		y: corners[1].y - corners[0].y + 1
+		y: corners[1].y - corners[0].y
 	}
 	let vectorLeft = {
 		x: corners[2].x - corners[3].x,
