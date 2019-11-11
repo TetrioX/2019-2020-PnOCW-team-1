@@ -13,13 +13,13 @@ const assert = require('assert')  // asserting pre-conditions
  * @see https://en.wikipedia.org/wiki/Color_difference
  */
 const pixelColor = function(color) { // color2) {
-	color = colorNormalise(color)
+	let colorNorm = colorNormalise(color)
 
-	dr = color[0]
-	dg = color[1]
-	db = color[2]
+	let dr = colorNorm[0]
+	let dg = colorNorm[1]
+	let db = colorNorm[2]
 
-	inferum = 5
+	let inferum = 5
 
 	if (dr > inferum && dr / 2 >= dg && dr / 2 >= db) return 1
 	else if (dg > inferum && dg / 2 >= dr && dg / 2 >= db) return 2

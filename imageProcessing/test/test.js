@@ -1,6 +1,6 @@
 var assert = require('assert');
 var chai = require('chai');
-var fs = fs = require('fs');
+var fs = require('fs');
 var assert = chai.assert;    // Using Assert style
 // var expect = chai.expect;    // Using Expect style
 // var should = chai.should();  // Using Should style
@@ -49,13 +49,17 @@ describe('findscreen', function() {
     colorCombs3 = parseJsonFile(rgbCasesPath + '/case3/colorCombs.json')
     screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json')
 
-    colorCombs4 = parseJsonFile(rgbCasesPath + '/case4/colorCombs.json')
-    screens4 = parseJsonFile(rgbCasesPath + '/case4/screens.json')
-    matrixes4 = await imgprcssrgb.doImgDiff(['./case4/image-0.png', './case4/image-1.png'], false, false)
-
-    matrixes5 = await imgprcssrgb.doImgDiff(['./case5/image-0.png', './case5/image-1.png'], false, false)
-    colorCombs5 = parseJsonFile(rgbCasesPath + '/case5/colorCombs.json');
-    screens5 = parseJsonFile(rgbCasesPath + '/case5/screens.json');
+      colorCombs4 = parseJsonFile(rgbCasesPath + '/case4/colorCombs.json')
+      screens4 = parseJsonFile(rgbCasesPath + '/case4/screens.json')
+      //console.log(matrixes3.length)
+      //console.log(matrixes3[0].length)
+      //console.log("bla")
+      matrixes4 = await imgprcssrgb.doImgDiff([rgbCasesPath + '/case4/image-0.png', rgbCasesPath + '/case4/image-1.png'], false, false)
+      matrixes4 = matrixes4.matrix
+      //console.log(matrixes4)
+      //console.log(matrixes4)
+      //console.log(matrixes4[0].length)
+      //console.log(screenReading.joinMatrixes(matrixes4,6))
 
     /*
       colorMatrix1 =
@@ -398,6 +402,7 @@ describe('findscreen', function() {
 
     it('Returns the corners of TestCase1', function() {
       var squares = screenReading.getScreens(matrixes1, screens1, colorCombs1, 6)
+      console.log("found " + squares.length + " of the 6 squares")
       var solutionScreens = {1: [
         { x: 655, y: 220 },
         { x: 657, y: 428 },
@@ -407,10 +412,10 @@ describe('findscreen', function() {
       for (sq of squares){
         assert.isTrue(compareScreens(screenReading.getScreenFromSquare(sq, screens1), solutionScreens[sq.square.screen]))
       }
-      console.log("found " + squares.length + " of the 6 squares")
     })
     it('Returns the corners of TestCase2', function() {
       var squares = screenReading.getScreens(matrixes2, screens2, colorCombs2, 6)
+      console.log("found " + squares.length + " of the 36 squares")
       var solutionScreens = {1: [
         { x: 333, y: 202 },
         { x: 341, y: 297 },
@@ -430,10 +435,10 @@ describe('findscreen', function() {
       for (let sq of squares){
         assert.isTrue(compareScreens(screenReading.getScreenFromSquare(sq, screens2), solutionScreens[sq.square.screen]))
       }
-      console.log("found " + squares.length + " of the 36 squares")
     })
     it('Returns the corners of TestCase3', function() {
       var squares = screenReading.getScreens(matrixes3, screens3, colorCombs3, 6)
+      console.log("found " + squares.length + " of the 24 squares")
       var solutionScreens = {1: [
         { x: 345, y: 206 },
         { x: 345, y: 297 },
@@ -453,12 +458,11 @@ describe('findscreen', function() {
       for (let sq of squares){
         assert.isTrue(compareScreens(screenReading.getScreenFromSquare(sq, screens2), solutionScreens[sq.square.screen]))
       }
-      console.log("found " + squares.length + " of the 24 squares")
     })
       it('Returns the corners of TestCase4', function () {
           var squares = screenReading.getScreens(matrixes4, screens4, colorCombs4, 6)
           console.log(squares)
-      })
+    })
 
   })
 });

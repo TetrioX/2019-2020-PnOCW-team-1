@@ -12,6 +12,7 @@ var gridData = {
 	cornBorder: []
 }
 var entirePage = document.createElement('th');
+var countdown = document.getElementById('countdown')
 var countdownTimer = document.getElementById('timer')
 var wrapper = document.getElementById("wrapper")
 var length = 1000;
@@ -29,7 +30,11 @@ function cleanHTML(){
 socket.on('changeBackgroundColor',function(data){
 		cleanHTML()
     document.body.style.backgroundColor = data.colorValue;
-    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
+    wrapper.style.display = "none"
+		countdown.style.display = "none"
+		countdownTimer.style.display = "none"
+		entirePage.style.display = "none"
+		canvas.style.display = "none"
 });
 
 // Sending number to slave (also usefull for angle of arrow!)
@@ -52,6 +57,10 @@ socket.on('drawLine', function(data){
     draw(data.angle);
 });
 
+socket.on('getDim', function (data, callback) {
+    cleanHTML()
+    callback({ height: window.innerHeight, width: window.innerWidth })
+});
 
 socket.on('changeBackgroundOfAllSlaves', function(data, callback){
 	cleanHTML()
@@ -75,11 +84,14 @@ socket.on('changeGrid', function(data, callback){
 
 function removeGrid(){
 	document.body.style.backgroundColor = 'white'
-	wrapper.style.display="";
 	for (el of gridElements){
 		el.remove()
 	}
 	gridElements = []
+	// show the start page again.
+	wrapper.style.display = "block"
+	// show scroll bar again
+	document.body.style.overflow = 'visible';
 }
 
 socket.on('removeGrid', function(data){
@@ -133,21 +145,35 @@ masterButton.addEventListener('click',function(){
 
 //functions
 function createGrid(){
+	entirePage.style.display = ""
+	// hide scrollbar
+	document.body.style.overflow = 'hidden';
 	var numberOfrows=gridData.grid.length;
-	var numberOfColumns = gridData.grid[0].length;
+    var numberOfColumns = gridData.grid[0].length;
+	let width  = window.innerWidth
+    let height = window.innerHeight
+	// this will make the border 50% of the size of the squares
+	let spaceTop = (height / (2*numberOfrows + 2)).toString() + "px"
+	let spaceSide = (width / (2*numberOfColumns + 2)).toString() + "px"
+	entirePage.style.top = spaceTop
+	entirePage.style.bottom = spaceTop
+	entirePage.style.left = spaceSide
+	entirePage.style.right = spaceSide
 	for (i=0; i<4;i++){
 		var corner =document.createElement('div');
 		corner.setAttribute("class","corner");
 		corner.setAttribute("id", "corner"+i.toString());
+		corner.style.height = spaceTop
+		corner.style.width = spaceSide
 		document.body.appendChild(corner);
-		document.getElementById("corner"+i.toString()).style.backgroundColor=gridData.cornBorder[0];
+		corner.style.backgroundColor=gridData.cornBorder[0];
 		gridElements.push(corner)
 	}
 	for (i=0; i<numberOfrows;i++){
 		var row =document.createElement('div');
 		row.setAttribute("class","rowclass");
 		row.setAttribute("id", i.toString());
-		document.getElementById("entirePage").appendChild(row);
+		entirePage.appendChild(row);
 		gridElements.push(row)
 
 		for (j=0; j<numberOfColumns; j++){
@@ -155,8 +181,8 @@ function createGrid(){
 			var grid = document.createElement('div');
 			grid.setAttribute("id","grid"+i.toString()+j.toString());
 			grid.setAttribute("class", "grid");
-			document.getElementById(i.toString()).appendChild(grid);
-			document.getElementById("grid"+i.toString()+j.toString()).style.backgroundColor=gridData.grid[i][j][0];
+			row.appendChild(grid);
+			grid.style.backgroundColor=gridData.grid[i][j][0];
 			gridElements.push(grid)
 		}
 	}
@@ -183,6 +209,7 @@ function saveGrid(data){
 }
 
 function drawArrowHead(from, to, radius){
+	canvas.style.display = "block"
 
 	var x_center = to.x;
 	var y_center = to.y;
@@ -218,6 +245,7 @@ function drawArrowHead(from, to, radius){
 
 
 function draw(radianAngle) {
+	canvas.style.display = "block"
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 
@@ -247,6 +275,7 @@ function draw(radianAngle) {
 }
 
 function drawAnglesDegree(radianAngles) {
+	canvas.style.display = "block"
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
@@ -404,10 +433,10 @@ function rotate_point(cx,cy,angle,p){
 img.src ='/static/Colorgrid.jpg';
 
 
-
-
-
-
+socket.on('changeBackgroundColor',function(data){
+	cleanHTML()
+  document.body.style.backgroundColor = data.colorValue;
+});
 
 socket.on('drawStar', function(data){
 	cleanHTML()
@@ -439,7 +468,7 @@ masterButton.addEventListener('click',function(){
 		var finishAnimTimer = null
     socket.on('startCountdown', function(data){
 			cleanHTML()
-			countdownTimer.style.visibility = 'visible';
+			countdownTimer.style.display = 'block';
 			start_countdown(data)
 		})
 		socket.on('updateCountdown', function(data){
@@ -450,7 +479,6 @@ masterButton.addEventListener('click',function(){
         var main_container = document.getElementById('svg_download_countdown')
         var loader = document.getElementById('loader')
        	var border = document.getElementById('border')
-        var countdown = document.getElementById('countdown')
 				countdown.style.display = 'block';
 				// stop finishing animation if it's running
 				stopfinishAnimation()
