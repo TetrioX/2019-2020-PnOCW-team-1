@@ -17,8 +17,11 @@ var saveDebugFiles = argv['save-debug-files']
 var gridPause = argv['grid-pause']
 var debugPath = './debug'
 var debugDirPromise = new Promise(function(resolve, reject){
-  fs.mkdir(debugPath, resolve).catch(reject);
-})
+  fs.mkdir(debugPath, { recursive: true }, (err) => {
+  if (err) reject(err);
+  else resolve()
+  });
+}).catch((err) => {console.log(err)})
 var AllScreenPositions={};
 
 
