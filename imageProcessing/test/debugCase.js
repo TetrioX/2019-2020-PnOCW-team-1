@@ -2,11 +2,14 @@ const { argv } = require('yargs')
                 .count('verbose')
                 .alias('v', 'verbose')
                 .boolean('get-screen')
+                .boolean('use-images')
 const fs = require('fs')
 const screenReading = require('../screenReading.js');
+const imgprcssrgb = require('../../ImageProcessingRGB/imageProcessingRGB.js')
 
 let verbose = argv.verbose;
 let getScreen = argv['get-screen']
+let useImages = argv['use-images']
 
 if (require.main === module) {
   if(argv._.length < 1) {
@@ -24,10 +27,13 @@ function parseJsonFile(path){
   return JSON.parse(contents);
 }
 
-function runTestCase(paths) {
+async function runTestCase(paths) {
   for (let path of paths){
     if(verbose > 1) console.log("---starting test case---")
-    matrixes = parseJsonFile(path + '/matrixes.json')
+    if (useImages){
+      matrixes = await imgprcssrgb.doImgDiff([path+'/image-0.png', path + '/image-1.png', path + '/image-2.png'], false, false)
+      matrixes = matrixes.matrix
+    } else matrixes = parseJsonFile(path + '/matrixes.json')
     colorCombs = parseJsonFile(path + '/colorCombs.json')
     screens = parseJsonFile(path + '/screens.json')
     let squares = screenReading.getScreens(matrixes, screens, colorCombs, 6)

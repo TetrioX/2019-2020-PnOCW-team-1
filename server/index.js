@@ -241,25 +241,17 @@ var masterIo = io.of('/master').on('connect', function(socket){
         slaveSockets[slave].emit('removeGrid')
       })
       if (saveDebugFiles) {
-          fs.writeFileSync(`screens.json`, JSON.stringify(screens))
-          fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
-          await debugDirPromise
-          fs.writeFileSync(debugPath+`/screens.json`, JSON.stringify(screens))
-          fs.writeFileSync(debugPath+`/colorCombs.json`, JSON.stringify(colorCombs))
-
+        fs.writeFileSync(`screens.json`, JSON.stringify(screens))
+        fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
+        await debugDirPromise
+        fs.writeFileSync(debugPath+`/screens.json`, JSON.stringify(screens))
+        fs.writeFileSync(debugPath+`/colorCombs.json`, JSON.stringify(colorCombs))
+        for (let i in pictures){
+          fs.writeFile(debugPath+`/image-${i}.png`, pictures[i], (err) => {if (err) console.log(err)});
+        }
       }
-      // we get all matrixes of the pictures asynchronously
-      let matrixPromises = []
-      for (let i in pictures){
-        matrixPromises.push(new Promise(async function(resolve, reject){
-          fs.writeFileSync(`./image-${i}.png`, pictures[i]);
-          await debugDirPromise
-          fs.writeFileSync(debugPath+`/image-${i}.png`, pictures[i]);
-          let result = await imgprcssrgb.doImgDiff([`./image-${i}.png`], false, false)
-          resolve(result.matrix[0])
-        }))
-      }
-      let matrixes = await Promise.all(matrixPromises)
+      let matrixes = await imgprcssrgb.doImgDiff(pictures, false, false)
+      matrixes = matrixes.matrix
       if (saveDebugFiles) {
           fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
           fs.writeFileSync(debugPath+`/matrixes.json`, JSON.stringify(matrixes))
