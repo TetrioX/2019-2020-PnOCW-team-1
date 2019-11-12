@@ -32,7 +32,8 @@ var server = app.listen(config.port, function(){
     console.log('listening to requests on port '+config.port)
 });
 //Socket setup
-var io = socket(server);
+// pingInterval is used to determine the latency
+var io = socket(server, {pingInterval: 200});
 
 var slaves = {}
 var slaveSockets = {}
@@ -391,7 +392,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let updater = setInterval(function(){
         let offset = new Date() - startTime
         slaveIo.emit('updateCountdown', offset)
-      }, 50)
+      }, 200)
       // stop sending updates after the timer has been completed.
       setTimeout(function() {
       	clearInterval(updater)
