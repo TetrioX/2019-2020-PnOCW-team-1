@@ -381,7 +381,7 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 
 function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColors) {
   // distance to check for color
-  const distance = Math.max(4, Math.ceil(border.length / 10));
+  const distance = Math.min(Math.max(4, Math.ceil(border.length / 12)), 10);
   // check if there are pixels around the current pixel with certain colors
   // within a certain distance and returns true if all colors are present.
   function checkNeighbors(current, colors, borderSizes) {
@@ -679,16 +679,16 @@ function getScreenFromSquare(locSquare, screens){
 	let nbOfRows = screen.grid.length
 	let nbOfCols = screen.grid[0].length
 	let vectorTop = {
-		x: corners[0].x - corners[3].x,
+		x: corners[0].x - corners[3].x + 1,
 		y: corners[0].y - corners[3].y
 	}
 	let vectorBot = {
-		x: corners[1].x - corners[2].x,
+		x: corners[1].x - corners[2].x + 1,
 		y: corners[1].y - corners[2].y
 	}
 	let vectorRight = {
 		x: corners[1].x - corners[0].x,
-		y: corners[1].y - corners[0].y
+		y: corners[1].y - corners[0].y + 1
 	}
 	let vectorLeft = {
 		x: corners[2].x - corners[3].x,
@@ -743,9 +743,11 @@ function getCorners(rand){
 	if (rand.length < 24){
 	return []
 	}
-    //Value to determen the distance that we look around corners
-    // to make softer borders recognisable
-	const distance = Math.max(5, Math.ceil(rand.length/10))
+  //Value to determen the distance that we look around corners
+  // to make softer borders recognisable
+	const distance = Math.min(Math.max(4, Math.ceil(border.length / 12)), 10)
+	// number of angles to check
+	const nbOfAngles = 4
 
 	function getRand(i){
 	if (i<0){
@@ -760,24 +762,22 @@ function getCorners(rand){
     // Returns the corner with the lowest angle
 	function getCornersWithMinimumAngle(angles){
 		let result = []
-		let lastAngle = +Infinity
 		let currentAngle = +Infinity
 		let c = 0;
 		do {
 			// Returns index of minimum of angles
 	    let indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
-			// remember the angles to determine when there has been a significant diference in size.
-			lastAngle = currentAngle
+			// remember the angles to determine when the angle is small enough to stop.
 			currentAngle = angles[indexOfMinAngle]
 	    // Set values next to minimum angle to infinity so that they don't show up next time.
-	    for (let v = 1 - distance; v <= distance - 1; v++){
+	    for (let v = -distance; v <= distance; v++){
 	      angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
 	    }
 	    result.push(rand[indexOfMinAngle])
 			c++
 		}
 		// stop when you have 4 corners and the last corner was significantly smaller than the previous one.
-		while (c < 4 || lastAngle - 0.005*distance <= currentAngle);
+		while (c < 4 || currentAngle > -nbOfAngles/2)
 		return result
 	}
 
@@ -786,7 +786,7 @@ function getCorners(rand){
 	for (let i = 0; i < rand.length; i++){
 	  let avgAngle = 0;
     // Apply the cosinus rule four times using the distance
-	for (let j = distance - 3; j <= distance; j++) {
+	for (let j = distance - nbOfAngles + 1; j <= distance; j++) {
     // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
     let aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
     let bSqrt = getSqrDist(getRand(i), getRand(i + j));
