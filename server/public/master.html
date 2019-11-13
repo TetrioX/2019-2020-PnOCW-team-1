@@ -67,9 +67,9 @@
 			</form>
 			<form class="input">
 				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="5" placeholder="Number of columns">
-			</form>
-
-			<button id="calibrateButton" class="btn btn-outline-success">Execute screenrecognition</button>
+			</form>	
+			<button id="screenrecognitionbutton"  class="btn btn-outline-success"> Start screenrecognition</button>
+			
 		</div>
 		<div class ="border border-lg border-primary rounded broadcast">
 			<div class ="title">
@@ -94,6 +94,14 @@
 			<button type="button" id="countdownButton" class="btn btn-outline-success">Start countdown</button>
 		</div>
 	</div>
+	<div id="secondEntirePage" style="display: none;">
+		<video  id="screenrecognitionvideo"></video>
+		<button id="calibrateButton" class="btn btn-light" ;">Execute screenrecognition</button>
+		<button id=changePageButton class="btn btn-dark" style="">Home</button>
+	</div>
+	
+	
+	
 
 	<script src="static/master.js"></script>
 </body>

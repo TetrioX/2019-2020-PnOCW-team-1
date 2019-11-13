@@ -26,7 +26,8 @@ var anglePicker = document.getElementById('anglePicker');
 var broadcastPicture = document.getElementById('broadcastPicture');
 var makeGridButton = document.getElementById("calibrateButton");
 var countdownButton = document.getElementById("countdownButton")
-
+var homebutton = document.getElementById('changePageButton');
+var secondEntirePage = document.getElementById("secondEntirePage");
 var rowPicker = document.getElementById("rowPicker");
 var columnPicker = document.getElementById("columnPicker");
 var countdownPicker = document.getElementById("countdownPicker")
@@ -180,7 +181,35 @@ socket.on('alert', function(data){
 	alert(data)
 })
 
+//make the entire screen your camera for the screenrecognition
+screenrecognitionbutton.addEventListener('click',function(){
+	entirePage.style.display="none";
+	secondEntirePage.style.display=""
+	screenrecognitionvideo.setAttribute('autoplay', '');
+	screenrecognitionvideo.setAttribute('muted', '');
+	
+
+	navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
+		.then(function (stream) {
+			screenrecognitionvideo.srcObject = stream;
+			screenrecognitionvideo.play();
+		})
+		.catch(function (err) {
+			console.log("An error occurred: " + err);
+		});
+
+})
+
+homebutton.addEventListener('click',function(){
+	entirePage.style.display="";
+	secondEntirePage.style.display="none";
+})
+
+
+
 // Starts the calibration process and shows the result
+
+
 makeGridButton.addEventListener('click',function(){
 	socket.emit('changeBackgroundOfAllSlaves',{
 		numberOfRows:numberOfRows,
