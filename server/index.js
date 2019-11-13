@@ -242,11 +242,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
         slaveSockets[slave].emit('removeGrid')
       })
       if (saveDebugFiles) {
-        fs.writeFileSync(`screens.json`, JSON.stringify(screens))
-        fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
         await debugDirPromise
-        fs.writeFileSync(debugPath+`/screens.json`, JSON.stringify(screens))
-        fs.writeFileSync(debugPath+`/colorCombs.json`, JSON.stringify(colorCombs))
+        fs.writeFile(debugPath+`/screens.json`, JSON.stringify(screens), (err) => {if (err) console.log(err)})
+        fs.writeFile(debugPath+`/colorCombs.json`, JSON.stringify(colorCombs), (err) => {if (err) console.log(err)})
         for (let i in pictures){
           fs.writeFile(debugPath+`/image-${i}.png`, pictures[i], (err) => {if (err) console.log(err)});
         }
@@ -254,8 +252,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let matrixes = await imgprcssrgb.doImgDiff(pictures, false, false)
       matrixes = matrixes.matrix
       if (saveDebugFiles) {
-          fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
-          fs.writeFileSync(debugPath+`/matrixes.json`, JSON.stringify(matrixes))
+          fs.writeFile(debugPath+`/matrixes.json`, JSON.stringify(matrixes), (err) => {if (err) console.log(err)})
       }
       let squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
       console.log(squares)
