@@ -21,7 +21,10 @@ var gridElements = []
 function cleanHTML(){
 	removeGrid()
 	wrapper.style.display = "none"
-	countdownTimer.style.visibility = "hidden"
+	countdown.style.display = "none"
+	countdownTimer.style.display = "none"
+	entirePage.style.display = "none"
+	canvas.style.display = "none"
 	context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -30,11 +33,13 @@ function cleanHTML(){
 socket.on('changeBackgroundColor',function(data){
 		cleanHTML()
     document.body.style.backgroundColor = data.colorValue;
-    wrapper.style.display = "none"
-		countdown.style.display = "none"
-		countdownTimer.style.display = "none"
-		entirePage.style.display = "none"
-		canvas.style.display = "none"
+});
+
+// keep the latency between the server and slave
+var latency = 0;
+socket.on('pong', function(ms) {
+    latency += Math.min(latency*6/5 + 10,(ms - latency)/5)
+
 });
 
 // Sending number to slave (also usefull for angle of arrow!)
@@ -472,7 +477,7 @@ masterButton.addEventListener('click',function(){
 			start_countdown(data)
 		})
 		socket.on('updateCountdown', function(data){
-			offset = new Date() - timer_start - data
+			offset += ((new Date() - timer_start - (data + latency)) - offset)/5
 		})
     function start_countdown(timeInSeconds){
 				timer_start = new Date()

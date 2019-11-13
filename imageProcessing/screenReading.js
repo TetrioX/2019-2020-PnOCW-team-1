@@ -381,12 +381,23 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 
 function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColors) {
   // distance to check for color
-  const distance = Math.max(4, Math.ceil(border.length / 10));
+  const distance = Math.max(4, Math.ceil(border.length / 16));
   // check if there are pixels around the current pixel with certain colors
   // within a certain distance and returns true if all colors are present.
-  function checkNeighbors(current, colors, borderSizes) {
-    // copy colors
-    let colorsCopy = colors.slice()
+	// returns from the corners the corner that is the closest to these colors and
+	// removes it from the list.
+	// returns null if one of the colors is not found.
+  function checkNeighbors(corners, colors, borderSizes) {
+    // get color values
+		let colorValues = []
+		for (let col of colors){
+			colorValues.push(colorToValueList(col, nbOfColors))
+		}
+		// make a copy for each corner
+		let neigborCols = []
+		for (let i = 0; i < corners.length; i++){
+			neigborCols.push(colorValues.slice())
+		}
     //possible angles to go to
     // for each angle and distance
 		let d = 1
@@ -420,29 +431,33 @@ function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColor
 				d++
 				continue;
 			}
-			let neighbor = matrix[current.y + y]
-			if (typeof neighbor !== 'undefined') {
-				neighbor = neighbor[current.x + x]
+			for (c in corners){
+				let current = corners[c]
+				let neighbor = matrix[current.y + y]
 				if (typeof neighbor !== 'undefined') {
-					//check if the color is equal to one in the list (if so, remove it)
-					for (let j in colorsCopy) {
-						let color = colorToValueList(colorsCopy[j], nbOfColors)
-						if (neighbor == color) {
-							// we remove the found color
-							colorsCopy.splice(j, 1)
-							borderSizes[j] = d
-							// if there are no colors left to be found return true
-							if (colorsCopy.length == 0) {
-								return true
-							}
-							break;
+					neighbor = neighbor[current.x + x]
+					if (typeof neighbor !== 'undefined') {
+						//check if the color is equal to one in the list (if so, remove it)
+						for (let j in neigborCols[c]) {
+							let color = neigborCols[c][j]
+							if (neighbor == color) {
+								// we remove the found color
+								neigborCols[c].splice(j, 1)
+								borderSizes[j] = d
+								// if there are no colors left to be found return true
+								if (neigborCols[c].length == 0) {
+									corners.splice(c, 1)
+									return current
+								}
+								break;
 							}
 						}
 					}
 				}
-				i++
 			}
-			return false;
+			i++
+			}
+			return null;
     }
     // Returns the color of the neigbor of the current square as shown in the
     // figure below in an array.
@@ -526,14 +541,7 @@ function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColor
   for (let i = 0; i < 4; i++) {
     let colors = getColorsNeighbor(i)
 		cornersOrientated.border.push(new Array(colors.length))
-    for (let c in corners) {
-      if (checkNeighbors(corners[c], colors, cornersOrientated.border[i])) {
-        cornersOrientated.corners.push(corners[c])
-        // remove color so it won't be used twice and skip to next i
-        corners.splice(c, 1)
-        break;
-      }
-    }
+		cornersOrientated.corners.push(checkNeighbors(corners, colors, cornersOrientated.border[i]))
   }
   return cornersOrientated
 }
@@ -610,7 +618,8 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 				}
 				let cornersOrientated = checkNeighborsColor(corners, matrix, colorCombs[matrix[j][i]], screens, border, nbOfColors)
 				// check if we've found all corners
-	      if (cornersOrientated.corners.length == 4) {
+				// so no nulls
+	      if (!cornersOrientated.corners.some((value) => {return value === null})) {
 	        foundScreenSquares.push({
 	          corners: cornersOrientated,
 	          square: colorCombs[matrix[j][i]]
@@ -679,16 +688,16 @@ function getScreenFromSquare(locSquare, screens){
 	let nbOfRows = screen.grid.length
 	let nbOfCols = screen.grid[0].length
 	let vectorTop = {
-		x: corners[0].x - corners[3].x,
+		x: corners[0].x - corners[3].x + 1,
 		y: corners[0].y - corners[3].y
 	}
 	let vectorBot = {
-		x: corners[1].x - corners[2].x,
+		x: corners[1].x - corners[2].x + 1,
 		y: corners[1].y - corners[2].y
 	}
 	let vectorRight = {
 		x: corners[1].x - corners[0].x,
-		y: corners[1].y - corners[0].y
+		y: corners[1].y - corners[0].y + 1
 	}
 	let vectorLeft = {
 		x: corners[2].x - corners[3].x,
@@ -743,9 +752,11 @@ function getCorners(rand){
 	if (rand.length < 24){
 	return []
 	}
-    //Value to determen the distance that we look around corners
-    // to make softer borders recognisable
-	const distance = Math.max(5, Math.ceil(rand.length/10))
+  //Value to determen the distance that we look around corners
+  // to make softer borders recognisable
+	const distance = Math.max(4, Math.ceil(border.length / 12))
+	// number of angles to check
+	const nbOfAngles = 4
 
 	function getRand(i){
 	if (i<0){
@@ -760,24 +771,22 @@ function getCorners(rand){
     // Returns the corner with the lowest angle
 	function getCornersWithMinimumAngle(angles){
 		let result = []
-		let lastAngle = +Infinity
 		let currentAngle = +Infinity
 		let c = 0;
 		do {
 			// Returns index of minimum of angles
 	    let indexOfMinAngle = angles.reduce((maxI, angle, i, angles) => angle > angles[maxI] ? i : maxI, 0);
-			// remember the angles to determine when there has been a significant diference in size.
-			lastAngle = currentAngle
+			// remember the angles to determine when the angle is small enough to stop.
 			currentAngle = angles[indexOfMinAngle]
 	    // Set values next to minimum angle to infinity so that they don't show up next time.
-	    for (let v = 1 - distance; v <= distance - 1; v++){
+	    for (let v = -distance; v <= distance; v++){
 	      angles[(indexOfMinAngle + v + angles.length)%angles.length] = -Infinity;
 	    }
 	    result.push(rand[indexOfMinAngle])
 			c++
 		}
 		// stop when you have 4 corners and the last corner was significantly smaller than the previous one.
-		while (c < 4 || lastAngle - 0.005*distance <= currentAngle);
+		while (c < 4 || (currentAngle > -nbOfAngles/4 && result.length < 20))
 		return result
 	}
 
@@ -786,7 +795,7 @@ function getCorners(rand){
 	for (let i = 0; i < rand.length; i++){
 	  let avgAngle = 0;
     // Apply the cosinus rule four times using the distance
-	for (let j = distance - 3; j <= distance; j++) {
+	for (let j = distance - nbOfAngles + 1; j <= distance; j++) {
     // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
     let aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
     let bSqrt = getSqrDist(getRand(i), getRand(i + j));
