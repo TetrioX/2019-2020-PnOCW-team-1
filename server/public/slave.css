@@ -5,10 +5,9 @@
 }
 
 #timer{
-  border-bottom: 1px solid #6666CC;
   margin: 0;
-  padding-bottom: 20px;
-  padding-top: 20px;
+  padding-bottom: 5%;
+  padding-top: 5%;
   width: 100%;
   height: 100%;
   display: block;

@@ -382,17 +382,19 @@ var masterIo = io.of('/master').on('connect', function(socket){
       })
     })
 
+    var countdownUpdater = null
     socket.on('startCountdown', function(data){
+      clearInterval(countdownUpdater)
       let startTime = new Date()
       slaveIo.emit('startCountdown', data)
       // updates the offset every 50ms
-      let updater = setInterval(function(){
+      countdownUpdater = setInterval(function(){
         let offset = new Date() - startTime
         slaveIo.emit('updateCountdown', offset)
       }, 200)
       // stop sending updates after the timer has been completed.
       setTimeout(function() {
-      	clearInterval(updater)
+      	clearInterval(countdownUpdater)
       }, data*1000);
     })
 });

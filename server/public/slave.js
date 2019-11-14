@@ -535,7 +535,7 @@ masterButton.addEventListener('click',function(){
             elipsed_seconds = timeDifference;
         }; // getElapsedSeconds END
         function appendCountdownSeconds(){
-            countdown.textContent = (total_seconds - Math.round(elipsed_seconds % 60)).toString();
+            countdown.textContent = (total_seconds - Math.round(elipsed_seconds)).toString();
             adjustCountDownOffset();
         }; // appendCountdowSeconds END
         function adjustCountDownOffset(){
