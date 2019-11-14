@@ -355,13 +355,16 @@ broadcast(slaveCorners);
 
 
 function broadcast(slaveCorners){
-	var angle = calculateAngle(slaveCorners)
-	var slaveWidth =(slaveCorners[1][0]-slaveCorners[0][0])/Math.cos(angle);
-	var slaveHeigth = (slaveCorners[2][1]-slaveCorners[1][1])/Math.cos(angle);
+	var alfa= calculateAngleWithXaxis(slaveCorners);
+	var betha = calculateAngleWithYaxis(slaveCorners);
+	var slaveWidth =(slaveCorners[1][0]-slaveCorners[0][0])/Math.cos(alfa);
+	var slaveHeigth = (slaveCorners[2][1]-slaveCorners[1][1])/Math.cos(betha);
 
 	//canvas for the real image
 	var imgcanvas = document.getElementById('imgcanvas');
 	var imgctx = imgcanvas.getContext('2d');
+
+	//this pixel sizes should match the input!
 	imgcanvas.width = window.innerWidth;
 	imgcanvas.height = window.innerHeight;
 
@@ -369,33 +372,28 @@ function broadcast(slaveCorners){
 	var tempcanvas = document.getElementById('tempcanvas');
 	var tempctx = tempcanvas.getContext('2d');
 	tempcanvas.height = window.innerHeight;
-	tempcanvas.width = window.innerWidth;
+	tempcanvas.width =window.innerWidth;
 
 
 
 	img.onload =async function(){
-		//translation
+	
 		const widthMultiplier =imgcanvas.width/slaveWidth;
 		const heightMultiplier = imgcanvas.height /slaveHeigth;
-		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier);
-		var	LeftTopcorner = [slaveCorners[0][0]*widthMultiplier, slaveCorners[0][1]*heightMultiplier]
+		
+		//Translation constants
+		var translateX = -slaveCorners[0][0]*widthMultiplier;
+		var translateY = -slaveCorners[0][1]*heightMultiplier;
+		//skew constants 
 
-		//rotation
-		imgctx.translate(slaveCorners[0][0]*widthMultiplier, slaveCorners[0][1]*heightMultiplier)
-		imgctx.rotate(angle)
-		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier)
+		var horizontalskew = betha-alfa;
 
-		//skew werkt voorlopig nog niet helemaal
-
-		var LeftBottomCorner =[slaveCorners[3][0]*widthMultiplier, slaveCorners[3][1]*heightMultiplier]
-		LeftBottomCorner = rotate_point(LeftTopcorner[0],LeftTopcorner[1],angle,LeftBottomCorner);
-		var horizontalskew = -(LeftBottomCorner[0]-LeftTopcorner[0])/(LeftBottomCorner[1]-LeftTopcorner[1]);
-		imgctx.translate(slaveCorners[0][0]*widthMultiplier,slaveCorners[0][1]*heightMultiplier);
-		imgctx.transform(1,0,horizontalskew,1,0,0)
-
-		imgctx.translate(-slaveCorners[0][0]*widthMultiplier, -slaveCorners[0][1]*heightMultiplier);
-
-		//now 3 of the 4 corners are perfect in place
+		imgctx.transform(1,0,horizontalskew,1,0,0);
+		imgctx.rotate(alfa);
+		imgctx.translate(translateX,translateY);
+		
+		//make the canvas full screen again!
+		
 		imgctx.drawImage(img,0,0,imgcanvas.width*widthMultiplier,imgcanvas.height*heightMultiplier);
 
 		tempctx.beginPath();
@@ -406,15 +404,23 @@ function broadcast(slaveCorners){
 	  	tempctx.lineTo(slaveCorners[0][0],slaveCorners[0][1]);
 	    tempctx.clip();
 	 	tempctx.drawImage(img,0,0, tempcanvas.width,tempcanvas.height);
+
 	}
 }
 
 
-function calculateAngle(corners){
+function calculateAngleWithXaxis(corners){
 	let dx =corners[1][0] - corners[0][0];
 	let dy = corners[0][1] - corners[1][1];
 	let angle =Math.atan(dy/dx);
-	return angle
+	return angle;
+}
+
+function calculateAngleWithYaxis(corners){
+	let dy = corners[3][1]-corners[0][1];
+	let dx = corners[3][0]-corners[0][0];
+	let angle =Math.atan(dx/dy);
+	return angle;
 }
 
 function rotate_point(cx,cy,angle,p){
