@@ -345,10 +345,13 @@ socket.on('broadcastingImage'),function(data){
 //corners: LT,RT,RB,LB
 //var slaveCorners = [[200,200],[600,200],[600,400],[200,400]]
 //var slaveCorners = [[100,100],[300,200],[300,300],[100,200]];
-//var slaveCorners = [[0,400],[400,0],[600,200],[200,600]];
+var slaveCorners = [[0,400],[400,0],[600,200],[200,600]];
 
 //create a new image object
 var img = new Image();
+	
+	
+broadcast(slaveCorners);
 
 
 function broadcast(slaveCorners){
@@ -384,7 +387,7 @@ function broadcast(slaveCorners){
 
 		//skew werkt voorlopig nog niet helemaal
 
-		//var LeftBottomCorner =[slaveCorners[3][0]*widthMultiplier, slaveCorners[3][1]*heightMultiplier]
+		var LeftBottomCorner =[slaveCorners[3][0]*widthMultiplier, slaveCorners[3][1]*heightMultiplier]
 		LeftBottomCorner = rotate_point(LeftTopcorner[0],LeftTopcorner[1],angle,LeftBottomCorner);
 		var horizontalskew = -(LeftBottomCorner[0]-LeftTopcorner[0])/(LeftBottomCorner[1]-LeftTopcorner[1]);
 		imgctx.translate(slaveCorners[0][0]*widthMultiplier,slaveCorners[0][1]*heightMultiplier);
