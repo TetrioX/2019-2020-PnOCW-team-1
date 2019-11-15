@@ -347,14 +347,16 @@ socket.on('broadcastingImage'),function(data){
 //var slaveCorners = [[100,100],[300,200],[300,300],[100,200]];
 //var slaveCorners = [[0,400],[400,0],[600,200],[200,600]];
 
-//create a new image object
-var img = new Image();
+ 
 	
 	
 broadcast(slaveCorners);
 
 
-function broadcast(slaveCorners){
+function broadcast(slaveCorners) {
+    //create a new image object
+    var img = new Image(); 
+    img.src = '/static/Colorgrid.jpg';
 	var alfa= calculateAngleWithXaxis(slaveCorners);
 	var betha = calculateAngleWithYaxis(slaveCorners);
 	var slaveWidth =(slaveCorners[1][0]-slaveCorners[0][0])/Math.cos(alfa);
@@ -444,7 +446,7 @@ function rotate_point(cx,cy,angle,p){
 //callback, when the image is loaded
 
 //start the image loading
-img.src ='/static/Colorgrid.jpg';
+
 
 
 socket.on('changeBackgroundColor',function(data){
