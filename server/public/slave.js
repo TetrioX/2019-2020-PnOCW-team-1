@@ -338,7 +338,7 @@ function drawAnglesDegree(radianAngles) {
 
 socket.on('broadcastingImage'),function(data){
 	console.log('willBroadcast')
-    var slaveCorners = [[data[3].x, data[3].y], [data[0].x, data[0].y], [data[1].x, data[1].y], [data[2].x, data[2].y]];
+    var slaveCorners = data;
 	broadcast(slaveCorners);
 }
 
