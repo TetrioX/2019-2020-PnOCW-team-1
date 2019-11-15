@@ -381,7 +381,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           console.log(slaves)
           console.log(slave)
       console.log(AllScreenPositions[slaves[slave]]);
-      slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
+      slaveSockets[slave].emit('broadcastingImage', AllScreenPositions[slaves[slave]]);
       })
     })
 
