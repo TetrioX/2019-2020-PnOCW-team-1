@@ -4,11 +4,6 @@
 	text-align: center;
 }
 
-body{
-	color:red;
-
-}
-
 #draw{
 	text-align: center;
 	margin-top: 20px;
@@ -29,7 +24,7 @@ h1{
   color:#2a3d5c;
   margin-top: 20px;
 }
-#screenrecognitiontitle{
+.title{
 	margin-top: 10px;
 	font-size: 18pt;
 }
@@ -55,10 +50,16 @@ h1{
 }
 
 #calibrateButton{
-	margin-top: 15px;
-	margin-bottom: 20px;
+	bottom:20px;
+	left:43vw;
+	position: absolute;
+	z-index: 1;
 }
 
+#broadcastPicture{
+	margin-top: 15px;
+	margin-bottom: 20px;	
+}
 .container{
 	margin: 20px;
 	width: 500px;
@@ -68,4 +69,27 @@ h1{
 	width: 100%;
 }
 
+.broadcast{
+	margin-bottom: 15px;
+}
+
+#video{
+	width: 100%;
+}
+
+
+#secondEntirePage{
+	height: 100vh !important;
+	width: 100vw !important; 
+	text-align: center;
+}
+
+#screenrecognitionvideo{
+	height: 100%;
+	z-index: 2;
+}
+
+#changePageButton{
+	right: 10px;
+	bottom: 10px;
 }

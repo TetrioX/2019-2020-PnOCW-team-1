@@ -15,6 +15,16 @@ const { argv } = require('yargs')
 
 var saveDebugFiles = argv['save-debug-files']
 var gridPause = argv['grid-pause']
+var debugPath = './debug'
+var debugDirPromise = new Promise(function(resolve, reject){
+  fs.mkdir(debugPath, { recursive: true }, (err) => {
+  if (err) reject(err);
+  else resolve()
+  });
+}).catch((err) => {console.log(err)})
+var AllScreenPositions={};
+
+
 
 //App setup
 var app = express();
@@ -22,7 +32,8 @@ var server = app.listen(config.port, function(){
     console.log('listening to requests on port '+config.port)
 });
 //Socket setup
-var io = socket(server);
+// pingInterval is used to determine the latency
+var io = socket(server, {pingInterval: 200});
 
 var slaves = {}
 var slaveSockets = {}
@@ -51,8 +62,8 @@ function addSlave(socket) {
 // Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
 function decodeBase64Image(dataString)
 {
-    var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    var response = {};
+    let matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    let response = {};
 
     if (matches.length !== 3)
     {
@@ -68,7 +79,7 @@ function decodeBase64Image(dataString)
 // Fisher–Yates Shuffle
 // source: https://bost.ocks.org/mike/shuffle/
 function shuffle(array) {
-  var copy = [], n = array.length, i;
+  let copy = [], n = array.length, i;
 
   // While there remain elements to shuffle…
   while (n) {
@@ -91,16 +102,16 @@ function shuffle(array) {
 // generates a list of color combinations
 function getColorComb(n){
   //create combinations of all colors (n=1)
-  var combs = []
-  for (var col of possibleColors){
+  let combs = []
+  for (let col of possibleColors){
     combs.push([col])
   }
-  for (var i=1; i<n; i++) {
-    var newCombs = []
-    for (var com of combs){
+  for (let i=1; i<n; i++) {
+    let newCombs = []
+    for (let com of combs){
       for (col of possibleColors){
         // copy
-        var ccom = com.slice()
+        let ccom = com.slice()
         ccom.push(col)
         newCombs.push(ccom)
       }
@@ -109,13 +120,13 @@ function getColorComb(n){
   }
   // remove combinations with only the same value
   // f.e. ['blue', 'blue', 'blue']
-  var remIndex = [] // list of indexes to remove
-  for (var i in combs){
+  let remIndex = [] // list of indexes to remove
+  for (let i in combs){
     // set the prevCol to the first color
-    var prevCol = combs[i][0]
-    var diffValue = false
+    let prevCol = combs[i][0]
+    let diffValue = false
     // check if each color equals the prev color
-    for (var col of combs[i]){
+    for (let col of combs[i]){
       if (prevCol != col){
         // there is a color difference
         diffValue = true
@@ -129,7 +140,7 @@ function getColorComb(n){
   }
   // we iterate backwards so we don't affect the indexes of the values that
   // we still have to remove.
-  for (var i = remIndex.length - 1; i >= 0; i-= 1){
+  for (let i = remIndex.length - 1; i >= 0; i-= 1){
     // remove value on index i
     combs.splice(remIndex[i], 1)
   }
@@ -144,11 +155,12 @@ app.get('/master', function(req,res){
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
+app.use('/debug', express.static(__dirname + '/'))
 
 app.use('/static', express.static(__dirname +  '/public'))
 
 io.of('/master').use(function(socket, next) {
-  var passwd = socket.handshake.query.passwd
+  let passwd = socket.handshake.query.passwd
   if (passwd == config.masterPasswd){
     next();
   } else{
@@ -173,17 +185,39 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
-      var nbOfColorCombs = Object.keys(slaves).length * (numberOfRows * numberOfColumns + 2)
+      var nbOfColorCombs = Object.keys(slaves).length * 10
       // calculate how many pictues should be taken
-      var nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
-      var allColorCombinations = getColorComb(nbOfPictures)
-      var screens = {}
-      var colorCombs = {};
+      let nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
+      let allColorCombinations = getColorComb(nbOfPictures)
+      let screens = {}
+      let colorCombs = {};
       // all promises that will be resolved when a grid has been created
-      var createGridPromises = [];
-      Object.keys(slaves).forEach(function(slave, index) {
+      let createGridPromises = [];
+      await Promise.all(Object.keys(slaves).map(async (slave) => {
+        if (numberOfRows == null && numberOfColumns == null) {
+          //Get the dimensions of the screen and change the grid according to width and height of the screen.
+          let waitForDim = new Promise(function (resolve, reject) {
+            slaveSockets[slave].emit('getDim', 0, function (callBackData) {
+              var h = callBackData.height
+              var w = callBackData.width
+              var wDivH = w / h
+              if (1.75 <= wDivH) { numberOfRows = 2, numberOfColumns = 4 } //Math.round(wDivH * 2)
+              else if (1.25 <= wDivH && wDivH < 1.75) { numberOfRows = 2, numberOfColumns = 3 }
+              else if (0.75 <= wDivH && wDivH < 1.25) { numberOfRows = 3, numberOfColumns = 3 }
+              else if (0.5 <= wDivH && wDivH < 0.75) { numberOfRows = 3, numberOfColumns = 2 }
+              else if (wDivH < 0.5) { numberOfRows = 4, numberOfColumns = 2 } //Math.round((1 / wDivH) * 2)
+              else {
+                  throw new Error("Height & Width problem")
+              }
+              resolve({ nR: numberOfRows, nC: numberOfColumns })
+            })
+          })
+          let dim = await waitForDim
+          numberOfRows = dim.nR
+          numberOfColumns = dim.nC
+        }
         // slaves[slave] is the slave ID
-        var gridAndCombs = createColorGrid(numberOfRows,numberOfColumns, allColorCombinations, slaves[slave])
+        let gridAndCombs = createColorGrid(numberOfRows,numberOfColumns, allColorCombinations, slaves[slave])
         createGridPromises.push(new Promise(function(resolve, reject) {
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
@@ -198,44 +232,41 @@ var masterIo = io.of('/master').on('connect', function(socket){
         screens[slaves[slave]] = gridAndCombs.colorGrid
         // add the new color combinations to the colorComb Object
         colorCombs = {...colorCombs, ...gridAndCombs.comb}
-      })
+      }))
       // wait for grids to be created
       await Promise.all(createGridPromises)
-      var pictures = await takePicture(nbOfPictures)
+      let pictures = await takePicture(nbOfPictures)
       // remove all the grids
       // TODO: use the callback
       Object.keys(slaves).forEach(function(slave, index) {
         slaveSockets[slave].emit('removeGrid')
       })
       if (saveDebugFiles) {
-        fs.writeFileSync(`screens.json`, JSON.stringify(screens))
-        fs.writeFileSync(`colorCombs.json`, JSON.stringify(colorCombs))
+        await debugDirPromise
+        fs.writeFile(debugPath+`/screens.json`, JSON.stringify(screens), (err) => {if (err) console.log(err)})
+        fs.writeFile(debugPath+`/colorCombs.json`, JSON.stringify(colorCombs), (err) => {if (err) console.log(err)})
+        for (let i in pictures){
+          fs.writeFile(debugPath+`/image-${i}.png`, pictures[i], (err) => {if (err) console.log(err)});
+        }
       }
-      // we get all matrixes of the pictures asynchronously
-      var matrixPromises = []
-      for (var i in pictures){
-        matrixPromises.push(new Promise(async function(resolve, reject){
-          fs.writeFileSync(`./image-${i}.png`, pictures[i]);
-          var result = await imgprcssrgb.doImgDiff([`./image-${i}.png`], false, false)
-          resolve(result.matrix[0])
-        }))
-      }
-      var matrixes = await Promise.all(matrixPromises)
+      let matrixes = await imgprcssrgb.doImgDiff(pictures, false, false)
+      matrixes = matrixes.matrix
       if (saveDebugFiles) {
-        fs.writeFileSync(`matrixes.json`, JSON.stringify(matrixes))
+          fs.writeFile(debugPath+`/matrixes.json`, JSON.stringify(matrixes), (err) => {if (err) console.log(err)})
       }
-      var squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
+      let squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
+      console.log(squares)
       return scrnread.getScreenFromSquares(squares, screens)
     }
 
     // takes a picture with i the current picture and n the total number of pictures
     // and pictues a list with all taken pictures
     async function takePicture(n){
-      var pictures = []
+      let pictures = []
       // loop untill break statement
-      var i = 0
+      let i = 0
       while(true){
-        var picPromise = new Promise(function(resolve, reject) {
+        let picPromise = new Promise(function(resolve, reject) {
           socket.emit('takeOnePicture', {}, async function(callBackData){
             resolve(callBackData)
           })
@@ -245,15 +276,15 @@ var masterIo = io.of('/master').on('connect', function(socket){
             resolve()
           }, 2000);
         })
-        var picture = await picPromise
+        let picture = await picPromise
         pictures.push(decodeBase64Image(picture).data)
         i += 1
         if (i < n){
           // promises that will be fulfilled once the screens have changed color
-          var promises = []
+          let promises = []
           await sleep(Number(gridPause))
           Object.keys(slaves).forEach(async function(slave, index) {
-            var promise = new Promise(function(resolve, reject) {
+            let promise = new Promise(function(resolve, reject) {
               slaveSockets[slave].emit('changeGrid', i, function(callBackData){
               // fulfill promise
               resolve()
@@ -287,6 +318,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         socket.emit('alert', "found these screens: "+screenKeys.toString() )
       }
       console.log(screens)
+      AllScreenPositions = screens;
     });
 
     function sleep(ms){
@@ -323,7 +355,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
         var angles = delaunay.getAngles(data);
         console.log(angles)
         Object.keys(slaves).forEach(function(slave, index) {
-           slaveSockets[slave].emit('triangulate', angles[slaves[slave]]);
+          // if we found the screen send it which angles it should draw
+          if (typeof angles[slaves[slave]] !== 'undefined'){
+            slaveSockets[slave].emit('triangulate', angles[slaves[slave]]);
+          }
         });
     });
 
@@ -339,6 +374,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
                 })
         })
     });
+    socket.on('broadcastImage', function(){
+      console.log('wil broadcast image');
+      Object.keys(slaves).forEach(function(slave, index) {
+      console.log(AllScreenPositions[slaves[slave]]);
+      slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
+      })
+    })
 
     socket.on('startCountdown', function(data){
       let startTime = new Date()
@@ -347,13 +389,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let updater = setInterval(function(){
         let offset = new Date() - startTime
         slaveIo.emit('updateCountdown', offset)
-      }, 50)
+      }, 200)
       // stop sending updates after the timer has been completed.
       setTimeout(function() {
       	clearInterval(updater)
       }, data*1000);
     })
 });
+
 
 var slaveIo = io.of('/slave').on('connect', function(socket){
   addSlave(socket)
@@ -371,16 +414,18 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 });
 
 
+
+
 //creating grids with a number of columns and a number of rows
 function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
-    var result = {
+    let result = {
         colorGrid: {grid: []},
         comb: {}
     }
-    for (var i = 0; i < nbrows; i++) {
+    for (let i = 0; i < nbrows; i++) {
         result.colorGrid.grid.push([]);
-        for (var j = 0; j < nbcolumns; j++) {
-            var colorComb = allColorCombinations.pop()
+        for (let j = 0; j < nbcolumns; j++) {
+            let colorComb = allColorCombinations.pop()
             result.colorGrid.grid[i].push(colorComb);
             // the key is the integer value of the color comb and the value
             // is the location of the quadrangle in the grid.
@@ -392,8 +437,8 @@ function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
         }
     }
     // generate a color for the side and corner border.
-    var cornBorder = allColorCombinations.pop();
-    var sideBorder = allColorCombinations.pop();
+    let cornBorder = allColorCombinations.pop();
+    let sideBorder = allColorCombinations.pop();
     result.colorGrid['cornBorder'] = cornBorder;
     result.colorGrid['sideBorder'] = sideBorder;
 

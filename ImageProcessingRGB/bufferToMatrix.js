@@ -16,9 +16,9 @@ const assert = require('assert')  // asserting pre-conditions
  */
 const createMatrix = function(buffer, dimensions) {
 	assert(buffer.length == dimensions.width * dimensions.height)
-	matrix = []
+	let matrix = []
 	for(let i = 0; i < dimensions.height; i++){
-		temp = buffer.slice(dimensions.width * i, dimensions.width * (i+1))
+		let temp = buffer.slice(dimensions.width * i, dimensions.width * (i+1))
 		matrix.push(bufferToArray(temp))
 	}
 	return matrix

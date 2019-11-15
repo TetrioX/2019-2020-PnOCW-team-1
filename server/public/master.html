@@ -55,10 +55,11 @@
 
 
 		<div class="border border-lg border-success rounded triangulate">
-			<div id="screenrecognitiontitle">
+			<div class="title">
 				Screenrecognition!
 			</div>
 			<div>
+                The algoritm will choose the best amount of rows and columns, if you leave the fields empty.
 				Choose the amount of rows and columns and press 'Execute screenrecognition'. Let the algoritm do de rest. Hold your camera still while doing it!
 			</div>
 			<form class="input">
@@ -66,8 +67,18 @@
 			</form>
 			<form class="input">
 				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="5" placeholder="Number of columns">
-			</form>
-			<button type="button" id="calibrateButton" class="btn btn-outline-success">Execute screenrecognition</button>
+			</form>	
+			<button id="screenrecognitionbutton"  class="btn btn-outline-success"> Start screenrecognition</button>
+			
+		</div>
+		<div class ="border border-lg border-primary rounded broadcast">
+			<div class ="title">
+				Broadcast picture!
+			</div>
+			<div>
+				Press the button and the slaves will broadcast a picture
+			</div>
+			<button id="broadcastPicture" class="btn btn-outline-primary"> Broadcast Picture</button>
 		</div>
 
 		<div class="border border-lg border-primary rounded countdown">
@@ -83,6 +94,14 @@
 			<button type="button" id="countdownButton" class="btn btn-outline-success">Start countdown</button>
 		</div>
 	</div>
+	<div id="secondEntirePage" style="display: none;">
+		<video  id="screenrecognitionvideo"></video>
+		<button id="calibrateButton" class="btn btn-light" ;">Execute screenrecognition</button>
+		<button id=changePageButton class="btn btn-dark" style="">Home</button>
+	</div>
+	
+	
+	
 
 	<script src="static/master.js"></script>
 </body>
