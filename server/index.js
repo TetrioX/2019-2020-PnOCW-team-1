@@ -382,7 +382,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           console.log(slave)
           console.log(AllScreenPositions[slaves[slave]]);
           var data = AllScreenPositions[slaves[slave]]
-          if (data !== 'undefined') {
+          if (typeof data !== 'undefined') {
               var slaveCorners = [[data[3].x, data[3].y], [data[0].x, data[0].y], [data[1].x, data[1].y], [data[2].x, data[2].y]];
               slaveSockets[slave].emit('broadcastingImage', slaveCorners);
           }
