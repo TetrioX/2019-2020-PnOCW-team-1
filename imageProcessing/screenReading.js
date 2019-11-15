@@ -760,7 +760,7 @@ function getCorners(rand){
 	}
   //Value to determen the distance that we look around corners
   // to make softer borders recognisable
-	const distance = Math.max(4, Math.ceil(border.length / 12))
+	const distance = 5
 	// number of angles to check
 	const nbOfAngles = 4
 
