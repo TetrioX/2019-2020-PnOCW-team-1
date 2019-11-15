@@ -236,6 +236,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       let pictures = await takePicture(nbOfPictures)
+      if (pictures == null){
+        return null
+      }
       // remove all the grids
       // TODO: use the callback
       Object.keys(slaves).forEach(function(slave, index) {
@@ -271,10 +274,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
             resolve(callBackData)
           })
           setTimeout(function() {
-            // if it takes longer than 2 seconds reject the promise
+            // if it takes longer than 3 seconds reject the promise
             // TODO: should be rejected and handled
-            resolve()
-          }, 2000);
+            reject()
+          }, 3000);
+        }).catch(function(error) {
+          // failed to retrieve the image
+          socket.emit('alert', "Retrieving one of the images timed out.")
+          throw new Error("Retrieving one of the images timed out.")
         })
         let picture = await picPromise
         pictures.push(decodeBase64Image(picture).data)
