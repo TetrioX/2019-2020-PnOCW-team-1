@@ -240,7 +240,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       if (pictures == null){
         return null
         }
-        imgDimensions = [pictures[0].length, pictures[0][0].length]
+        
       // remove all the grids
       // TODO: use the callback
       Object.keys(slaves).forEach(function(slave, index) {
@@ -256,6 +256,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
       let matrixes = await imgprcssrgb.doImgDiff(pictures, false, false)
       matrixes = matrixes.matrix
+      imgDimensions = [matrixes[0].length, matrixes[0][0].length]
       if (saveDebugFiles) {
           fs.writeFile(debugPath+`/matrixes.json`, JSON.stringify(matrixes), (err) => {if (err) console.log(err)})
       }
