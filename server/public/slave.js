@@ -336,11 +336,11 @@ function drawAnglesDegree(radianAngles) {
 
 //BROADCASTING IMAGES AND VIDEOS
 
-socket.on('sendingCorners'),function(data){
+socket.on('sendingCorners',function(data){
 	console.log('willBroadcast')
     var slaveCorners = data;
 	broadcast(slaveCorners);
-}
+})
 
 //corners: LT,RT,RB,LB
 //var slaveCorners = [[200,200],[600,200],[600,400],[200,400]]
