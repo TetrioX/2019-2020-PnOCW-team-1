@@ -366,9 +366,9 @@ function broadcast(slaveCorners, dimensions) {
 	var imgcanvas = document.getElementById('imgcanvas');
 	var imgctx = imgcanvas.getContext('2d');
 
-	//this pixel sizes should match the input!
-	imgcanvas.width = dimensions[1];
-	imgcanvas.height = dimensions[0];
+    //this pixel sizes should match the input!
+    imgcanvas.width = window.innerWidth;
+    imgcanvas.height = window.innerHeight;
 
 	//canvas fot testing purposes
 	var tempcanvas = document.getElementById('tempcanvas');
