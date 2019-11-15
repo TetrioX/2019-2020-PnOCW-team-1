@@ -350,7 +350,7 @@ socket.on('broadcastingImage'),function(data){
  
 	
 	
-broadcast(slaveCorners);
+//broadcast(slaveCorners);
 
 
 function broadcast(slaveCorners) {
