@@ -338,8 +338,7 @@ function drawAnglesDegree(radianAngles) {
 
 socket.on('sendingCorners',function(data){
 	console.log('willBroadcast')
-    var slaveCorners = data;
-	broadcast(slaveCorners);
+      broadcast(data.corners, data.dimensions);
 })
 
 //corners: LT,RT,RB,LB
@@ -353,7 +352,7 @@ socket.on('sendingCorners',function(data){
 //broadcast(slaveCorners);
 
 
-function broadcast(slaveCorners) {
+function broadcast(slaveCorners, dimensions) {
     //create a new image object
     var img = new Image(); 
     img.src = '/static/Colorgrid.jpg';
@@ -367,8 +366,8 @@ function broadcast(slaveCorners) {
 	var imgctx = imgcanvas.getContext('2d');
 
 	//this pixel sizes should match the input!
-	imgcanvas.width = window.innerWidth;
-	imgcanvas.height = window.innerHeight;
+	imgcanvas.width = dimensions[1];
+	imgcanvas.height = dimensions[0];
 
 	//canvas fot testing purposes
 	var tempcanvas = document.getElementById('tempcanvas');
@@ -379,9 +378,9 @@ function broadcast(slaveCorners) {
 
 
 	img.onload =async function(){
-	
-		const widthMultiplier =imgcanvas.width/slaveWidth;
-		const heightMultiplier = imgcanvas.height /slaveHeigth;
+
+        const widthMultiplier = window.innerWidth / slaveWidth;
+        const heightMultiplier = window.innerHeight / slaveHeigth;
 		
 		//Translation constants
 		var translateX = -slaveCorners[0][0]*widthMultiplier;
@@ -396,7 +395,7 @@ function broadcast(slaveCorners) {
 		
 		//make the canvas full screen again!
 		
-		imgctx.drawImage(img,0,0,imgcanvas.width*widthMultiplier,imgcanvas.height*heightMultiplier);
+        imgctx.drawImage(img, 0, 0, slaveWidth * widthMultiplier, slaveHeigth*heightMultiplier);
 
 		tempctx.beginPath();
 	 	tempctx.moveTo(slaveCorners[0][0],slaveCorners[0][1]);

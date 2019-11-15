@@ -22,7 +22,8 @@ var debugDirPromise = new Promise(function(resolve, reject){
   else resolve()
   });
 }).catch((err) => {console.log(err)})
-var AllScreenPositions={};
+var AllScreenPositions = {};
+var imgDimensions = [0, 0]
 
 
 
@@ -238,7 +239,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let pictures = await takePicture(nbOfPictures)
       if (pictures == null){
         return null
-      }
+        }
+        imgDimensions = [pictures[0].length, pictures[0][0].length]
       // remove all the grids
       // TODO: use the callback
       Object.keys(slaves).forEach(function(slave, index) {
@@ -391,7 +393,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
           var data = AllScreenPositions[slaves[slave]]
           if (typeof data !== 'undefined') {
               var slaveCorners = [[data[3].x, data[3].y], [data[0].x, data[0].y], [data[1].x, data[1].y], [data[2].x, data[2].y]];
-              slaveSockets[slave].emit('sendingCorners', slaveCorners);
+              slaveSockets[slave].emit('sendingCorners', {
+                  corners: slaveCorner,
+                  dimensions: imgDimensions
+              });
           }
       })
     })
