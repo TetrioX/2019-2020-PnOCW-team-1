@@ -377,6 +377,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
     socket.on('broadcastImage', function(){
       console.log('wil broadcast image');
       Object.keys(slaves).forEach(function(slave, index) {
+          console.log(AllScreenPositions)
+          console.log(slaves)
+          console.log(slave)
       console.log(AllScreenPositions[slaves[slave]]);
       slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
       })
