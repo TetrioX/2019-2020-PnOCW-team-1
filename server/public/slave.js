@@ -665,7 +665,7 @@ masterButton.addEventListener('click',function(){
  function scalePoints(corners, refPicture, newPicture) {
  	for (let key in corners) {
  		corners[key].x = corners[key].x * newPicture.x / refPicture.x;
- 		corners[key].y = corners[key].y * newPicture.y / refPicture.y;
+ 		corners[key].y = corners[key].y * newPicture.x / refPicture.x;
  	}
  	return corners
  }
