@@ -598,7 +598,7 @@ masterButton.addEventListener('click',function(){
 	**/
 	const multmm = function(a, b) { // multiply two matrices
 	 var c = Array(9);
-	 for (var i = 0; i != 3; ++i)
+	 for (var i = 0; i != 3; ++i) {
 		 for (var j = 0; j != 3; ++j) {
 			 var cij = 0;
 			 for (var k = 0; k != 3; ++k)
@@ -693,9 +693,16 @@ masterButton.addEventListener('click',function(){
 	};
 
 	socket.on('showPicture', function(data){
-
+		cleanHTML()
+		// TODO: Not sure if this si correct. What if the relation between width/height
+		// is not the same for the image, screen resolution, pictures taken?
+		for (let i in data.corners){
+			data.corners[i] = {x: data.corners[i].x * window.innerWidth/data.picDim[1], y: data.corners[i].y * window.innerHeight/data.picDim[0],}
+		}
+		canvas.style.display = "block"
+		console.log(data)
 		// Or whatever canvas you want your picture in.
-		pastePicture(document.getElementById("myCanvas"), data.picture, data.corners);
+		pastePicture(canvas, data.picture, data.corners);
 		// This is for smoother picture monitoring. Else white borders are possible.
 		document.body.style.backgroundColor = "black";
 	});
