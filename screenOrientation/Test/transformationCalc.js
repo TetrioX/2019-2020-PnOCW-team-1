@@ -89,7 +89,7 @@ function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
 function scalePoints(corners, refPicture, newPicture) {
 	for (let key in corners) {
 		corners[key].x = corners[key].x * newPicture.x / refPicture.x;
-		corners[key].y = corners[key].y * newPicture.y / refPicture.y;
+		corners[key].y = corners[key].y * newPicture.x / refPicture.x;
 	}
 	return corners
 }
