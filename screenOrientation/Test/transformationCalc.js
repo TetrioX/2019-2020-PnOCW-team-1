@@ -30,7 +30,6 @@ const multmm = function(a, b) { // multiply two matrices
 				cij += a[3*i + k]*b[3*k + j];
 			c[3*i + j] = cij;
 		}
-	}
 	return c;
 }
 
@@ -87,10 +86,20 @@ function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
 	elt.style.transform = t;
 }
 
+function scalePoints(corners, refPicture, newPicture) {
+	for (let key in corners) {
+		corners[key].x = corners[key].x * newPicture.x / refPicture.x;
+		corners[key].y = corners[key].y * newPicture.y / refPicture.y;
+	}
+	return corners
+}
+	
 /**
  * Paste the given part of the given picture on the client canvas.
  **/
-const pastePicture = function(myCanvas, picture, corners){
+const pastePicture = function(myCanvas, picture, corners, refPictureLength){
+	
+	corners = scalePoints(corners, refPictureLength, {x: picture.width, y: picture.height})
 	
 	picture.height = window.innerHeight;
 	picture.width = window.innerWidth;
@@ -117,6 +126,17 @@ const pastePicture = function(myCanvas, picture, corners){
 };
 
 
-module.exports = {
-	pastePicture: pastePicture
-};
+var img = new Image()
+
+img.onload = function() {
+	pastePicture(document.getElementById("myCanvas"), img, testReal, {x: 4032, y: 3024});
+	// This is for smoother picture monitoring. Else white borders are possible.
+	document.body.style.backgroundColor = "black";
+}
+
+img.src = "Colorgrid.jpg"
+
+testReal = {B: {x:2345, y: 1005}, C: {x: 2717,y: 1705}, D: {x: 1393,y: 2131}, A: {x: 1001, y:1161}} 
+testReal2 = {B: {x:2653,y:1093}, C: {x:2733,y:2185}, D: {x:657,y:2313}, A: {x:661,y:1129}}
+testReal3 = {B: {x:1069,y:2273},C: {x:1089,y:1289},D: {x:2801,y:1268},A: {x:2857,y:2229}}
+

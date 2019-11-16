@@ -661,7 +661,14 @@ masterButton.addEventListener('click',function(){
 	 t = "matrix3d(" + t.join(", ") + ")"; //setup the html 3D transformation.
 	 elt.style.transform = t;
 	}
-
+	
+	function scalePoints(corners, refPicture, newPicture) {
+		for (let key in corners) {
+			corners[key].x = corners[key].x * newPicture.x / refPicture.x;
+			corners[key].y = corners[key].y * newPicture.y / refPicture.y;
+		}
+	}
+	
 	/**
 	* Paste the given part of the given picture on the client canvas.
 	**/
