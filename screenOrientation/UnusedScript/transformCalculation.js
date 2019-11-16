@@ -11,53 +11,53 @@ const shearing = [[1, 'X', 0], ['Y', 1, 0], [0, 0, 1]]
 
 
 const getMaxelMethod = function(corners, data = {r: 1920, s: 1080}) {
-	A = [[corners.A.x, corners.B.x, corners.C.x], [corners.A.y, corners.B.y, corners.C.y], [1, 1, 1]]
+	A = [[corners.A.x, corners.B.x, corners.D.x], [corners.A.y, corners.B.y, corners.D.y], [1, 1, 1]]
 	variables = [['l'], ['m'], ['t']]
-	b = [[corners.D.x], [corners.D.y], [1]]
+	b = [[corners.C.x], [corners.C.y], [1]]
 	
 	A = matrixMultiply(A, variables)
 	
 	eq = []
 	for (let i in A) eq[i] = A[i] + '-' + b[i]
 	
-	console.log(A)
+	// console.log(A)
 	
 	opl = nerdamer.solveEquations(eq)
 	sol = {}
 	for (let solution of opl) 
 		sol[solution[0]] = solution[1]
+	
 	console.log(sol)
 	
-	A = [[multiply(corners.A.x, 'l'), multiply(corners.B.x, 'm'), multiply(corners.C.x, 't')], 
-		 [multiply(corners.A.y, 'l'), multiply(corners.B.y, 'm'), multiply(corners.C.y, 't')], 
+	A = [[multiply(corners.A.x, 'l'), multiply(corners.B.x, 'm'), multiply(corners.D.x, 't')], 
+		 [multiply(corners.A.y, 'l'), multiply(corners.B.y, 'm'), multiply(corners.D.y, 't')], 
 		 ['l', 'm', 't']]
 	A = substituteMatrix(A, sol)
 	
+	console.log(A)
 	
-	
-	B = [[0, 0, data.r], [0, data.s, data.s], [1, 1, 1]]
-	b = [[data.r], [0], [1]]
+	B = [[0, data.r, 0], [0, 0, data.s], [1, 1, 1]]
+	b = [[data.r], [data.s], [1]]
 	
 	B = matrixMultiply(B, variables)
-	
-	eq = []
-	for (let i in B) eq[i] = B[i] + '-' + b[i]
-	
-	console.log(B)
+	for (let i in B) eq[i] = B[i] + '=' + b[i]
 	
 	opl = nerdamer.solveEquations(eq)
+	
 	sol = {}
 	for (let solution of opl) 
 		sol[solution[0]] = solution[1]
-	console.log(sol)
 	
-	B = [[0, 0, multiply(data.r, 'm') ], [0, multiply(data.r, 't'), multiply(data.r, 'm')], [1, 1, 1]]
+	B = [[0, multiply(data.r, 'm'), 0 ], [0, 0, multiply(data.s, 't')], ['l', 'm', 't']]
 	B = substituteMatrix(B, sol)
+	
+	console.log(B)
 	
 	A_ = inverseMatrix(A)
 	
 	C = matrixMultiply(B, A_)
-	console.log(C)
+	
+	return C
 }
 
 const getTransformation = function(corners, data = {verh: 1920/1080}) {
@@ -67,6 +67,7 @@ const getTransformation = function(corners, data = {verh: 1920/1080}) {
 	
 	T1 = substituteMatrix(translation, {X: -corners.A.x, Y: -corners.A.y})
 	corners = transformScreen(corners, T1)
+	T = T1
 	console.log("2. ", corners, " -> ", T1)
 	
 	angle = corners.B.y > 0 ? -getAngle(coordToVector(corners.B), [[1],[0],[0]]) : getAngle(coordToVector(corners.B), [[1],[0],[0]])
@@ -76,12 +77,15 @@ const getTransformation = function(corners, data = {verh: 1920/1080}) {
 	
 	S1 = substituteMatrix(scaling, {X: 1920 / corners.B.x, Y: 1080 / corners.D.y})
 	corners = transformScreen(corners, S1)
+	T = matrixMultiply(S1, T)
 	console.log("4. ", corners, " -> ", S1)
 	
 	Sh1 = substituteMatrix(shearing, {X: -corners.D.x/corners.D.y, Y:0})
 	corners = transformScreen(corners, Sh1)
+	T = matrixMultiply(Sh1, T)
 	console.log("5. ", corners, " -> ", Sh1)
 	
+	console.log(T)
 	
 }
 
@@ -126,15 +130,10 @@ const calculateDeterminant3x3 = function(matrix) {
 	
 	temp = add(multiply(multiply(matrix[0][0], matrix[1][1]), matrix[2][2]), 
 				multiply(multiply(matrix[0][1], matrix[1][2]), matrix[2][0]))
-	// console.log(temp)
 	temp = add(temp, multiply(multiply(matrix[0][2], matrix[1][0]), matrix[2][1]))
-	// console.log(temp)
 	temp = add(temp, - multiply(multiply(matrix[0][2], matrix[1][1]), matrix[2][0]))
-	// console.log(temp)
 	temp = add(temp, - multiply(multiply(matrix[0][1], matrix[1][0]), matrix[2][2]))
-	// console.log(temp)
 	temp = add(temp, - multiply(multiply(matrix[0][0], matrix[1][2]), matrix[2][1]))
-	// console.log(temp)
 	
 	return temp
 }
@@ -195,4 +194,4 @@ const getLength = function(vector) {
 
 testReal = {B: {x:2345, y: 1005}, C: {x: 2717,y: 1705}, D: {x: 1393,y: 2131}, A: {x: 1001, y:1161}} 
 
-getMaxelMethod(testReal)
+getTransformation(testReal)
