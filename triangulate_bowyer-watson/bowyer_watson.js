@@ -188,7 +188,7 @@ var pointsOnLine = function(vertices) {
 
 //Maakt vertex-elementen van array
 function makeVertices(list) {
-    var vertices = [];
+    let vertices = [];
     for(let i = 0; i < list.length; i++) {
         vertices.push(
             new Vertex(
@@ -289,7 +289,7 @@ const getAllVertices = function(triangles) {
         }
         //als ze niet op 1 lijn liggen
         //mooier formuleren
-mif (triangles[i].v2 != undefined){
+if (triangles[i].v2 != undefined){
             if (!vertexInSet(vertices, triangles[i].v2)) {
                 vertices.push(triangles[i].v2);
             }

@@ -1,54 +1,64 @@
+<<<<<<< HEAD
 var assert = require('assert');
 var chai = require('chai');
 var fs = require('fs');
 var assert = chai.assert;    // Using Assert style
+=======
+let assert = require('assert');
+const chai = require('chai');
+const fs = fs = require('fs');
+assert = chai.assert;    // Using Assert style
+>>>>>>> cleanup
 // var expect = chai.expect;    // Using Expect style
 // var should = chai.should();  // Using Should style
-var screenRecognition = require('../screenRecognition.js')
+const screenRecognition = require('../screenRecognition.js')
 const screenReading = require('../screenReading.js');
 const imgprcssrgb = require('../../ImageProcessingRGB/imageProcessingRGB.js')
 
 describe('findscreen', function() {
 
   // set timeout to 3 seconds
-  this.timeout(3000)
+  this.timeout(3000);
 
   // allowed pixel distance
-  bwdelta = 3
-  rgbDelta = 22
+  const bwdelta = 3,
+        rgbDelta = 22;
 
-  function parseJsonFile(path){
-    var contents = fs.readFileSync(path);
+  function parseJsonFile(path) {
+    const contents = fs.readFileSync(path);
     return JSON.parse(contents);
   }
 
   before(async function() {
 
-    image1 = await screenRecognition.findScreen(['./TestResults/TestCase1.png'], false, true)
-    image2 = await screenRecognition.findScreen(['./TestResults/TestCase2.png'], false, true)
-    image3 = await screenRecognition.findScreen(['./TestResults/TestCase3.png'], false, true)
-    image4 = await screenRecognition.findScreen(['./TestResults/TestCase4.png'], false, true)
-    imageSmall = await screenRecognition.findScreen(['./TestResults/TestCaseSmall.png'], false, true)
-    imageMoreScreens = await screenRecognition.findScreen(['./TestResults/TestCaseMoreScreens.png'],  false, true)
-    imageMoreScreens2 = await screenRecognition.findScreen(['./TestResults/TestCaseMoreScreens2.png'], false, true)
-    matrix1 = screenReading.createMatrix(image1.buffers[0], image1.dimension)
-    matrix2 = screenReading.createMatrix(image2.buffers[0], image2.dimension)
-    matrix3 = screenReading.createMatrix(image3.buffers[0], image3.dimension)
-    matrix4 = screenReading.createMatrix(image4.buffers[0], image4.dimension)
-    matrixSmall = screenReading.createMatrix(imageSmall.buffers[0], imageSmall.dimension)
-    matrixMoreScreens = screenReading.createMatrix(imageMoreScreens.buffers[0], imageMoreScreens.dimension)
-    matrixMoreScreens2 = screenReading.createMatrix(imageMoreScreens2.buffers[0], imageMoreScreens2.dimension)
-    var rgbCasesPath = './test/rgbTestCases'
-    matrixes1 = parseJsonFile(rgbCasesPath + '/case1/matrixes.json')
-    colorCombs1 = parseJsonFile(rgbCasesPath + '/case1/colorCombs.json')
-    screens1 = parseJsonFile(rgbCasesPath + '/case1/screens.json')
-    matrixes2 = parseJsonFile(rgbCasesPath + '/case2/matrixes.json')
-    colorCombs2 = parseJsonFile(rgbCasesPath + '/case2/colorCombs.json')
-    screens2 = parseJsonFile(rgbCasesPath + '/case2/screens.json')
-    matrixes3 = parseJsonFile(rgbCasesPath + '/case3/matrixes.json')
-    colorCombs3 = parseJsonFile(rgbCasesPath + '/case3/colorCombs.json')
-    screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json')
+    const image1 = await screenRecognition.findScreen(['./TestResults/TestCase1.png'], false, true),
+    image2 = await screenRecognition.findScreen(['./TestResults/TestCase2.png'], false, true),
+    image3 = await screenRecognition.findScreen(['./TestResults/TestCase3.png'], false, true),
+    image4 = await screenRecognition.findScreen(['./TestResults/TestCase4.png'], false, true),
+    imageSmall = await screenRecognition.findScreen(['./TestResults/TestCaseSmall.png'], false, true),
+    imageMoreScreens = await screenRecognition.findScreen(['./TestResults/TestCaseMoreScreens.png'],  false, true),
+    imageMoreScreens2 = await screenRecognition.findScreen(['./TestResults/TestCaseMoreScreens2.png'], false, true),
+    matrix1 = screenReading.createMatrix(image1.buffers[0], image1.dimension),
+    matrix2 = screenReading.createMatrix(image2.buffers[0], image2.dimension),
+    matrix3 = screenReading.createMatrix(image3.buffers[0], image3.dimension),
+    matrix4 = screenReading.createMatrix(image4.buffers[0], image4.dimension),
+    matrixSmall = screenReading.createMatrix(imageSmall.buffers[0], imageSmall.dimension),
+    matrixMoreScreens = screenReading.createMatrix(imageMoreScreens.buffers[0], imageMoreScreens.dimension),
+    matrixMoreScreens2 = screenReading.createMatrix(imageMoreScreens2.buffers[0], imageMoreScreens2.dimension),
+    rgbCasesPath = './test/rgbTestCases',
+    matrixes1 = parseJsonFile(rgbCasesPath + '/case1/matrixes.json'),
+    colorCombs1 = parseJsonFile(rgbCasesPath + '/case1/colorCombs.json'),
+    screens1 = parseJsonFile(rgbCasesPath + '/case1/screens.json'),
+        
+    matrixes2 = parseJsonFile(rgbCasesPath + '/case2/matrixes.json'),
+    colorCombs2 = parseJsonFile(rgbCasesPath + '/case2/colorCombs.json'),
+    screens2 = parseJsonFile(rgbCasesPath + '/case2/screens.json'),
+        
+    matrixes3 = parseJsonFile(rgbCasesPath + '/case3/matrixes.json'),
+    colorCombs3 = parseJsonFile(rgbCasesPath + '/case3/colorCombs.json'),
+    screens3 = parseJsonFile(rgbCasesPath + '/case3/screens.json'),
 
+<<<<<<< HEAD
       colorCombs4 = parseJsonFile(rgbCasesPath + '/case4/colorCombs.json')
       screens4 = parseJsonFile(rgbCasesPath + '/case4/screens.json')
       //console.log(matrixes3.length)
@@ -60,6 +70,15 @@ describe('findscreen', function() {
       //console.log(matrixes4)
       //console.log(matrixes4[0].length)
       //console.log(screenReading.joinMatrixes(matrixes4,6))
+=======
+    colorCombs4 = parseJsonFile(rgbCasesPath + '/case4/colorCombs.json'),
+    screens4 = parseJsonFile(rgbCasesPath + '/case4/screens.json'),
+    matrixes4 = await imgprcssrgb.doImgDiff(['./case4/image-0.png', './case4/image-1.png'], false, false),
+
+    matrixes5 = await imgprcssrgb.doImgDiff(['./case5/image-0.png', './case5/image-1.png'], false, false),
+    colorCombs5 = parseJsonFile(rgbCasesPath + '/case5/colorCombs.json'),
+    screens5 = parseJsonFile(rgbCasesPath + '/case5/screens.json');
+>>>>>>> cleanup
 
     /*
       colorMatrix1 =
@@ -120,9 +139,9 @@ describe('findscreen', function() {
   });
 
   // checks if the length of all squares is 4
-  function checkLenghtSquares(squares){
-    for (let sq of squares){
-      if (sq.length != 4){
+  function checkLengthSquares(squares) {
+    for (let sq of squares) {
+      if (sq.length !== 4) {
         return false
       }
     }
@@ -130,16 +149,16 @@ describe('findscreen', function() {
   }
 
   // checks if 2 coordinates are less than delta away from each other
-  function checkIfCordListContainsOtherCordList(corners1, corners2, delta){
-    for (let c2 of corners2){
+  function checkIfCordListContainsOtherCordList(corners1, corners2, delta) {
+    for (let c2 of corners2) {
       let contained = false;
       for (let c1 of corners1) {
-        if (Math.abs(c1.x - c2.x) <= delta && Math.abs(c1.y - c2.y) <= delta){
-          contained = true
+        if (Math.abs(c1.x - c2.x) <= delta && Math.abs(c1.y - c2.y) <= delta) {
+          contained = true;
           break;
         }
       }
-      if (contained == false){
+      if (contained === false) {
         return false
       }
     }
@@ -149,14 +168,14 @@ describe('findscreen', function() {
   // checks if all squares match
   function checkMultipleSquares(squares1, squares2){
     for (let sq1 of squares1){
-      let contained = false
+      let contained = false;
       for (let sq2 of squares2){
         if (checkIfCordListContainsOtherCordList(sq1, sq2, bwdelta)){
-          contained = true
+          contained = true;
           break;
         }
       }
-      if (contained == false){
+      if (contained === false){
         return false;
       }
     }
@@ -175,8 +194,8 @@ describe('findscreen', function() {
   describe('getSquares()', function() {
 
       it('Returns the corners of TestCase1', function () {
-      corners1 = screenReading.getSquares(matrix1,1)
-      assert.isTrue(checkLenghtSquares(corners1), "length of squares is 4")
+      const corners1 = screenReading.getSquares(matrix1,1);
+      assert.isTrue(checkLengthSquares(corners1), "length of squares is 4");
       assert.isTrue(checkMultipleSquares(
           [
             [
@@ -187,13 +206,13 @@ describe('findscreen', function() {
             ]
           ],
           corners1),
-        'Corners are withing margen of correction.'
+        'Corners are withing margin of correction.'
       );
     });
 
     it('Returns the corners of TestCase2', function() {
-      corners2 = screenReading.getSquares(matrix2,1)
-      assert.isTrue(checkLenghtSquares(corners2), "length of squares is 4")
+      const corners2 = screenReading.getSquares(matrix2,1);
+      assert.isTrue(checkLengthSquares(corners2), "length of squares is 4");
       assert.isTrue(checkMultipleSquares(
           [
             [
@@ -204,13 +223,13 @@ describe('findscreen', function() {
             ],
           ],
           corners2),
-        'Corners are withing margen of correction.'
+        'Corners are withing margin of correction.'
       );
     });
 
     it('Returns the corners of TestCase3', function() {
-      corners3 = screenReading.getSquares(matrix3,1)
-      assert.isTrue(checkLenghtSquares(corners3), "length of squares is 4")
+      const corners3 = screenReading.getSquares(matrix3,1);
+      assert.isTrue(checkLengthSquares(corners3), "length of squares is 4");
       assert.isTrue(checkMultipleSquares(
           [
             [
@@ -221,13 +240,13 @@ describe('findscreen', function() {
             ],
           ],
           corners3),
-        'Corners are withing margen of correction.'
+        'Corners are withing margin of correction.'
       );
     });
 
     it('Returns the corners of TestCase4', function() {
-      corners4 = screenReading.getSquares(matrix4,1)
-      assert.isTrue(checkLenghtSquares(corners4), "length of squares is 4")
+      const corners4 = screenReading.getSquares(matrix4,1);
+      assert.isTrue(checkLengthSquares(corners4), "length of squares is 4");
       assert.isTrue(checkMultipleSquares(
           [
             [
@@ -238,13 +257,13 @@ describe('findscreen', function() {
             ],
           ],
           corners4),
-        'Corners are withing margen of correction.'
+        'Corners are withing margin of correction.'
       );
     });
 
     it('Returns the corners of TestCaseSmall', function() {
-      cornersSmall = screenReading.getSquares(matrixSmall,1)
-      assert.isTrue(checkLenghtSquares(cornersSmall), "length of squares is 4")
+      const cornersSmall = screenReading.getSquares(matrixSmall,1);
+      assert.isTrue(checkLengthSquares(cornersSmall), "length of squares is 4");
       assert.isTrue(checkMultipleSquares(
           [
             [
@@ -255,13 +274,13 @@ describe('findscreen', function() {
             ],
           ],
           cornersSmall),
-        'Corners are withing margen of correction.'
+        'Corners are withing margin of correction.'
       );
     });
 
     it('Returns the corners of TestCaseMoreScreens', function() {
-      cornersMoreScreens = screenReading.getSquares(matrixMoreScreens,1)
-      assert.isTrue(checkLenghtSquares(cornersMoreScreens), "length of squares is 4")
+      const cornersMoreScreens = screenReading.getSquares(matrixMoreScreens,1);
+      assert.isTrue(checkLengthSquares(cornersMoreScreens), "length of squares is 4");
       assert.isTrue(checkMultipleSquares(
           [
             [
@@ -284,13 +303,13 @@ describe('findscreen', function() {
             ]
           ],
           cornersMoreScreens),
-        'Corners are withing margen of correction.'
+        'Corners are withing margin of correction.'
       );
     });
 
     it('Returns the corners of TestCaseMoreScreens2', function() {
-      cornersMoreScreens2 = screenReading.getSquares(matrixMoreScreens2,1)
-      assert.isTrue(checkLenghtSquares(cornersMoreScreens2), "length of squares is 4")
+      const cornersMoreScreens2 = screenReading.getSquares(matrixMoreScreens2,1);
+      assert.isTrue(checkLengthSquares(cornersMoreScreens2), "length of squares is 4");
       assert.isTrue(checkMultipleSquares(
           [
             [
@@ -331,11 +350,11 @@ describe('findscreen', function() {
             ]
           ],
           cornersMoreScreens2),
-        'Corners are withing margen of correction.'
+        'Corners are withing margin of correction.'
       );
       });
       /*
-      it('Test diffrent colors', function () {
+      it('Test different colors', function () {
           var matrix = [colorMatrix1,colorMatrix2]
           var screens = [[[23, 31, 39],
                           [20, 25, 33],
@@ -401,22 +420,36 @@ describe('findscreen', function() {
   describe('findScreens', function() {
 
     it('Returns the corners of TestCase1', function() {
+<<<<<<< HEAD
       var squares = screenReading.getScreens(matrixes1, screens1, colorCombs1, 6)
       console.log("found " + squares.length + " of the 6 squares")
       var solutionScreens = {1: [
+=======
+      const squares = screenReading.getScreens(matrixes1, screens1, colorCombs1, 6);
+      const solutionScreens = {1: [
+>>>>>>> cleanup
         { x: 655, y: 220 },
         { x: 657, y: 428 },
         { x: 35, y: 427 },
         { x: 47, y: 185 }
-      ]}
-      for (sq of squares){
+      ]};
+      for (let sq of squares){
         assert.isTrue(compareScreens(screenReading.getScreenFromSquare(sq, screens1), solutionScreens[sq.square.screen]))
       }
+<<<<<<< HEAD
     })
     it('Returns the corners of TestCase2', function() {
       var squares = screenReading.getScreens(matrixes2, screens2, colorCombs2, 6)
       console.log("found " + squares.length + " of the 36 squares")
       var solutionScreens = {1: [
+=======
+      console.log("found " + squares.length + " of the 6 squares")
+    });
+
+    it('Returns the corners of TestCase2', function() {
+      const squares = screenReading.getScreens(matrixes2, screens2, colorCombs2, 6);
+      const solutionScreens = {1: [
+>>>>>>> cleanup
         { x: 333, y: 202 },
         { x: 341, y: 297 },
         { x: 46, y: 291 },
@@ -431,10 +464,12 @@ describe('findscreen', function() {
         { x: 613, y: 417 },
         { x: 356, y: 417 },
         { x: 356, y: 334 }
-      ]}
+      ]};
+
       for (let sq of squares){
         assert.isTrue(compareScreens(screenReading.getScreenFromSquare(sq, screens2), solutionScreens[sq.square.screen]))
       }
+<<<<<<< HEAD
     })
     it('Returns the corners of TestCase3', function() {
       var squares = screenReading.getScreens(matrixes3, screens3, colorCombs3, 6)
@@ -463,6 +498,42 @@ describe('findscreen', function() {
           var squares = screenReading.getScreens(matrixes4, screens4, colorCombs4, 6)
           console.log(squares)
     })
+=======
+      console.log("found " + squares.length + " of the 36 squares")
+    });
+
+    it('Returns the corners of TestCase3', function () {
+      const squares = screenReading.getScreens(matrixes3, screens3, colorCombs3, 6);
+      const solutionScreens = {
+        1: [
+          {x: 345, y: 206},
+          {x: 345, y: 297},
+          {x: 36, y: 279},
+          {x: 46, y: 188}
+        ], 2: [
+          {x: 611, y: 221},
+          {x: 603, y: 302},
+          {x: 372, y: 297},
+          {x: 370, y: 211}
+        ], 3: [
+          {x: 339, y: 332},
+          {x: 335, y: 423},
+          {x: 36, y: 427},
+          {x: 40, y: 326}
+        ]
+      };
+
+      for (let sq of squares) {
+        assert.isTrue(compareScreens(screenReading.getScreenFromSquare(sq, screens2), solutionScreens[sq.square.screen]))
+      }
+      console.log("found " + squares.length + " of the 24 squares")
+    });
+
+      it('Returns the corners of TestCase4', function () {
+          const squares = screenReading.getScreens(matrixes4, screens4, colorCombs4, 6);
+          console.log(squares);
+      })
+>>>>>>> cleanup
 
   })
 });

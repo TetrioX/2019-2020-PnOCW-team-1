@@ -12,19 +12,18 @@ function sortPoints(points) {
 }
 
 
-
-function getAngles(slaves){
+function getAngles(slaves) {
     var result = {}
     var coords = []
     var temp = {}
 
 
-    for(var id in slaves){
+    for (var id in slaves) {
         var X = slaves[id].center.x
         var Y = slaves[id].center.y
         var rot = slaves[id].rotations.z
 
-        var point = [X,Y, rot]
+        var point = [X, Y, rot]
 
         coords.push(point)
         temp[point] = id
@@ -39,11 +38,11 @@ function getAngles(slaves){
         coords.push(point)
     }) */
     var triangulation = Delaunay(coords)
-    coords.forEach(function (pt){
+    coords.forEach(function (pt) {
         var angles = []
         var currentId = temp[pt]
         var connections = triangulation[pt].toArray()
-        for(var ind=0;ind < connections.length; ind++){
+        for (var ind = 0; ind < connections.length; ind++) {
 
 
             var angleBetween = geometry.angleBetweenPoints(pt, connections[ind])
@@ -96,8 +95,8 @@ function delaunay(pts, adj, l, r){
     const m2 = m+1
 
 
-    delaunay(pts, adj, l, m)
-    delaunay(pts, adj, m2, r)
+    delaunay(pts, adj, l, m);
+    delaunay(pts, adj, m2, r);
 
 
     const [L,R] = geometry.findLowerCommonTangent(adj, pts[m], pts[m2])
@@ -136,4 +135,4 @@ function removeDuplicates(pts){
 module.exports = {
     Delaunay: Delaunay,
     getAngles: getAngles
-}
+};
