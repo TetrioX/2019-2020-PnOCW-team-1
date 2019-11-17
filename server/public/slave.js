@@ -670,13 +670,23 @@ masterButton.addEventListener('click',function(){
 	}
 	return temp
  }
+ 
+ function scalePointsStart(corners, refPicture, newPicture) {
+ 	temp = [{}, {}, {}, {}]
+	verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
+	for (let i in corners) {
+		temp[i].x = corners[i].x * verh;
+		temp[i].y = corners[i].y * verh;
+	}
+	return temp
+ }
 
  /**
   * Paste the given part of the given picture on the client canvas.
   **/
  const pastePicture = function(myCanvas, picture, corners, refPictureLength){
 	
-	corners = scalePoints(corners, {x: refPictureLength.x, y: refPictureLength.x}, {x: picture.width, y: picture.width})
+	corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
 	
  	myCanvas.width =  window.innerWidth; //picture.width;
 	myCanvas.height = window.innerHeight; // picture.height;

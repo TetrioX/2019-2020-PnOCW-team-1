@@ -94,13 +94,26 @@ function scalePoints(corners, refPicture, newPicture) {
 	}
 	return temp
 }
-	
+
+ function scalePointsStart(corners, refPicture, newPicture) {
+ 	temp = [{}, {}, {}, {}]
+	verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
+	for (let i in corners) {
+		temp[i].x = corners[i].x * verh;
+		temp[i].y = corners[i].y * verh;
+	}
+	return temp
+ }
+
+
 /**
  * Paste the given part of the given picture on the client canvas.
  **/
 const pastePicture = function(myCanvas, picture, corners, refPictureLength){
 	
+	console.log({x: picture.width, y: picture.height})
 	
+	corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
 	
 	// picture.height = window.innerHeight;
 	// picture.width = window.innerWidth;
@@ -141,7 +154,7 @@ img.onload = function() {
 	document.body.style.backgroundColor = "black";
 }
 
-img.src = "Test.jpg"
+img.src = "Colorgrid.jpg"
 
 testReal = [{x:2345, y: 1005}, {x: 2717,y: 1705}, {x: 1393,y: 2131}, {x: 1001, y:1161}]
 testReal2 = {B: {x:2653,y:1093}, C: {x:2733,y:2185}, D: {x:657,y:2313}, A: {x:661,y:1129}}
