@@ -675,7 +675,9 @@ masterButton.addEventListener('click',function(){
   * Paste the given part of the given picture on the client canvas.
   **/
  const pastePicture = function(myCanvas, picture, corners, refPictureLength){
-
+	
+	corners = scalePoints(corners, {x: refPictureLength.x, y: refPictureLength.x}, {x: picture.width, y: picture.width})
+	
  	myCanvas.width =  window.innerWidth; //picture.width;
 	myCanvas.height = window.innerHeight; // picture.height;
     ctx = myCanvas.getContext('2d');
