@@ -497,7 +497,7 @@ masterButton.addEventListener('click',function(){
         InitiateCountDownLoop();
         function InitiateCountDownLoop(){
             drawCountdown();
-            if(Math.round(elipsed_seconds % 60) != total_seconds){
+            if(Math.floor(elipsed_seconds) < total_seconds){
                 setTimeout(InitiateCountDownLoop, refresh_rate);
             }else if(last_loop === false){
                 last_loop = true;
@@ -535,7 +535,7 @@ masterButton.addEventListener('click',function(){
             elipsed_seconds = timeDifference;
         }; // getElapsedSeconds END
         function appendCountdownSeconds(){
-            countdown.textContent = (total_seconds - Math.round(elipsed_seconds)).toString();
+            countdown.textContent = (total_seconds - Math.floor(elipsed_seconds)).toString();
             adjustCountDownOffset();
         }; // appendCountdowSeconds END
         function adjustCountDownOffset(){
