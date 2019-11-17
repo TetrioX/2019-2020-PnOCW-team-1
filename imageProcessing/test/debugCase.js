@@ -32,7 +32,7 @@ async function runTestCase(paths) {
     if (useImages){
       images = []
       for (let i = 0; i < useImages; i++){
-        images.push([path+`/image-${i}.png`)
+        images.push(path+`/image-${i}.png`)
       }
       matrixes = await imgprcssrgb.doImgDiff(images, false, false)
       matrixes = matrixes.matrix
