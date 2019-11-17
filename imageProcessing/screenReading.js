@@ -442,10 +442,10 @@ function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColor
 							let color = neigborCols[c][j]
 							if (neighbor == color) {
 								// we remove the found color
-								neigborCols[c].splice(j, 1)
+								neigborCols[c][j] = null
 								borderSizes[j] = d
 								// if there are no colors left to be found return true
-								if (neigborCols[c].length == 0) {
+								if (neigborCols[c].every((el) => {return el === null})) {
 									corners.splice(c, 1)
 									return current
 								}
@@ -505,28 +505,31 @@ function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColor
       // 1) if both are not in range take corner border and side border color
       if (!rowInRange && !colInRange) {
         return [
-					screen.cornBorder,
-					screen.sideBorder
+					screen.sideBorder,
+					screen.sideBorder,
+					screen.cornBorder
 				]
       }
       // 2) if only row is not in range return sideBorder and the horizontal side neigbor
       if (!rowInRange) {
         return [
           screen.sideBorder,
-          screen.grid[rowI - angles[i].y][colI]
+          screen.grid[rowI - angles[i].y][colI],
+					screen.sideBorder
         ]
       }
       // 3) if only col is not in range return sideBorder and the vertical side neigbor
       if (!colInRange) {
         return [
+					screen.grid[rowI][colI - angles[i].x],
           screen.sideBorder,
-          screen.grid[rowI][colI - angles[i].x]
+					screen.sideBorder
         ]
       }
     return [
-			screen.grid[rowI][colI],
 			screen.grid[rowI][colI - angles[i].x],
-			screen.grid[rowI - angles[i].y][colI]
+			screen.grid[rowI - angles[i].y][colI],
+			screen.grid[rowI][colI]
 		];
   }
 
@@ -687,21 +690,24 @@ function getScreenFromSquare(locSquare, screens){
 	let screen = screens[square.screen]
 	let nbOfRows = screen.grid.length
 	let nbOfCols = screen.grid[0].length
+	// borders is an array with length 4 and each value is an array with
+	// the first value the border in the x derection and as second border the
+	// value in the y direction.
 	let vectorTop = {
-		x: corners[0].x - corners[3].x + 1,
-		y: corners[0].y - corners[3].y
+		x: corners[0].x - corners[3].x + borders[0][0]/2 + borders[3][0]/2,
+		y: corners[0].y - corners[3].y + borders[0][1]/2 - borders[3][1]/2
 	}
 	let vectorBot = {
-		x: corners[1].x - corners[2].x + 1,
-		y: corners[1].y - corners[2].y
+		x: corners[1].x - corners[2].x + borders[1][0]/2 + borders[2][0]/2,
+		y: corners[1].y - corners[2].y + borders[2][1]/2 - borders[1][1]/2
 	}
 	let vectorRight = {
-		x: corners[1].x - corners[0].x,
-		y: corners[1].y - corners[0].y + 1
+		x: corners[1].x - corners[0].x + borders[1][0]/2 - borders[0][0]/2,
+		y: corners[1].y - corners[0].y + borders[1][1]/2 + borders[0][1]/2
 	}
 	let vectorLeft = {
-		x: corners[2].x - corners[3].x,
-		y: corners[2].y - corners[3].y + 1
+		x: corners[2].x - corners[3].x + borders[3][0]/2 - borders[2][0]/2,
+		y: corners[2].y - corners[3].y + borders[2][1]/2 + borders[3][1]/2
 	}
 	// we'll calculate all corners off te screen relative to this one.
 	let corn = corners[3]
