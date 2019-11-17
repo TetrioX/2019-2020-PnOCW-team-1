@@ -563,16 +563,9 @@ function allElementsOfNoise(firstElement, matrix, noise) {
 		let element = elementsToCheck.pop()
 		let neighbors = sortColorOut(matrix, NeighborsAndDiagonal(matrix, element), matrix[element.y][element.x])
 		for (let i of neighbors) {
-			if (typeof noise[i.y] === 'undefined') {
-				noise[i.y] = {}
-				noise[i.y][i.x] = 1
+			if (!noise.has(i.x + matrix[0].length * i.y)) {
+				noise.add(i.x + matrix[0].length * i.y)
 				elementsToCheck.push(i)
-			}
-			else {
-				if (noise[i.y][i.x] != 1) {
-					noise[i.y][i.x] = 1
-					elementsToCheck.push(i)
-				}
 			}
 		}
 	}
@@ -600,12 +593,12 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	// 0 is the value for noise and shouldn't be checked
 
   let foundColValues = new Set([0])
-  let noise = {}
+  let noise = new Set()
 	// an array of all valide screen squares
 	let foundScreenSquares = []
 	// iterate through the matrix with j the y value and i the x value
 	for (let j = 0; j < matrix.length; j++){
-		for (let i = 0; i < matrix.length; i++){
+		for (let i = 0; i < matrix[0].length; i++){
 			// check if we have found a new color
       if (!foundColValues.has(matrix[j][i])) {
 	      // check if the found color is in colorComb
@@ -614,7 +607,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	        foundColValues.add(matrix[j][i])
 	        continue;
 	      }
-	      if (!(typeof noise[j] === 'undefined' || typeof noise[j][i] === 'undefinded')){
+	      if (noise.has(i + matrix[0].length * j)){
 	        continue;
 	      }
 
