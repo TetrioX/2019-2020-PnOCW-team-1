@@ -670,7 +670,7 @@ masterButton.addEventListener('click',function(){
 	}
 	return temp
  }
- 
+
  function scalePointsStart(corners, refPicture, newPicture) {
  	temp = [{}, {}, {}, {}]
 	verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
@@ -685,13 +685,13 @@ masterButton.addEventListener('click',function(){
   * Paste the given part of the given picture on the client canvas.
   **/
  const pastePicture = function(myCanvas, picture, corners, refPictureLength){
-	
-	corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
-	
+
+	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
+
  	myCanvas.width =  window.innerWidth; //picture.width;
 	myCanvas.height = window.innerHeight; // picture.height;
     ctx = myCanvas.getContext('2d');
-	
+
 	/* ctx.beginPath();
     ctx.moveTo(corners[3].x, corners[3].y);
 	ctx.lineTo(corners[0].x, corners[0].y);
@@ -701,16 +701,16 @@ masterButton.addEventListener('click',function(){
     ctx.clip(); //call the clip method so the next render is clipped in last path
     ctx.stroke();
     ctx.closePath(); */
-	
+
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
-				   
+
 	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-	
-	
-	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y, 
+
+
+	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-			
+
 
  };
 	socket.on('showPicture', function(data){
@@ -720,7 +720,7 @@ masterButton.addEventListener('click',function(){
 		var img = new Image()
 
 		img.onload = function() {
-			pastePicture(canvas, img, data.corners, {x: data.picDim[0], y: data.picDim[1]});
+			pastePicture(canvas, img, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			// This is for smoother picture monitoring. Else white borders are possible.
 			document.body.style.backgroundColor = "black";
 		}

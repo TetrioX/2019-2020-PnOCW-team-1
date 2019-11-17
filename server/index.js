@@ -390,7 +390,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       //   slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
       //})
       // load the image that should be sent
-      let image = fs.readFileSync('./public/Colorgrid.jpg').toString('base64')
+      let image = fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64')
       // send to each slave
       Object.keys(slaves).forEach(function(slave, index) {
         slaveSockets[slave].emit('showPicture', {
