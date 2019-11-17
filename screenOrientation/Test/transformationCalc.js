@@ -87,11 +87,12 @@ function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
 }
 
 function scalePoints(corners, refPicture, newPicture) {
-	for (let key in corners) {
-		corners[key].x = corners[key].x * newPicture.x / refPicture.x;
-		corners[key].y = corners[key].y * newPicture.x / refPicture.x;
+	temp = [{}, {}, {}, {}]
+	for (let i in corners) {
+		temp[i].x = corners[i].x * newPicture.x / refPicture.x;
+		temp[i].y = corners[i].y * newPicture.y / refPicture.y;
 	}
-	return corners
+	return temp
 }
 	
 /**
@@ -99,29 +100,35 @@ function scalePoints(corners, refPicture, newPicture) {
  **/
 const pastePicture = function(myCanvas, picture, corners, refPictureLength){
 	
-	corners = scalePoints(corners, refPictureLength, {x: picture.width, y: picture.height})
 	
-	picture.height = window.innerHeight;
-	picture.width = window.innerWidth;
 	
-	myCanvas.width = picture.width;
-	myCanvas.height = picture.height;
+	// picture.height = window.innerHeight;
+	// picture.width = window.innerWidth;
+	
+	myCanvas.width =  window.innerWidth; //picture.width;
+	myCanvas.height = window.innerHeight; // picture.height;
     ctx = myCanvas.getContext('2d');
 	
-	ctx.beginPath();
-    ctx.moveTo(corners.A.x, corners.A.y);
-	ctx.lineTo(corners.B.x, corners.B.y);
-	ctx.lineTo(corners.C.x, corners.C.y);
-	ctx.lineTo(corners.D.x, corners.D.y);
-	ctx.lineTo(corners.A.x, corners.A.y);
+	console.log(corners)
+	
+	/* ctx.beginPath();
+    ctx.moveTo(corners[3].x, corners[3].y);
+	ctx.lineTo(corners[0].x, corners[0].y);
+	ctx.lineTo(corners[1].x, corners[1].y);
+	ctx.lineTo(corners[2].x, corners[2].y);
+	ctx.lineTo(corners[3].x, corners[3].y);
     ctx.clip(); //call the clip method so the next render is clipped in last path
     ctx.stroke();
-    ctx.closePath();
+    ctx.closePath(); */
+	
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
+				   
+	corners = scalePoints(corners, refPictureLength, {x: window.innerWidth, y: window.innerHeight})
+	console.log(temp)
 	
-	transform2d(myCanvas, corners.A.x, corners.A.y, corners.B.x, corners.B.y, 
-			corners.D.x, corners.D.y, corners.C.x, corners.C.y);
+	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y, 
+			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 
 };
 
@@ -134,9 +141,9 @@ img.onload = function() {
 	document.body.style.backgroundColor = "black";
 }
 
-img.src = "Colorgrid.jpg"
+img.src = "Test.jpg"
 
-testReal = {B: {x:2345, y: 1005}, C: {x: 2717,y: 1705}, D: {x: 1393,y: 2131}, A: {x: 1001, y:1161}} 
+testReal = [{x:2345, y: 1005}, {x: 2717,y: 1705}, {x: 1393,y: 2131}, {x: 1001, y:1161}]
 testReal2 = {B: {x:2653,y:1093}, C: {x:2733,y:2185}, D: {x:657,y:2313}, A: {x:661,y:1129}}
 testReal3 = {B: {x:1069,y:2273},C: {x:1089,y:1289},D: {x:2801,y:1268},A: {x:2857,y:2229}}
 
