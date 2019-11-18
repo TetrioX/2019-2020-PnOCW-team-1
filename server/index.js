@@ -4,7 +4,7 @@ var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
-// const screenorientation = require('../screenOrientation/UnusedScript/orientationCalculation.js')
+const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
 const config = require('./config.json');
@@ -23,8 +23,8 @@ var debugDirPromise = new Promise(function(resolve, reject){
   });
 }).catch((err) => {console.log(err)})
 var AllScreenPositions={};
-var picDimensions = []
-
+var picDimensions = [];
+var calibrationPicture;
 
 
 //App setup
@@ -237,6 +237,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       let pictures = await takePicture(nbOfPictures)
+		calibrationPicture = pictures[0]
       if (pictures == null){
         return null
       }
@@ -347,30 +348,26 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('drawLine', data);
   	});
 
-    socket.on('drawStar', function () {
-        slaveIo.emit('drawStar');
-    });
-
     socket.on('triangulate', async function(data){
-        var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
-        console.log(screens)
-        var screenKeys = Object.keys(screens)
-        if (screenKeys.length == 0){
-          socket.emit('alert', "didn't find any screens.")
-          return
-        } else{
-          socket.emit('alert', "found these screens: "+screenKeys.toString() )
-        }
-        var data = screenorientation.getScreens(screens);
-        console.log(data)
-        var angles = delaunay.getAngles(data);
-        console.log(angles)
+		
+		if (Object.keys(AllScreenPositions).length < 1) {
+			socket.emit('alert', 'Please do screen recognition first');
+			return;
+		}
+		
+		let centers = screenorientation.getScreenCenters(AllScreenPositions)
+		var angles = delaunay.getAngles(centers);
+		console.log(angles)
+			
         Object.keys(slaves).forEach(function(slave, index) {
-          // if we found the screen send it which angles it should draw
           if (typeof angles[slaves[slave]] !== 'undefined'){
-            slaveSockets[slave].emit('triangulate', angles[slaves[slave]]);
+            slaveSockets[slave].emit('triangulate', {
+              angles: angles[slaves[slave]],
+              corners: AllScreenPositions[slaves[slave]],
+              picDim: picDimensions
+            });
           }
-        });
+        })
     });
 
     socket.on('calibrate', function(data) {
@@ -385,24 +382,40 @@ var masterIo = io.of('/master').on('connect', function(socket){
                 })
         })
     });
-    socket.on('broadcastImage', function(){
-      // console.log('wil broadcast image');
-      // Object.keys(slaves).forEach(function(slave, index) {
-      // console.log(AllScreenPositions[slaves[slave]]);
-      //   slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
-      //})
-      // load the image that should be sent
-      let image = fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64')
-      // send to each slave
-      Object.keys(slaves).forEach(function(slave, index) {
-        slaveSockets[slave].emit('showPicture', {
-          corners: AllScreenPositions[slaves[slave]],
-          picture: image,
-          picDim: picDimensions
-        });
-      })
+    socket.on('broadcastImage', function(data){
+		
+		// load the image that should be sent
+		let image = selectImage(data.image)
+		
+		// send to each slave
+		Object.keys(slaves).forEach(function(slave, index) {
+			slaveSockets[slave].emit('showPicture', {
+				corners: AllScreenPositions[slaves[slave]],
+				picture: image,
+				picDim: picDimensions
+			});
+		})
     })
-
+	
+	const selectImage = function(selection) {
+		console.log(selection)
+		switch (selection) {
+			case "Colorgrid" :
+				return fs.readFileSync('./public/Colorgrid.jpg').toString('base64');
+			case "TestImage1" :
+				return fs.readFileSync('./public/ImageShowOffTest.jpg').toString('base64');
+			case "TestImage2" :
+				return fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64');
+			case "CalibrationPicture" :
+				if (calibrationPicture) 
+					return calibrationPicture.toString('base64');
+				else socket.emit('alert', 'Please do screen recognition first');
+				break;
+			case "video" : 
+				return fs.createReadStream('./public/video.mp4')
+		}		
+	}
+	
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
       clearInterval(countdownUpdater)

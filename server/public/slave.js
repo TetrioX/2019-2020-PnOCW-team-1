@@ -122,13 +122,6 @@ socket.on('drawStar', function(data){
 	drawStar();
 });
 
-socket.on('triangulate', function(angles){
-	wrapper.style.display = "none";
-	drawStar();
-	console.log(angles)
-	drawAnglesDegree(angles)
-});
-
 socket.on('drawLine', function(data){
     draw(data.angle);
 });
@@ -280,61 +273,6 @@ function draw(radianAngle) {
 
 }
 
-function drawAnglesDegree(radianAngles) {
-	canvas.style.display = "block"
-	context.clearRect(0, 0, canvas.width, canvas.height);
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
-	// center
-	const cx = window.innerWidth / 2;
-	const cy = window.innerHeight / 2;
-	//draw star
-	const outerRadius = 40;
-	const innerRadius = 15;
-	var rot = Math.PI / 2 * 3;
-	var x = cx;
-	var y = cy;
-	var step = Math.PI / 5;
-
-	context.beginPath();
-	context.moveTo(cx, cy - outerRadius);
-	for (let i = 0; i < 5; i++) {
-		x = cx + Math.cos(rot) * outerRadius;
-		y = cy + Math.sin(rot) * outerRadius;
-		context.lineTo(x, y);
-		rot += step;
-
-		x = cx + Math.cos(rot) * innerRadius;
-		y = cy + Math.sin(rot) * innerRadius;
-		context.lineTo(x, y);
-		rot += step
-	}
-	context.lineTo(cx, cy - outerRadius);
-	context.closePath();
-	context.lineWidth = 5;
-	context.strokeStyle = 'black';
-	context.stroke();
-	context.fillStyle = 'black';
-	context.fill();
-
-	//draw lines
-	for(radianAngle of radianAngles){
-		var dx = length * Math.cos(Number(radianAngle) * Math.PI * 2 / 360);
-		var dy = length * Math.sin(Number(radianAngle) * Math.PI * 2 / 360);
-
-		// start point
-		context.moveTo(cx, cy);
-		// end point
-		context.lineTo(cx+dx, cy+dy);
-
-		context.lineWidth = 10;
-		// Make the line visible
-
-		context.stroke();
-	}
-}
-
-
 //BROADCASTING IMAGES AND VIDEOS
 
 socket.on('broadcastingImage'),function(data){
@@ -442,16 +380,6 @@ img.src ='/static/Colorgrid.jpg';
 socket.on('changeBackgroundColor',function(data){
 	cleanHTML()
   document.body.style.backgroundColor = data.colorValue;
-});
-
-socket.on('drawStar', function(data){
-	cleanHTML()
-	drawStar();
-});
-
-socket.on('triangulate', function(angles){
-	cleanHTML()
-	drawAnglesDegree(angles)
 });
 
 socket.on('drawLine', function(data){
@@ -713,6 +641,88 @@ masterButton.addEventListener('click',function(){
 
 
  };
+
+ const transformAngles = function(myCanvas, corners, refPictureLength){
+
+	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
+
+ 	myCanvas.width =  window.innerWidth; //picture.width;
+	myCanvas.height = window.innerHeight; // picture.height;
+    ctx = myCanvas.getContext('2d');
+
+	/* ctx.beginPath();
+    ctx.moveTo(corners[3].x, corners[3].y);
+	ctx.lineTo(corners[0].x, corners[0].y);
+	ctx.lineTo(corners[1].x, corners[1].y);
+	ctx.lineTo(corners[2].x, corners[2].y);
+	ctx.lineTo(corners[3].x, corners[3].y);
+    ctx.clip(); //call the clip method so the next render is clipped in last path
+    ctx.stroke();
+    ctx.closePath(); */
+
+	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+
+
+	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
+			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+
+
+ };
+
+ function drawAnglesDegree(radianAngles) {
+ 	canvas.style.display = "block"
+ 	context.clearRect(0, 0, canvas.width, canvas.height);
+ 	canvas.width = window.innerWidth;
+ 	canvas.height = window.innerHeight;
+ 	// center
+ 	const cx = window.innerWidth / 2;
+ 	const cy = window.innerHeight / 2;
+ 	//draw star
+ 	const outerRadius = 40;
+ 	const innerRadius = 15;
+ 	var rot = Math.PI / 2 * 3;
+ 	var x = cx;
+ 	var y = cy;
+ 	var step = Math.PI / 5;
+
+ 	context.beginPath();
+ 	context.moveTo(cx, cy - outerRadius);
+ 	for (let i = 0; i < 5; i++) {
+ 		x = cx + Math.cos(rot) * outerRadius;
+ 		y = cy + Math.sin(rot) * outerRadius;
+ 		context.lineTo(x, y);
+ 		rot += step;
+
+ 		x = cx + Math.cos(rot) * innerRadius;
+ 		y = cy + Math.sin(rot) * innerRadius;
+ 		context.lineTo(x, y);
+ 		rot += step
+ 	}
+ 	context.lineTo(cx, cy - outerRadius);
+ 	context.closePath();
+ 	context.lineWidth = 5;
+ 	context.strokeStyle = 'black';
+ 	context.stroke();
+ 	context.fillStyle = 'black';
+ 	context.fill();
+
+ 	//draw lines
+ 	for(radianAngle of radianAngles){
+ 		var dx = length * Math.cos(Number(radianAngle) * Math.PI * 2 / 360);
+ 		var dy = length * Math.sin(Number(radianAngle) * Math.PI * 2 / 360);
+
+ 		// start point
+ 		context.moveTo(cx, cy);
+ 		// end point
+ 		context.lineTo(cx+dx, cy+dy);
+
+ 		context.lineWidth = 10;
+ 		// Make the line visible
+
+ 		context.stroke();
+ 	}
+ }
+
 	socket.on('showPicture', function(data){
 		cleanHTML()
 		canvas.style.display = "block"
@@ -728,5 +738,11 @@ masterButton.addEventListener('click',function(){
 		img.src = 'data:image/jpeg;base64,' + data.picture;
 		// This is for smoother picture monitoring. Else white borders are possible.
 		document.body.style.backgroundColor = "black";
+	});
+	socket.on('triangulate', function(data){
+		cleanHTML()
+		canvas.style.display = "block"
+		drawAnglesDegree(data.angles)
+		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
 	});
 })()
