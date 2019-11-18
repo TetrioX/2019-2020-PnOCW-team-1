@@ -5,12 +5,9 @@
   overflow: clip;
 }
 
-#myCanvas {
+#canvas {
   position: absolute;
   top: 0px;
   left: 0px;
   transform-origin: 0 0;
-  -webkit-transform-origin: 0 0;
-  -moz-transform-origin: 0 0;
-  -o-transform-origin: 0 0;
 }

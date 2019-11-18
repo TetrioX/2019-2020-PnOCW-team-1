@@ -405,6 +405,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				return fs.readFileSync('./public/ImageShowOffTest.jpg').toString('base64');
 			case "TestImage2" :
 				return fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64');
+			case "FaculteitsFoto" :
+				return fs.readFileSync('./public/FaculteitsFoto.jpg').toString('base64');
 			case "CalibrationPicture" :
 				if (calibrationPicture) 
 					return calibrationPicture.toString('base64');
