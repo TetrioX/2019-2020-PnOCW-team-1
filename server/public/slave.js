@@ -639,7 +639,6 @@ masterButton.addEventListener('click',function(){
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
-	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
