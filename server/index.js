@@ -261,7 +261,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
       picDimensions = [matrixes[0].length, matrixes[0][0].length]
       let squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
       console.log(squares)
-      return scrnread.getScreenFromSquares(squares, screens)
+      let result = scrnread.getScreenFromSquares(squares, screens)
+      socket.emit('drawSquares', result)
+      return result
     }
 
     // takes a picture with i the current picture and n the total number of pictures

@@ -230,3 +230,17 @@ countdownButton.addEventListener('click', function(){
 		socket.emit('startCountdown', countdownSeconds)
 	}
 })
+
+socket.on('drawSquares', function (data) {
+    var screenKeys = Object.keys(data)
+    var context = canvas.getContext('2d');
+    for (let i of screenKeys) {
+        for (let i = 0; i < 4; i++) {
+            context.beginPath();
+            context.arc(data.i[j].x, data.i[j].y, 20, 0, 2 * Math.PI, false);
+            context.lineWidth = 3;
+            context.strokeStyle = '#ff00ff';
+            context.stroke();
+        }
+    }
+})
