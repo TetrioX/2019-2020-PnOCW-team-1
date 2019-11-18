@@ -26,6 +26,7 @@ const getScreenCenters = function(screens) {
 		scrRes[id] = getCenter(screens[id])
 		// console.log(getOrientation(screens[id]))
 	}
+  console.log(scrRes)
 	return scrRes
 }
 
