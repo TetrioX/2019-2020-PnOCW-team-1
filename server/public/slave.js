@@ -626,6 +626,16 @@ masterButton.addEventListener('click',function(){
 	myCanvas.height = window.innerHeight; // picture.height;
     ctx = myCanvas.getContext('2d');
 
+	/* ctx.beginPath();
+    ctx.moveTo(corners[3].x, corners[3].y);
+	ctx.lineTo(corners[0].x, corners[0].y);
+	ctx.lineTo(corners[1].x, corners[1].y);
+	ctx.lineTo(corners[2].x, corners[2].y);
+	ctx.lineTo(corners[3].x, corners[3].y);
+    ctx.clip(); //call the clip method so the next render is clipped in last path
+    ctx.stroke();
+    ctx.closePath(); */
+
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
@@ -640,24 +650,32 @@ masterButton.addEventListener('click',function(){
  const transformAngles = function(myCanvas, corners, refPictureLength){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
-	myCanvas.width = window.innerWidth
-	myCanvas.height = window.innerHeight
     ctx = myCanvas.getContext('2d');
 
+	/* ctx.beginPath();
+    ctx.moveTo(corners[3].x, corners[3].y);
+	ctx.lineTo(corners[0].x, corners[0].y);
+	ctx.lineTo(corners[1].x, corners[1].y);
+	ctx.lineTo(corners[2].x, corners[2].y);
+	ctx.lineTo(corners[3].x, corners[3].y);
+    ctx.clip(); //call the clip method so the next render is clipped in last path
+    ctx.stroke();
+    ctx.closePath(); */
+
 	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 
+
  };
 
  function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
-	myCanvas.width = window.innerWidth; //picture.width;
- 	myCanvas.height = window.innerHeight; // picture.height;
+	myCanvas.width = refPictureLength.x // window.innerWidth; //picture.width;
+ 	myCanvas.height = refPictureLength.y// window.innerHeight; // picture.height;
 
-	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
-	console.log(center)
+	// center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
  	const cx = center.x;
  	const cy = center.y;
