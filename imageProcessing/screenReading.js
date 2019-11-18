@@ -262,6 +262,7 @@ const findBorderOrdered = function (matrix, start,color) {
 		y: start.y
   };
 	border = []
+	borderSet = new Set()
   while (true) {
     let foundNewBorderPixel = false;
     // Also check previous angles
@@ -277,6 +278,7 @@ const findBorderOrdered = function (matrix, start,color) {
             x: current.x,
             y: current.y
         });
+				borderSet.add(x + matrix.length * y)
         //remove it from the matrix (make it black)
         borderMatrix[current.y][current.x] = 0
         //set the new direction to the current angle
@@ -345,8 +347,9 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 		y: start.y
 	 };
 	border = []
+	borderSet = new Set()
+	var atStart = false
   while (true) {
-    let foundNewBorderPixel = true;
     // Also check previous angles
     for (let add = -2; add <= 4; add++) { //vanaf -3 al????
       //45graden kloksgewijs: angleIndex (huidige index) + add
@@ -355,22 +358,27 @@ const findBorderOrderedRgb = function (matrix, start,color) {
       if (checkNeighbor(current, angle)) {
         current.x += angle.x
         current.y += angle.y
+				if (atStart){
+					if (borderSet.has(current.x + matrix[0].length * current.y)){
+						return border
+					} else{
+						atStart = false
+					}
+				}
         //add to the list
         border.push({
             x: current.x,
             y: current.y
         });
+				borderSet.add(current.x + matrix[0].length * current.y)
         //set the new direction to the current angle
         angleIndex = (angleIndex + add + 8) % 8
-        //continue searching in the same direction
-        foundNewBorderPixel = true;
         break;
       }
     }
-		if (foundNewBorderPixel){
-			if (start.x == current.x && start.y == current.y){
-				break;
-			}
+		if (start.x == current.x && start.y == current.y){
+			if (atStart) break
+			atStart = true
 		}
   }
 	if (border.length == 0){
@@ -381,7 +389,7 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 
 function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColors) {
   // distance to check for color
-  const distance = Math.max(4, Math.ceil(border.length / 16));
+  const distance = Math.max(4, Math.ceil(border.length) / 4);
   // check if there are pixels around the current pixel with certain colors
   // within a certain distance and returns true if all colors are present.
 	// returns from the corners the corner that is the closest to these colors and
@@ -442,10 +450,10 @@ function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColor
 							let color = neigborCols[c][j]
 							if (neighbor == color) {
 								// we remove the found color
-								neigborCols[c].splice(j, 1)
+								neigborCols[c][j] = null
 								borderSizes[j] = d
 								// if there are no colors left to be found return true
-								if (neigborCols[c].length == 0) {
+								if (neigborCols[c].every((el) => {return el === null})) {
 									corners.splice(c, 1)
 									return current
 								}
@@ -505,28 +513,31 @@ function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColor
       // 1) if both are not in range take corner border and side border color
       if (!rowInRange && !colInRange) {
         return [
-					screen.cornBorder,
-					screen.sideBorder
+					screen.sideBorder,
+					screen.sideBorder,
+					screen.cornBorder
 				]
       }
       // 2) if only row is not in range return sideBorder and the horizontal side neigbor
       if (!rowInRange) {
         return [
           screen.sideBorder,
-          screen.grid[rowI - angles[i].y][colI]
+          screen.grid[rowI - angles[i].y][colI],
+					screen.sideBorder
         ]
       }
       // 3) if only col is not in range return sideBorder and the vertical side neigbor
       if (!colInRange) {
         return [
+					screen.grid[rowI][colI - angles[i].x],
           screen.sideBorder,
-          screen.grid[rowI][colI - angles[i].x]
+					screen.sideBorder
         ]
       }
     return [
-			screen.grid[rowI][colI],
 			screen.grid[rowI][colI - angles[i].x],
-			screen.grid[rowI - angles[i].y][colI]
+			screen.grid[rowI - angles[i].y][colI],
+			screen.grid[rowI][colI]
 		];
   }
 
@@ -552,16 +563,9 @@ function allElementsOfNoise(firstElement, matrix, noise) {
 		let element = elementsToCheck.pop()
 		let neighbors = sortColorOut(matrix, NeighborsAndDiagonal(matrix, element), matrix[element.y][element.x])
 		for (let i of neighbors) {
-			if (typeof noise[i.y] === 'undefined') {
-				noise[i.y] = {}
-				noise[i.y][i.x] = 1
+			if (!noise.has(i.x + matrix[0].length * i.y)) {
+				noise.add(i.x + matrix[0].length * i.y)
 				elementsToCheck.push(i)
-			}
-			else {
-				if (noise[i.y][i.x] != 1) {
-					noise[i.y][i.x] = 1
-					elementsToCheck.push(i)
-				}
 			}
 		}
 	}
@@ -589,12 +593,12 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	// 0 is the value for noise and shouldn't be checked
 
   let foundColValues = new Set([0])
-  let noise = {}
+  let noise = new Set()
 	// an array of all valide screen squares
 	let foundScreenSquares = []
 	// iterate through the matrix with j the y value and i the x value
 	for (let j = 0; j < matrix.length; j++){
-		for (let i = 0; i < matrix.length; i++){
+		for (let i = 0; i < matrix[0].length; i++){
 			// check if we have found a new color
       if (!foundColValues.has(matrix[j][i])) {
 	      // check if the found color is in colorComb
@@ -603,7 +607,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	        foundColValues.add(matrix[j][i])
 	        continue;
 	      }
-	      if (!(typeof noise[j] === 'undefined' || typeof noise[j][i] === 'undefinded')){
+	      if (noise.has(i + matrix[0].length * j)){
 	        continue;
 	      }
 
@@ -687,21 +691,24 @@ function getScreenFromSquare(locSquare, screens){
 	let screen = screens[square.screen]
 	let nbOfRows = screen.grid.length
 	let nbOfCols = screen.grid[0].length
+	// borders is an array with length 4 and each value is an array with
+	// the first value the border in the x derection and as second border the
+	// value in the y direction.
 	let vectorTop = {
-		x: corners[0].x - corners[3].x + 1,
-		y: corners[0].y - corners[3].y
+		x: corners[0].x - corners[3].x + borders[0][0]/2 + borders[3][0]/2,
+		y: corners[0].y - corners[3].y + borders[0][1]/2 - borders[3][1]/2
 	}
 	let vectorBot = {
-		x: corners[1].x - corners[2].x + 1,
-		y: corners[1].y - corners[2].y
+		x: corners[1].x - corners[2].x + borders[1][0]/2 + borders[2][0]/2,
+		y: corners[1].y - corners[2].y + borders[2][1]/2 - borders[1][1]/2
 	}
 	let vectorRight = {
-		x: corners[1].x - corners[0].x,
-		y: corners[1].y - corners[0].y + 1
+		x: corners[1].x - corners[0].x + borders[1][0]/2 - borders[0][0]/2,
+		y: corners[1].y - corners[0].y + borders[1][1]/2 + borders[0][1]/2
 	}
 	let vectorLeft = {
-		x: corners[2].x - corners[3].x,
-		y: corners[2].y - corners[3].y + 1
+		x: corners[2].x - corners[3].x + borders[3][0]/2 - borders[2][0]/2,
+		y: corners[2].y - corners[3].y + borders[2][1]/2 + borders[3][1]/2
 	}
 	// we'll calculate all corners off te screen relative to this one.
 	let corn = corners[3]
@@ -754,7 +761,7 @@ function getCorners(rand){
 	}
   //Value to determen the distance that we look around corners
   // to make softer borders recognisable
-	const distance = Math.max(4, Math.ceil(border.length / 12))
+	const distance = 6
 	// number of angles to check
 	const nbOfAngles = 4
 
@@ -786,7 +793,7 @@ function getCorners(rand){
 			c++
 		}
 		// stop when you have 4 corners and the last corner was significantly smaller than the previous one.
-		while (c < 4 || (currentAngle > -nbOfAngles/4 && result.length < 20))
+		while (c < 4 || (currentAngle > -nbOfAngles/1.5 && result.length < 50))
 		return result
 	}
 
