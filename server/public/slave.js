@@ -591,8 +591,9 @@ masterButton.addEventListener('click',function(){
  }
 
  function scaleCenter(center, refPicture, newPicture){
-	 center.x = center.x * newPicture.x / refPicture.x;
-	 center.y = center.y * newPicture.y / refPicture.y;
+	 verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
+	 center.x = center.x * verh;
+	 center.y = center.y * verh;
 	 return center
  }
 
@@ -652,18 +653,7 @@ masterButton.addEventListener('click',function(){
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
     ctx = myCanvas.getContext('2d');
 
-	/* ctx.beginPath();
-    ctx.moveTo(corners[3].x, corners[3].y);
-	ctx.lineTo(corners[0].x, corners[0].y);
-	ctx.lineTo(corners[1].x, corners[1].y);
-	ctx.lineTo(corners[2].x, corners[2].y);
-	ctx.lineTo(corners[3].x, corners[3].y);
-    ctx.clip(); //call the clip method so the next render is clipped in last path
-    ctx.stroke();
-    ctx.closePath(); */
-
 	corners = scalePointsStart(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
