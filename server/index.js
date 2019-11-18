@@ -4,7 +4,7 @@ var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
-// const screenorientation = require('../screenOrientation/UnusedScript/orientationCalculation.js')
+const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
 const config = require('./config.json');
