@@ -413,11 +413,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		}		
 	}
 	
-	socket.on('broadcastVideo', function(data){
+	socket.on('broadcastVideo', function(){
 		
 		// load the image that should be sent
-		let video = fs.readFileSync('./public/video.avi').toURL('base64');
-		
+
+		let video = fs.readFileSync('./public/video.mp4').toString('base64');
+
 		// send to each slave
 		Object.keys(slaves).forEach(function(slave, index) {
 			slaveSockets[slave].emit('showVideo', {

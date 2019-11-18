@@ -759,7 +759,7 @@ masterButton.addEventListener('click',function(){
 		canvas.style.display = "block"
 		console.log(data)
 		
-		var video = document.createElement("video");
+		var video = document.getElementById("video");
 		
 
 		video.onload = function() {
@@ -768,7 +768,7 @@ masterButton.addEventListener('click',function(){
 			document.body.style.backgroundColor = "black";
 		}
 		
-		video.setAttribute("src", 'data:video/avi;base64,' + data.video);
+		video.setAttribute("src", 'data:video/mp4;base64,' + data.video);
 	});
 	
 	socket.on('triangulate', function(data){
