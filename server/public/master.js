@@ -220,10 +220,8 @@ makeGridButton.addEventListener('click',function(){
 broadcastPicture.addEventListener('click',function(){
 	img = getImage()
 	
-	if (getImage()) {
-		console.log("broadcast")
+	if (getImage())
 		socket.emit('broadcastImage', {image: img});
-	}
 	else
 		alert("Please select a picture.")
 })
@@ -235,8 +233,6 @@ const getImage = function() {
     for(i = 0; i < ele.length; i++) 
         if(ele[i].checked) 
 			return ele[i].value
-		
-	
 }
 
 
