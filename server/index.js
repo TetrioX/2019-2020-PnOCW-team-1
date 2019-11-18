@@ -23,8 +23,8 @@ var debugDirPromise = new Promise(function(resolve, reject){
   });
 }).catch((err) => {console.log(err)})
 var AllScreenPositions={};
-var picDimensions = []
-
+var picDimensions = [];
+var calibrationPicture;
 
 
 //App setup
@@ -237,6 +237,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       let pictures = await takePicture(nbOfPictures)
+		calibrationPicture = pictures[0]
       if (pictures == null){
         return null
       }
@@ -383,24 +384,38 @@ var masterIo = io.of('/master').on('connect', function(socket){
                 })
         })
     });
-    socket.on('broadcastImage', function(){
-      // console.log('wil broadcast image');
-      // Object.keys(slaves).forEach(function(slave, index) {
-      // console.log(AllScreenPositions[slaves[slave]]);
-      //   slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
-      //})
-      // load the image that should be sent
-      let image = fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64')
-      // send to each slave
-      Object.keys(slaves).forEach(function(slave, index) {
-        slaveSockets[slave].emit('showPicture', {
-          corners: AllScreenPositions[slaves[slave]],
-          picture: image,
-          picDim: picDimensions
-        });
-      })
+    socket.on('broadcastImage', function(data){
+		
+		// load the image that should be sent
+		let image = selectImage(data.image)
+		
+		// send to each slave
+		Object.keys(slaves).forEach(function(slave, index) {
+			slaveSockets[slave].emit('showPicture', {
+				corners: AllScreenPositions[slaves[slave]],
+				picture: image,
+				picDim: picDimensions
+			});
+		})
     })
-
+	
+	const selectImage = function(selection) {
+		console.log(selection)
+		switch (selection) {
+			case "Colorgrid" :
+				return fs.readFileSync('./public/Colorgrid.jpg').toString('base64');
+			case "TestImage1" :
+				return fs.readFileSync('./public/ImageShowOffTest.jpg').toString('base64');
+			case "TestImage2" :
+				return fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64');
+			case "CalibrationPicture" :
+				if (calibrationPicture) 
+					return calibrationPicture.toString('base64');
+				else socket.emit('alert', 'Please do screen recognition first');
+			break;
+		}		
+	}
+	
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
       clearInterval(countdownUpdater)
