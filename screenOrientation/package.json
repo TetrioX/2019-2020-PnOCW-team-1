@@ -5,6 +5,8 @@
   "dependencies": {
     "algebra.js": "^0.2.6",
     "calculus": "0.0.2",
+    "canvas": "^2.6.0",
+    "ctx": "^0.3.0",
     "nerdamer": "^1.0.4",
     "sharp": "^0.23.1",
     "solve": "^1.2.0",

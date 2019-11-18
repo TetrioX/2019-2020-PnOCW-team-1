@@ -4,7 +4,7 @@ var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
-const screenorientation = require('../screenOrientation/orientationCalculation.js')
+// const screenorientation = require('../screenOrientation/UnusedScript/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
 const config = require('./config.json');
@@ -23,6 +23,7 @@ var debugDirPromise = new Promise(function(resolve, reject){
   });
 }).catch((err) => {console.log(err)})
 var AllScreenPositions={};
+var picDimensions = []
 
 
 
@@ -257,6 +258,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       if (saveDebugFiles) {
           fs.writeFile(debugPath+`/matrixes.json`, JSON.stringify(matrixes), (err) => {if (err) console.log(err)})
       }
+      picDimensions = [matrixes[0].length, matrixes[0][0].length]
       let squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
       console.log(squares)
       return scrnread.getScreenFromSquares(squares, screens)
@@ -382,10 +384,20 @@ var masterIo = io.of('/master').on('connect', function(socket){
         })
     });
     socket.on('broadcastImage', function(){
-      console.log('wil broadcast image');
+      // console.log('wil broadcast image');
+      // Object.keys(slaves).forEach(function(slave, index) {
+      // console.log(AllScreenPositions[slaves[slave]]);
+      //   slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
+      //})
+      // load the image that should be sent
+      let image = fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64')
+      // send to each slave
       Object.keys(slaves).forEach(function(slave, index) {
-      console.log(AllScreenPositions[slaves[slave]]);
-      slaveSockets[slave].emit('broadcastImage', AllScreenPositions[slaves[slave]]);
+        slaveSockets[slave].emit('showPicture', {
+          corners: AllScreenPositions[slaves[slave]],
+          picture: image,
+          picDim: picDimensions
+        });
       })
     })
 
@@ -404,6 +416,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       	clearInterval(countdownUpdater)
       }, data*1000);
     })
+
 });
 
 
