@@ -642,7 +642,32 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 
 // returns a list with the best possible screens it can recognize from the calculated squares
 // This is not the best solution and could be in proofd in the future
-function getScreenFromSquares(squares, screens){
+function getScreenFromSquares(squares, screens) {
+
+    //Quartile distance for fixing outliers when calculating corners
+    //reference: https://stackoverflow.com/questions/48719873/how-to-get-median-and-quartiles-percentiles-of-an-array-in-javascript-or-php
+    function quartile(data, q) {
+        data = array_Sort_Numbers(data);
+        var pos = ((data.length) - 1) * q;
+        var base = Math.floor(pos);
+        var rest = pos - base;
+        if ((data[base + 1] !== undefined)) {
+            return data[base] + rest * (data[base + 1] - data[base]);
+        } else {
+            return data[base];
+        }
+    }
+
+    function array_Sort_Numbers(inputarray) {
+        return inputarray.sort(function (a, b) {
+            return a - b;
+        });
+    }
+
+    function array_Sum(t) {
+        return t.reduce(function (a, b) { return a + b; }, 0);
+    }
+
 	let screenCorners = {}
 	// calculate all the screens
 	for (let sq of squares){
@@ -654,21 +679,32 @@ function getScreenFromSquares(squares, screens){
 	let results = {}
 	// get the average of the screens
 	// NOTE: this could be improved by using the squares that are close to the corner
-	Object.keys(screenCorners).forEach(async function(screens, index) {
-		for (let i = 1; i < screenCorners[screens].length; i++){
-			//for each corner
-			for (let j = 0; j < 4; j++){
+    Object.keys(screenCorners).forEach(async function (screens, index) {
+        results[screens] = [] 
+        //for each corner
+        for (let j = 0; j < 4; j++) {
+            let listCoX = []
+            let listCoY = []
+            //for each square found
+            for (let i = 0; i < screenCorners[screens].length; i++) {
+                listCoX.push(screenCorners[screens][i][j].x)
+                listCoY.push(screenCorners[screens][i][j].y)
+            }
+            //remove outliers from corners
+            let IQRx = quartile(listCoX, 0.75) - quartile(listCoX, 0.25)
+            let IQRy = quartile(listCoY, 0.75) - quartile(listCoY, 0.25)
+            listCoX = listCoX.filter(function (value) {
+                return value >= quartile(listCoX, 0.25) - 1, 5 * IQRx && value <= quartile(listCoX, 0.75) + 1, 5 * IQRx
+            })
+            listCoY = listCoY.filter(function (value) {
+                return value >= quartile(listCoY, 0.25) - 1, 5 * IQRy && value <= quartile(listCoY, 0.75) + 1, 5 * IQRy
+            })
+            //calculate avg
+            results[screens].push({
+                x: Math.ceil(array_Sum(listCoX) / listCoX.length),
+                y: Math.ceil(array_Sum(listCoY) / listCoY.length)
+            })
 
-				screenCorners[screens][0][j].x += screenCorners[screens][i][j].x
-				screenCorners[screens][0][j].y += screenCorners[screens][i][j].y
-			}
-		}
-		results[screens] = []
-		for (let j = 0; j < 4; j++){
-			results[screens].push({
-				x: Math.ceil(screenCorners[screens][0][j].x/screenCorners[screens].length),
-				y: Math.ceil(screenCorners[screens][0][j].y/screenCorners[screens].length)
-			})
 		}
 	})
 	return results
