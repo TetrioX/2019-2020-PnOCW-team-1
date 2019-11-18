@@ -590,6 +590,12 @@ masterButton.addEventListener('click',function(){
  	elt.style.transform = t;
  }
 
+ function scaleCenter(center, refPicture, newPicture){
+	 center.x = center.x * newPicture.x / refPicture.x;
+	 center.y = center.y * newPicture.y / refPicture.y;
+	 return center
+ }
+
  function scalePoints(corners, refPicture, newPicture) {
  	temp = [{}, {}, {}, {}]
 	for (let i in corners) {
@@ -660,7 +666,7 @@ masterButton.addEventListener('click',function(){
     ctx.stroke();
     ctx.closePath(); */
 
-	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	corners = scaleCenter(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
