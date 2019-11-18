@@ -237,6 +237,12 @@ socket.on('drawSquares', function (data) {
     for (let i of screenKeys) {
         for (let j = 0; j < 4; j++) {
             context.beginPath();
+            console.log("--logging data--")
+            console.log(data)
+            console.log(data[i])
+            console.log(data[i][j])
+            console.log(data[i][j].x)
+            console.log("----------------")
             context.arc(data[i][j].x,data[i][j].y, 20, 0, 2 * Math.PI, false);
             context.lineWidth = 3;
             context.strokeStyle = '#ff00ff';
