@@ -39,12 +39,6 @@
 				<input id="anglePicker" placeholder="Enter angle (degrees)" type="number" name="name"/>
 				<button type="button" id="drawLine" class="btn btn-outline-warning">Draw Arrow</button>
 			</div>
-			<div class="mx-auto">
-				<div class="drawtext">
-					Make a star in de middle of every screen
-				</div>
-				<button type="button" id="drawStar" class="btn btn-outline-warning">Draw Star</button>
-			</div>
 			<div>
 				<div class="drawtext">
 					Execute a triangulation on all the slave screens
@@ -67,9 +61,9 @@
 			</form>
 			<form class="input">
 				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="5" placeholder="Number of columns">
-			</form>	
+			</form>
 			<button id="screenrecognitionbutton"  class="btn btn-outline-success"> Start screenrecognition</button>
-			
+
 		</div>
 		<div class ="border border-lg border-primary rounded broadcast">
 			<div class ="title">
@@ -78,15 +72,15 @@
 			<div>
 				Select your picture, press the button and the slaves will broadcast a picture
 			</div>
-			
-			<input type="radio" name="picture" value="Colorgrid"> Colorgrid 
-			<input type="radio" name="picture" value="CalibrationPicture"> Calibration Picture 
-			<input type="radio" name="picture" value="TestImage1"> Test Image 1  
-			<input type="radio" name="picture" value="TestImage2"> Test Image 2 
+
+			<input type="radio" name="picture" value="Colorgrid"> Colorgrid
+			<input type="radio" name="picture" value="CalibrationPicture"> Calibration Picture
+			<input type="radio" name="picture" value="TestImage1"> Test Image 1
+			<input type="radio" name="picture" value="TestImage2"> Test Image 2
 			<input type="radio" name="picture" value="FaculteitsFoto"> Foto van de Faculteit
 			<button id="broadcastPicture" class="btn btn-outline-primary"> Broadcast Picture</button>
 		</div>
-		
+
 		<div class ="border border-lg border-primary rounded broadcast">
 			<div class ="title">
 				Broadcast video!
@@ -115,9 +109,9 @@
 		<button id="calibrateButton" class="btn btn-light" ;">Execute screenrecognition</button>
 		<button id=changePageButton class="btn btn-dark" style="">Home</button>
 	</div>
-	
-	
-	
+
+
+
 
 	<script src="static/master.js"></script>
 </body>

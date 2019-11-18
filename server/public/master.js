@@ -20,7 +20,6 @@ var entirePage =document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
-var drawstarButton = document.getElementById('drawStar');
 var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
 var broadcastPicture = document.getElementById('broadcastPicture');
@@ -54,10 +53,6 @@ countdownPicker.addEventListener('input', function(){
 anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
-
-drawstarButton.addEventListener('click', function () {
-	socket.emit('drawStar')
-});
 
 triangulateButton.addEventListener('click', function () {
 	socket.emit('triangulate',{
@@ -188,7 +183,7 @@ screenrecognitionbutton.addEventListener('click',function(){
 	secondEntirePage.style.display=""
 	screenrecognitionvideo.setAttribute('autoplay', '');
 	screenrecognitionvideo.setAttribute('muted', '');
-	
+
 
 	navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
 		.then(function (stream) {
@@ -220,7 +215,7 @@ makeGridButton.addEventListener('click',function(){
 
 broadcastPicture.addEventListener('click',function(){
 	img = getImage()
-	
+
 	if (getImage())
 		socket.emit('broadcastImage', {image: img});
 	else
@@ -233,10 +228,10 @@ broadcastVideo.addEventListener('click',function(){
 
 
 const getImage = function() {
-    var ele = document.getElementsByName('picture'); 
-	
-    for(i = 0; i < ele.length; i++) 
-        if(ele[i].checked) 
+    var ele = document.getElementsByName('picture');
+
+    for(i = 0; i < ele.length; i++)
+        if(ele[i].checked)
 			return ele[i].value
 }
 
@@ -247,4 +242,30 @@ countdownButton.addEventListener('click', function(){
 	} else{
 		socket.emit('startCountdown', countdownSeconds)
 	}
+})
+
+socket.on('drawCircles', function (data) {
+
+    //reference: https://stackoverflow.com/questions/1484506/random-color-generator
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    var screenKeys = Object.keys(data)
+    var context = canvas.getContext('2d');
+    for (let i of screenKeys) {
+        let color = getRandomColor();
+        for (let j = 0; j < 4; j++) {
+            context.beginPath();
+            context.arc(data[i][j].x,data[i][j].y, 20, 0, 2 * Math.PI, false);
+            context.lineWidth = 3;
+            context.strokeStyle = color;
+            context.stroke();
+        }
+    }
 })
