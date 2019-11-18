@@ -682,7 +682,7 @@ masterButton.addEventListener('click',function(){
  	var y = cy;
  	var step = Math.PI / 5;
 
- 	.beginPath();
+ 	context.beginPath();
  	context.moveTo(cx, cy - outerRadius);
  	for (let i = 0; i < 5; i++) {
  		x = cx + Math.cos(rot) * outerRadius;
