@@ -662,7 +662,7 @@ masterButton.addEventListener('click',function(){
     ctx.stroke();
     ctx.closePath(); */
 
-	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	corners = scalePointsStart(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
