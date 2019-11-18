@@ -670,10 +670,6 @@ masterButton.addEventListener('click',function(){
  };
 
  function drawAnglesDegree(radianAngles) {
- 	canvas.style.display = "block"
- 	context.clearRect(0, 0, canvas.width, canvas.height);
- 	canvas.width = window.innerWidth;
- 	canvas.height = window.innerHeight;
  	// center
  	const cx = window.innerWidth / 2;
  	const cy = window.innerHeight / 2;
@@ -741,8 +737,9 @@ masterButton.addEventListener('click',function(){
 	});
 	socket.on('triangulate', function(data){
 		cleanHTML()
+		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block"
-		drawAnglesDegree(data.angles)
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
+		drawAnglesDegree(data.angles)
 	});
 })()
