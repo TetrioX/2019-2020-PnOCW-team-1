@@ -4,7 +4,7 @@ var fs = fs = require('fs');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
-// const screenorientation = require('../screenOrientation/UnusedScript/orientationCalculation.js')
+const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
 const config = require('./config.json');
@@ -346,30 +346,20 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('drawLine', data);
   	});
 
-    socket.on('drawStar', function () {
-        slaveIo.emit('drawStar');
-    });
-
     socket.on('triangulate', async function(data){
-        var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
-        console.log(screens)
-        var screenKeys = Object.keys(screens)
-        if (screenKeys.length == 0){
-          socket.emit('alert', "didn't find any screens.")
-          return
-        } else{
-          socket.emit('alert', "found these screens: "+screenKeys.toString() )
-        }
-        var data = screenorientation.getScreens(screens);
-        console.log(data)
-        var angles = delaunay.getAngles(data);
+      let centers = screenorientation.getScreenCenters(AllScreenPositions)
+        var angles = delaunay.getAngles(centers);
         console.log(angles)
+
         Object.keys(slaves).forEach(function(slave, index) {
-          // if we found the screen send it which angles it should draw
           if (typeof angles[slaves[slave]] !== 'undefined'){
-            slaveSockets[slave].emit('triangulate', angles[slaves[slave]]);
+            slaveSockets[slave].emit('triangulate', {
+              angles: angles[slaves[slave]],
+              corners: AllScreenPositions[slaves[slave]],
+              picDim: picDimensions
+            });
           }
-        });
+        })
     });
 
     socket.on('calibrate', function(data) {

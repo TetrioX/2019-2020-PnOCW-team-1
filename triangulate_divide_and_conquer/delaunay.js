@@ -20,11 +20,10 @@ function getAngles(slaves){
 
 
     for(var id in slaves){
-        var X = slaves[id].center.x
-        var Y = slaves[id].center.y
-        var rot = slaves[id].rotations.z
+        var X = slaves[id].x
+        var Y = slaves[id].y
 
-        var point = [X,Y, rot]
+        var point = [X,Y]
 
         coords.push(point)
         temp[point] = id
@@ -47,8 +46,6 @@ function getAngles(slaves){
 
 
             var angleBetween = geometry.angleBetweenPoints(pt, connections[ind])
-
-            angleBetween -= pt[2]
 
             angles.push(angleBetween)
             console.log(currentId)

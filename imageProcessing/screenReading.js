@@ -389,7 +389,7 @@ const findBorderOrderedRgb = function (matrix, start,color) {
 
 function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColors) {
   // distance to check for color
-  const distance = Math.max(4, Math.ceil(border.length) / 4);
+  const distance = Math.max(4, Math.ceil(border.length) / 12);
   // check if there are pixels around the current pixel with certain colors
   // within a certain distance and returns true if all colors are present.
 	// returns from the corners the corner that is the closest to these colors and
@@ -793,7 +793,7 @@ function getCorners(rand){
 			c++
 		}
 		// stop when you have 4 corners and the last corner was significantly smaller than the previous one.
-		while (c < 4 || (currentAngle > -nbOfAngles/1.5 && result.length < 50))
+		while (c < 4 || (currentAngle > -nbOfAngles/1.5 && result.length < 15))
 		return result
 	}
 
