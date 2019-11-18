@@ -218,9 +218,26 @@ makeGridButton.addEventListener('click',function(){
 });
 
 broadcastPicture.addEventListener('click',function(){
-	console.log('will broadcast');
-	socket.emit('broadcastImage');
+	img = getImage()
+	
+	if (getImage()) {
+		console.log("broadcast")
+		socket.emit('broadcastImage', {image: img});
+	}
+	else
+		alert("Please select a picture.")
 })
+
+
+const getImage = function() {
+    var ele = document.getElementsByName('picture'); 
+	
+    for(i = 0; i < ele.length; i++) 
+        if(ele[i].checked) 
+			return ele[i].value
+		
+	
+}
 
 
 countdownButton.addEventListener('click', function(){
