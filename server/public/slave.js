@@ -671,7 +671,7 @@ masterButton.addEventListener('click',function(){
 
  function drawAnglesDegree(radianAngles, center, refPictureLength) {
  	// center
-	center = = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	center = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
  	const cx = center.x;
  	const cy = center.y;
  	//draw star
@@ -682,7 +682,7 @@ masterButton.addEventListener('click',function(){
  	var y = cy;
  	var step = Math.PI / 5;
 
- 	context.beginPath();
+ 	.beginPath();
  	context.moveTo(cx, cy - outerRadius);
  	for (let i = 0; i < 5; i++) {
  		x = cx + Math.cos(rot) * outerRadius;
