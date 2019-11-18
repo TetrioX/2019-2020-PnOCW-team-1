@@ -675,7 +675,7 @@ masterButton.addEventListener('click',function(){
 	myCanvas.width = window.innerWidth; //picture.width;
  	myCanvas.height = window.innerHeight; // picture.height;
 
-	// center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
  	const cx = center.x;
  	const cy = center.y;
