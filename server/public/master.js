@@ -237,7 +237,7 @@ socket.on('drawCircles', function (data) {
     function getRandomColor() {
         var letters = '0123456789ABCDEF';
         var color = '#';
-        for (var i = 0; i < 6; i++) {
+        for (let i = 0; i < 6; i++) {
             color += letters[Math.floor(Math.random() * 16)];
         }
         return color;
@@ -246,12 +246,12 @@ socket.on('drawCircles', function (data) {
     var screenKeys = Object.keys(data)
     var context = canvas.getContext('2d');
     for (let i of screenKeys) {
-        
+        let color = getRandomColor();
         for (let j = 0; j < 4; j++) {
             context.beginPath();
             context.arc(data[i][j].x,data[i][j].y, 20, 0, 2 * Math.PI, false);
             context.lineWidth = 3;
-            context.strokeStyle = getRandomColor();
+            context.strokeStyle = color;
             context.stroke();
         }
     }
