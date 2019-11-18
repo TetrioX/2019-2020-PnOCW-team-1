@@ -746,6 +746,6 @@ masterButton.addEventListener('click',function(){
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block"
 		drawAnglesDegree(canvas, data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
-		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
+		// transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
 	});
 })()
