@@ -410,15 +410,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
 					return calibrationPicture.toString('base64');
 				else socket.emit('alert', 'Please do screen recognition first');
 				break;
-			case "video" : 
-				return fs.createReadStream('./public/video.mp4').toString('base64')
 		}		
 	}
 	
 	socket.on('broadcastVideo', function(data){
 		
 		// load the image that should be sent
-		let video = fs.readFileSync('./public/video.avi').toString('base64');
+		let video = fs.readFileSync('./public/video.avi').toURL('base64');
 		
 		// send to each slave
 		Object.keys(slaves).forEach(function(slave, index) {
