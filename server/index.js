@@ -345,18 +345,18 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('drawLine', data);
   	});
 
-    socket.on('drawStar', function () {
-        slaveIo.emit('drawStar');
-    });
-
     socket.on('triangulate', async function(data){
-        var data = screenorientation.getScreens(AllScreenPositions);
-        console.log(data)
-        var angles = delaunay.getAngles(data);
+      let centers = screenorientation.getScreenCenters(AllScreenPositions)
+        var angles = delaunay.getAngles(centers);
         console.log(angles)
+
         Object.keys(slaves).forEach(function(slave, index) {
           if (typeof angles[slaves[slave]] !== 'undefined'){
-            slaveSockets[slave].emit('triangulate', angles[slaves[slave]]);
+            slaveSockets[slave].emit('triangulate', {
+              angles: angles[slaves[slave]],
+              corners: AllScreenPositions[slaves[slave]],
+              picDim: picDimensions
+            });
           }
         })
     });

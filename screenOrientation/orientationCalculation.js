@@ -19,6 +19,16 @@ const getScreens = function(screens) {
 	return scrRes
 }
 
+const getScreenCenters = function(screens) {
+  var scrRes = {}
+	for (var id in screens) {
+		// console.log(id, " ", screens[id])
+		scrRes[id] = getCenter(screens[id])
+		// console.log(getOrientation(screens[id]))
+	}
+	return scrRes
+}
+
 const getOrientation = function(corners) {
 	// console.log(corners)
 	var corners = sqor.getSquareOrientation(corners)
@@ -37,8 +47,7 @@ const getCenter = function(corners) {
 	values = Object.keys(corners).map(function(key){ return corners[key] })
 	xValue = values.reduce((sum, element) => sum + element.x, 0)
 	yValue = values.reduce((sum, element) => sum + element.y, 0)
-	zValue = values.reduce((sum, element) => sum + element.z, 0)
-	return { x: xValue / 4, y: yValue / 4, z: zValue / 4 }
+	return { x: xValue / 4, y: yValue / 4}
 }
 
 const getLine3D = function(pos1, pos2) {
@@ -122,5 +131,6 @@ console.log(getScreens(testScreens))
 // console.log(getOrientation(testCornersZTilt))
 */
 module.exports = {
-	getScreens: getScreens
+	getScreens: getScreens,
+  getScreenCenters: getScreenCenters
 }
