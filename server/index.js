@@ -408,7 +408,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				if (calibrationPicture) 
 					return calibrationPicture.toString('base64');
 				else socket.emit('alert', 'Please do screen recognition first');
-			break;
+				break;
+			case "video" : 
+				return fs.createReadStream('./public/video.mp4')
 		}		
 	}
 	
