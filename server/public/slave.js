@@ -640,7 +640,6 @@ masterButton.addEventListener('click',function(){
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
 
-
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 
@@ -651,8 +650,8 @@ masterButton.addEventListener('click',function(){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
 
- 	myCanvas.width =  window.innerWidth; //picture.width;
-	myCanvas.height = window.innerHeight; // picture.height;
+ 	myCanvas.width =  refPictureLength.x; //picture.width;
+	myCanvas.height = refPictureLength.y; // picture.height;
     ctx = myCanvas.getContext('2d');
 
 	/* ctx.beginPath();
