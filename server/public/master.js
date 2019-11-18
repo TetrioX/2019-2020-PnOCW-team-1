@@ -231,22 +231,29 @@ countdownButton.addEventListener('click', function(){
 	}
 })
 
-socket.on('drawSquares', function (data) {
+socket.on('drawCircles', function (data) {
+
+    //reference: https://stackoverflow.com/questions/1484506/random-color-generator
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
     var screenKeys = Object.keys(data)
     var context = canvas.getContext('2d');
     for (let i of screenKeys) {
+        
         for (let j = 0; j < 4; j++) {
             context.beginPath();
-            console.log("--logging data--")
-            console.log(data)
-            console.log(data[i])
-            console.log(data[i][j])
-            console.log(data[i][j].x)
-            console.log("----------------")
             context.arc(data[i][j].x,data[i][j].y, 20, 0, 2 * Math.PI, false);
             context.lineWidth = 3;
-            context.strokeStyle = '#ff00ff';
+            context.strokeStyle = getRandomColor();
             context.stroke();
         }
     }
 })
+

@@ -262,7 +262,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
       console.log(squares)
       let result = scrnread.getScreenFromSquares(squares, screens)
-      socket.emit('drawSquares', result)
+      socket.emit('drawCircles', result)
       return result
     }
 
