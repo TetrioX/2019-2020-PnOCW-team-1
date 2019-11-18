@@ -591,7 +591,7 @@ masterButton.addEventListener('click',function(){
  }
 
  function scaleCenter(center, refPicture, newPicture){
-	 verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
+	 verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.x / refPicture.x : newPicture.y / refPicture.y;
 	 center.x = center.x * verh;
 	 center.y = center.y * verh;
 	 return center
@@ -608,7 +608,7 @@ masterButton.addEventListener('click',function(){
 
  function scalePointsStart(corners, refPicture, newPicture) {
  	temp = [{}, {}, {}, {}]
-	verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
+	verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.x / refPicture.x : newPicture.y / refPicture.y;
 	for (let i in corners) {
 		temp[i].x = corners[i].x * verh;
 		temp[i].y = corners[i].y * verh;
@@ -639,8 +639,7 @@ masterButton.addEventListener('click',function(){
 
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
-
-	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	corners = scalePointsStart(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
@@ -652,7 +651,7 @@ masterButton.addEventListener('click',function(){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
     ctx = myCanvas.getContext('2d');
-	
+
 	corners = scalePointsStart(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
@@ -664,7 +663,7 @@ masterButton.addEventListener('click',function(){
  function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
 	myCanvas.width = refPictureLength.x; //picture.width;
  	myCanvas.height = refPictureLength.y; // picture.height;
-
+	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
  	const cx = center.x;
  	const cy = center.y;
  	//draw star
