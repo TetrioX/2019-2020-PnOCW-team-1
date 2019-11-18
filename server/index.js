@@ -347,10 +347,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
   	});
 
     socket.on('triangulate', async function(data){
-      let centers = screenorientation.getScreenCenters(AllScreenPositions)
-        var angles = delaunay.getAngles(centers);
-        console.log(angles)
-
+		
+		if (Object.keys(AllScreenPositions).length < 1) {
+			socket.emit('alert', 'Please do screen recognition first');
+			return;
+		}
+		
+		let centers = screenorientation.getScreenCenters(AllScreenPositions)
+		var angles = delaunay.getAngles(centers);
+		console.log(angles)
+			
         Object.keys(slaves).forEach(function(slave, index) {
           if (typeof angles[slaves[slave]] !== 'undefined'){
             slaveSockets[slave].emit('triangulate', {
