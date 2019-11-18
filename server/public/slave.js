@@ -639,6 +639,7 @@ masterButton.addEventListener('click',function(){
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
+	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
@@ -649,9 +650,6 @@ masterButton.addEventListener('click',function(){
  const transformAngles = function(myCanvas, corners, refPictureLength){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
-
- 	myCanvas.width =  refPictureLength.x; //picture.width;
-	myCanvas.height = refPictureLength.y; // picture.height;
     ctx = myCanvas.getContext('2d');
 
 	/* ctx.beginPath();
@@ -664,7 +662,7 @@ masterButton.addEventListener('click',function(){
     ctx.stroke();
     ctx.closePath(); */
 
-	corners = scaleCenter(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
@@ -674,8 +672,8 @@ masterButton.addEventListener('click',function(){
  };
 
  function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
- 	// center
-	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	myCanvas.width =  window.innerWidth; //picture.width;
+ 	myCanvas.height = window.innerHeight; // picture.height;
  	const cx = center.x;
  	const cy = center.y;
  	//draw star
@@ -744,7 +742,7 @@ masterButton.addEventListener('click',function(){
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block"
-		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
 		drawAnglesDegree(canvas, data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
+		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
 	});
 })()
