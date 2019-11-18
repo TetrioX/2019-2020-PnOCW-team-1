@@ -646,10 +646,8 @@ masterButton.addEventListener('click',function(){
 
 	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
-
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-
 
  };
 
@@ -657,7 +655,9 @@ masterButton.addEventListener('click',function(){
 	myCanvas.width = refPictureLength.x // window.innerWidth; //picture.width;
  	myCanvas.height = refPictureLength.y// window.innerHeight; // picture.height;
 
-	// center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+
+	console.log(center)
 
  	const cx = center.x;
  	const cy = center.y;
