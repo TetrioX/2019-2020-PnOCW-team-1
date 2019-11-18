@@ -675,7 +675,7 @@ masterButton.addEventListener('click',function(){
 
  };
 
- function drawAnglesDegree(radianAngles, center, refPictureLength) {
+ function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
  	// center
 	center = scalePoints(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
  	const cx = center.x;
@@ -747,6 +747,6 @@ masterButton.addEventListener('click',function(){
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block"
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
-		drawAnglesDegree(data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
+		drawAnglesDegree(canvas, data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
 	});
 })()
