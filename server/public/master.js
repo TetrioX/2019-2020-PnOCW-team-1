@@ -24,6 +24,7 @@ var drawstarButton = document.getElementById('drawStar');
 var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
 var broadcastPicture = document.getElementById('broadcastPicture');
+var broadcastVideo = document.getElementById('broadcastVideo');
 var makeGridButton = document.getElementById("calibrateButton");
 var countdownButton = document.getElementById("countdownButton")
 var homebutton = document.getElementById('changePageButton');
@@ -224,6 +225,10 @@ broadcastPicture.addEventListener('click',function(){
 		socket.emit('broadcastImage', {image: img});
 	else
 		alert("Please select a picture.")
+})
+
+broadcastVideo.addEventListener('click',function(){
+		socket.emit('broadcastVideo');
 })
 
 
