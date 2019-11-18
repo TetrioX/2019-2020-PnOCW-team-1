@@ -349,22 +349,23 @@ var masterIo = io.of('/master').on('connect', function(socket){
   	});
 
     socket.on('triangulate', async function(data){
-		
+
 		if (Object.keys(AllScreenPositions).length < 1) {
 			socket.emit('alert', 'Please do screen recognition first');
 			return;
 		}
-		
+
 		let centers = screenorientation.getScreenCenters(AllScreenPositions)
 		var angles = delaunay.getAngles(centers);
 		console.log(angles)
-			
+
         Object.keys(slaves).forEach(function(slave, index) {
           if (typeof angles[slaves[slave]] !== 'undefined'){
             slaveSockets[slave].emit('triangulate', {
               angles: angles[slaves[slave]],
               corners: AllScreenPositions[slaves[slave]],
-              picDim: picDimensions
+              picDim: picDimensions,
+              center: centers[slaves[slave]]
             });
           }
         })
@@ -383,10 +384,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
         })
     });
     socket.on('broadcastImage', function(data){
-		
+
 		// load the image that should be sent
 		let image = selectImage(data.image)
-		
+
 		// send to each slave
 		Object.keys(slaves).forEach(function(slave, index) {
 			slaveSockets[slave].emit('showPicture', {
@@ -396,7 +397,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 			});
 		})
     })
-	
+
 	const selectImage = function(selection) {
 		console.log(selection)
 		switch (selection) {
@@ -407,15 +408,15 @@ var masterIo = io.of('/master').on('connect', function(socket){
 			case "TestImage2" :
 				return fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64');
 			case "CalibrationPicture" :
-				if (calibrationPicture) 
+				if (calibrationPicture)
 					return calibrationPicture.toString('base64');
 				else socket.emit('alert', 'Please do screen recognition first');
 				break;
-			case "video" : 
+			case "video" :
 				return fs.createReadStream('./public/video.mp4')
-		}		
+		}
 	}
-	
+
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
       clearInterval(countdownUpdater)

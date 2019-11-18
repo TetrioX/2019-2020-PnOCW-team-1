@@ -669,10 +669,11 @@ masterButton.addEventListener('click',function(){
 
  };
 
- function drawAnglesDegree(radianAngles) {
+ function drawAnglesDegree(radianAngles, center, refPictureLength) {
  	// center
- 	const cx = window.innerWidth / 2;
- 	const cy = window.innerHeight / 2;
+	center = = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+ 	const cx = center.x;
+ 	const cy = center.y;
  	//draw star
  	const outerRadius = 40;
  	const innerRadius = 15;
@@ -740,6 +741,6 @@ masterButton.addEventListener('click',function(){
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block"
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
-		drawAnglesDegree(data.angles)
+		drawAnglesDegree(data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
 	});
 })()
