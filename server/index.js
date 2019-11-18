@@ -383,7 +383,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
                 })
         })
     });
-    socket.on('broadcastImage', function(data){
+
+	socket.on('broadcastImage', function(data){
 
 		// load the image that should be sent
 		let image = selectImage(data.image)
@@ -407,15 +408,31 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				return fs.readFileSync('./public/ImageShowOffTest.jpg').toString('base64');
 			case "TestImage2" :
 				return fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64');
+			case "FaculteitsFoto" :
+				return fs.readFileSync('./public/FaculteitsFoto.jpg').toString('base64');
 			case "CalibrationPicture" :
 				if (calibrationPicture)
 					return calibrationPicture.toString('base64');
 				else socket.emit('alert', 'Please do screen recognition first');
 				break;
-			case "video" :
-				return fs.createReadStream('./public/video.mp4')
 		}
 	}
+
+	socket.on('broadcastVideo', function(){
+
+		// load the image that should be sent
+
+		let video = fs.readFileSync('./public/video.mp4').toString('base64');
+
+		// send to each slave
+		Object.keys(slaves).forEach(function(slave, index) {
+			slaveSockets[slave].emit('showVideo', {
+				corners: AllScreenPositions[slaves[slave]],
+				video: video,
+				picDim: picDimensions
+			});
+		})
+    })
 
     var countdownUpdater = null
     socket.on('startCountdown', function(data){

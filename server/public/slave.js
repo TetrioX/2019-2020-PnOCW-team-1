@@ -627,16 +627,6 @@ masterButton.addEventListener('click',function(){
 	myCanvas.height = window.innerHeight; // picture.height;
     ctx = myCanvas.getContext('2d');
 
-	/* ctx.beginPath();
-    ctx.moveTo(corners[3].x, corners[3].y);
-	ctx.lineTo(corners[0].x, corners[0].y);
-	ctx.lineTo(corners[1].x, corners[1].y);
-	ctx.lineTo(corners[2].x, corners[2].y);
-	ctx.lineTo(corners[3].x, corners[3].y);
-    ctx.clip(); //call the clip method so the next render is clipped in last path
-    ctx.stroke();
-    ctx.closePath(); */
-
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
@@ -645,6 +635,30 @@ masterButton.addEventListener('click',function(){
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 
 
+ };
+ 
+  /**
+  * Paste the given part of the given picture on the client canvas.
+  **/
+ const pasteVideo = function(myCanvas, video, corners, refPictureLength){
+
+	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
+
+ 	myCanvas.width =  window.innerWidth; //picture.width;
+	myCanvas.height = window.innerHeight; // picture.height;
+    ctx = myCanvas.getContext('2d');
+	
+	i = window.setInterval(function() {
+		ctx.drawImage(video, 0, 0, video.width,  video.height,     // source rectangle
+					0, 0, myCanvas.width, myCanvas.height); // destination rectangle
+
+		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+
+
+		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
+				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+
+	}, 20)
  };
 
  const transformAngles = function(myCanvas, corners, refPictureLength){
@@ -728,6 +742,24 @@ masterButton.addEventListener('click',function(){
 		// This is for smoother picture monitoring. Else white borders are possible.
 		document.body.style.backgroundColor = "black";
 	});
+	
+	socket.on('showVideo', function(data){
+		cleanHTML()
+		canvas.style.display = "block"
+		console.log(data)
+		
+		var video = document.createElement("video");
+		
+
+		video.onload = function() {
+			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+			// This is for smoother picture monitoring. Else white borders are possible.
+			document.body.style.backgroundColor = "black";
+		}
+		
+		video.setAttribute("src", 'data:video/avi;base64,' + data.video);
+	});
+	
 	socket.on('triangulate', function(data){
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);

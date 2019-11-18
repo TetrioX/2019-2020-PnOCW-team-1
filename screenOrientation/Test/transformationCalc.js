@@ -136,27 +136,49 @@ const pastePicture = function(myCanvas, picture, corners, refPictureLength){
 	
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
-				   
+
 	corners = scalePoints(corners, refPictureLength, {x: window.innerWidth, y: window.innerHeight})
 	console.log(temp)
 	
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y, 
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-
 };
 
+  /**
+  * Paste the given part of the given picture on the client canvas.
+  **/
+ const pasteVideo = function(myCanvas, video, corners, refPictureLength){
 
-var img = new Image()
+	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
+	
+	var myCanvas = document.getElementById("canvas");
+ 	myCanvas.width =  window.innerWidth; //picture.width;
+	myCanvas.height = window.innerHeight; // picture.height;
+    ctx = myCanvas.getContext('2d');
+	
+	i = window.setInterval(function() {
+		ctx.drawImage(video, 0, 0, video.width,  video.height,     // source rectangle
+					0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
-img.onload = function() {
-	pastePicture(document.getElementById("myCanvas"), img, testReal, {x: 4032, y: 3024});
-	// This is for smoother picture monitoring. Else white borders are possible.
-	document.body.style.backgroundColor = "black";
-}
+		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
-img.src = "Colorgrid.jpg"
+
+		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
+				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+
+	}, 20)
+ };
+
+var canvas;
+var video = document.getElementById("video");
 
 testReal = [{x:2345, y: 1005}, {x: 2717,y: 1705}, {x: 1393,y: 2131}, {x: 1001, y:1161}]
 testReal2 = {B: {x:2653,y:1093}, C: {x:2733,y:2185}, D: {x:657,y:2313}, A: {x:661,y:1129}}
 testReal3 = {B: {x:1069,y:2273},C: {x:1089,y:1289},D: {x:2801,y:1268},A: {x:2857,y:2229}}
+
+pasteVideo(canvas, video, testReal, {x: 4032, y: 3024});
+// This is for smoother picture monitoring. Else white borders are possible.
+document.body.style.backgroundColor = "black";
+
+
 
