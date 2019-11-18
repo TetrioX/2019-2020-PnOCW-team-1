@@ -652,7 +652,7 @@ masterButton.addEventListener('click',function(){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
     ctx = myCanvas.getContext('2d');
-
+	
 	corners = scalePointsStart(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
@@ -664,8 +664,6 @@ masterButton.addEventListener('click',function(){
  function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
 	myCanvas.width = refPictureLength.x; //picture.width;
  	myCanvas.height = refPictureLength.y; // picture.height;
-
-	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
  	const cx = center.x;
  	const cy = center.y;
