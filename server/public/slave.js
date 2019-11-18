@@ -590,6 +590,13 @@ masterButton.addEventListener('click',function(){
  	elt.style.transform = t;
  }
 
+ function scaleCenter(center, refPicture, newPicture){
+	 verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
+	 center.x = center.x * verh;
+	 center.y = center.y * verh;
+	 return center
+ }
+
  function scalePoints(corners, refPicture, newPicture) {
  	temp = [{}, {}, {}, {}]
 	for (let i in corners) {
@@ -632,9 +639,7 @@ masterButton.addEventListener('click',function(){
 
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
-
 	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
@@ -645,23 +650,9 @@ masterButton.addEventListener('click',function(){
  const transformAngles = function(myCanvas, corners, refPictureLength){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
-
- 	myCanvas.width =  window.innerWidth; //picture.width;
-	myCanvas.height = window.innerHeight; // picture.height;
     ctx = myCanvas.getContext('2d');
 
-	/* ctx.beginPath();
-    ctx.moveTo(corners[3].x, corners[3].y);
-	ctx.lineTo(corners[0].x, corners[0].y);
-	ctx.lineTo(corners[1].x, corners[1].y);
-	ctx.lineTo(corners[2].x, corners[2].y);
-	ctx.lineTo(corners[3].x, corners[3].y);
-    ctx.clip(); //call the clip method so the next render is clipped in last path
-    ctx.stroke();
-    ctx.closePath(); */
-
-	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
+	corners = scalePointsStart(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
@@ -669,17 +660,15 @@ masterButton.addEventListener('click',function(){
 
  };
 
- function drawAnglesDegree(radianAngles) {
- 	canvas.style.display = "block"
- 	context.clearRect(0, 0, canvas.width, canvas.height);
- 	canvas.width = window.innerWidth;
- 	canvas.height = window.innerHeight;
- 	// center
- 	const cx = window.innerWidth / 2;
- 	const cy = window.innerHeight / 2;
+ function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
+	myCanvas.width = refPictureLength.x; //picture.width;
+ 	myCanvas.height = refPictureLength.y; // picture.height;
+
+ 	const cx = center.x;
+ 	const cy = center.y;
  	//draw star
- 	const outerRadius = 40;
- 	const innerRadius = 15;
+ 	const outerRadius = 20;
+ 	const innerRadius = 7.5;
  	var rot = Math.PI / 2 * 3;
  	var x = cx;
  	var y = cy;
@@ -741,8 +730,9 @@ masterButton.addEventListener('click',function(){
 	});
 	socket.on('triangulate', function(data){
 		cleanHTML()
+		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block"
-		drawAnglesDegree(data.angles)
+		drawAnglesDegree(canvas, data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
 	});
 })()

@@ -20,7 +20,6 @@ var entirePage =document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
-var drawstarButton = document.getElementById('drawStar');
 var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
 var broadcastPicture = document.getElementById('broadcastPicture');
@@ -53,10 +52,6 @@ countdownPicker.addEventListener('input', function(){
 anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
-
-drawstarButton.addEventListener('click', function () {
-	socket.emit('drawStar')
-});
 
 triangulateButton.addEventListener('click', function () {
 	socket.emit('triangulate',{
@@ -187,7 +182,7 @@ screenrecognitionbutton.addEventListener('click',function(){
 	secondEntirePage.style.display=""
 	screenrecognitionvideo.setAttribute('autoplay', '');
 	screenrecognitionvideo.setAttribute('muted', '');
-	
+
 
 	navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
 		.then(function (stream) {
@@ -219,7 +214,7 @@ makeGridButton.addEventListener('click',function(){
 
 broadcastPicture.addEventListener('click',function(){
 	img = getImage()
-	
+
 	if (getImage())
 		socket.emit('broadcastImage', {image: img});
 	else
@@ -228,10 +223,10 @@ broadcastPicture.addEventListener('click',function(){
 
 
 const getImage = function() {
-    var ele = document.getElementsByName('picture'); 
-	
-    for(i = 0; i < ele.length; i++) 
-        if(ele[i].checked) 
+    var ele = document.getElementsByName('picture');
+
+    for(i = 0; i < ele.length; i++)
+        if(ele[i].checked)
 			return ele[i].value
 }
 
@@ -269,4 +264,3 @@ socket.on('drawCircles', function (data) {
         }
     }
 })
-

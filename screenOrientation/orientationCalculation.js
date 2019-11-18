@@ -26,6 +26,7 @@ const getScreenCenters = function(screens) {
 		scrRes[id] = getCenter(screens[id])
 		// console.log(getOrientation(screens[id]))
 	}
+  console.log(scrRes)
 	return scrRes
 }
 
@@ -44,7 +45,7 @@ const getOrientation = function(corners) {
 }
 
 const getCenter = function(corners) {
-	values = Object.keys(corners).map(function(key){ return corners[key] })
+  values = corners
 	xValue = values.reduce((sum, element) => sum + element.x, 0)
 	yValue = values.reduce((sum, element) => sum + element.y, 0)
 	return { x: xValue / 4, y: yValue / 4}
