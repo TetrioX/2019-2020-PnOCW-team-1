@@ -637,29 +637,33 @@ masterButton.addEventListener('click',function(){
 
  };
  
-  /**
-  * Paste the given part of the given picture on the client canvas.
-  **/
+	/**
+	* Paste the given part of the given picture on the client canvas.
+	**/
  const pasteVideo = function(myCanvas, video, corners, refPictureLength){
-
-	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
-
- 	myCanvas.width =  window.innerWidth; //picture.width;
-	myCanvas.height = window.innerHeight; // picture.height;
-    ctx = myCanvas.getContext('2d');
 	
-	i = window.setInterval(function() {
-		ctx.drawImage(video, 0, 0, video.width,  video.height,     // source rectangle
-					0, 0, myCanvas.width, myCanvas.height); // destination rectangle
+	myCanvas.width = window.innerWidth;
+	myCanvas.height = window.innerHeight;
+	ctx = myCanvas.getContext('2d');
 
-		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	
+	draw(myCanvas, video)
+	
+	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
+			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 
-
-		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
-				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-
-	}, 20)
+	
+	
  };
+ 
+ const draw = function(myCanvas, video) {
+	if(video.paused || video.ended) 
+		return false;
+	myCanvas.getContext('2d').drawImage(video, //  0, 0, video.width, video.height,     // source rectangle
+                   0, 0, myCanvas.width, myCanvas.height);
+	setTimeout(draw, 20, myCanvas, video);
+ }
 
  const transformAngles = function(myCanvas, corners, refPictureLength){
 

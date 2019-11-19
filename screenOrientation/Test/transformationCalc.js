@@ -98,13 +98,17 @@ function scalePoints(corners, refPicture, newPicture) {
 var myCanvas;
 var ctx;
 var img = new Image();
+var vid = document.createElement('video');
+vid.autoplay = true;
+// video.src = 'urlToVideo.ogg';
+
 
 
 /**
  * Paste the given part of the given picture on the client canvas.
  **/
 const pasteVideo = function(myCanvas, video, corners, refPictureLength){
-
+	
 	myCanvas.width = window.innerWidth;
 	myCanvas.height = window.innerHeight;
     ctx = myCanvas.getContext('2d');
@@ -133,12 +137,25 @@ testReal = [{x:2345, y: 1005}, {x: 2717,y: 1705}, {x: 1393,y: 2131}, {x: 1001, y
 testReal2 = [{x:2653,y:1093}, {x:2733,y:2185}, {x:657,y:2313}, {x:661,y:1129}]
 testReal3 = {B: {x:1069,y:2273},C: {x:1089,y:1289},D: {x:2801,y:1268},A: {x:2857,y:2229}}
 
-var video = document.getElementById('video')
+// var video = document.getElementById('video')
 
 // video.addEventListener('play', function(){pasteVideo(document.getElementById('canvas'), video, testReal, {x: 4032, y: 3024})}, false);
 
-img.onload = pasteVideo(document.getElementById('canvas'), img, testReal, {x: 4032, y: 3024})
+// vid.onload = pasteVideo(document.getElementById('canvas'), vid, testReal, {x: 4032, y: 3024})
+vid.src = 'IMG_2890.MOV'
+vid.controls = true;
+vid.setAttribute("width", "320");
+vid.setAttribute("height", "240");
+vid.autoplay = true
+document.body.appendChild(vid);
 
+console.log(vid)
+// vid.play()
+vid.addEventListener('play', function(){pasteVideo(document.getElementById('canvas'), vid, testReal, {x: 4032, y: 3024})}, false);
+
+// vid.onload = pasteVideo(document.getElementById('canvas'), vid, testReal, {x: 4032, y: 3024})
+
+// img.onload = pasteVideo(document.getElementById('canvas'), img, testReal, {x: 4032, y: 3024})
 img.src = 'Test.JPG'
 
 // This is for smoother picture monitoring. Else white borders are possible.
