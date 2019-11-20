@@ -98,8 +98,8 @@ function scalePoints(corners, refPicture, newPicture) {
 var myCanvas;
 var ctx;
 var img = new Image();
-var vid = document.createElement('video');
-vid.autoplay = true;
+var vid // = document.createElement('video');
+// vid.autoplay = true;
 // video.src = 'urlToVideo.ogg';
 
 
@@ -108,29 +108,35 @@ vid.autoplay = true;
  * Paste the given part of the given picture on the client canvas.
  **/
 const pasteVideo = function(myCanvas, video, corners, refPictureLength){
-	
+
+console.log(video)
+
 	myCanvas.width = window.innerWidth;
 	myCanvas.height = window.innerHeight;
     ctx = myCanvas.getContext('2d');
 
 	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-	
+
+	k = 0;
+
 	draw(myCanvas, video)
-	
+
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 
-	
-	
  };
- 
+
+let k;
+
 const draw = function(myCanvas, video) {
-	if(video.paused || video.ended) 
-		return false;
+	// if(video.paused || video.ended)
+	// 	return false;
 	console.log("I'm still standing!")
-	myCanvas.getContext('2d').drawImage(video, //  0, 0, video.width, video.height,     // source rectangle
+	console.log(video[k])
+	myCanvas.getContext('2d').drawImage(video[k], //  0, 0, video.width, video.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height);
-	setTimeout(draw, 20, myCanvas, video);
+	k++;
+	setTimeout(draw, 1000, myCanvas, video);
 }
 
 testReal = [{x:2345, y: 1005}, {x: 2717,y: 1705}, {x: 1393,y: 2131}, {x: 1001, y:1161}]
@@ -142,26 +148,32 @@ testReal3 = {B: {x:1069,y:2273},C: {x:1089,y:1289},D: {x:2801,y:1268},A: {x:2857
 // video.addEventListener('play', function(){pasteVideo(document.getElementById('canvas'), video, testReal, {x: 4032, y: 3024})}, false);
 
 // vid.onload = pasteVideo(document.getElementById('canvas'), vid, testReal, {x: 4032, y: 3024})
-vid.src = 'IMG_2890.MOV'
-vid.controls = true;
-vid.setAttribute("width", "320");
-vid.setAttribute("height", "240");
-vid.autoplay = true
-document.body.appendChild(vid);
+// vid.src = 'IMG_2890.MOV'
+// vid.controls = true;
+// vid.setAttribute("width", "320");
+// vid.setAttribute("height", "240");
+// vid.autoplay = true
+// document.body.appendChild(vid);
 
-console.log(vid)
+// console.log(vid)
 // vid.play()
-vid.addEventListener('play', function(){pasteVideo(document.getElementById('canvas'), vid, testReal, {x: 4032, y: 3024})}, false);
+// vid.addEventListener('play', function(){pasteVideo(document.getElementById('canvas'), vid, testReal, {x: 4032, y: 3024})}, false);
 
 // vid.onload = pasteVideo(document.getElementById('canvas'), vid, testReal, {x: 4032, y: 3024})
 
-// img.onload = pasteVideo(document.getElementById('canvas'), img, testReal, {x: 4032, y: 3024})
-img.src = 'Test.JPG'
+// img.onload = pasteVideo(document.getElementById('canvas'), img ) // , testReal, {x: 4032, y: 3024})
+var images = [];
+for (let i = 1; i<7 ; i++) {
+	imag = new Image();
+	imag.src = `img_seq/image${i}.jpg`;
+	images.push(imag);
+}
 
+vid = images
+console.log(vid)
+
+// img.src = './img_seq/image2.jpg'
+
+vid.onload = pasteVideo(document.getElementById('canvas'), vid)// , testReal, {x: 4032, y: 3024})
 // This is for smoother picture monitoring. Else white borders are possible.
 //document.body.style.backgroundColor = "black";
-
-
-
-
-
