@@ -325,7 +325,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         socket.emit('alert', "found these screens: "+screenKeys.toString() )
       }
       console.log(screens)
-      AllScreenPositions = screens;
+      AllScreenPositions = {...AllScreenPositions, ...screens};
     });
 
     function sleep(ms){
