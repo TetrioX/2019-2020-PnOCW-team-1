@@ -18,7 +18,7 @@ const pixelColor = function(color) {
 	s = hsl[1]
 	l = hsl[2]
 
-	inferum = 0
+	inferum = 10
 	if (l < inferum || l > 100 - inferum || s < inferum)
 		return 0
 
