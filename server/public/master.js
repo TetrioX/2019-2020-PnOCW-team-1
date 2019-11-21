@@ -117,7 +117,13 @@ video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
-navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
+navigator.mediaDevices.getUserMedia({
+    video: {
+        width: { ideal: 4096 },
+        height: { ideal: 2160 },
+        facingMode: "environment"
+    }, audio: false
+})
 	.then(function (stream) {
 		video.srcObject = stream;
 		video.play();
@@ -125,7 +131,7 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audi
 	.catch(function (err) {
 		console.log("An error occurred: " + err);
 	});
-
+/*
 function takePicture(data){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
@@ -137,6 +143,38 @@ function takePicture(data){
 		buffer: canvas.toDataURL('image/png'),
 		destination: data.destination
 	});
+}
+*/
+//ref: https://tutorialzine.com/2016/07/take-a-selfie-with-js
+function takePicture(data) {
+
+    var hidden_canvas = document.querySelector('canvas'),
+        video = document.querySelector('video.camera_stream'),
+        image = document.querySelector('img.photo'),
+
+        // Get the exact size of the video element.
+        width = video.videoWidth,
+        height = video.videoHeight,
+
+        // Context object for working with the canvas.
+        context = hidden_canvas.getContext('2d');
+
+    // Set the canvas to the same dimensions as the video.
+    hidden_canvas.width = width;
+    hidden_canvas.height = height;
+
+    // Draw a copy of the current frame from the video on the canvas.
+    context.drawImage(video, 0, 0, width, height);
+
+    socket.emit('upload-image', {
+        image: true,
+        buffer: hidden_canvas.toDataURL('image/png'),
+        destination: data.destination
+    });
+
+    // Set the dataURL as source of an image element, showing the captured photo.
+    image.setAttribute('src', imageDataURL);
+
 }
 
 startbutton.addEventListener('click', function () {
