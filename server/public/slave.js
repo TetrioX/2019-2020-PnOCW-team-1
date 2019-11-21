@@ -579,7 +579,7 @@ masterButton.addEventListener('click',function(){
   * Transform the given html element from a given point set to a rectangle.
   **/
  function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
- 	var w = elt.width, h = elt.height;
+ 	var w = window.innerWidth, h = window.innerHeight;
  	var t = general2DProjection(x1, y1, 0, 0, x2, y2, w, 0, x3, y3, 0, h, x4, y4, w, h);
  	for(i = 0; i != 9; ++i) t[i] = t[i]/t[8];
  	t = [t[0], t[3], 0, t[6],
@@ -623,8 +623,8 @@ masterButton.addEventListener('click',function(){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
 
- 	myCanvas.width =  window.innerWidth; //picture.width;
-	myCanvas.height = window.innerHeight; // picture.height;
+ 	myCanvas.width = picture.width;
+	myCanvas.height = picture.height;
     ctx = myCanvas.getContext('2d');
 
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
@@ -667,8 +667,9 @@ masterButton.addEventListener('click',function(){
 
 
  const transformAngles = function(myCanvas, corners, refPictureLength){
-
-	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+		// myCanvas.width = window.innerWidth;
+		// myCanvas.height = window.innerHeight;
+		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
