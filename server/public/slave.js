@@ -688,7 +688,7 @@ masterButton.addEventListener('click',function(){
  	//draw star
  	const outerRadius = 20;
  	const innerRadius = 7.5;
- 	vaefPictureLength.yr rot = Math.PI / 2 * 3;
+	var rot = Math.PI / 2 * 3;
  	var x = cx;
  	var y = cy;
  	var step = Math.PI / 5;
