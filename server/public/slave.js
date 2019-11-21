@@ -579,7 +579,7 @@ masterButton.addEventListener('click',function(){
   * Transform the given html element from a given point set to a rectangle.
   **/
  function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
- 	var w = elt.width, h = elt.height;
+ 	var w = window.innerWidth, h = window.innerHeight;
  	var t = general2DProjection(x1, y1, 0, 0, x2, y2, w, 0, x3, y3, 0, h, x4, y4, w, h);
  	for(i = 0; i != 9; ++i) t[i] = t[i]/t[8];
  	t = [t[0], t[3], 0, t[6],
@@ -591,10 +591,10 @@ masterButton.addEventListener('click',function(){
  }
 
  function scaleCenter(center, refPicture, newPicture){
-	 verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
-	 center.x = center.x * verh;
-	 center.y = center.y * verh;
-	 return center
+	 temp = {}
+	 temp.x = center.x * newPicture.x / refPicture.x;
+	 temp.y = center.y * newPicture.y / refPicture.y;
+	 return temp
  }
 
  function scalePoints(corners, refPicture, newPicture) {
@@ -623,8 +623,8 @@ masterButton.addEventListener('click',function(){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
 
- 	myCanvas.width =  window.innerWidth; //picture.width;
-	myCanvas.height = window.innerHeight; // picture.height;
+ 	myCanvas.width = picture.width;
+	myCanvas.height = picture.height;
     ctx = myCanvas.getContext('2d');
 
     ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
@@ -636,54 +636,60 @@ masterButton.addEventListener('click',function(){
 
 
  };
- 
-  /**
-  * Paste the given part of the given picture on the client canvas.
-  **/
+
+	/**
+	* Paste the given part of the given picture on the client canvas.
+	**/
  const pasteVideo = function(myCanvas, video, corners, refPictureLength){
 
-	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
+	myCanvas.width = window.innerWidth;
+	myCanvas.height = window.innerHeight;
+	ctx = myCanvas.getContext('2d');
 
- 	myCanvas.width =  window.innerWidth; //picture.width;
-	myCanvas.height = window.innerHeight; // picture.height;
-    ctx = myCanvas.getContext('2d');
-	
-	i = window.setInterval(function() {
-		ctx.drawImage(video, 0, 0, video.width,  video.height,     // source rectangle
-					0, 0, myCanvas.width, myCanvas.height); // destination rectangle
+	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
-		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
-
-		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
-				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-
-	}, 20)
- };
-
- const transformAngles = function(myCanvas, corners, refPictureLength){
-
-	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
-    ctx = myCanvas.getContext('2d');
-
-	corners = scalePointsStart(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	draw(myCanvas, video)
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 
 
+
+ };
+
+ const draw = function(myCanvas, video) {
+	if(video.paused || video.ended)
+		return false;
+	myCanvas.getContext('2d').drawImage(video, //  0, 0, video.width, video.height,     // source rectangle
+                   0, 0, myCanvas.width, myCanvas.height);
+	setTimeout(draw, 20, myCanvas, video);
+ }
+
+
+ const transformAngles = function(myCanvas, corners, refPictureLength){
+		// myCanvas.width = window.innerWidth;
+		// myCanvas.height = window.innerHeight;
+		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+
+		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
+				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+
+
  };
 
  function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
-	myCanvas.width = refPictureLength.x; //picture.width;
- 	myCanvas.height = refPictureLength.y; // picture.height;
+	myCanvas.width = refPictureLength.x
+ 	myCanvas.height = refPictureLength.y
+	context = myCanvas.getContext('2d');
 
- 	const cx = center.x;
- 	const cy = center.y;
+	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+
+ 		const cx = center.x;
+ 		const cy = center.y;
  	//draw star
  	const outerRadius = 20;
  	const innerRadius = 7.5;
- 	var rot = Math.PI / 2 * 3;
+	var rot = Math.PI / 2 * 3;
  	var x = cx;
  	var y = cy;
  	var step = Math.PI / 5;
@@ -742,27 +748,40 @@ masterButton.addEventListener('click',function(){
 		// This is for smoother picture monitoring. Else white borders are possible.
 		document.body.style.backgroundColor = "black";
 	});
-	
+
+	var video = document.createElement("video");
 	socket.on('showVideo', function(data){
 		cleanHTML()
 		canvas.style.display = "block"
 		console.log(data)
-		
-		var video = document.createElement("video");
-		
 
 		video.onload = function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			// This is for smoother picture monitoring. Else white borders are possible.
 			document.body.style.backgroundColor = "black";
 		}
-		
+
 		video.setAttribute("src", 'data:video/avi;base64,' + data.video);
 	});
-	
+
+	socket.on('updateVideo', function(data){
+		cTime = data + latency
+		offset = video.currentTime*1000 - cTime
+		if (offset > 50){
+			video.playbackRate = Math.min(1.0 + (offset/1000), 1.1)
+		} else if (offset < -50){
+			video.playbackRate = Math.max(1.0 + (offset/1000), 0.9)
+		}
+		 else{
+		video.playbackRate = 1.0
+		}
+	})
+
 	socket.on('triangulate', function(data){
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
+		console.log('center', data.center)
+		console.log('corners', data.corners)
 		canvas.style.display = "block"
 		drawAnglesDegree(canvas, data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
