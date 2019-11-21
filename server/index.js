@@ -157,7 +157,7 @@ app.get('/master', function(req,res){
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
-app.use('/debug', express.static(__dirname + '/'))
+app.use('/debug', express.static(__dirname + '/debug'))
 
 app.use('/static', express.static(__dirname +  '/public'))
 
