@@ -636,29 +636,29 @@ masterButton.addEventListener('click',function(){
 
 
  };
- 
+
 	/**
 	* Paste the given part of the given picture on the client canvas.
 	**/
  const pasteVideo = function(myCanvas, video, corners, refPictureLength){
-	
+
 	myCanvas.width = window.innerWidth;
 	myCanvas.height = window.innerHeight;
 	ctx = myCanvas.getContext('2d');
 
 	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-	
+
 	draw(myCanvas, video)
-	
+
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 
-	
-	
+
+
  };
- 
+
  const draw = function(myCanvas, video) {
-	if(video.paused || video.ended) 
+	if(video.paused || video.ended)
 		return false;
 	myCanvas.getContext('2d').drawImage(video, //  0, 0, video.width, video.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height);
@@ -668,9 +668,11 @@ masterButton.addEventListener('click',function(){
  const transformAngles = function(myCanvas, corners, refPictureLength){
 
 	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
-    ctx = myCanvas.getContext('2d');
+	myCanvas.width = window.innerWidth;
+	myCanvas.height = window.innerHeight;
+  ctx = myCanvas.getContext('2d');
 
-	corners = scalePointsStart(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
@@ -679,52 +681,52 @@ masterButton.addEventListener('click',function(){
  };
 
  function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
-	myCanvas.width = refPictureLength.x; //picture.width;
- 	myCanvas.height = refPictureLength.y; // picture.height;
+		myCanvas.width = refPictureLength.x; //picture.width;
+ 		myCanvas.height = refPictureLength.y; // picture.height;
 
- 	const cx = center.x;
- 	const cy = center.y;
+ 		const cx = center.x;
+ 		const cy = center.y;
  	//draw star
- 	const outerRadius = 20;
- 	const innerRadius = 7.5;
- 	var rot = Math.PI / 2 * 3;
- 	var x = cx;
- 	var y = cy;
- 	var step = Math.PI / 5;
+	 	const outerRadius = 20;
+ 		const innerRadius = 7.5;
+ 		var rot = Math.PI / 2 * 3;
+ 		var x = cx;
+ 		var y = cy;
+ 		var step = Math.PI / 5;
 
- 	context.beginPath();
- 	context.moveTo(cx, cy - outerRadius);
- 	for (let i = 0; i < 5; i++) {
- 		x = cx + Math.cos(rot) * outerRadius;
- 		y = cy + Math.sin(rot) * outerRadius;
- 		context.lineTo(x, y);
- 		rot += step;
+ 		context.beginPath();
+ 		context.moveTo(cx, cy - outerRadius);
+ 		for (let i = 0; i < 5; i++) {
+ 			x = cx + Math.cos(rot) * outerRadius;
+ 			y = cy + Math.sin(rot) * outerRadius;
+ 			context.lineTo(x, y);
+ 			rot += step;
 
- 		x = cx + Math.cos(rot) * innerRadius;
- 		y = cy + Math.sin(rot) * innerRadius;
- 		context.lineTo(x, y);
- 		rot += step
- 	}
- 	context.lineTo(cx, cy - outerRadius);
- 	context.closePath();
- 	context.lineWidth = 5;
- 	context.strokeStyle = 'black';
- 	context.stroke();
- 	context.fillStyle = 'black';
- 	context.fill();
+ 			x = cx + Math.cos(rot) * innerRadius;
+ 			y = cy + Math.sin(rot) * innerRadius;
+ 			context.lineTo(x, y);
+ 			rot += step
+ 		}
+ 		context.lineTo(cx, cy - outerRadius);
+ 		context.closePath();
+ 		context.lineWidth = 5;
+ 		context.strokeStyle = 'black';
+ 		context.stroke();
+ 		context.fillStyle = 'black';
+ 		context.fill();
 
- 	//draw lines
- 	for(radianAngle of radianAngles){
- 		var dx = length * Math.cos(Number(radianAngle) * Math.PI * 2 / 360);
- 		var dy = length * Math.sin(Number(radianAngle) * Math.PI * 2 / 360);
+ 		//draw lines
+ 		for(radianAngle of radianAngles){
+ 			var dx = length * Math.cos(Number(radianAngle) * Math.PI * 2 / 360);
+ 			var dy = length * Math.sin(Number(radianAngle) * Math.PI * 2 / 360);
 
- 		// start point
- 		context.moveTo(cx, cy);
- 		// end point
- 		context.lineTo(cx+dx, cy+dy);
+ 			// start point
+ 			context.moveTo(cx, cy);
+ 			// end point
+ 			context.lineTo(cx+dx, cy+dy);
 
- 		context.lineWidth = 10;
- 		// Make the line visible
+ 			context.lineWidth = 10;
+ 			// Make the line visible
 
  		context.stroke();
  	}
@@ -746,24 +748,24 @@ masterButton.addEventListener('click',function(){
 		// This is for smoother picture monitoring. Else white borders are possible.
 		document.body.style.backgroundColor = "black";
 	});
-	
+
 	socket.on('showVideo', function(data){
 		cleanHTML()
 		canvas.style.display = "block"
 		console.log(data)
-		
+
 		var video = document.createElement("video");
-		
+
 
 		video.onload = function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			// This is for smoother picture monitoring. Else white borders are possible.
 			document.body.style.backgroundColor = "black";
 		}
-		
+
 		video.setAttribute("src", 'data:video/avi;base64,' + data.video);
 	});
-	
+
 	socket.on('triangulate', function(data){
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
