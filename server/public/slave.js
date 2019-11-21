@@ -779,6 +779,8 @@ masterButton.addEventListener('click',function(){
 	socket.on('triangulate', function(data){
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
+		console.log('center', data.center)
+		console.log('corners', data.corners)
 		canvas.style.display = "block"
 		drawAnglesDegree(canvas, data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
