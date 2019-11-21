@@ -29,11 +29,11 @@ const pixelColor = function(color) {
 	else if (h >= 90 && h < 150)
 		return 2
 	else if (h >= 150 && h < 210)
-		return 5
+		return 6
 	else if (h >= 210 && h < 270)
 		return 3
 	else if (h >= 270 && h < 330)
-		return 6
+		return 5
 	else return 0
 }
 
