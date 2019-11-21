@@ -677,8 +677,8 @@ masterButton.addEventListener('click',function(){
  };
 
  function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
-	myCanvas.width = window.innerWidth;
- 	myCanvas.height = window.innerHeight; // picture.height;
+	myCanvas.width = refPictureLength.x
+ 	myCanvas.height = refPictureLength.y
 	context = myCanvas.getContext('2d');
 
 	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
