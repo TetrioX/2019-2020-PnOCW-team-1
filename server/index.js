@@ -45,8 +45,9 @@ var number = 0
 
 
 function deleteSlave(socket) {
-   delete slaves[socket.id]
-    masterIo.emit("removeSlave", socket.id)
+  delete AllScreenPositions[slaves[socket.id]
+  delete slaves[socket.id]
+  masterIo.emit("removeSlave", socket.id)
 }
 
 function addSlave(socket) {
