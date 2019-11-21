@@ -45,8 +45,9 @@ var number = 0
 
 
 function deleteSlave(socket) {
-   delete slaves[socket.id]
-    masterIo.emit("removeSlave", socket.id)
+  delete AllScreenPositions[slaves[socket.id]]
+  delete slaves[socket.id]
+  masterIo.emit("removeSlave", socket.id)
 }
 
 function addSlave(socket) {
@@ -418,6 +419,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		}
 	}
 
+  var  videoUpdater = null
 	socket.on('broadcastVideo', function(){
 
 		// load the image that should be sent
@@ -432,6 +434,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				picDim: picDimensions
 			});
 		})
+    let startTime = new Date()
+    clearInterval(videoUpdater)
+    videoUpdater = setInterval(function(){
+      let offset = new Date() - startTime
+      slaveIo.emit('updateVideo', offset)
+    }, 500)
+    // stop sending updates after the timer has been completed.
+    setTimeout(function() {
+      clearInterval(videoUpdater)
+    }, 10000000) // should be length of video in ms);
     })
 
     var countdownUpdater = null
