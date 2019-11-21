@@ -132,7 +132,7 @@ async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
     const imgs_buffs_promises = imgs_data.map( sharp_img => {
         return sharp_img
                  //.toColorspace('hsv')
-                 .resize(new_size)
+                 // .resize(new_size)
                  //.normalize()
                  //.blur()
                  .raw()
