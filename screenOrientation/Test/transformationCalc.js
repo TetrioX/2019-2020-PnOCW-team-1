@@ -139,8 +139,7 @@ const draw = function(myCanvas, video) {
 	// if(video.paused || video.ended)
 	// 	return false;
 	console.log("I'm still standing!")
-	console.log(video[k])
-	myCanvas.getContext('2d').drawImage(video[k], //  0, 0, video.width, video.height,     // source rectangle
+	myCanvas.getContext('2d').drawImage(video, //  0, 0, video.width, video.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height);
 	k++;
 	setTimeout(draw, 1000, myCanvas, video);
@@ -229,25 +228,25 @@ testReal3 = {B: {x:1069,y:2273},C: {x:1089,y:1289},D: {x:2801,y:1268},A: {x:2857
  	return { x: xValue / 4, y: yValue / 4}
  }
 
-canvas = document.getElementById('canvas')
-center = getCenter(testReal)
-document.body.style.backgroundColor = "white";
-context = canvas.getContext('2d')
- context.clearRect(0, 0, canvas.width, canvas.height);
- canvas.style.display = "block"
- drawAnglesDegree(canvas, center, center, {x: 4032, y: 3024})
- transformAngles(canvas)//, testReal, {x: 4032, y: 3024})
+// canvas = document.getElementById('canvas')
+// center = getCenter(testReal)
+// document.body.style.backgroundColor = "white";
+// context = canvas.getContext('2d')
+//  context.clearRect(0, 0, canvas.width, canvas.height);
+//  canvas.style.display = "block"
+//  drawAnglesDegree(canvas, center, center, {x: 4032, y: 3024})
+//  transformAngles(canvas)//, testReal, {x: 4032, y: 3024})
 // var video = document.getElementById('video')
 
-// video.addEventListener('play', function(){pasteVideo(document.getElementById('canvas'), video, testReal, {x: 4032, y: 3024})}, false);
+video.addEventListener('play', function(){pasteVideo(document.getElementById('canvas'), video, testReal, {x: 4032, y: 3024})}, false);
 
 // vid.onload = pasteVideo(document.getElementById('canvas'), vid, testReal, {x: 4032, y: 3024})
-// vid.src = 'IMG_2890.MOV'
-// vid.controls = true;
-// vid.setAttribute("width", "320");
-// vid.setAttribute("height", "240");
-// vid.autoplay = true
-// document.body.appendChild(vid);
+vid.src = 'IMG_2890.MOV'
+vid.controls = true;
+vid.setAttribute("width", "320");
+vid.setAttribute("height", "240");
+vid.autoplay = true
+document.body.appendChild(vid);
 
 // console.log(vid)
 // vid.play()
