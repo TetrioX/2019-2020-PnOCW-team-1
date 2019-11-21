@@ -443,7 +443,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     // stop sending updates after the timer has been completed.
     setTimeout(function() {
       clearInterval(videoUpdater)
-    }, 10000000 // should be length of video in ms);
+    }, 10000000) // should be length of video in ms);
     })
 
     var countdownUpdater = null
