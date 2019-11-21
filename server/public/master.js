@@ -131,7 +131,7 @@ navigator.mediaDevices.getUserMedia({
 	.catch(function (err) {
 		console.log("An error occurred: " + err);
 	});
-/*
+
 function takePicture(data){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
@@ -144,7 +144,7 @@ function takePicture(data){
 		destination: data.destination
 	});
 }
-*/
+/*
 //ref: https://tutorialzine.com/2016/07/take-a-selfie-with-js
 function takePicture(data) {
 
@@ -176,6 +176,7 @@ function takePicture(data) {
     image.setAttribute('src', imageDataURL);
 
 }
+*/
 
 startbutton.addEventListener('click', function () {
 	takePicture({});
