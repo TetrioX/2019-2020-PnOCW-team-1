@@ -35,6 +35,30 @@ const imageReading = function(buff, toBuff, channel, scale=true) {
 
 		k = clrdis.pixelColor(rgb)
 
+    // switch (k) {
+    //   case 1 :
+    //     toBuff[i/channel*3] = 255;
+    //     break;
+    //   case 2 :
+    //     toBuff[i/channel*3 + 1] = 255;
+    //     break;
+    //   case 3 :
+    //     toBuff[i/channel*3 + 2] = 255;
+    //     break;
+    //   case 4 :
+    //     toBuff[i/channel*3] = 255;
+    //     toBuff[i/channel*3+1] = 255;
+    //     break;
+    //   case 5 :
+    //     toBuff[i/channel*3] = 255;
+    //     toBuff[i/channel*3+2] = 255;
+    //     break;
+    //   case 6 :
+    //     toBuff[i/channel*3+1] = 255;
+    //     toBuff[i/channel*3+2] = 255;
+    //     break;
+    // }
+
 		toBuff[i/channel] = k * scaleValue
     }
 }
