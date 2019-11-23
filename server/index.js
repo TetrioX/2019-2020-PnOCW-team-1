@@ -1,9 +1,9 @@
 var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
-const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
-const scrnread = require('../imageProcessing/screenReading.js')
-const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
+// const scrnrec = require('../screenProcessing/screenRecognitionDirect.js')
+const scrnread = require('../screenProcessing/screenReading.js')
+const imgprcssrgb = require('../ImageProcessingHSL/imageProcessingHSL.js')
 const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
@@ -157,7 +157,7 @@ app.get('/master', function(req,res){
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
-app.use('/debug', express.static(__dirname + '/'))
+app.use('/debug', express.static(__dirname + '/debug'))
 
 app.use('/static', express.static(__dirname +  '/public'))
 
@@ -364,18 +364,18 @@ var masterIo = io.of('/master').on('connect', function(socket){
         })
     });
 
-    socket.on('calibrate', function(data) {
-        slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
-        socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
-            socket.emit('takePictures', {slaves: slaves},
-                function (callbackData) {
-                    console.log('Took enough pictures.')
-                    imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
-                    for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
-                    scrnrec.findScreen(imgs) // Implement the screen recognition
-                })
-        })
-    });
+    // socket.on('calibrate', function(data) {
+    //     slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
+    //     socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
+    //         socket.emit('takePictures', {slaves: slaves},
+    //             function (callbackData) {
+    //                 console.log('Took enough pictures.')
+    //                 imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
+    //                 for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
+    //                 scrnrec.findScreen(imgs) // Implement the screen recognition
+    //             })
+    //     })
+    // });
 
 	socket.on('broadcastImage', function(data){
 
