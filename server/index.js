@@ -7,7 +7,7 @@ const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
 const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
-const config = require('./config.json');
+const config = require('./example.config.json');
 
 const { argv } = require('yargs')
                   .boolean('save-debug-files')
@@ -224,11 +224,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
-          setTimeout(function() {
-            // if it takes longer than 1 seconds reject the promise
-            // TODO: should be rejected and handled
-            resolve()
-          }, 1000);
+            setTimeout(() => reject(new Error("Failed to show grid on screens")), 1000);
         }))
         // add the grid to screens
         screens[slaves[slave]] = gridAndCombs.colorGrid
@@ -279,11 +275,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           socket.emit('takeOnePicture', {}, async function(callBackData){
             resolve(callBackData)
           })
-          setTimeout(function() {
-            // if it takes longer than 3 seconds reject the promise
-            // TODO: should be rejected and handled
-            reject()
-          }, 3000);
+            setTimeout(() => reject(new Error("Failed to take picture")), 3000);
         }).catch(function(error) {
           // failed to retrieve the image
           socket.emit('alert', "Retrieving one of the images timed out.")
@@ -304,7 +296,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
               })
               setTimeout(function() {
                 // if it takes longer than 0.5 seconds reject the promise
-                // TODO: should be rejected and handled
+                socket.disconnect();
               	resolve()
               }, 500);
             })
