@@ -3,7 +3,7 @@ class Snake {
   constructor(size, partSize, headPos) {
     for (let i = 0; i < size; i++) {
       let pos = {x: headPos.x - partSize / 3 * i, y: headPos.y}
-      let part = new SnakePart(i, pos, partSize, 0)
+      let part = new SnakePart(this, i, pos, partSize, 0)
       this.parts.push(part)
     }
     this.headPos = headPos;
@@ -23,11 +23,15 @@ class Snake {
 }
 
 class SnakePart {
-  constructor(name, startPosition, size, direction) {
+  constructor(snake, name, startPosition, size, direction) {
+      this.snake = snake;
       this.pos = startPosition;
       this.size = size;
       this.name = name;
       this.dir = direction;
+      this.devMax = size / 6
+      this.deviation = 0;
+      this.devSide = 1;
   }
 
   newDir = [];
@@ -60,7 +64,9 @@ class SnakePart {
   }
 
   // 30 fps
+  timePassed = 0;
   updatePosition(vel) {
+    this.updateDeviation();
     let posX = this.pos.x + vel / 30 * Math.cos(this.dir);
     let posY = this.pos.y + vel / 30 * Math.sin(this.dir);
     if (! this.newDirCached || this.newDirCached && ! this.checkStartPosPassed({x: posX, y: posY}))
@@ -73,8 +79,19 @@ class SnakePart {
       this.pos.x += (vel/30-r) * Math.cos(this.dir);
       this.pos.y += (vel/30-r) * Math.sin(this.dir);
     }
+    this.timePassed++;
   }
 
+  cycleTime = 50;
+  prevDev = 0;
+  updateDeviation() {
+    this.prevDev = this.deviation;
+    if (this.name == 0) {
+      this.deviation = this.devMax * Math.sin(this.timePassed * 2 * Math.PI / this.cycleTime)
+      if (Math.abs(this.deviation) >= this.devMax) this.devSide *= -1;
+    }
+    else this.deviation = this.snake.parts[this.name - 1].prevDev;
+  }
 }
 
 const drawSnake = function(snake) {
@@ -83,21 +100,37 @@ const drawSnake = function(snake) {
 }
 
 const drawSnakePart = function(snakePart) {
-  ctx.fillStyle = "#FF0000";
+  if (snakePart.name % 2 == 1 || snakePart.name == 0) ctx.fillStyle = "#008000";
+  else ctx.fillStyle = "#004000";
   ctx.beginPath();
-  ctx.arc(snakePart.pos.x, snakePart.pos.y, snakePart.size / 2, 0, 2 * Math.PI);
+  ctx.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) , snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
+    snakePart.size / 2, 0, 2 * Math.PI);
   ctx.fill();
+
+  if (snakePart.name == 0) {
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir), snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+      snakePart.size / 6, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir), snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+      snakePart.size / 6, 0, 2 * Math.PI);
+    ctx.fill();
+  }
 }
 
 
 var stop = false;
 // var snakePart = new SnakePart(0, {x: 5, y: 5}, 10, 0)
-var snake = new Snake(100, 20, {x: 10, y: 10})
+var snake = new Snake(100, 30, {x: 15, y: 15})
+console.log(snake.parts)
 
 var leftButton = document.getElementById('Left');
 var upButton = document.getElementById('Up');
 var rightButton = document.getElementById('Right');
 var downButton = document.getElementById('Down');
+var stopButton = document.getElementById('Stop');
 
 const drawCanvas = function(canvas) {
   ctx = canvas.getContext('2d')
@@ -108,20 +141,24 @@ const drawCanvas = function(canvas) {
   if (!stop) setTimeout(drawCanvas, 100/3, canvas);
 }
 
+stopButton.addEventListener('click',function(){
+  stop = stop ? false : true;
+})
+
 leftButton.addEventListener('click',function(){
-  snake.changeDirection(-Math.PI*3/4)
+  snake.changeDirection(Math.PI)
 })
 
 rightButton.addEventListener('click',function(){
-  snake.changeDirection(Math.PI/4)
+  snake.changeDirection(0)
 })
 
 upButton.addEventListener('click',function(){
-  snake.changeDirection(-Math.PI/4)
+  snake.changeDirection(-Math.PI/2)
 })
 
 downButton.addEventListener('click',function(){
-  snake.changeDirection(Math.PI*3/4)
+  snake.changeDirection(Math.PI/2)
 })
 
 drawCanvas(canvas)
