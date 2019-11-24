@@ -4,7 +4,7 @@ const { argv } = require('yargs')
                 .boolean('get-screen')
 const fs = require('fs')
 const screenReading = require('../screenReading.js');
-const imgprcssrgb = require('../../ImageProcessingRGB/imageProcessingRGB.js')
+const imgprcssrgb = require('../../ImageProcessingHSL/imageProcessingHSL.js')
 
 let verbose = argv.verbose;
 let getScreen = argv['get-screen']
