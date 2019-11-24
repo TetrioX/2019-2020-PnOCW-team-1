@@ -279,7 +279,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
         let picPromise = new Promise(function(resolve, reject) {
           ss(socket).emit('takeOnePicture', async function(stream){
             resolve(new Promise(function(resolve, reject) {
-
+              stream.setEncoding('utf-8') // we want to recieve a string
+              
             }))
           })
           setTimeout(function() {

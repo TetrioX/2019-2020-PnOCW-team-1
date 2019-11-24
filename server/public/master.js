@@ -119,8 +119,8 @@ video.setAttribute('playsinline', '');
 
 navigator.mediaDevices.getUserMedia({
     video: {
-        width: { ideal: 4096 },
-        height: { ideal: 2160 },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
         facingMode: "environment"
     }, audio: false
 })
