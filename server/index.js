@@ -239,7 +239,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       let pictures = await takePicture(nbOfPictures)
-		calibrationPicture = pictures[0]
+		  calibrationPicture = pictures[0]
       if (pictures == null){
         return null
       }
@@ -248,6 +248,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       Object.keys(slaves).forEach(function(slave, index) {
         slaveSockets[slave].emit('removeGrid')
       })
+      pictures = await Promise.all(pictures) // wait for pictures to be recieved
       if (saveDebugFiles) {
         await debugDirPromise
         fs.writeFile(debugPath+`/screens.json`, JSON.stringify(screens), (err) => {if (err) console.log(err)})
@@ -280,17 +281,23 @@ var masterIo = io.of('/master').on('connect', function(socket){
           ss(socket).emit('takeOnePicture', async function(stream){
             resolve(new Promise(function(resolve, reject) {
               stream.setEncoding('utf-8') // we want to recieve a string
-
-            }))
+              let image = ''
+              stream.on('data', (chunk) => {
+                image += chunk;
+                resolve(decodeBase64Image(image).data)
+              });
+              stream.on('error', (err) => reject(err))
+            }).catch((err) => reject(err)))
           })
-            setTimeout(() => reject(new Error("Failed to take picture")), 3000);
+          // setTimeout(() => reject(new Error("Failed to take picture")), 5000);
         }).catch(function(error) {
+          console.log(error)
           // failed to retrieve the image
           socket.emit('alert', "Retrieving one of the images timed out.")
           throw new Error("Retrieving one of the images timed out.")
         })
-        let picture = await picPromise
-        pictures.push(decodeBase64Image(picture).data)
+        let pic = await picPromise
+        pictures.push(pic)
         i += 1
         if (i < n){
           // promises that will be fulfilled once the screens have changed color
