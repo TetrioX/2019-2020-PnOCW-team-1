@@ -3,13 +3,13 @@ var socket = require('socket.io');
 var fs = fs = require('fs');
 var path = require('path');
 var ss = require('socket.io-stream');
-const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
-const scrnread = require('../imageProcessing/screenReading.js')
-const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
+// const scrnrec = require('../screenProcessing/screenRecognitionDirect.js')
+const scrnread = require('../screenProcessing/screenReading.js')
+const imgprcssrgb = require('../ImageProcessingHSL/imageProcessingHSL.js')
 const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 // load config file
-const config = require('./config.json');
+const config = require('./example.config.json');
 
 const { argv } = require('yargs')
                   .boolean('save-debug-files')
@@ -47,8 +47,9 @@ var number = 0
 
 
 function deleteSlave(socket) {
-   delete slaves[socket.id]
-    masterIo.emit("removeSlave", socket.id)
+  delete AllScreenPositions[slaves[socket.id]]
+  delete slaves[socket.id]
+  masterIo.emit("removeSlave", socket.id)
 }
 
 function addSlave(socket) {
@@ -158,7 +159,7 @@ app.get('/master', function(req,res){
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
-app.use('/debug', express.static(__dirname + '/'))
+app.use('/debug', express.static(__dirname + '/debug'))
 
 app.use('/static', express.static(__dirname +  '/public'))
 
@@ -225,11 +226,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
-          setTimeout(function() {
-            // if it takes longer than 1 seconds reject the promise
-            // TODO: should be rejected and handled
-            resolve()
-          }, 1000);
+            setTimeout(() => reject(new Error("Failed to show grid on screens")), 1000);
         }))
         // add the grid to screens
         screens[slaves[slave]] = gridAndCombs.colorGrid
@@ -282,9 +279,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
             }))
           })
-          setTimeout(function() {
-            reject()
-          }, 3000);
+            setTimeout(() => reject(new Error("Failed to take picture")), 3000);
         }).catch(function(error) {
           // failed to retrieve the image
           socket.emit('alert', "Retrieving one of the images timed out.")
@@ -305,7 +300,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
               })
               setTimeout(function() {
                 // if it takes longer than 0.5 seconds reject the promise
-                // TODO: should be rejected and handled
+                socket.disconnect();
               	resolve()
               }, 500);
             })
@@ -372,18 +367,18 @@ var masterIo = io.of('/master').on('connect', function(socket){
         })
     });
 
-    socket.on('calibrate', function(data) {
-        slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
-        socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
-            socket.emit('takePictures', {slaves: slaves},
-                function (callbackData) {
-                    console.log('Took enough pictures.')
-                    imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
-                    for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
-                    scrnrec.findScreen(imgs) // Implement the screen recognition
-                })
-        })
-    });
+    // socket.on('calibrate', function(data) {
+    //     slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
+    //     socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
+    //         socket.emit('takePictures', {slaves: slaves},
+    //             function (callbackData) {
+    //                 console.log('Took enough pictures.')
+    //                 imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
+    //                 for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
+    //                 scrnrec.findScreen(imgs) // Implement the screen recognition
+    //             })
+    //     })
+    // });
 
 	socket.on('broadcastImage', function(data){
 
@@ -419,6 +414,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		}
 	}
 
+  var  videoUpdater = null
 	socket.on('broadcastVideo', function(){
 
 		// load the image that should be sent
@@ -433,6 +429,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				picDim: picDimensions
 			});
 		})
+    let startTime = new Date()
+    clearInterval(videoUpdater)
+    videoUpdater = setInterval(function(){
+      let offset = new Date() - startTime
+      slaveIo.emit('updateVideo', offset)
+    }, 500)
+    // stop sending updates after the timer has been completed.
+    setTimeout(function() {
+      clearInterval(videoUpdater)
+    }, 10000000) // should be length of video in ms);
     })
 
     var countdownUpdater = null
