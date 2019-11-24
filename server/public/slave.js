@@ -636,7 +636,7 @@ masterButton.addEventListener('click',function(){
 
 
  };
- 
+
   /**
   * Paste the given part of the given picture on the client canvas.
   **/
@@ -647,7 +647,7 @@ masterButton.addEventListener('click',function(){
  	myCanvas.width =  window.innerWidth; //picture.width;
 	myCanvas.height = window.innerHeight; // picture.height;
     ctx = myCanvas.getContext('2d');
-	
+
 	i = window.setInterval(function() {
 		ctx.drawImage(video, 0, 0, video.width,  video.height,     // source rectangle
 					0, 0, myCanvas.width, myCanvas.height); // destination rectangle
@@ -742,24 +742,24 @@ masterButton.addEventListener('click',function(){
 		// This is for smoother picture monitoring. Else white borders are possible.
 		document.body.style.backgroundColor = "black";
 	});
-	
+
 	socket.on('showVideo', function(data){
 		cleanHTML()
 		canvas.style.display = "block"
 		console.log(data)
-		
+
 		var video = document.createElement("video");
-		
+
 
 		video.onload = function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			// This is for smoother picture monitoring. Else white borders are possible.
 			document.body.style.backgroundColor = "black";
 		}
-		
+
 		video.setAttribute("src", 'data:video/avi;base64,' + data.video);
 	});
-	
+
 	socket.on('triangulate', function(data){
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);

@@ -190,6 +190,8 @@ socket.on('takeOnePicture', function(data, callback){
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
 	context.drawImage(video, 0, 0);
+	console.log(canvas.toDataURL('image/png'))
+	var stream = ss.createStream();
 	callback(canvas.toDataURL('image/png'))
 })
 

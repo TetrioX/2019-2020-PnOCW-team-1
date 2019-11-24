@@ -1,6 +1,8 @@
 var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
+var path = require('path');
+var ss = require('socket.io-stream');
 const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
 const scrnread = require('../imageProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
@@ -275,12 +277,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let i = 0
       while(true){
         let picPromise = new Promise(function(resolve, reject) {
-          socket.emit('takeOnePicture', {}, async function(callBackData){
-            resolve(callBackData)
+          ss(socket).emit('takeOnePicture', async function(stream){
+            resolve(new Promise(function(resolve, reject) {
+
+            }))
           })
           setTimeout(function() {
-            // if it takes longer than 3 seconds reject the promise
-            // TODO: should be rejected and handled
             reject()
           }, 3000);
         }).catch(function(error) {
@@ -316,7 +318,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
           break
         }
       }
-      await sleep(Number(gridPause))
       return pictures
     }
 
@@ -467,8 +468,6 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
     deleteSlave(socket)
   })
 });
-
-
 
 
 //creating grids with a number of columns and a number of rows
