@@ -72,7 +72,7 @@ function getConnections(slaves){
 
     var triangulation = Delaunay(coords)
     for (var i in coords) {
-        result[Object.keys(slaves)[i]] = triangulation[pt].toArray()
+        result[Object.keys(slaves)[i]] = triangulation[coords[i]].toArray()
     }
     console.log(result)
     return result
