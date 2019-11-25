@@ -16,7 +16,7 @@ socket.on('registerMaster', function (data) {
 
 //Emit events to server
 
-var entirePage =document.getElementById('entirePage');
+var entirePage = document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
@@ -30,11 +30,16 @@ var homebutton = document.getElementById('changePageButton');
 var secondEntirePage = document.getElementById("secondEntirePage");
 var rowPicker = document.getElementById("rowPicker");
 var columnPicker = document.getElementById("columnPicker");
-var countdownPicker = document.getElementById("countdownPicker")
+var countdownPicker = document.getElementById("countdownPicker");
+var snakeButton = document.getElementById("snakeButton");
+var snakeLengthPicker = document.getElementById('snakeLengthPicker');
+var triangulationSnake = document.getElementById('triangulationSnake');
+var homebutton2 = document.getElementById('changePageButton2');
 
 var numberOfRows = rowPicker.valueAsNumber;
 var numberOfColumns = columnPicker.valueAsNumber;
-var countdownSeconds = countdownPicker.valueAsNumber
+var countdownSeconds = countdownPicker.valueAsNumber;
+var snakeLength = snakeLengthPicker.valueAsNumber;
 
 var angle = 0;
 rowPicker.addEventListener('input', function(){
@@ -42,10 +47,13 @@ rowPicker.addEventListener('input', function(){
 });
 
 columnPicker.addEventListener('input', function(){
-	numberOfColumns =columnPicker.valueAsNumber
+	numberOfColumns = columnPicker.valueAsNumber
 })
 countdownPicker.addEventListener('input', function(){
 	countdownSeconds = countdownPicker.valueAsNumber
+})
+snakeLengthPicker.addEventListener('input', function(){
+	snakeLength = snakeLengthPicker.valueAsNumber
 })
 
 
@@ -306,4 +314,14 @@ socket.on('drawCircles', function (data) {
             context.stroke();
         }
     }
+})
+
+snakeButton.addEventListener('click', function(){
+	entirePage.style.display="none";
+	snakeEntirePage.style.display=""
+})
+
+homebutton2.addEventListener('click',function(){
+	entirePage.style.display="";
+	snakeEntirePage.style.display="none";
 })
