@@ -117,13 +117,13 @@ video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
-var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160]];
+var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
 var resolutionWith = 1280;
 var resolutionHeight = 720;
 selectResolution.addEventListener('input',function(){
 	resolutionWith = resolutions[selectResolution.value][0];
 	resolutionHeight = resolutions[selectResolution.value][1];
-	console.log( resolutionWith,'x', resolutionHeight )
+	console.log( resolutionWith,'x', resolutionHeight );
 
 })
 
