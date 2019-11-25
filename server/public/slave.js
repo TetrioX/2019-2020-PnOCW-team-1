@@ -919,12 +919,18 @@ masterButton.addEventListener('click',function(){
 	  }
 	}
 
-	socket.on('createSnake', function(data){
+	socket.on('createSnake', function(data){ // data nodig: picDim, corners, snakeSize,
 		snake = new Snake(data.size, partSize, 'pos' )
+		cleanHTML()
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		canvas.style.display = "block"
+		canvas.width = data.picDim[1]
+		canvas.height = data.picDim[0]
+		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 	})
 
 	var snake;
-	socket.on('updateSnake', function(data){
+	socket.on('updateSnake', function(data){ // data nodig: max latency, latency
 
 		// Doe hier u ding
 
@@ -938,16 +944,5 @@ masterButton.addEventListener('click',function(){
 	  drawSnake(snake);
 	  snake.updateSnake(100)
 	}
-
-	const transformAngles = function(myCanvas, corners, refPictureLength){
- 		// myCanvas.width = window.innerWidth;
- 		// myCanvas.height = window.innerHeight;
- 		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
- 		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
- 				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-
-
-  };
 
 })()
