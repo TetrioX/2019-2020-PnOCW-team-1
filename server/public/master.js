@@ -118,19 +118,19 @@ video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
 var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
-var resolutionWith = 1280;
+var resolutionWidth = 1280;
 var resolutionHeight = 720;
 selectResolution.addEventListener('input',function(){
-	resolutionWith = resolutions[selectResolution.value][0];
+	resolutionWidth = resolutions[selectResolution.value][0];
 	resolutionHeight = resolutions[selectResolution.value][1];
-	console.log( resolutionWith,'x', resolutionHeight );
+	console.log( resolutionWidth,'x', resolutionHeight );
 
 })
 
 navigator.mediaDevices.getUserMedia({
     video: {
-        width: { ideal: resolutionWith },
-        height: { ideal: resolutionHeight },
+        width: resolutionWidth ,
+        height: resolutionHeight,
         facingMode: "environment"
     }, audio: false
 })
