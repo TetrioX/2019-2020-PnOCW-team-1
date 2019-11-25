@@ -920,6 +920,7 @@ masterButton.addEventListener('click',function(){
 	}
 
 	socket.on('updateSnake', function(data){
+		// Doe hier u ding
 
 	})
 
