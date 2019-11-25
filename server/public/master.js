@@ -124,16 +124,16 @@ selectResolution.addEventListener('input',function(){
 	resolutionWidth = resolutions[selectResolution.value][0];
 	resolutionHeight = resolutions[selectResolution.value][1];
 	console.log( resolutionWidth,'x', resolutionHeight );
-
+	navigator.mediaDevices.getUserMedia({
+	    video: {
+	        width: resolutionWidth ,
+	        height: resolutionHeight,
+	        facingMode: "environment"
+	    }, audio: false
+	})
 })
 
-navigator.mediaDevices.getUserMedia({
-    video: {
-        width: resolutionWidth ,
-        height: resolutionHeight,
-        facingMode: "environment"
-    }, audio: false
-})
+
 	.then(function (stream) {
 		video.srcObject = stream;
 		video.play();
