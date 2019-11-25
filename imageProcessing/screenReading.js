@@ -690,15 +690,18 @@ function getScreenFromSquares(squares, screens) {
                 listCoX.push(screenCorners[screens][i][j].x)
                 listCoY.push(screenCorners[screens][i][j].y)
             }
-            //remove outliers from corners
-            let IQRx = quartile(listCoX, 0.75) - quartile(listCoX, 0.25)
-            let IQRy = quartile(listCoY, 0.75) - quartile(listCoY, 0.25)
-            listCoX = listCoX.filter(function (value) {
-                return value >= quartile(listCoX, 0.25) - 1, 5 * IQRx && value <= quartile(listCoX, 0.75) + 1, 5 * IQRx
-            })
-            listCoY = listCoY.filter(function (value) {
-                return value >= quartile(listCoY, 0.25) - 1, 5 * IQRy && value <= quartile(listCoY, 0.75) + 1, 5 * IQRy
-            })
+            //Only remove outliers if 3 or more points
+            if (screenCorners[screens].length > 2) {
+                //remove outliers from corners
+                let IQRx = quartile(listCoX, 0.75) - quartile(listCoX, 0.25)
+                let IQRy = quartile(listCoY, 0.75) - quartile(listCoY, 0.25)
+                listCoX = listCoX.filter(function (value) {
+                    return value >= quartile(listCoX, 0.25) - 1, 5 * IQRx && value <= quartile(listCoX, 0.75) + 1, 5 * IQRx
+                })
+                listCoY = listCoY.filter(function (value) {
+                    return value >= quartile(listCoY, 0.25) - 1, 5 * IQRy && value <= quartile(listCoY, 0.75) + 1, 5 * IQRy
+                })
+            }
             //calculate avg
             results[screens].push({
                 x: Math.ceil(array_Sum(listCoX) / listCoX.length),
