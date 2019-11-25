@@ -165,4 +165,25 @@ downButton.addEventListener('click',function(){
   snake.changeDirection(Math.PI/2)
 })
 
+document.onkeydown = function(e) {
+            switch (e.keyCode) {
+                case 37:
+                    str = 'Left Key pressed!';
+                    snake.changeDirection(Math.PI);
+                    break;
+                case 38:
+                    str = 'Up Key pressed!';
+                    snake.changeDirection(-Math.PI/2);
+                    break;
+                case 39:
+                    str = 'Right Key pressed!';
+                    snake.changeDirection(0);
+                    break;
+                case 40:
+                    str = 'Down Key pressed!';
+                    snake.changeDirection(Math.PI/2)
+                    break;
+            }
+}
+
 drawCanvas(canvas)
