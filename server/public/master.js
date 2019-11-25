@@ -321,6 +321,10 @@ snakeButton.addEventListener('click', function(){
 	snakeEntirePage.style.display=""
 })
 
+triangulationSnake.addEventListener('click', function(){
+	// Simon u queu hier
+})
+
 homebutton2.addEventListener('click',function(){
 	entirePage.style.display="";
 	snakeEntirePage.style.display="none";
