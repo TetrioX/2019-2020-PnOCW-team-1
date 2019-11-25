@@ -478,7 +478,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     const startPos = centers[slaves[firstSlave]]
     connections = delaunay.getConnections(centers)
     var randInt = Math.floor(Math.random() * connections[firstSlave].length)
-    var nextPoint = connections[startPos][randInt]
+    var nextPoint = connections[firstSlave][randInt]
     var direction = geometry.radianAnglebetweenPoints(startPos, nextPoint)
 
     console.log("Niet in tri")
