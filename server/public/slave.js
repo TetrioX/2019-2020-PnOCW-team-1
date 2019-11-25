@@ -939,8 +939,8 @@ masterButton.addEventListener('click',function(){
 	var snake;
 	socket.on('updateSnake', function(data){
 		console.log('update')
-		setTimeout(data.maxLat - latency, updateS, snake)
-
+		// setTimeout(data.maxLat - latency, updateS, snake)
+		updateS(snake)
 	})
 
 	function updateS(snake) {

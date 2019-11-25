@@ -503,7 +503,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('updateSnake', {
         maxLat: Math.max(Object.values(latSlaves))
       })
-    }, 33)
+    }, 100)
   });
 
 
