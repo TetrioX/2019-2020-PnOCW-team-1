@@ -318,7 +318,8 @@ socket.on('drawCircles', function (data) {
 
 snakeButton.addEventListener('click', function(){
 	entirePage.style.display="none";
-	snakeEntirePage.style.display=""
+	snakeEntirePage.style.display="block"
+	socket.emit("startSnake")
 })
 
 homebutton2.addEventListener('click',function(){

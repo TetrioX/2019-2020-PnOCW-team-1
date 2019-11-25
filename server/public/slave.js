@@ -40,7 +40,7 @@ socket.on('changeBackgroundColor',function(data){
 var latency = 0;
 socket.on('pong', function(ms) {
     latency += Math.min(latency*6/5 + 10,(ms - latency)/5)
-
+		socket.emit('update-latency', latency)
 });
 
 // Sending number to slave (also usefull for angle of arrow!)

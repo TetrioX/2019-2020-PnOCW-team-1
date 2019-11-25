@@ -23,6 +23,7 @@ var debugDirPromise = new Promise(function(resolve, reject){
   });
 }).catch((err) => {console.log(err)})
 var AllScreenPositions={};
+var latSlaves = {}
 var picDimensions = [];
 var calibrationPicture;
 
@@ -462,6 +463,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }, data*1000);
     })
 
+  var snakeUpdater = null
+  socket.on('startSnake', function(){
+    clearInterval(snakeUpdater)
+    socket.emit('startSnake')
+    snakeUpdater = setInterval(function(){
+      socket.emit('updateSnake', )
+
+  })
 });
 
 
@@ -477,6 +486,9 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 	})
   socket.on('disconnect', function() {
     deleteSlave(socket)
+  })
+  socket.on('update-latency', function(lat){
+    latSlaves[socket] = lat
   })
 });
 
