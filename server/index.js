@@ -497,13 +497,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
 
   socket.on('snakeGoalReached', function(data){ // data: prevSlave
-    var randInt = Math.floor(Math.random() * connections[firstSlave].length)
-    var nextPoint = connections[data.prevPoint][randInt]
+    var randInt = Math.floor(Math.random() * connections[data.prevSlave].length)
+    //curr
+    var nextPoint = connections[data.prevSlave][randInt]
     var direction = geometry.angleBetweenPoints(currentPoint, nextPoint)
     socket.emit('changeDirection', {
       startPos: data.prevPoint,
       newDir: direction,
-      goalSlave: nextPoint
+      goalSlave: nextSlave // Maak
     })
   })
 
