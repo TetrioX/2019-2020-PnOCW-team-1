@@ -935,17 +935,8 @@ masterButton.addEventListener('click',function(){
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 	})
 
-	var connections;
-	function getRandomDirection(currentPoint){
-		var randInt = Math.floor(Math.random() * connections[currentPoint].length)
-		return connections[currentPoint][randInt]
-	}
-
 	var snake;
 	socket.on('updateSnake', function(data){
-
-		// Doe hier u ding
-		var dir = getRandomDirection()
 		setTimeout(data.maxLat - latency, updateS, snake, canvas)
 
 	})
