@@ -473,14 +473,15 @@ var masterIo = io.of('/master').on('connect', function(socket){
   var centers;
   socket.on('startSnake', function(data){
     clearInterval(snakeUpdater)
-
+    centers = screenorientation.getScreenCenters(AllScreenPositions)
     const firstSlave = Object.keys(slaves)[0]
     const startPos = centers[slaves[firstSlave]]
     connections = delaunay.getConnections(AllScreenPositions)
-    centers = screenorientation.getScreenCenters(AllScreenPositions)
     var randInt = Math.floor(Math.random() * connections[startPos].length)
     var nextPoint = connections[startPos][randInt]
     var direction = geometry.radianAnglebetweenPoints(startPos, nextPoint)
+
+    console.log("Niet in tri")
 
     Object.keys(slaves).forEach(function(slave, index) {
       slaveSockets[slave].emit('createSnake', {
@@ -502,6 +503,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
 
   socket.on('snakeGoalReached', function(data){ // data: prevSlave
+    centers = screenorientation.getScreenCenters(AllScreenPositions)
     var currentPoint = centers[slaves[data.prevSlave]]
     var randInt = Math.floor(Math.random() * connections[currentPoint].length)
 
