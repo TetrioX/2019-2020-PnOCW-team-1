@@ -11,22 +11,7 @@ var pointsCircle = [[0,1], [1,0], [-1, 0], [0,-1], [1,2]]
 geometry.sortPoints(pointsOnLine)
 geometry.sortPoints(pointsCircle)
 
-/*
-console.log("____________")
-var res1 = delaunay.Delaunay(pointsOnLine)
-for(let ind1=0; ind1 < pointsOnLine.length; ind1++){
-    var pt1 = pointsOnLine[ind1]
-    console.log(pt1, ":", res1[pt1].toArray())
-}
-console.log("____________")
-console.log("____________")
-var res = delaunay.Delaunay(pointsCircle)
-for(let ind=0; ind < pointsCircle.length; ind++){
-    var pt = pointsCircle[ind]
-    console.log(pt, ":", res[pt].toArray())
-}
-console.log("____________")
-*/
+
 
 function randomInt(low, high) {
     return Math.floor(Math.random() * (high - low) + low)
@@ -69,6 +54,7 @@ while(i< 100) {
         var j = pointz[4]
         //console.log(result)
         console.log(j, ' : ',result[j].toArray())
+
         //console.log(linepoints[j].toArray())
         counter += 1
     }
@@ -93,15 +79,12 @@ while(i< 100) {
             for (let i = 0; i < points.length; i++) {
                 console.log(pointz[i], " || ", result[pointz[i]].toArray());
             }
+
             counter += 1
         }
+
     }
-
-//randomlist
-//test_triangulate(100);
-
-//list1
-//test_triangulate(list1);
-
-//list2
-//test_triangulate(list2);
+const test_getConnections = function(points) {
+        console.log(delaunay.getConnections(points))
+}
+test_getConnections(list1)
