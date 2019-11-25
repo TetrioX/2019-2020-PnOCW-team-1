@@ -919,12 +919,35 @@ masterButton.addEventListener('click',function(){
 	  }
 	}
 
+	socket.on('createSnake', function(data){
+		snake = new Snake(data.size, partSize, 'pos' )
+	})
+
 	var snake;
 	socket.on('updateSnake', function(data){
+
 		// Doe hier u ding
 
-		if (! snake) snake = new Snake(data.size, partSize, 'pos' )
+		setTimeout(data.maxLat - data.Lat, updateS, snake, canvas)
 
 	})
+
+	function updateS(snake, canvas) {
+		ctx = canvas.getContext('2d')
+	  ctx.clearRect(0, 0, canvas.width, canvas.height);
+	  drawSnake(snake);
+	  snake.updateSnake(100)
+	}
+
+	const transformAngles = function(myCanvas, corners, refPictureLength){
+ 		// myCanvas.width = window.innerWidth;
+ 		// myCanvas.height = window.innerHeight;
+ 		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+
+ 		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
+ 				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+
+
+  };
 
 })()
