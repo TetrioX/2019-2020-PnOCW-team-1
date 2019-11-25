@@ -6,6 +6,7 @@ const scrnread = require('../screenProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingHSL/imageProcessingHSL.js')
 const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
+const geometry = require('../triangulate_divide_and_conquer/geometry.js')
 // load config file
 const config = require('./config.json');
 
@@ -481,7 +482,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
   });
 
   socket.on('createSnake', function(data){
+    const firstSlave = Object.keys(slaves)[0]
+      var connections = delaunay.getConnections(slaves)
 
+    var randInt = Math.floor(Math.random() * connections[firstSlave].length)
+    var currentPoint = [firstSlave.x, firstSlave.y]
+    var nextPoint = connections[firstSlave][randInt]
+    var direction = geometry.angleBetweenPoints(currentPoint, nextPoint)
   })
 
 });

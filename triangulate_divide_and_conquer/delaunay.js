@@ -57,7 +57,29 @@ function getAngles(slaves){
 
 }
 
+function getConnections(slaves){
+    var result = {}
+    var coords = []
+    var temp = {}
 
+
+    for(var id in slaves){
+        var X = slaves[id].x
+        var Y = slaves[id].y
+
+        var point = [X,Y]
+
+        coords.push(point)
+        temp[point] = id
+
+    }
+
+    var triangulation = Delaunay(coords)
+    coords.forEach(function(pt){
+        result[pt] = triangulation[pt].toArray()
+    })
+    return result
+}
 
 function Delaunay(pts){
     adj = {}
@@ -132,5 +154,6 @@ function removeDuplicates(pts){
 */
 module.exports = {
     Delaunay: Delaunay,
-    getAngles: getAngles
+    getAngles: getAngles,
+    getConnections: getConnections
 }
