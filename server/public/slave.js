@@ -919,8 +919,11 @@ masterButton.addEventListener('click',function(){
 	  }
 	}
 
+	var snake;
 	socket.on('updateSnake', function(data){
 		// Doe hier u ding
+
+		if (! snake) snake = new Snake(data.size, partSize, 'pos' )
 
 	})
 
