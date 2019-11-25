@@ -15,7 +15,7 @@ socket.on('registerMaster', function (data) {
 });
 
 //Emit events to server
-
+var selectResolution = document.getElementById('exampleFormControlSelect1');
 var entirePage =document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
@@ -117,10 +117,12 @@ video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
+var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160]];
+console.log( resolutions[selectResolution.value][0],'x', resolutions[selectResolution.value][1] )
 navigator.mediaDevices.getUserMedia({
     video: {
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
+        width: { ideal: resolutions[selectResolution.value][0] },
+        height: { ideal: resolutions[selectResolution.value][1] },
         facingMode: "environment"
     }, audio: false
 })
