@@ -7,7 +7,7 @@ setTimeout(function() {
 		alert("authentication failed")
 		window.location.href="/";
 	}
-}, 1000);
+}, 2000);
 
 //listen for events from server
 socket.on('registerMaster', function (data) {
@@ -195,12 +195,15 @@ function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-socket.on('takeOnePicture', function(data, callback){
+ss(socket).on('takeOnePicture', function(callback){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
 	context.drawImage(video, 0, 0);
-	callback(canvas.toDataURL('image/png'))
+	var stream = ss.createStream();
+	stream.setDefaultEncoding('utf-8')
+	callback(stream)
+	stream.end(canvas.toDataURL('image/png'))
 })
 
 socket.on('takePictures', async function(data, callback){
