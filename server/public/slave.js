@@ -919,8 +919,8 @@ masterButton.addEventListener('click',function(){
 	  }
 	}
 
-	socket.on('createSnake', function(data){ // data nodig: picDim, corners, snakeSize,
-		snake = new Snake(data.size, partSize, 'pos' )
+	socket.on('createSnake', function(data){
+		snake = new Snake(data.size, 60, 'pos' )
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block";
@@ -928,6 +928,7 @@ masterButton.addEventListener('click',function(){
 		canvas.height = data.picDim[0];
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 	})
+
 	var connections;
 	function getRandomDirection(currentPoint){
 		var randInt = Math.floor(Math.random() * connections[currentPoint].length)
@@ -935,7 +936,7 @@ masterButton.addEventListener('click',function(){
 	}
 
 	var snake;
-	socket.on('updateSnake', function(data){ // data nodig: max latency, latency
+	socket.on('updateSnake', function(data){
 
 		// Doe hier u ding
 		var dir = getRandomDirection()
@@ -948,6 +949,7 @@ masterButton.addEventListener('click',function(){
 	  ctx.clearRect(0, 0, canvas.width, canvas.height);
 	  drawSnake(snake);
 	  snake.updateSnake(100)
+		console.log(snake.parts[0].pos)
 	}
 
 })()

@@ -319,11 +319,12 @@ socket.on('drawCircles', function (data) {
 snakeButton.addEventListener('click', function(){
 	entirePage.style.display="none";
 	snakeEntirePage.style.display="block"
-	socket.emit("createSnake")
 })
 
 triangulationSnake.addEventListener('click', function(){
-	// Simon u queu hier
+	socket.emit("startSnake", {
+		size: snakeLength
+	})
 })
 
 homebutton2.addEventListener('click',function(){

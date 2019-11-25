@@ -465,13 +465,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
     })
 
   var snakeUpdater = null
-  socket.on('startSnake', function(){
+  socket.on('startSnake', function(data){
     clearInterval(snakeUpdater)
-    socket.emit('startSnake')
+    Object.keys(slaves).forEach(function(slave, index) {
+      slaveSockets[slave].emit('createSnake', {
+        size: data.size,
+        corners: AllScreenPositions[slaves[slave]],
+        picDim: picDimensions
+      });
+    })
     snakeUpdater = setInterval(function(){
-      socket.emit('updateSnake', )
-
-  })
+      socket.emit('updateSnake', {
+        lat: 10, // Dit moet nog toegevoegd worden
+        maxLat: 10 // Dit ook
+      })
+    })
+  });
 
   socket.on('createSnake', function(data){
     const firstSlave = Object.keys(slaves)[0]
@@ -482,7 +491,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var nextPoint = connections[firstSlave][randInt]
     var direction = geometry.angleBetweenPoints(currentPoint, nextPoint)
   })
-  
+
 });
 
 
