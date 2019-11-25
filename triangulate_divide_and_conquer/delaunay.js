@@ -60,8 +60,6 @@ function getAngles(slaves){
 function getConnections(slaves){
     var result = {}
     var coords = []
-    var temp = {}
-
 
     for(var id in slaves){
         var X = slaves[id].x
@@ -70,8 +68,6 @@ function getConnections(slaves){
         var point = [X,Y]
 
         coords.push(point)
-        temp[point] = id
-
     }
 
     var triangulation = Delaunay(coords)
