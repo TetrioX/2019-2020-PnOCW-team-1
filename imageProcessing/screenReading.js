@@ -640,34 +640,24 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	return foundScreenSquares
 }
 
+function newFunction(data) {
+    data.sort(function (a, b) { return a - b });
+    var l = data.length;
+    var median = data[Math.round(l / 2)];
+    var LQ = data[Math.round(l / 4)];
+    var UQ = data[Math.round(3 * l / 4)];
+    var IQR = UQ - LQ;
+    var data4 = new Array();
+    for (var i = 0; i < data.length; ++i) {
+        if (data[i] > median - 1,5 * IQR && data[i] < mean + 1,5 * IQR)
+            data4.push(data[i]);
+    }
+    return data4
+}
+
 // returns a list with the best possible screens it can recognize from the calculated squares
 // This is not the best solution and could be in proofd in the future
 function getScreenFromSquares(squares, screens) {
-
-    //Quartile distance for fixing outliers when calculating corners
-    //reference: https://stackoverflow.com/questions/48719873/how-to-get-median-and-quartiles-percentiles-of-an-array-in-javascript-or-php
-    function quartile(data, q) {
-        data = array_Sort_Numbers(data);
-        var pos = ((data.length) - 1) * q;
-        var base = Math.floor(pos);
-        var rest = pos - base;
-        if ((data[base + 1] !== undefined)) {
-            return data[base] + rest * (data[base + 1] - data[base]);
-        } else {
-            return data[base];
-        }
-    }
-
-    function array_Sort_Numbers(inputarray) {
-        return inputarray.sort(function (a, b) {
-            return a - b;
-        });
-    }
-
-    function array_Sum(t) {
-        return t.reduce(function (a, b) { return a + b; }, 0);
-    }
-
 	let screenCorners = {}
 	// calculate all the screens
 	for (let sq of squares){
@@ -692,15 +682,8 @@ function getScreenFromSquares(squares, screens) {
             }
             //Only remove outliers if 3 or more points
             if (screenCorners[screens].length > 2) {
-                //remove outliers from corners
-                let IQRx = quartile(listCoX, 0.75) - quartile(listCoX, 0.25)
-                let IQRy = quartile(listCoY, 0.75) - quartile(listCoY, 0.25)
-                listCoX = listCoX.filter(function (value) {
-                    return value >= quartile(listCoX, 0.25) - 1, 5 * IQRx && value <= quartile(listCoX, 0.75) + 1, 5 * IQRx
-                })
-                listCoY = listCoY.filter(function (value) {
-                    return value >= quartile(listCoY, 0.25) - 1, 5 * IQRy && value <= quartile(listCoY, 0.75) + 1, 5 * IQRy
-                })
+                listCoX = newFunction(listCoX)
+                listCoY = newFunction(listCoY)
             }
             //calculate avg
             results[screens].push({
