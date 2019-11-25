@@ -34,7 +34,7 @@ var calibrationPicture;
 //App setup
 var app = express();
 var server = app.listen(config.port, function(){
-    console.log('listening to requests on port '+config.port)
+    console.log('listening to requests on port '+ config.port)
 });
 //Socket setup
 // pingInterval is used to determine the latency
