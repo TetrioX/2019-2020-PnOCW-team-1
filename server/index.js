@@ -501,7 +501,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     snakeUpdater = setInterval(function(){
       slaveIo.emit('updateSnake', {
-        console.log('update')
         maxLat: Math.max(Object.values(latSlaves))
       })
     }, 33)
