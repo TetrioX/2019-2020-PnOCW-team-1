@@ -486,7 +486,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     centers = screenorientation.getScreenCenters(AllScreenPositions)
     var randInt = Math.floor(Math.random() * connections[startPos].length)
     var nextPoint = connections[startPos][randInt]
-    var direction = geometry.angleBetweenPoints(startPos, nextPoint)
+    var direction = geometry.radianAnglebetweenPoints(startPos, nextPoint)
 
     Object.keys(slaves).forEach(function(slave, index) {
       slaveSockets[slave].emit('createSnake', {
@@ -513,7 +513,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     var nextPoint = connections[currentPoint][randInt]
     var nextSlave = getSlaveByPosition(slaves, nextPoint)
-    var direction = geometry.angleBetweenPoints(currentPoint, nextPoint)
+    var direction = geometry.radianAnglebetweenPoints(currentPoint, nextPoint)
     socket.emit('changeDirection', {
       startPos: currentPoint,
       newDir: direction,
