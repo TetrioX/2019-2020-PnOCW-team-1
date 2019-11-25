@@ -48,7 +48,6 @@ function deleteSlave(socket) {
   delete AllScreenPositions[slaves[socket.id]];
   delete slaves[socket.id];
   masterIo.emit("removeSlave", socket.id);
-  slaves[socket.id].disconnect();
 }
 
 function addSlave(socket) {
@@ -228,7 +227,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
             setTimeout(() => reject(new Error("Failed to show grid on screens")), 1000);
         }).catch(function() {
             deleteSlave(slaveSockets[slave]);
-            slave.disconnect();
         }));
         // add the grid to screens
         screens[slaves[slave]] = gridAndCombs.colorGrid
