@@ -481,6 +481,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var nextPoint = connections[startPos][randInt]
     var direction = geometry.radianAnglebetweenPoints(startPos, nextPoint)
 
+    console.log("Niet in tri")
+
     Object.keys(slaves).forEach(function(slave, index) {
       slaveSockets[slave].emit('createSnake', {
         startPos: startPos,
