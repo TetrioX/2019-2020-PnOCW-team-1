@@ -130,17 +130,14 @@ selectResolution.addEventListener('input',function(){
 	        height: resolutionHeight,
 	        facingMode: "environment"
 	    }, audio: false
-	})
-})
-
-
-	.then(function (stream) {
+	}).then(function (stream) {
 		video.srcObject = stream;
 		video.play();
 	})
 	.catch(function (err) {
 		console.log("An error occurred: " + err);
 	});
+})
 /*
 function takePicture(data){
 	var context = canvas.getContext('2d');
