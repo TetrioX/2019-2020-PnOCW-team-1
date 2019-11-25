@@ -474,7 +474,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
   socket.on('startSnake', function(data){
     clearInterval(snakeUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
-    const firstSlave = Object.values(slaves)[0]
+    const firstSlave = Object.keys(AllScreenPositions)[0]
     console.log("first slave", firstSlave)
     const startPos = centers[slaves[firstSlave]]
     console.log("start pos", startPos)
