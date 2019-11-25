@@ -465,15 +465,29 @@ var masterIo = io.of('/master').on('connect', function(socket){
     })
 
   var snakeUpdater = null
+  var connections;
+  var centers;
   socket.on('startSnake', function(data){
     clearInterval(snakeUpdater)
+
+    const firstSlave = Object.keys(slaves)[0]
+    connections = delaunay.getConnections(slaves)
+    centers = screenorientation.getScreenCenters(AllScreenPositions)
+    var randInt = Math.floor(Math.random() * connections[firstSlave].length)
+    var nextPoint = connections[firstSlave][randInt]
+    var direction = geometry.angleBetweenPoints(currentPoint, nextPoint)
+
     Object.keys(slaves).forEach(function(slave, index) {
       slaveSockets[slave].emit('createSnake', {
+        startPos: centers[slaves[firstSlave]],
         size: data.size,
         corners: AllScreenPositions[slaves[slave]],
-        picDim: picDimensions
+        picDim: picDimensions,
+        startDir: direction,
+        goalPoint: nextPoint
       });
     })
+
     snakeUpdater = setInterval(function(){
       slaveIo.emit('updateSnake', {
         maxLat: Math.max(Object.values(latSlaves))
@@ -481,14 +495,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }, 33)
   });
 
-  socket.on('createSnake', function(data){
-    const firstSlave = Object.keys(slaves)[0]
-      var connections = delaunay.getConnections(slaves)
 
+  socket.on('snakeGoalReached', function(data){ // data: prevSlave
     var randInt = Math.floor(Math.random() * connections[firstSlave].length)
-    var currentPoint = [firstSlave.x, firstSlave.y]
-    var nextPoint = connections[firstSlave][randInt]
+    var nextPoint = connections[data.prevPoint][randInt]
     var direction = geometry.angleBetweenPoints(currentPoint, nextPoint)
+    socket.emit('changeDirection', {
+      startPos: data.prevPoint,
+      newDir: direction,
+      goalSlave: nextPoint
+    })
   })
 
 });

@@ -807,8 +807,10 @@ masterButton.addEventListener('click',function(){
 	      part.cacheNewDirection(newDir, {x: this.parts[0].pos.x, y: this.parts[0].pos.y})
 	  }
 
-		changeDirectionOnPosition(newDir, pos) {
-	    for (let part of this.parts)
+		nextSlave;
+		changeDirectionOnPosition(newDir, pos, nextSlave) {
+			this.nextSlave = nextSlave;
+			for (let part of this.parts)
 	      part.cacheNewDirection(newDir, pos)
 	  }
 
@@ -841,6 +843,9 @@ masterButton.addEventListener('click',function(){
 
 	  changeDirection() {
 	    this.dir = this.newDir[0];
+			if (this.name == 0) socket.emit('snakeGoalReached', {
+				prevSlave: this.snake.nextSlave
+			})
 	    this.newDir.shift()
 	    this.startPos.shift()
 	    if (this.newDir.length < 1) this.newDirCached = false;
@@ -920,7 +925,8 @@ masterButton.addEventListener('click',function(){
 	}
 
 	socket.on('createSnake', function(data){
-		snake = new Snake(data.size, 60, 'pos' )
+		snake = new Snake(data.size, 60, data.startPos)
+		snake.changeDirectionOnPosition(data.startDir, data.startPos, data.nextSlave)
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block";
@@ -951,5 +957,9 @@ masterButton.addEventListener('click',function(){
 	  snake.updateSnake(100)
 		console.log(snake.parts[0].pos)
 	}
+
+	socket.on('changeDirection', function(data){
+		snake.changeDirectionOnPosition(data.newDir, data.startPos, data.goalSlave)
+	})
 
 })()
