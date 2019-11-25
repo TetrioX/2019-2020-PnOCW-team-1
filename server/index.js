@@ -399,7 +399,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				picDim: picDimensions
 			});
 		})
-    })
+  })
 
 	const selectImage = function(selection) {
 		console.log(selection)
@@ -471,6 +471,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
       socket.emit('updateSnake', )
 
   })
+
+  socket.on('createSnake', function(data){
+
+  })
+  
 });
 
 

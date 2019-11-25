@@ -319,7 +319,7 @@ socket.on('drawCircles', function (data) {
 snakeButton.addEventListener('click', function(){
 	entirePage.style.display="none";
 	snakeEntirePage.style.display="block"
-	socket.emit("startSnake")
+	socket.emit("createSnake")
 })
 
 triangulationSnake.addEventListener('click', function(){
