@@ -477,7 +477,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     console.log("centers", centers)
     const firstSlave = Object.keys(AllScreenPositions)[0]
     console.log("first slave", firstSlave)
-    const startPos = centers[slaves[firstSlave]]
+    const startPos = centers[firstSlave]
     console.log("start pos", startPos)
     connections = delaunay.getConnections(centers)
     console.log("connections", connections)
@@ -492,7 +492,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveSockets[slave].emit('createSnake', {
         startPos: startPos,
         size: data.size,
-        corners: AllScreenPositions[slaves[slave]],
+        corners: AllScreenPositions[slave]],
         picDim: picDimensions,
         startDir: direction,
         goalPoint: nextPoint
@@ -509,7 +509,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   socket.on('snakeGoalReached', function(data){ // data: prevSlave
     centers = screenorientation.getScreenCenters(AllScreenPositions)
-    var currentPoint = centers[slaves[data.prevSlave]]
+    var currentPoint = centers[data.prevSlave]
     var randInt = Math.floor(Math.random() * connections[data.prevSlave].length)
 
     var nextPoint = connections[currentPoint][randInt]
