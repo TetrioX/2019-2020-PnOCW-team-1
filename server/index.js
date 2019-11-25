@@ -475,9 +475,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
     clearInterval(snakeUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
     const firstSlave = Object.values(slaves)[0]
+    console.log("first slave", firstSlave)
     const startPos = centers[slaves[firstSlave]]
+    console.log("start pos", startPos)
     connections = delaunay.getConnections(centers)
+    console.log("connections", connections)
     var randInt = Math.floor(Math.random() * connections[firstSlave].length)
+    console.log("int", randInt)
     var nextPoint = connections[firstSlave][randInt]
     var direction = geometry.radianAnglebetweenPoints(startPos, nextPoint)
 
