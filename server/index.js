@@ -319,9 +319,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
       var screenKeys = Object.keys(screens)
       if (screenKeys.length == 0){
+        console.log('test')
         socket.emit('alert', "didn't find any screens.")
         return
       } else{
+        console.log('test2')
         socket.emit('alert', "found these screens: "+screenKeys.toString() )
       }
       console.log(screens)
