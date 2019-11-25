@@ -502,6 +502,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
 
   socket.on('snakeGoalReached', function(data){ // data: prevSlave
+    centers = screenorientation.getScreenCenters(AllScreenPositions)
     var currentPoint = centers[slaves[data.prevSlave]]
     var randInt = Math.floor(Math.random() * connections[currentPoint].length)
 
