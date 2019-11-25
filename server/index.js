@@ -474,11 +474,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
       });
     })
     snakeUpdater = setInterval(function(){
-      socket.emit('updateSnake', {
-        lat: 10, // Dit moet nog toegevoegd worden
-        maxLat: 10 // Dit ook
+      slaveIo.emit('updateSnake', {
+        maxLat: Math.max(Object.values(latSlaves))
       })
-    })
+    }, 33)
   });
 
   socket.on('createSnake', function(data){

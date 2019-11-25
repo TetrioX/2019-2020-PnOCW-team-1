@@ -940,7 +940,7 @@ masterButton.addEventListener('click',function(){
 
 		// Doe hier u ding
 		var dir = getRandomDirection()
-		setTimeout(data.maxLat - data.Lat, updateS, snake, canvas)
+		setTimeout(data.maxLat - latency, updateS, snake, canvas)
 
 	})
 
