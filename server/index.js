@@ -1,6 +1,8 @@
 var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
+var path = require('path');
+var ss = require('socket.io-stream');
 // const scrnrec = require('../screenProcessing/screenRecognitionDirect.js')
 const scrnread = require('../screenProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingHSL/imageProcessingHSL.js')
@@ -47,9 +49,9 @@ var number = 0
 
 
 function deleteSlave(socket) {
-  delete AllScreenPositions[slaves[socket.id]]
-  delete slaves[socket.id]
-  masterIo.emit("removeSlave", socket.id)
+  delete AllScreenPositions[slaves[socket.id]];
+  delete slaves[socket.id];
+  masterIo.emit("removeSlave", socket.id);
 }
 
 function addSlave(socket) {
@@ -159,7 +161,7 @@ app.get('/master', function(req,res){
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
-app.use('/debug', express.static(__dirname + '/debug'))
+app.use('/debug', express.static(__dirname + '/'))
 
 app.use('/static', express.static(__dirname +  '/public'))
 
@@ -226,12 +228,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
-          setTimeout(function() {
-            // if it takes longer than 1 seconds reject the promise
-            // TODO: should be rejected and handled
-            resolve()
-          }, 1000);
-        }))
+
+
+            setTimeout(() => reject(new Error("Failed to show grid on screens")), 1000);
+        }).catch(function() {
+            deleteSlave(slaveSockets[slave]);
+        }));
         // add the grid to screens
         screens[slaves[slave]] = gridAndCombs.colorGrid
         // add the new color combinations to the colorComb Object
@@ -240,7 +242,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       let pictures = await takePicture(nbOfPictures)
-		calibrationPicture = pictures[0]
+		  calibrationPicture = pictures[0]
       if (pictures == null){
         return null
       }
@@ -249,6 +251,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       Object.keys(slaves).forEach(function(slave, index) {
         slaveSockets[slave].emit('removeGrid')
       })
+      pictures = await Promise.all(pictures) // wait for pictures to be recieved
       if (saveDebugFiles) {
         await debugDirPromise
         fs.writeFile(debugPath+`/screens.json`, JSON.stringify(screens), (err) => {if (err) console.log(err)})
@@ -278,21 +281,24 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let i = 0
       while(true){
         let picPromise = new Promise(function(resolve, reject) {
-          socket.emit('takeOnePicture', {}, async function(callBackData){
-            resolve(callBackData)
+          ss(socket).emit('takeOnePicture', async function(stream){
+            resolve(new Promise(function(resolve, reject) {
+              stream.setEncoding('utf-8') // we want to recieve a string
+              stream.on('data', (chunk) => {
+                resolve(decodeBase64Image(chunk.toString()).data)
+              });
+              stream.on('error', (err) => reject(err))
+            }).catch((err) => reject(err)))
           })
-          setTimeout(function() {
-            // if it takes longer than 3 seconds reject the promise
-            // TODO: should be rejected and handled
-            reject()
-          }, 3000);
+          setTimeout(() => reject(new Error("Failed to take picture")), 5000);
         }).catch(function(error) {
+          console.log(error)
           // failed to retrieve the image
           socket.emit('alert', "Retrieving one of the images timed out.")
           throw new Error("Retrieving one of the images timed out.")
         })
-        let picture = await picPromise
-        pictures.push(decodeBase64Image(picture).data)
+        let pic = await picPromise
+        pictures.push(pic)
         i += 1
         if (i < n){
           // promises that will be fulfilled once the screens have changed color
@@ -319,7 +325,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
           break
         }
       }
-      await sleep(Number(gridPause))
       return pictures
     }
 
@@ -374,18 +379,18 @@ var masterIo = io.of('/master').on('connect', function(socket){
         })
     });
 
-    // socket.on('calibrate', function(data) {
-    //     slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
-    //     socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
-    //         socket.emit('takePictures', {slaves: slaves},
-    //             function (callbackData) {
-    //                 console.log('Took enough pictures.')
-    //                 imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
-    //                 for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
-    //                 scrnrec.findScreen(imgs) // Implement the screen recognition
-    //             })
-    //     })
-    // });
+    socket.on('calibrate', function(data) {
+        slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
+        socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
+            socket.emit('takePictures', {slaves: slaves},
+                function (callbackData) {
+                    console.log('Took enough pictures.')
+                    imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
+                    for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
+                    scrnrec.findScreen(imgs) // Implement the screen recognition
+                })
+        })
+    });
 
 	socket.on('broadcastImage', function(data){
 
@@ -421,7 +426,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		}
 	}
 
-  var  videoUpdater = null
 	socket.on('broadcastVideo', function(){
 
 		// load the image that should be sent
@@ -436,16 +440,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				picDim: picDimensions
 			});
 		})
-    let startTime = new Date()
-    clearInterval(videoUpdater)
-    videoUpdater = setInterval(function(){
-      let offset = new Date() - startTime
-      slaveIo.emit('updateVideo', offset)
-    }, 500)
-    // stop sending updates after the timer has been completed.
-    setTimeout(function() {
-      clearInterval(videoUpdater)
-    }, 10000000) // should be length of video in ms);
     })
 
     var countdownUpdater = null
@@ -541,8 +535,6 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
     latSlaves[socket] = lat
   })
 });
-
-
 
 
 //creating grids with a number of columns and a number of rows
