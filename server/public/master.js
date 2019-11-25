@@ -30,7 +30,7 @@ var homebutton = document.getElementById('changePageButton');
 var secondEntirePage = document.getElementById("secondEntirePage");
 var rowPicker = document.getElementById("rowPicker");
 var columnPicker = document.getElementById("columnPicker");
-var countdownPicker = document.getElementById("countdownPicker")
+var countdownPicker = document.getElementById("countdownPicker");
 
 var numberOfRows = rowPicker.valueAsNumber;
 var numberOfColumns = columnPicker.valueAsNumber;
@@ -118,11 +118,19 @@ video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
 var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160]];
-console.log( resolutions[selectResolution.value][0],'x', resolutions[selectResolution.value][1] )
+var resolutionWith = 1280;
+var resolutionHeight = 720;
+selectResolution.addEventListener('input',function(){
+	resolutionWith = resolutions[selectResolution.value][0];
+	resolutionHeight = resolutions[selectResolution.value][1];
+	console.log( resolutionWith,'x', resolutionHeight )
+
+})
+
 navigator.mediaDevices.getUserMedia({
     video: {
-        width: { ideal: resolutions[selectResolution.value][0] },
-        height: { ideal: resolutions[selectResolution.value][1] },
+        width: { ideal: resolutionWith },
+        height: { ideal: resolutionHeight },
         facingMode: "environment"
     }, audio: false
 })
