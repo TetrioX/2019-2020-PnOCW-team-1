@@ -7,7 +7,7 @@ setTimeout(function() {
 		alert("authentication failed")
 		window.location.href="/";
 	}
-}, 1000);
+}, 2000);
 
 //listen for events from server
 socket.on('registerMaster', function (data) {
@@ -117,30 +117,27 @@ video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
-var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160]];
-var resolutionWith = 1280;
+var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
+var resolutionWidth = 1280;
 var resolutionHeight = 720;
 selectResolution.addEventListener('input',function(){
-	resolutionWith = resolutions[selectResolution.value][0];
+	resolutionWidth = resolutions[selectResolution.value][0];
 	resolutionHeight = resolutions[selectResolution.value][1];
-	console.log( resolutionWith,'x', resolutionHeight )
-
-})
-
-navigator.mediaDevices.getUserMedia({
-    video: {
-        width: { ideal: resolutionWith },
-        height: { ideal: resolutionHeight },
-        facingMode: "environment"
-    }, audio: false
-})
-	.then(function (stream) {
+	console.log( resolutionWidth,'x', resolutionHeight );
+	navigator.mediaDevices.getUserMedia({
+	    video: {
+	        width: resolutionWidth ,
+	        height: resolutionHeight,
+	        facingMode: "environment"
+	    }, audio: false
+	}).then(function (stream) {
 		video.srcObject = stream;
 		video.play();
 	})
 	.catch(function (err) {
 		console.log("An error occurred: " + err);
 	});
+})
 /*
 function takePicture(data){
 	var context = canvas.getContext('2d');
@@ -195,12 +192,15 @@ function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-socket.on('takeOnePicture', function(data, callback){
+ss(socket).on('takeOnePicture', function(callback){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
 	context.drawImage(video, 0, 0);
-	callback(canvas.toDataURL('image/png'))
+	var stream = ss.createStream();
+	stream.setDefaultEncoding('utf-8')
+	callback(stream)
+	stream.end(canvas.toDataURL('image/png'))
 })
 
 socket.on('takePictures', async function(data, callback){
