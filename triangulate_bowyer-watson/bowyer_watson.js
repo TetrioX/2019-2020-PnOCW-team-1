@@ -289,7 +289,7 @@ const getAllVertices = function(triangles) {
         }
         //als ze niet op 1 lijn liggen
         //mooier formuleren
-    if (triangles[i].v2 != undefined){
+mif (triangles[i].v2 != undefined){
             if (!vertexInSet(vertices, triangles[i].v2)) {
                 vertices.push(triangles[i].v2);
             }

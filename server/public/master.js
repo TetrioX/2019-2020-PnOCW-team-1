@@ -7,7 +7,7 @@ setTimeout(function() {
 		alert("authentication failed")
 		window.location.href="/";
 	}
-}, 2000);
+}, 1000);
 
 //listen for events from server
 socket.on('registerMaster', function (data) {
@@ -15,8 +15,8 @@ socket.on('registerMaster', function (data) {
 });
 
 //Emit events to server
-var selectResolution = document.getElementById('exampleFormControlSelect1');
-var entirePage =document.getElementById('entirePage');
+
+var entirePage = document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
@@ -31,12 +31,10 @@ var secondEntirePage = document.getElementById("secondEntirePage");
 var rowPicker = document.getElementById("rowPicker");
 var columnPicker = document.getElementById("columnPicker");
 var countdownPicker = document.getElementById("countdownPicker");
-
 var snakeButton = document.getElementById("snakeButton");
 var snakeLengthPicker = document.getElementById('snakeLengthPicker');
 var triangulationSnake = document.getElementById('triangulationSnake');
 var homebutton2 = document.getElementById('changePageButton2');
-
 
 var numberOfRows = rowPicker.valueAsNumber;
 var numberOfColumns = columnPicker.valueAsNumber;
@@ -127,27 +125,20 @@ video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
-var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
-var resolutionWidth = 1280;
-var resolutionHeight = 720;
-selectResolution.addEventListener('input',function(){
-	resolutionWidth = resolutions[selectResolution.value][0];
-	resolutionHeight = resolutions[selectResolution.value][1];
-	console.log( resolutionWidth,'x', resolutionHeight );
-	navigator.mediaDevices.getUserMedia({
-	    video: {
-	        width: resolutionWidth ,
-	        height: resolutionHeight,
-	        facingMode: "environment"
-	    }, audio: false
-	}).then(function (stream) {
+navigator.mediaDevices.getUserMedia({
+    video: {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode: "environment"
+    }, audio: false
+})
+	.then(function (stream) {
 		video.srcObject = stream;
 		video.play();
 	})
 	.catch(function (err) {
 		console.log("An error occurred: " + err);
 	});
-})
 /*
 function takePicture(data){
 	var context = canvas.getContext('2d');
@@ -202,15 +193,12 @@ function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-ss(socket).on('takeOnePicture', function(callback){
+socket.on('takeOnePicture', function(data, callback){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
 	context.drawImage(video, 0, 0);
-	var stream = ss.createStream();
-	stream.setDefaultEncoding('utf-8')
-	callback(stream)
-	stream.end(canvas.toDataURL('image/png'))
+	callback(canvas.toDataURL('image/png'))
 })
 
 socket.on('takePictures', async function(data, callback){
