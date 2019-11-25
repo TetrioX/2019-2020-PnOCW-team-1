@@ -480,7 +480,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
   socket.on('startSnake', function(data){
     clearInterval(snakeUpdater)
 
-    const firstSlave = Object.keys(slaves)[0]
+    const firstSlave = Object.values(slaves)[0]
     const startPos = centers[slaves[firstSlave]]
     connections = delaunay.getConnections(slaves)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
