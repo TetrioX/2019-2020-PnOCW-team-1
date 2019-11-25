@@ -474,7 +474,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
   socket.on('startSnake', function(data){
     clearInterval(snakeUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
-    const firstSlave = Object.keys(slaves)[0]
+    const firstSlave = Object.values(slaves)[0]
     const startPos = centers[slaves[firstSlave]]
     connections = delaunay.getConnections(centers)
     var randInt = Math.floor(Math.random() * connections[firstSlave].length)
