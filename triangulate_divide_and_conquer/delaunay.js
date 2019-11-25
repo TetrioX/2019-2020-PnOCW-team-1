@@ -57,7 +57,14 @@ function getAngles(slaves){
 
 }
 
-
+function getConnections(coords){
+    result = {}
+    var triangulation = Delaunay(coords)
+    coords.forEach(function(pt){
+        result[pt] = triangulation[pt].toArray()
+    })
+    return result
+}
 
 function Delaunay(pts){
     adj = {}
@@ -101,6 +108,13 @@ function delaunay(pts, adj, l, r){
     merge.merge(adj, L, R)
 
 }
+
+var testpts = [[1,1], [2,1], [3,0], [2,3]]
+var res2 = Delaunay(testpts)
+var result = getConnections(testpts)
+
+console.log(result)
+
 /*
 var point = function(x,y){
     return {
@@ -132,5 +146,6 @@ function removeDuplicates(pts){
 */
 module.exports = {
     Delaunay: Delaunay,
-    getAngles: getAngles
+    getAngles: getAngles,
+    getConnections: getConnections
 }
