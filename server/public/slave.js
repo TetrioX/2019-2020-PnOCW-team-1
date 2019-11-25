@@ -901,26 +901,27 @@ masterButton.addEventListener('click',function(){
 	}
 
 	const drawSnakePart = function(snakePart) {
-	  if (snakePart.name % 2 == 1 || snakePart.name == 0) ctx.fillStyle = "#008000";
-	  else ctx.fillStyle = "#004000";
-	  ctx.beginPath();
-	  ctx.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) ,
+
+		if (snakePart.name % 2 == 1 || snakePart.name == 0) context.fillStyle = "#008000";
+	  else context.fillStyle = "#004000";
+	  context.beginPath();
+	  context.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) ,
 	          snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
 	          snakePart.size / 2, 0, 2 * Math.PI);
-	  ctx.fill();
+	  context.fill();
 
 	  if (snakePart.name == 0) {
-	    ctx.fillStyle = "#000000";
-	    ctx.beginPath();
-	    ctx.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
+	    context.fillStyle = "#000000";
+	    context.beginPath();
+	    context.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
 	            snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
 	            snakePart.size / 6, 0, 2 * Math.PI);
-	    ctx.fill();
-	    ctx.beginPath();
-	    ctx.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
+	    context.fill();
+	    context.beginPath();
+	    context.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
 	            snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
 	            snakePart.size / 6, 0, 2 * Math.PI);
-	    ctx.fill();
+	    context.fill();
 	  }
 	}
 
@@ -937,13 +938,12 @@ masterButton.addEventListener('click',function(){
 
 	var snake;
 	socket.on('updateSnake', function(data){
-		setTimeout(data.maxLat - latency, updateS, snake, canvas)
+		setTimeout(data.maxLat - latency, updateS, snake)
 
 	})
 
-	function updateS(snake, canvas) {
-		ctx = canvas.getContext('2d')
-	  ctx.clearRect(0, 0, canvas.width, canvas.height);
+	function updateS(snake) {
+	  context.clearRect(0, 0, canvas.width, canvas.height);
 	  drawSnake(snake);
 	  snake.updateSnake(100)
 		console.log(snake.parts[0].pos)
