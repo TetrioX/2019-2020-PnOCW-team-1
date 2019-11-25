@@ -31,7 +31,7 @@ class SnakePart {
       this.size = size;
       this.name = name;
       this.dir = direction;
-      this.devMax = size / 6
+      this.devMax = size / 5;
       this.deviation = 0;
       this.devSide = 1;
   }
@@ -105,27 +105,29 @@ const drawSnakePart = function(snakePart) {
   if (snakePart.name % 2 == 1 || snakePart.name == 0) ctx.fillStyle = "#008000";
   else ctx.fillStyle = "#004000";
   ctx.beginPath();
-  ctx.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) , snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
-    snakePart.size / 2, 0, 2 * Math.PI);
+  ctx.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) ,
+          snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
+          snakePart.size / 2, 0, 2 * Math.PI);
   ctx.fill();
 
   if (snakePart.name == 0) {
     ctx.fillStyle = "#000000";
     ctx.beginPath();
-    ctx.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir), snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-      snakePart.size / 6, 0, 2 * Math.PI);
+    ctx.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
+            snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+            snakePart.size / 6, 0, 2 * Math.PI);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir), snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-      snakePart.size / 6, 0, 2 * Math.PI);
+    ctx.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
+            snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+            snakePart.size / 6, 0, 2 * Math.PI);
     ctx.fill();
   }
 }
 
 
 var stop = false;
-// var snakePart = new SnakePart(0, {x: 5, y: 5}, 10, 0)
-var snake = new Snake(100, 30, {x: 15, y: 15})
+var snake = new Snake(100, 20, {x: 100, y: 100})
 console.log(snake.parts)
 
 var leftButton = document.getElementById('Left');

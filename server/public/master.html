@@ -63,8 +63,9 @@
 				<input id="columnPicker" type="number" name="nbcolumns" min="1" max ="5" placeholder="Number of columns">
 			</form>
 			<button id="screenrecognitionbutton"  class="btn btn-outline-success"> Start screenrecognition</button>
-
 		</div>
+
+		
 		<div class ="border border-lg border-primary rounded broadcast">
 			<div class ="title">
 				Broadcast picture!
@@ -103,12 +104,30 @@
 			</form>
 			<button type="button" id="countdownButton" class="btn btn-outline-success">Start countdown</button>
 		</div>
+
+		<div class="border border-lg border-primary rounded countdown">
+			<div id="snaketitle">
+				Snake!
+			</div>
+			<div>
+				Press to go to the extra snake menu.
+			</div>
+			<button type="button" id="snakeButton" class="btn btn-outline-success">Go to snake.</button>
+		</div>
 	</div>
 	<div id="secondEntirePage" style="display: none;">
 		<video  id="screenrecognitionvideo"></video>
-		<button id="calibrateButton" class="btn btn-light" ;">Execute screenrecognition</button>
+		<button id="calibrateButton" class="btn btn-light">Execute screenrecognition</button>
 		<button id=changePageButton class="btn btn-dark" style="">Home</button>
 	</div>
+	<div id="snakeEntirePage" style="display: none;">
+		<form class="input">
+			<input id="snakeLengthPicker" type="number" name="snakeLength" min="1" max ="360" placeholder="Snake length">
+		</form>
+		<button id="triangulationSnake" class="btn btn-light">Show triangulation</button>
+		<button id="changePageButton2" class="btn btn-dark" style="">Home</button>
+	</div>
+
 
 
 
