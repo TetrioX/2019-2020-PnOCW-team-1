@@ -492,7 +492,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveSockets[slave].emit('createSnake', {
         startPos: startPos,
         size: data.size,
-        corners: AllScreenPositions[slave]],
+        corners: AllScreenPositions[slaves[slave]],
         picDim: picDimensions,
         startDir: direction,
         goalPoint: nextPoint
