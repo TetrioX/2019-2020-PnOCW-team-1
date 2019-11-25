@@ -476,7 +476,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     const firstSlave = Object.keys(slaves)[0]
     const startPos = centers[slaves[firstSlave]]
-    connections = delaunay.getConnections(slaves)
+    connections = delaunay.getConnections(AllScreenPositions)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
     var randInt = Math.floor(Math.random() * connections[startPos].length)
     var nextPoint = connections[startPos][randInt]

@@ -110,7 +110,7 @@ function pointsOnLine(pts) {
     const c = a*pts[0][0] + b*pts[0][1];
 
     for(var i=2; i < pts.length; i++) {
-
+        console.log("van mij")
         if ((a*pts[i][0] + b*pts[i][1]) !== c) {
             return false;
         }
@@ -187,4 +187,3 @@ module.exports = {
     radianAnglebetweenPoints: radianAnglebetweenPoints
 
 };
-
