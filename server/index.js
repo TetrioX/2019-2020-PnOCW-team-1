@@ -47,8 +47,9 @@ var number = 0
 
 
 function deleteSlave(socket) {
-   delete slaves[socket.id]
-    masterIo.emit("removeSlave", socket.id)
+  delete AllScreenPositions[slaves[socket.id]];
+  delete slaves[socket.id];
+  masterIo.emit("removeSlave", socket.id);
 }
 
 function addSlave(socket) {
@@ -225,12 +226,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
-          setTimeout(function() {
-            // if it takes longer than 1 seconds reject the promise
-            // TODO: should be rejected and handled
-            resolve()
-          }, 1000);
-        }))
+
+
+            setTimeout(() => reject(new Error("Failed to show grid on screens")), 1000);
+        }).catch(function() {
+            deleteSlave(slaveSockets[slave]);
+        }));
         // add the grid to screens
         screens[slaves[slave]] = gridAndCombs.colorGrid
         // add the new color combinations to the colorComb Object
