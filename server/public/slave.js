@@ -923,9 +923,9 @@ masterButton.addEventListener('click',function(){
 		snake = new Snake(data.size, partSize, 'pos' )
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
-		canvas.style.display = "block"
-		canvas.width = data.picDim[1]
-		canvas.height = data.picDim[0]
+		canvas.style.display = "block";
+		canvas.width = data.picDim[1];
+		canvas.height = data.picDim[0];
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 	})
 
