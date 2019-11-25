@@ -658,6 +658,11 @@ function newFunction(data) {
 // returns a list with the best possible screens it can recognize from the calculated squares
 // This is not the best solution and could be in proofd in the future
 function getScreenFromSquares(squares, screens) {
+
+    function array_Sum(t) {
+        return t.reduce(function (a, b) { return a + b; }, 0);
+
+
 	let screenCorners = {}
 	// calculate all the screens
 	for (let sq of squares){
