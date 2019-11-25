@@ -922,12 +922,17 @@ masterButton.addEventListener('click',function(){
 	socket.on('createSnake', function(data){
 		snake = new Snake(data.size, partSize, 'pos' )
 	})
+	var connections;
+	function getRandomDirection(currentPoint){
+		var randInt = Math.floor(Math.random() * connections[currentPoint].length)
+		return connections[currentPoint][randInt]
+	}
 
 	var snake;
 	socket.on('updateSnake', function(data){
 
 		// Doe hier u ding
-
+		var dir = getRandomDirection()
 		setTimeout(data.maxLat - data.Lat, updateS, snake, canvas)
 
 	})
