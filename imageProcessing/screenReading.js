@@ -661,7 +661,7 @@ function getScreenFromSquares(squares, screens) {
 
     function array_Sum(t) {
         return t.reduce(function (a, b) { return a + b; }, 0);
-
+    }
 
 	let screenCorners = {}
 	// calculate all the screens
