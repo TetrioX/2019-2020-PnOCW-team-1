@@ -281,15 +281,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
           ss(socket).emit('takeOnePicture', async function(stream){
             resolve(new Promise(function(resolve, reject) {
               stream.setEncoding('utf-8') // we want to recieve a string
-              let image = ''
               stream.on('data', (chunk) => {
-                image += chunk;
-                resolve(decodeBase64Image(image).data)
+                resolve(decodeBase64Image(chunk.toString()).data)
               });
               stream.on('error', (err) => reject(err))
             }).catch((err) => reject(err)))
           })
-          // setTimeout(() => reject(new Error("Failed to take picture")), 5000);
+          setTimeout(() => reject(new Error("Failed to take picture")), 5000);
         }).catch(function(error) {
           console.log(error)
           // failed to retrieve the image
