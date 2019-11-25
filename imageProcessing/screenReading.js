@@ -639,18 +639,17 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	}
 	return foundScreenSquares
 }
-
-function newFunction(data) {
+//ref: https://stackoverflow.com/questions/22663353/algorithm-to-remove-extreme-outliers-in-array/22663905
+function inQuartiles(data) {
     data.sort(function (a, b) { return a - b });
     var l = data.length;
-    var median = data[Math.round(l / 2)];
     var LQ = data[Math.round(l / 4)];
     var UQ = data[Math.round(3 * l / 4)];
-    var IQR = UQ - LQ;
     var data4 = new Array();
     for (var i = 0; i < data.length; ++i) {
-        if (data[i] > median - 1,5 * IQR && data[i] < mean + 1,5 * IQR)
+        if (data[i] > LQ && data[i] < UQ) {
             data4.push(data[i]);
+        }
     }
     return data4
 }
@@ -687,8 +686,8 @@ function getScreenFromSquares(squares, screens) {
             }
             //Only remove outliers if 3 or more points
             if (screenCorners[screens].length > 2) {
-                listCoX = newFunction(listCoX)
-                listCoY = newFunction(listCoY)
+                listCoX = inQuartiles(listCoX)
+                listCoY = inQuartiles(listCoY)
             }
             //calculate avg
             results[screens].push({
