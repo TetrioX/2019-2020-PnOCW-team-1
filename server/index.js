@@ -464,6 +464,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }, data*1000);
     })
 
+  function getSlaveByPosition(slaves, pos){
+	    var slaveIDs = Object.keys(slaves)
+        for(var i=0; i < slaveIDs.length; i++){
+            var current_slave = slaves[slaveIDs[i]]
+            if(current_slave.center === pos){
+                return current_slave
+            }
+        }
+  }
+
   var snakeUpdater = null
   var connections;
   var centers;
@@ -498,11 +508,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   socket.on('snakeGoalReached', function(data){ // data: prevSlave
     var randInt = Math.floor(Math.random() * connections[data.prevSlave].length)
-    //curr
+
+    var currentPoint = centers[slaves[data.prevSlave]]
     var nextPoint = connections[data.prevSlave][randInt]
+    var nextSlave = getSlaveByPosition(slaves, nextPoint)
     var direction = geometry.angleBetweenPoints(currentPoint, nextPoint)
     socket.emit('changeDirection', {
-      startPos: data.prevPoint,
+      startPos: currentPoint,
       newDir: direction,
       goalSlave: nextSlave // Maak
     })
