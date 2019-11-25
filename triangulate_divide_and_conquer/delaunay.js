@@ -74,6 +74,7 @@ function getConnections(slaves){
     coords.forEach(function(pt){
         result[pt] = triangulation[pt].toArray()
     })
+    console.log(result)
     return result
 }
 
