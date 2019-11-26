@@ -3,9 +3,10 @@ class World {
   constructor() {
     this.objects = []
 }
+}
 
-class Snake {
-  constructor(world, size, partSize, headPos) {
+let Snake = class {
+  constructor(size, partSize, headPos) {
     for (let i = 0; i < size; i++) {
       let pos = {x: headPos.x - partSize / 3 * i, y: headPos.y}
       let part;
@@ -14,7 +15,6 @@ class Snake {
       this.parts.push(part)
     }
     this.headPos = headPos;
-    this.world = world
   }
 
   parts = []
@@ -24,15 +24,27 @@ class Snake {
       part.cacheNewDirection(newDir, {x: this.parts[0].pos.x, y: this.parts[0].pos.y})
   }
 
-  updateSnake(vel) {
+  nextSlave;
+  changeDirectionOnPosition(newDir, pos, nextSlave) {
+    // console.log("det:", newDir, pos, nextSlave)
+    this.nextSlave = nextSlave;
     for (let part of this.parts)
-      part.updatePosition(vel)
+      part.cacheNewDirection(newDir, pos)
+  }
+
+  updateSnake(vel) {
+    let res = false;
+    for (let part of this.parts){
+      let changed = part.updatePosition(vel)
+      if (changed) res = true;
+    }
+    return res;
   }
 }
 
-class SnakePart {
+let SnakePart = class {
   constructor(snake, name, startPosition, size, direction) {
-      this.snake = snake;
+      // this.snake = snake;
       this.pos = startPosition;
       this.size = size;
       this.name = name;
@@ -53,9 +65,11 @@ class SnakePart {
 
   changeDirection() {
     this.dir = this.newDir[0];
+    // console.log('changed')
     this.newDir.shift()
     this.startPos.shift()
     if (this.newDir.length < 1) this.newDirCached = false;
+    return true;
   }
 
   checkStartPosPassed(pos) {
@@ -74,6 +88,7 @@ class SnakePart {
   // 30 fps
   timePassed = 0;
   updatePosition(vel) {
+    let changed = false;
     this.updateDeviation();
     let posX = this.pos.x + vel / 30 * Math.cos(this.dir);
     let posY = this.pos.y + vel / 30 * Math.sin(this.dir);
@@ -83,54 +98,66 @@ class SnakePart {
       let r = Math.sqrt((this.pos.x - this.startPos[0].x)**2 + (this.pos.y - this.startPos[0].y)**2)
       this.pos.x += r * Math.cos(this.dir);
       this.pos.y += r * Math.sin(this.dir);
-      this.changeDirection()
+      changed = this.changeDirection()
       this.pos.x += (vel/30-r) * Math.cos(this.dir);
       this.pos.y += (vel/30-r) * Math.sin(this.dir);
     }
     this.timePassed++;
+    if (this.name == 0) return changed
   }
 
-  cycleTime = 50;
-  prevDev = 0;
+  cycleTime = 40;
   updateDeviation() {
-    this.prevDev = this.deviation;
-    if (this.name == 0) {
-      this.deviation = this.devMax * Math.sin(this.timePassed * 2 * Math.PI / this.cycleTime)
-      if (Math.abs(this.deviation) >= this.devMax) this.devSide *= -1;
-    }
-    else this.deviation = this.snake.parts[this.name - 1].prevDev;
-  }
-
-
-  collidesWith(Object) {
-    
+    this.deviation = this.devMax * Math.sin((this.timePassed - this.name) * 2 * Math.PI / this.cycleTime)
+    if (Math.abs(this.deviation) >= this.devMax) this.devSide *= -1;
   }
 }
 
 const drawSnake = function(snake) {
   for (let part of snake.parts)
+    drawSnakePartShadow(part)
+  for (let part of snake.parts)
     drawSnakePart(part)
 }
 
+const drawSnakePartShadow = function(snakePart) {
+  z = 1000
+  partPosX = snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir)
+  partPosY = snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir)
+  verh = (1 + (snakePart.size / 2) / (z - snakePart.size / 2))
+  // console.log(partPosX, " ", canvas.width, " ", partPosY)
+  r = Math.sqrt((partPosX - canvas.width / 2)**2 + (partPosY - canvas.height / 2)**2)
+  t = Math.sqrt(z**2 + r**2) - (snakePart.size / 2) / Math.sin(Math.atan((z - (snakePart.size / 2)) / r))
+  l = z * Math.tan(Math.atan((snakePart.size / 2) / t) + Math.atan(r * verh / z)) - r * verh
+
+  ctx.fillStyle = "#111111"
+  ctx.beginPath();
+  ctx.ellipse(verh * (partPosX - canvas.width / 2) + canvas.width / 2,
+              verh * (partPosY - canvas.height / 2) + canvas.height / 2,
+              snakePart.size / 2, l, snakePart.dir, 0, 2 * Math.PI);
+  ctx.fill();
+}
+
 const drawSnakePart = function(snakePart) {
+  partPosX = snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir)
+  partPosY = snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir)
+
   if (snakePart.name % 2 == 1 || snakePart.name == 0) ctx.fillStyle = "#008000";
   else ctx.fillStyle = "#004000";
   ctx.beginPath();
-  ctx.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) ,
-          snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
-          snakePart.size / 2, 0, 2 * Math.PI);
+  ctx.arc(partPosX, partPosY, snakePart.size / 2, 0, 2 * Math.PI);
   ctx.fill();
 
   if (snakePart.name == 0) {
     ctx.fillStyle = "#000000";
     ctx.beginPath();
-    ctx.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-            snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+    ctx.arc(partPosX + snakePart.size / 4 * Math.sin(snakePart.dir),
+            partPosY + snakePart.size / 4 * Math.cos(snakePart.dir),
             snakePart.size / 6, 0, 2 * Math.PI);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-            snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+    ctx.arc(partPosX - snakePart.size / 4 * Math.sin(snakePart.dir),
+            partPosY - snakePart.size / 4 * Math.cos(snakePart.dir),
             snakePart.size / 6, 0, 2 * Math.PI);
     ctx.fill();
   }
