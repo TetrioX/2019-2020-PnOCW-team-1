@@ -110,7 +110,7 @@ function pointsOnLine(pts) {
     const c = a*pts[0][0] + b*pts[0][1];
 
     for(var i=2; i < pts.length; i++) {
-        console.log("van mij")
+
         if ((a*pts[i][0] + b*pts[i][1]) !== c) {
             return false;
         }
@@ -126,7 +126,7 @@ function findLowerCommonTangent(adj, X, Y) {
     let Z = adj[Y].get(0)
     let Z$$ = adj[X].get(0);
 
-   // console.log("Z =", Z)
+    //console.log("Z =", Z)
     //console.log("Z$$ =", Z$$)
 
     while(true){
@@ -171,6 +171,10 @@ const angleBetweenPoints = function (point1, point2) {
     return Math.atan2(point2[1] - point1[1], point2[0] - point1[0])*(180/Math.PI);
 };
 
+const radianAngleBetweenPointsDict = function (point1, point2) {
+    return Math.atan2(point2.y - point1.y, point2.x - point1.x);
+};
+
 
 module.exports = {
     pseudoAngle: pseudoAngle,
@@ -184,6 +188,7 @@ module.exports = {
     getLeftMost: getLeftMost,
     getRightMost: getRightMost,
     angleBetweenPoints: angleBetweenPoints,
-    radianAnglebetweenPoints: radianAnglebetweenPoints
+    radianAnglebetweenPoints: radianAnglebetweenPoints,
+    radianAngleBetweenPointsDict: radianAngleBetweenPointsDict
 
 };

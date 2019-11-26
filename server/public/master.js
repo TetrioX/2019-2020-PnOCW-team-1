@@ -35,6 +35,7 @@ var countdownPicker = document.getElementById("countdownPicker");
 var snakeButton = document.getElementById("snakeButton");
 var snakeLengthPicker = document.getElementById('snakeLengthPicker');
 var triangulationSnake = document.getElementById('triangulationSnake');
+var triangulationSnakeStop = document.getElementById('triangulationSnakeStop');
 var homebutton2 = document.getElementById('changePageButton2');
 
 
@@ -337,6 +338,10 @@ triangulationSnake.addEventListener('click', function(){
 	socket.emit("startSnake", {
 		size: snakeLength
 	})
+})
+
+triangulationSnakeStop.addEventListener('click', function(){
+	socket.emit('stopSnake')
 })
 
 homebutton2.addEventListener('click',function(){

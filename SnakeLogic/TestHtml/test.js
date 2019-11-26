@@ -1,6 +1,11 @@
 
+class World {
+  constructor() {
+    this.objects = []
+}
+
 class Snake {
-  constructor(size, partSize, headPos) {
+  constructor(world, size, partSize, headPos) {
     for (let i = 0; i < size; i++) {
       let pos = {x: headPos.x - partSize / 3 * i, y: headPos.y}
       let part;
@@ -9,6 +14,7 @@ class Snake {
       this.parts.push(part)
     }
     this.headPos = headPos;
+    this.world = world
   }
 
   parts = []
@@ -93,6 +99,11 @@ class SnakePart {
       if (Math.abs(this.deviation) >= this.devMax) this.devSide *= -1;
     }
     else this.deviation = this.snake.parts[this.name - 1].prevDev;
+  }
+
+
+  collidesWith(Object) {
+    
   }
 }
 

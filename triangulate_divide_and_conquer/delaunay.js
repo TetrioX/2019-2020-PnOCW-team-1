@@ -124,7 +124,7 @@ function delaunay(pts, adj, l, r){
 // var testpts = [[1,1], [2,1], [3,0], [2,3]]
 // var res2 = Delaunay(testpts)
 // var result = getConnections(testpts)
-//
+// //
 // console.log(result)
 
 /*

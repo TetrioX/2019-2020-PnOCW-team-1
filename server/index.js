@@ -9,6 +9,7 @@ const imgprcssrgb = require('../ImageProcessingHSL/imageProcessingHSL.js')
 const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('../triangulate_divide_and_conquer/geometry.js')
+var snakeJs = require('../SnakeLogic/snake.js')
 // load config file
 const config = require('./config.json');
 
@@ -469,58 +470,72 @@ var masterIo = io.of('/master').on('connect', function(socket){
   }
 
   var snakeUpdater = null
+  var snake;
   var connections;
   var centers;
   socket.on('startSnake', function(data){
+
+     AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+                           '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    picDimensions = [500, 1000]
+
     clearInterval(snakeUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
-    console.log("centers", centers)
-    const firstSlave = Object.keys(AllScreenPositions)[0]
-    console.log("first slave", firstSlave)
-    const startPos = centers[firstSlave]
-    console.log("start pos", startPos)
     connections = delaunay.getConnections(centers)
-    console.log("connections", connections)
-    var randInt = Math.floor(Math.random() * connections[firstSlave].length)
-    console.log("int", randInt)
-    var nextPoint = connections[firstSlave][randInt]
-    var direction = geometry.radianAnglebetweenPoints(startPos, nextPoint)
 
-    console.log("Niet in tri")
+    const firstSlave = Object.keys(AllScreenPositions)[0]
+    const startPos = centers[firstSlave]
+    var randInt = Math.floor(Math.random() * connections[firstSlave].length)
+    var nextPoint = {x: connections[firstSlave][randInt][0], y: connections[firstSlave][randInt][1]}
+    var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
+    var nextSlave = getSlaveByPosition(nextPoint)
+
+    snake = new snakeJs.Snake(data.size, picDimensions[0] / 50, startPos)
+    snake.changeDirectionOnPosition(direction, startPos, nextSlave)
 
     Object.keys(slaves).forEach(function(slave, index) {
       slaveSockets[slave].emit('createSnake', {
-        startPos: startPos,
-        size: data.size,
         corners: AllScreenPositions[slaves[slave]],
         picDim: picDimensions,
-        startDir: direction,
-        goalPoint: nextPoint
       });
     })
 
     snakeUpdater = setInterval(function(){
       slaveIo.emit('updateSnake', {
-        maxLat: Math.max(Object.values(latSlaves))
+        maxLat: Math.max(Object.values(latSlaves)),
+        snake: snake
       })
-    }, 100)
+      changed = snake.updateSnake(50)
+      if (changed) changeSnakeDirection(snake)
+    }, 100/3)
   });
 
-
-  socket.on('snakeGoalReached', function(data){ // data: prevSlave
-    centers = screenorientation.getScreenCenters(AllScreenPositions)
-    var currentPoint = centers[data.prevSlave]
-    var randInt = Math.floor(Math.random() * connections[data.prevSlave].length)
-
-    var nextPoint = connections[currentPoint][randInt]
-    var nextSlave = getSlaveByPosition(slaves, nextPoint)
-    var direction = geometry.radianAnglebetweenPoints(currentPoint, nextPoint)
-    socket.emit('changeDirection', {
-      startPos: currentPoint,
-      newDir: direction,
-      goalSlave: nextSlave // Maak
-    })
+  socket.on('stopSnake', function(){
+    clearInterval(snakeUpdater);
+    slaveIo.emit('stopSnake')
   })
+
+
+  function changeSnakeDirection(snake) {
+    var currentPoint = centers[snake.nextSlave]
+    var randInt = Math.floor(Math.random() * connections[snake.nextSlave].length)
+
+    var nextPoint = {x: connections[snake.nextSlave][randInt][0], y: connections[snake.nextSlave][randInt][1]}
+    var nextSlave = getSlaveByPosition(nextPoint)
+    var direction = geometry.radianAngleBetweenPointsDict(currentPoint, nextPoint)
+    snake.changeDirectionOnPosition(direction, currentPoint, nextSlave)
+  }
+
+  function getSlaveByPosition(pos){
+	    var slaveIDs = Object.keys(AllScreenPositions)
+      for(let slaveId of Object.keys(AllScreenPositions)){
+        center = centers[slaveId]
+        if(center.x == pos.x && center.y == pos.y)
+          return slaveId
+        }
+  }
+
+
 
 });
 
