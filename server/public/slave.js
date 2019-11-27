@@ -746,7 +746,6 @@ masterButton.addEventListener('click',function(){
 	});
 
 	socket.on('updateVideo', function(data){
-		console.log(drawVideo)
 		setTimeout(drawVideo, data.maxLat - latency, canvas, video)
 	})
 

@@ -394,6 +394,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     });
 
 	socket.on('broadcastImage', function(data){
+    clearInterval(videoUpdater)
 
 		// load the image that should be sent
 		let image = selectImage(data.image)
@@ -430,9 +431,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
   var videoUpdater = null
 	socket.on('broadcastVideo', function(){
 
-    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-    //                      '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    // picDimensions = [500, 1000]
+    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+                          '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    picDimensions = [500, 1000]
 
     clearInterval(videoUpdater)
     // send to each slave
@@ -447,13 +448,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('updateVideo', {
         maxLat: Math.max(Object.values(latSlaves))
       })
-      console.log('update')
     }, 100/3)
+
   })
 
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
       clearInterval(countdownUpdater)
+      clearInterval(videoUpdater)
       let startTime = new Date()
       slaveIo.emit('startCountdown', data)
       // updates the offset every 50ms
@@ -488,6 +490,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     // picDimensions = [500, 1000]
 
     clearInterval(snakeUpdater)
+    clearInterval(videoUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
     connections = delaunay.getConnections(centers)
 
