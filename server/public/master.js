@@ -119,8 +119,8 @@ video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
 var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
-var resolutionWidth = 1280;
-var resolutionHeight = 720;
+var resolutionWidth = 640;
+var resolutionHeight = 480;
 selectResolution.addEventListener('input',function(){
 	resolutionWidth = resolutions[selectResolution.value][0];
 	resolutionHeight = resolutions[selectResolution.value][1];
@@ -292,7 +292,7 @@ countdownButton.addEventListener('click', function(){
 		socket.emit('startCountdown', countdownSeconds)
 	}
 })
-var CircelPicture;
+
 
 socket.on('drawCircles', function (data) {
 
@@ -318,20 +318,32 @@ socket.on('drawCircles', function (data) {
             context.stroke();
         }
     }
-    var CircelPicture = canvas.toDataURL();
-})
+;
+
+});
 
 socket.on('showVisualFeedback',function(){
 	console.log('hou u bakkes');
 	secondEntirePage.style.display="none";
+	var thirdEntirePage = document.getElementById('thirdEntirePage');
 	thirdEntirePage.style.display="";
 	visualfeedbackcanvas=document.getElementById("visualfeedback");
+	visualfeedback.height= window.innerHeight;
+	visualfeedback.width = window.innerWidth;
 	feedbackctx = visualfeedback.getContext('2d');
 
 	var feedbackimage=new Image();
+	var CircelPicture = canvas.toDataURL();
+
+	feedbackimage.onload = async function(){
+		
+		
+		console.log(CircelPicture);
+
+		feedbackctx.drawImage(feedbackimage,0,0, window.innerWidth, window.innerHeight);
+	}
 	feedbackimage.src=CircelPicture;
 
-	feedbackctx.drawImage(feedbackimage,0,0,window.innerWidth, window.innerHeight);
 });
 
 homebutton2.addEventListener('click',function(){
