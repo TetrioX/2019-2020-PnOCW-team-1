@@ -742,6 +742,7 @@ masterButton.addEventListener('click',function(){
 		video.src = './static/video.mp4'
 		// video.setAttribute("width", data.picDim[1]);
 		// video.setAttribute("height", data.picDim[0]);
+		video.style.display = 'none';
 		document.body.appendChild(video);
 	});
 
