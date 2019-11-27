@@ -331,7 +331,8 @@ socket.on('drawCircles', function (data) {
 
 snakeButton.addEventListener('click', function(){
 	entirePage.style.display="none";
-	snakeEntirePage.style.display="block"
+	snakeEntirePage.style.display="block";
+	window.scrollTo(0, 0);
 })
 
 triangulationSnake.addEventListener('click', function(){
@@ -347,4 +348,5 @@ triangulationSnakeStop.addEventListener('click', function(){
 homebutton2.addEventListener('click',function(){
 	entirePage.style.display="";
 	snakeEntirePage.style.display="none";
+	socket.emit('stopSnake')
 })

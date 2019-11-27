@@ -427,21 +427,29 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		}
 	}
 
+  var videoUpdater = null
 	socket.on('broadcastVideo', function(){
 
-		// load the image that should be sent
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                      '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // picDimensions = [500, 1000]
 
-		let video = fs.readFileSync('./public/video.mp4').toString('base64');
-
-		// send to each slave
+    clearInterval(videoUpdater)
+    // send to each slave
 		Object.keys(slaves).forEach(function(slave, index) {
 			slaveSockets[slave].emit('showVideo', {
 				corners: AllScreenPositions[slaves[slave]],
-				video: video,
 				picDim: picDimensions
 			});
 		})
-    })
+
+    videoUpdater = setInterval(function(){
+      slaveIo.emit('updateVideo', {
+        maxLat: Math.max(Object.values(latSlaves))
+      })
+      console.log('update')
+    }, 100/3)
+  })
 
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
@@ -475,9 +483,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
   var centers;
   socket.on('startSnake', function(data){
 
-     AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                           '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // picDimensions = [500, 1000]
 
     clearInterval(snakeUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
@@ -490,7 +498,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
     var nextSlave = getSlaveByPosition(nextPoint)
 
-    snake = new snakeJs.Snake(data.size, picDimensions[0] / 50, startPos)
+    snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos)
     snake.changeDirectionOnPosition(direction, startPos, nextSlave)
 
     Object.keys(slaves).forEach(function(slave, index) {
@@ -505,7 +513,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         maxLat: Math.max(Object.values(latSlaves)),
         snake: snake
       })
-      changed = snake.updateSnake(50)
+      changed = snake.updateSnake(70)
       if (changed) changeSnakeDirection(snake)
     }, 100/3)
   });

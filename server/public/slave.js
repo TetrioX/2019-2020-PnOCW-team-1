@@ -620,61 +620,43 @@ masterButton.addEventListener('click',function(){
   * Paste the given part of the given picture on the client canvas.
   **/
  const pastePicture = function(myCanvas, picture, corners, refPictureLength){
-
-	// corners = scalePointsStart(corners, refPictureLength, {x: picture.width, y: picture.height})
-
  	myCanvas.width = picture.width;
 	myCanvas.height = picture.height;
-    ctx = myCanvas.getContext('2d');
+  ctx = myCanvas.getContext('2d');
 
-    ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
+  ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
+
 	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-
-
  };
 
-	/**
+ /**
 	* Paste the given part of the given picture on the client canvas.
 	**/
  const pasteVideo = function(myCanvas, video, corners, refPictureLength){
+	 myCanvas.width = video.videoWidth;
+	 myCanvas.height = video.videoHeight;
 
-	myCanvas.width = window.innerWidth;
-	myCanvas.height = window.innerHeight;
-	ctx = myCanvas.getContext('2d');
+	 corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
-	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+	 transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
+		 corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+	};
 
-	draw(myCanvas, video)
-
-	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
-			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-
-
-
- };
-
- const draw = function(myCanvas, video) {
-	if(video.paused || video.ended)
-		return false;
-	myCanvas.getContext('2d').drawImage(video, //  0, 0, video.width, video.height,     // source rectangle
-                   0, 0, myCanvas.width, myCanvas.height);
-	setTimeout(draw, 20, myCanvas, video);
+ const drawVideo = function(myCanvas, video) {
+	 myCanvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight,     // source rectangle
+										0, 0, myCanvas.width, myCanvas.height);
  }
 
 
  const transformAngles = function(myCanvas, corners, refPictureLength){
-		// myCanvas.width = window.innerWidth;
-		// myCanvas.height = window.innerHeight;
 		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 
 		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
-
-
  };
 
  function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
@@ -735,9 +717,7 @@ masterButton.addEventListener('click',function(){
 	socket.on('showPicture', function(data){
 		cleanHTML()
 		canvas.style.display = "block"
-		console.log(data)
 		var img = new Image()
-
 		img.onload = function() {
 			pastePicture(canvas, img, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			// This is for smoother picture monitoring. Else white borders are possible.
@@ -745,36 +725,29 @@ masterButton.addEventListener('click',function(){
 		}
 
 		img.src = 'data:image/jpeg;base64,' + data.picture;
-		// This is for smoother picture monitoring. Else white borders are possible.
-		document.body.style.backgroundColor = "black";
 	});
 
 	var video = document.createElement("video");
 	socket.on('showVideo', function(data){
 		cleanHTML()
 		canvas.style.display = "block"
-		console.log(data)
+		document.body.style.backgroundColor = "black";
 
-		video.onload = function() {
+		video.onloadeddata = function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-			// This is for smoother picture monitoring. Else white borders are possible.
-			document.body.style.backgroundColor = "black";
 		}
 
-		video.setAttribute("src", 'data:video/avi;base64,' + data.video);
+		video.autoplay = true
+		video.muted = true
+		video.src = './static/video.mp4'
+		// video.setAttribute("width", data.picDim[1]);
+		// video.setAttribute("height", data.picDim[0]);
+		document.body.appendChild(video);
 	});
 
 	socket.on('updateVideo', function(data){
-		cTime = data + latency
-		offset = video.currentTime*1000 - cTime
-		if (offset > 50){
-			video.playbackRate = Math.min(1.0 + (offset/1000), 1.1)
-		} else if (offset < -50){
-			video.playbackRate = Math.max(1.0 + (offset/1000), 0.9)
-		}
-		 else{
-		video.playbackRate = 1.0
-		}
+		console.log(drawVideo)
+		setTimeout(drawVideo, data.maxLat - latency, canvas, video)
 	})
 
 	socket.on('triangulate', function(data){
@@ -827,9 +800,8 @@ masterButton.addEventListener('click',function(){
 		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 	})
 
-	socket.on('updateSnake', function(data){ // snake
-		// setTimeout(data.maxLat - latency, updateS, snake)
-		updateS(data.snake)
+	socket.on('updateSnake', function(data){
+		setTimeout(updateS, data.maxLat - latency, data.snake)
 	})
 
 	function updateS(snake) {

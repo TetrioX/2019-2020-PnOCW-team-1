@@ -130,7 +130,7 @@ const drawSnakePartShadow = function(snakePart) {
   t = Math.sqrt(z**2 + r**2) - (snakePart.size / 2) / Math.sin(Math.atan((z - (snakePart.size / 2)) / r))
   l = z * Math.tan(Math.atan((snakePart.size / 2) / t) + Math.atan(r * verh / z)) - r * verh
 
-  ctx.fillStyle = "#111111"
+  ctx.fillStyle = "#333333"
   ctx.beginPath();
   ctx.ellipse(verh * (partPosX - canvas.width / 2) + canvas.width / 2,
               verh * (partPosY - canvas.height / 2) + canvas.height / 2,
