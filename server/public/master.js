@@ -27,6 +27,7 @@ var broadcastVideo = document.getElementById('broadcastVideo');
 var makeGridButton = document.getElementById("calibrateButton");
 var countdownButton = document.getElementById("countdownButton")
 var homebutton = document.getElementById('changePageButton');
+var homebutton2 = document.getElementById('changePageButton2');
 var secondEntirePage = document.getElementById("secondEntirePage");
 var rowPicker = document.getElementById("rowPicker");
 var columnPicker = document.getElementById("columnPicker");
@@ -291,6 +292,7 @@ countdownButton.addEventListener('click', function(){
 		socket.emit('startCountdown', countdownSeconds)
 	}
 })
+var CircelPicture;
 
 socket.on('drawCircles', function (data) {
 
@@ -316,4 +318,24 @@ socket.on('drawCircles', function (data) {
             context.stroke();
         }
     }
+    var CircelPicture = canvas.toDataURL();
+})
+
+socket.on('showVisualFeedback',function(){
+	console.log('hou u bakkes');
+	secondEntirePage.style.display="none";
+	thirdEntirePage.style.display="";
+	visualfeedbackcanvas=document.getElementById("visualfeedback");
+	feedbackctx = visualfeedback.getContext('2d');
+
+	var feedbackimage=new Image();
+	feedbackimage.src=CircelPicture;
+
+	feedbackctx.drawImage(feedbackimage,0,0,window.innerWidth, window.innerHeight);
+});
+
+homebutton2.addEventListener('click',function(){
+	entirePage.style.display="";
+	secondEntirePage.style.display="none";
+	thirdEntirePage="none";
 })

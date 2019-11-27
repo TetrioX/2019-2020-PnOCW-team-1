@@ -331,9 +331,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var screenKeys = Object.keys(screens)
       if (screenKeys.length == 0){
         socket.emit('alert', "didn't find any screens.")
+        socket.emit('showVisualFeedback');
         return
       } else{
         socket.emit('alert', "found these screens: "+screenKeys.toString() )
+        socket.emit('showVisualFeedback');
       }
       console.log(screens)
       AllScreenPositions = {...AllScreenPositions, ...screens};
