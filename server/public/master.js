@@ -154,6 +154,7 @@ function takePicture(data){
 }
 */
 //ref: https://tutorialzine.com/2016/07/take-a-selfie-with-js
+
 function takePicture(data) {
 
     var hidden_canvas = document.querySelector('canvas'),
@@ -188,6 +189,8 @@ function takePicture(data) {
 startbutton.addEventListener('click', function () {
 	takePicture({});
 });
+
+
 
 function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -328,8 +331,10 @@ socket.on('showVisualFeedback',function(){
 	var thirdEntirePage = document.getElementById('thirdEntirePage');
 	thirdEntirePage.style.display="";
 	visualfeedbackcanvas=document.getElementById("visualfeedback");
-	visualfeedback.height= window.innerHeight;
-	visualfeedback.width = window.innerWidth;
+	visualfeedbackcanvas.height = resolutionHeight;
+	visualfeedbackcanvas.width = resolutionWidth;
+	
+	
 	feedbackctx = visualfeedback.getContext('2d');
 
 	var feedbackimage=new Image();
@@ -340,7 +345,7 @@ socket.on('showVisualFeedback',function(){
 		
 		console.log(CircelPicture);
 
-		feedbackctx.drawImage(feedbackimage,0,0, window.innerWidth, window.innerHeight);
+		feedbackctx.drawImage(feedbackimage,0,0, visualfeedbackcanvas.width,visualfeedbackcanvas.height);
 	}
 	feedbackimage.src=CircelPicture;
 
@@ -349,5 +354,5 @@ socket.on('showVisualFeedback',function(){
 homebutton2.addEventListener('click',function(){
 	entirePage.style.display="";
 	secondEntirePage.style.display="none";
-	thirdEntirePage="none";
+	thirdEntirePage.style.display="none";
 })

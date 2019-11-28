@@ -93,3 +93,11 @@ h1{
 	right: 10px;
 	bottom: 10px;
 }
+
+#thirdEntirePage{
+	text-align: center;
+}
+
+.border{
+	border: 3px !important;
+}
