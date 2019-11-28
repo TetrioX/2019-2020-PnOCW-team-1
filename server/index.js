@@ -347,10 +347,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }
 
     socket.on('upload-image', function (data) {
-		if (data.destination) fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
-		else fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
-        masterIo.emit('imageSaved')
-        imageIndex += 1;
+  		if (data.destination)
+        fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+  		else
+        fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
+      masterIo.emit('imageSaved')
+      imageIndex += 1;
     });
 
     socket.on('drawLine', function(data){
@@ -358,26 +360,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
   	});
 
     socket.on('triangulate', async function(data){
+      if (Object.keys(AllScreenPositions).length < 1) {
+  			socket.emit('alert', 'Please do screen recognition first');
+  			return;
+  		}
 
-		if (Object.keys(AllScreenPositions).length < 1) {
-			socket.emit('alert', 'Please do screen recognition first');
-			return;
-		}
+      var centers = screenorientation.getScreenCenters(AllScreenPositions);
+      var connections = delaunay.getConnections(centers);
 
-    let centers = screenorientation.getScreenCenters(AllScreenPositions)
-		var angles = delaunay.getAngles(centers);
-		console.log(angles)
-
-        Object.keys(slaves).forEach(function(slave, index) {
-          if (typeof angles[slaves[slave]] !== 'undefined'){
-            slaveSockets[slave].emit('triangulate', {
-              angles: angles[slaves[slave]],
-              corners: AllScreenPositions[slaves[slave]],
-              picDim: picDimensions,
-              center: centers[slaves[slave]]
-            });
-          }
-        })
+      Object.keys(slaves).forEach(function(slave, index) {
+        slaveSockets[slave].emit('triangulate', {
+  				corners: AllScreenPositions[slaves[slave]],
+  				picDim: picDimensions,
+          connections: connections,
+          centers: centers
+        });
+      })
     });
 
     socket.on('calibrate', function(data) {
@@ -468,21 +466,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }, data*1000);
     })
 
-  // function getSlaveByPosition(slaves, pos){
-	//     var slaveIDs = Object.keys(slaves)
-  //       for(var i=0; i < slaveIDs.length; i++){
-  //           var current_slave = slaves[slaveIDs[i]]
-  //           if(current_slave.center === pos){
-  //               return current_slave
-  //           }
-  //       }
-  // }
-
   var snakeUpdater = null
   var snake;
   var connections;
   var centers;
   socket.on('startSnake', function(data){
+
+    if (Object.keys(AllScreenPositions).length < 1) {
+      socket.emit('alert', 'Please do screen recognition first');
+      return;
+    }
 
     clearInterval(snakeUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)

@@ -109,69 +109,83 @@ const transformAngles = function(myCanvas, corners, refPictureLength){
 			 corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 };
 
-function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
-	myCanvas.width = refPictureLength.x
-	myCanvas.height = refPictureLength.y
-	context = myCanvas.getContext('2d');
+function drawAnglesDegree(centers, connections, refPictureLength) {
+	//Constants
+	const outerRadius = 20,
+	 			innerRadius = 7.5;
+	var rot = Math.PI / 2 * 3,
+			step = Math.PI / 5,
+	 		x,
+			y;
 
-	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
-	const cx = center.x;
-	const cy = center.y;
-	//draw star
-	const outerRadius = 20;
-	const innerRadius = 7.5;
-	var rot = Math.PI / 2 * 3;
-	var x = cx;
-	var y = cy;
-	var step = Math.PI / 5;
-
-	context.beginPath();
-	context.moveTo(cx, cy - outerRadius);
-	for (let i = 0; i < 5; i++) {
-		x = cx + Math.cos(rot) * outerRadius;
-		y = cy + Math.sin(rot) * outerRadius;
-		context.lineTo(x, y);
-		rot += step;
-
-		x = cx + Math.cos(rot) * innerRadius;
-		y = cy + Math.sin(rot) * innerRadius;
-		context.lineTo(x, y);
-		rot += step
-	}
-	context.lineTo(cx, cy - outerRadius);
-	context.closePath();
-	context.lineWidth = 5;
-	context.strokeStyle = 'black';
-	context.stroke();
 	context.fillStyle = 'black';
-	context.fill();
+	context.lineWidth = 10;
 
-	//draw lines
-	for(radianAngle of radianAngles){
-		var dx = length * Math.cos(Number(radianAngle) * Math.PI * 2 / 360);
-		var dy = length * Math.sin(Number(radianAngle) * Math.PI * 2 / 360);
+	// Draw all centers
+	for (let centerId in centers) {
+		// Define center
+		center = centers[centerId]
+		center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
+		var cx = center.x;
+		var cy = center.y;
 
-		// start point
-		context.moveTo(cx, cy);
-		// end point
-		context.lineTo(cx+dx, cy+dy);
+		// Draw the star in the current center.
+		context.beginPath();
+		context.moveTo(cx, cy - outerRadius);
+		for (let i = 0; i < 5; i++) {
+			x = cx + Math.cos(rot) * outerRadius;
+			y = cy + Math.sin(rot) * outerRadius;
+			context.lineTo(x, y);
+			rot += step;
 
-		context.lineWidth = 10;
-		// Make the line visible
+			x = cx + Math.cos(rot) * innerRadius;
+			y = cy + Math.sin(rot) * innerRadius;
+			context.lineTo(x, y);
+			rot += step
+		}
+		context.lineTo(cx, cy - outerRadius);
+		context.closePath();
+		context.fill();
 
-		context.stroke();
+		// Draw the lines between all connected centers.
+		for(let cnctPoint of connections[centerId]){
+			context.moveTo(cx, cy);	// start point
+			context.lineTo(cnctPoint[0], cnctPoint[1]); // end point
+			context.stroke(); // Make the line visible
+		}
 	}
 }
 
 canvas = document.getElementById('canvas')
 context = canvas.getContext('2d')
 
-// AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-//                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-// picDimensions = [500, 1000]
+AllScreenPositions = {
+	'3': [{x: 500, y: 0}, {x: 500, y: 250}, {x: 0, y: 250}, {x: 0, y: 0}],
+	'4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}],
+	'5': [{x: 500, y: 250}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 250}]
+}
+centers = {
+  '3': { x: 250, y: 125 },
+  '4': { x: 750, y: 250 },
+  '5': { x: 250, y: 375 }
+}
+angles = {
+  '3': [ 90, 14.036243467926479 ],
+  '4': [ -165.96375653207352, 165.96375653207352 ],
+  '5': [ -14.036243467926479, -90 ]
+}
+connections = {
+  '3': [ [ 250, 375 ], [ 750, 250 ] ],
+  '4': [ [ 250, 125 ], [ 250, 375 ] ],
+  '5': [ [ 750, 250 ], [ 250, 125 ] ]
+}
+picDimensions = {x: 1000, y: 500}
 
-context.clearRect(0, 0, canvas.width, canvas.height);
+// context.clearRect(0, 0, canvas.width, canvas.height);
 canvas.style.display = "block"
-drawAnglesDegree(canvas, data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
-// transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
+canvas.width = picDimensions.x
+canvas.height = picDimensions.y
+context = canvas.getContext('2d');
+transformAngles(canvas, AllScreenPositions['5'], picDimensions)
+drawAnglesDegree(centers, connections, picDimensions)
+// transformAngles(canvas, AllScreenPositions['5'], picDimensions)

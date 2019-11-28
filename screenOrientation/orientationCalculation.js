@@ -7,7 +7,7 @@ const getScreenCenters = function(screens) {
   var scrRes = {}
 	for (var id in screens)
 		scrRes[id] = getCenter(screens[id])
-  console.log(scrRes)
+  // console.log(scrRes)
 	return scrRes
 }
 
