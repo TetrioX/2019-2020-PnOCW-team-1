@@ -36,23 +36,31 @@ function getAngles(slaves) {
 function getConnections(slaves){
     var result = {}
     var coords = []
+    let temp = {};
 
     for(var id in slaves){
         var X = slaves[id].x
         var Y = slaves[id].y
 
         var point = [X,Y]
-
+        temp[point] = id
         coords.push(point)
     }
 
     console.log("coords:", coords)
 
-    var triangulation = Delaunay(coords)
+    const triangulation = Delaunay(coords)
+
+    coords.forEach(function(pt){
+        let currentId = temp[pt];
+        result[currentId] = triangulation[pt].toArray();
+    })
+    /*
     for (var i in coords) {
+
         result[Object.keys(slaves)[i]] = triangulation[coords[i]].toArray()
     }
-
+*/
     return result
 }
 
