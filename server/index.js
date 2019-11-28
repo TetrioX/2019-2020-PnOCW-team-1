@@ -431,9 +431,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
   var videoUpdater = null
 	socket.on('broadcastVideo', function(){
 
-    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                          '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // picDimensions = [500, 1000]
 
     clearInterval(videoUpdater)
     // send to each slave
@@ -468,15 +468,15 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }, data*1000);
     })
 
-  function getSlaveByPosition(slaves, pos){
-	    var slaveIDs = Object.keys(slaves)
-        for(var i=0; i < slaveIDs.length; i++){
-            var current_slave = slaves[slaveIDs[i]]
-            if(current_slave.center === pos){
-                return current_slave
-            }
-        }
-  }
+  // function getSlaveByPosition(slaves, pos){
+	//     var slaveIDs = Object.keys(slaves)
+  //       for(var i=0; i < slaveIDs.length; i++){
+  //           var current_slave = slaves[slaveIDs[i]]
+  //           if(current_slave.center === pos){
+  //               return current_slave
+  //           }
+  //       }
+  // }
 
   var snakeUpdater = null
   var snake;
@@ -484,28 +484,17 @@ var masterIo = io.of('/master').on('connect', function(socket){
   var centers;
   socket.on('startSnake', function(data){
 
-    AllScreenPositions = {'4': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                          '3': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
-
     clearInterval(snakeUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
-    console.log("center: ", centers)
     connections = delaunay.getConnections(centers)
-    console.log("center: ", centers)
-    console.log("cons: ", connections)
+
     const firstSlave = Object.keys(AllScreenPositions)[0]
-    console.log(firstSlave)
     const startPos = centers[firstSlave]
-    console.log("first", firstSlave, " ", startPos)
+
     var randInt = Math.floor(Math.random() * connections[firstSlave].length)
     var nextPoint = {x: connections[firstSlave][randInt][0], y: connections[firstSlave][randInt][1]}
     var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
     var nextSlave = getSlaveByPosition(nextPoint)
-
-    console.log("next", nextSlave, " ", nextPoint)
-
-    console.log("dir: ", direction)
 
     snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos)
     snake.changeDirectionOnPosition(direction, startPos, nextSlave)
@@ -524,7 +513,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       })
       changed = snake.updateSnake(70)
       if (changed) changeSnakeDirection(snake)
-    }, 100/3)
+    }, 100/3) // 33 fps, gekozen door de normale
   });
 
   socket.on('stopSnake', function(){
@@ -544,17 +533,17 @@ var masterIo = io.of('/master').on('connect', function(socket){
   }
 
   function getSlaveByPosition(pos){
-	    var slaveIDs = Object.keys(AllScreenPositions)
+	    // var slaveIDs = Object.keys(AllScreenPositions)
       for(let slaveId of Object.keys(AllScreenPositions)){
         center = centers[slaveId]
         if(center.x == pos.x && center.y == pos.y)
           return slaveId
-        }
+      }
   }
 
 socket.on('clearAll', function(){
   clearInterval(snakeUpdater);
-  slaveIo.emit('stopSnake')
+  slaveIo.emit('stopSnake');
   clearInterval(videoUpdater);
   clearInterval(countdownUpdater);
 })
