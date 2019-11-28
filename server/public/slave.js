@@ -732,6 +732,7 @@ masterButton.addEventListener('click',function(){
 		cleanHTML()
 		canvas.style.display = "block"
 		document.body.style.backgroundColor = "black";
+		video.style.display = 'block'
 
 		video.onloadeddata = function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
@@ -740,9 +741,6 @@ masterButton.addEventListener('click',function(){
 		video.autoplay = true
 		video.muted = true
 		video.src = './static/video.mp4'
-		// video.setAttribute("width", data.picDim[1]);
-		// video.setAttribute("height", data.picDim[0]);
-		video.style.display = 'none';
 		document.body.appendChild(video);
 	});
 
@@ -815,6 +813,7 @@ masterButton.addEventListener('click',function(){
 		wrapper.style.display = "block"
 		// show scroll bar again
 		document.body.style.overflow = 'visible';
+		video.style.display = 'none';
 	})
 
 })()

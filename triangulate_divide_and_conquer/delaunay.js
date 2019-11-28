@@ -46,6 +46,8 @@ function getConnections(slaves){
         coords.push(point)
     }
 
+    console.log("coords:", coords)
+
     var triangulation = Delaunay(coords)
     for (var i in coords) {
         result[Object.keys(slaves)[i]] = triangulation[coords[i]].toArray()
