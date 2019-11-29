@@ -5,6 +5,7 @@ var socket = io('/slave');
 var masterButton = document.getElementById("masterButton");
 var socketID = null;
 var canvas = document.getElementById("canvas");
+var video = document.getElementById("video");
 var context = canvas.getContext('2d');
 var gridData = {
 	grid: [],
@@ -22,6 +23,7 @@ function cleanHTML(){
 	removeGrid()
 	document.body.style.overflow = 'hidden';
 	wrapper.style.display = "none"
+	video.style.display = "none"
 	countdown.style.display = "none"
 	countdownTimer.style.display = "none"
 	entirePage.style.display = "none"
@@ -716,16 +718,15 @@ masterButton.addEventListener('click',function(){
 	});
 
 	let vidBufferCheck = null
-	var video = document.createElement("video");
 	socket.on('loadVideo', async function(data, callback){
 		clearInterval(vidBufferCheck);
 		cleanHTML()
 		canvas.style.display = "block"
+		video.style.display = "block"
 		document.body.style.backgroundColor = "black";
 
 		video.onloadeddata = async function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-			video.currentTime = 0
 			await waitForBuffer(5)
 			callback()
 		}
@@ -734,7 +735,6 @@ masterButton.addEventListener('click',function(){
 		video.preload = "auto";
 		video.muted = true
 		video.src = './static/big_buck_bunny.mp4'
-		document.body.appendChild(video);
 	});
 
 	socket.on('vidEnded', function(data, callback){
