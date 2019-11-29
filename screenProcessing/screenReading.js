@@ -642,7 +642,59 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 
 // returns a list with the best possible screens it can recognize from the calculated squares
 // This is not the best solution and could be in proofd in the future
-function getScreenFromSquares(squares, screens){
+function getScreenFromSquares(squares, screens) {
+
+    function array_Sum(t) {
+        return t.reduce(function (a, b) { return a + b; }, 0);
+    }
+
+    function distance_between(x1, y1, x2, y2) {
+        return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1))
+    }
+
+    function avg_distance_between(xCord, yCord) {
+        var len = xCord.length
+        var dist = []
+        for (let i = 0; i < len; i++) {
+            let avg = 0;
+            for (let j = 0; j < len; j++) {
+                if (i != j) {
+                    avg += distance_between(xCord[i],yCord[i],xCord[j],yCord[j])
+                }
+            }
+            dist[i] = avg/(len-1)
+        }
+        return dist
+    }
+
+    function outlierRemove(xCord, yCord) {
+        var dist = avg_distance_between(xCord, yCord)
+        //small check if function is working
+        if (xCord.length != yCord.length || xCord.length != dist.length) {
+            throw new Error("List of coordinates are not equal") 
+        }
+        var n = xCord.length
+        //avg
+        var avg = array_Sum(dist) / n
+        //variance
+        var variance = 0
+        for (let i = 0; i < n; i++) {
+            variance += (dist[i] - avg) * (dist[i] - avg)
+        }
+        variance = Math.sqrt(variance / n)
+        //nu uitfilteren met variantie
+        console.log
+        var pointsX = []
+        var pointsY = []
+        for (let i = 0; i < n; i++) {
+            if (dist[i] <= avg + variance) {
+                pointsX.push(xCord[i])
+                pointsY.push(yCord[i])
+            }
+        }
+        return {x:pointsX, y:pointsY}
+    }
+
 	let screenCorners = {}
 	// calculate all the screens
 	for (let sq of squares){
@@ -654,21 +706,29 @@ function getScreenFromSquares(squares, screens){
 	let results = {}
 	// get the average of the screens
 	// NOTE: this could be improved by using the squares that are close to the corner
-	Object.keys(screenCorners).forEach(async function(screens, index) {
-		for (let i = 1; i < screenCorners[screens].length; i++){
-			//for each corner
-			for (let j = 0; j < 4; j++){
+    Object.keys(screenCorners).forEach(async function (screens, index) {
+        results[screens] = [] 
+        //for each corner
+        for (let j = 0; j < 4; j++) {
+            let listCoX = []
+            let listCoY = []
+            //for each square found
+            for (let i = 0; i < screenCorners[screens].length; i++) {
+                listCoX.push(screenCorners[screens][i][j].x)
+                listCoY.push(screenCorners[screens][i][j].y)
+            }
+            //Only remove outliers if 2 or more points
+            if (screenCorners[screens].length > 2) {
+                let outliers = outlierRemove(listCoX, listCoY)
+                listCoX = outliers.x
+                listCoY = outliers.y
+            }
+            //calculate avg
+            results[screens].push({
+                x: Math.ceil(array_Sum(listCoX) / listCoX.length),
+                y: Math.ceil(array_Sum(listCoY) / listCoY.length)
+            })
 
-				screenCorners[screens][0][j].x += screenCorners[screens][i][j].x
-				screenCorners[screens][0][j].y += screenCorners[screens][i][j].y
-			}
-		}
-		results[screens] = []
-		for (let j = 0; j < 4; j++){
-			results[screens].push({
-				x: Math.ceil(screenCorners[screens][0][j].x/screenCorners[screens].length),
-				y: Math.ceil(screenCorners[screens][0][j].y/screenCorners[screens].length)
-			})
 		}
 	})
 	return results
