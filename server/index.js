@@ -8,6 +8,8 @@ const scrnread = require('../screenProcessing/screenReading.js')
 const imgprcssrgb = require('../ImageProcessingHSL/imageProcessingHSL.js')
 const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
+const geometry = require('../triangulate_divide_and_conquer/geometry.js')
+var snakeJs = require('../SnakeLogic/snake.js')
 // load config file
 const config = require('./config.json');
 
@@ -25,6 +27,7 @@ var debugDirPromise = new Promise(function(resolve, reject){
   });
 }).catch((err) => {console.log(err)})
 var AllScreenPositions={};
+var latSlaves = {}
 var picDimensions = [];
 var calibrationPicture;
 
@@ -32,7 +35,7 @@ var calibrationPicture;
 //App setup
 var app = express();
 var server = app.listen(config.port, function(){
-    console.log('listening to requests on port '+config.port)
+    console.log('listening to requests on port '+ config.port)
 });
 //Socket setup
 // pingInterval is used to determine the latency
@@ -346,10 +349,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }
 
     socket.on('upload-image', function (data) {
-		if (data.destination) fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
-		else fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
-        masterIo.emit('imageSaved')
-        imageIndex += 1;
+  		if (data.destination)
+        fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+  		else
+        fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
+      masterIo.emit('imageSaved')
+      imageIndex += 1;
     });
 
     socket.on('drawLine', function(data){
@@ -357,26 +362,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
   	});
 
     socket.on('triangulate', async function(data){
+      if (Object.keys(AllScreenPositions).length < 1) {
+  			socket.emit('alert', 'Please do screen recognition first');
+  			return;
+  		}
 
-		if (Object.keys(AllScreenPositions).length < 1) {
-			socket.emit('alert', 'Please do screen recognition first');
-			return;
-		}
+      var centers = screenorientation.getScreenCenters(AllScreenPositions);
+      var connections = delaunay.getConnections(centers);
 
-		let centers = screenorientation.getScreenCenters(AllScreenPositions)
-		var angles = delaunay.getAngles(centers);
-		console.log(angles)
-
-        Object.keys(slaves).forEach(function(slave, index) {
-          if (typeof angles[slaves[slave]] !== 'undefined'){
-            slaveSockets[slave].emit('triangulate', {
-              angles: angles[slaves[slave]],
-              corners: AllScreenPositions[slaves[slave]],
-              picDim: picDimensions,
-              center: centers[slaves[slave]]
-            });
-          }
-        })
+      Object.keys(slaves).forEach(function(slave, index) {
+        slaveSockets[slave].emit('triangulate', {
+  				corners: AllScreenPositions[slaves[slave]],
+  				picDim: picDimensions,
+          connections: connections,
+          centers: centers
+        });
+      })
     });
 
     socket.on('calibrate', function(data) {
@@ -393,6 +394,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     });
 
 	socket.on('broadcastImage', function(data){
+    clearInterval(videoUpdater)
 
 		// load the image that should be sent
 		let image = selectImage(data.image)
@@ -405,7 +407,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				picDim: picDimensions
 			});
 		})
-    })
+  })
 
 	const selectImage = function(selection) {
 		console.log(selection)
@@ -426,21 +428,29 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		}
 	}
 
+  var videoUpdater = null
 	socket.on('broadcastVideo', function(){
 
-		// load the image that should be sent
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // picDimensions = [500, 1000]
 
-		let video = fs.readFileSync('./public/video.mp4').toString('base64');
-
-		// send to each slave
+    clearInterval(videoUpdater)
+    // send to each slave
 		Object.keys(slaves).forEach(function(slave, index) {
 			slaveSockets[slave].emit('showVideo', {
 				corners: AllScreenPositions[slaves[slave]],
-				video: video,
 				picDim: picDimensions
 			});
 		})
-    })
+
+    videoUpdater = setInterval(function(){
+      slaveIo.emit('updateVideo', {
+        maxLat: Math.max(Object.values(latSlaves))
+      })
+    }, 100/3)
+
+  })
 
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
@@ -458,6 +468,81 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }, data*1000);
     })
 
+  var snakeUpdater = null
+  var snake;
+  var connections;
+  var centers;
+  socket.on('startSnake', function(data){
+
+    if (Object.keys(AllScreenPositions).length < 1) {
+      socket.emit('alert', 'Please do screen recognition first');
+      return;
+    }
+
+    clearInterval(snakeUpdater)
+    centers = screenorientation.getScreenCenters(AllScreenPositions)
+    connections = delaunay.getConnections(centers)
+
+    const firstSlave = Object.keys(AllScreenPositions)[0]
+    const startPos = centers[firstSlave]
+
+    var randInt = Math.floor(Math.random() * connections[firstSlave].length)
+    var nextPoint = {x: connections[firstSlave][randInt][0], y: connections[firstSlave][randInt][1]}
+    var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
+    var nextSlave = getSlaveByPosition(nextPoint)
+
+    snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos)
+    snake.changeDirectionOnPosition(direction, startPos, nextSlave)
+
+    Object.keys(slaves).forEach(function(slave, index) {
+      slaveSockets[slave].emit('createSnake', {
+        corners: AllScreenPositions[slaves[slave]],
+        picDim: picDimensions,
+      });
+    })
+
+    snakeUpdater = setInterval(function(){
+      slaveIo.emit('updateSnake', {
+        maxLat: Math.max(Object.values(latSlaves)),
+        snake: snake
+      })
+      changed = snake.updateSnake(70)
+      if (changed) changeSnakeDirection(snake)
+    }, 100/3) // 33 fps, gekozen door de normale
+  });
+
+  socket.on('stopSnake', function(){
+    clearInterval(snakeUpdater);
+    slaveIo.emit('stopSnake')
+  })
+
+
+  function changeSnakeDirection(snake) {
+    var currentPoint = centers[snake.nextSlave]
+    var randInt = Math.floor(Math.random() * connections[snake.nextSlave].length)
+
+    var nextPoint = {x: connections[snake.nextSlave][randInt][0], y: connections[snake.nextSlave][randInt][1]}
+    var nextSlave = getSlaveByPosition(nextPoint)
+    var direction = geometry.radianAngleBetweenPointsDict(currentPoint, nextPoint)
+    snake.changeDirectionOnPosition(direction, currentPoint, nextSlave)
+  }
+
+  function getSlaveByPosition(pos){
+	    // var slaveIDs = Object.keys(AllScreenPositions)
+      for(let slaveId of Object.keys(AllScreenPositions)){
+        center = centers[slaveId]
+        if(center.x == pos.x && center.y == pos.y)
+          return slaveId
+      }
+  }
+
+socket.on('clearAll', function(){
+  clearInterval(snakeUpdater);
+  slaveIo.emit('stopSnake');
+  clearInterval(videoUpdater);
+  clearInterval(countdownUpdater);
+})
+
 });
 
 
@@ -473,6 +558,9 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
 	})
   socket.on('disconnect', function() {
     deleteSlave(socket)
+  })
+  socket.on('update-latency', function(lat){
+    latSlaves[socket] = lat
   })
 });
 

@@ -33,9 +33,17 @@ var rowPicker = document.getElementById("rowPicker");
 var columnPicker = document.getElementById("columnPicker");
 var countdownPicker = document.getElementById("countdownPicker");
 
+var snakeButton = document.getElementById("snakeButton");
+var snakeLengthPicker = document.getElementById('snakeLengthPicker');
+var triangulationSnake = document.getElementById('triangulationSnake');
+var triangulationSnakeStop = document.getElementById('triangulationSnakeStop');
+var homebutton2 = document.getElementById('changePageButton2');
+
+
 var numberOfRows = rowPicker.valueAsNumber;
 var numberOfColumns = columnPicker.valueAsNumber;
-var countdownSeconds = countdownPicker.valueAsNumber
+var countdownSeconds = countdownPicker.valueAsNumber;
+var snakeLength = snakeLengthPicker.valueAsNumber;
 
 var angle = 0;
 rowPicker.addEventListener('input', function(){
@@ -43,10 +51,13 @@ rowPicker.addEventListener('input', function(){
 });
 
 columnPicker.addEventListener('input', function(){
-	numberOfColumns =columnPicker.valueAsNumber
+	numberOfColumns = columnPicker.valueAsNumber
 })
 countdownPicker.addEventListener('input', function(){
 	countdownSeconds = countdownPicker.valueAsNumber
+})
+snakeLengthPicker.addEventListener('input', function(){
+	snakeLength = snakeLengthPicker.valueAsNumber
 })
 
 
@@ -56,6 +67,7 @@ anglePicker.addEventListener('input', function () {
 })
 
 triangulateButton.addEventListener('click', function () {
+	socket.emit('clearAll');
 	socket.emit('triangulate',{
 		numberOfRows:numberOfRows,
 		numberOfColumns:numberOfColumns
@@ -63,7 +75,8 @@ triangulateButton.addEventListener('click', function () {
 });
 
 drawButtonLine.addEventListener('click', function() {
-    socket.emit('drawLine',{
+		socket.emit('clearAll');
+		socket.emit('drawLine',{
         angle:angle
     })
 });
@@ -106,6 +119,7 @@ socket.on('removeSlave', function (data) {
 
 var useCameraButton = document.getElementById('useCamBtn');
 useCameraButton.addEventListener('click',function(){
+	socket.emit('clearAll');
 	console.log("Hoi")
 	document.getElementById("cameraDiv").style.display = "";
 });
@@ -187,6 +201,7 @@ function takePicture(data) {
 }
 
 startbutton.addEventListener('click', function () {
+	socket.emit('clearAll');
 	takePicture({});
 });
 
@@ -231,6 +246,7 @@ socket.on('alert', function(data){
 
 //make the entire screen your camera for the screenrecognition
 screenrecognitionbutton.addEventListener('click',function(){
+	socket.emit('clearAll');
 	entirePage.style.display="none";
 	secondEntirePage.style.display=""
 	screenrecognitionvideo.setAttribute('autoplay', '');
@@ -249,6 +265,7 @@ screenrecognitionbutton.addEventListener('click',function(){
 })
 
 homebutton.addEventListener('click',function(){
+	socket.emit('clearAll');
 	entirePage.style.display="";
 	secondEntirePage.style.display="none";
 })
@@ -259,6 +276,7 @@ homebutton.addEventListener('click',function(){
 
 
 makeGridButton.addEventListener('click',function(){
+	socket.emit('clearAll');
 	socket.emit('changeBackgroundOfAllSlaves',{
 		numberOfRows:numberOfRows,
 		numberOfColumns:numberOfColumns
@@ -266,6 +284,7 @@ makeGridButton.addEventListener('click',function(){
 });
 
 broadcastPicture.addEventListener('click',function(){
+	socket.emit('clearAll');
 	img = getImage()
 
 	if (getImage())
@@ -275,7 +294,8 @@ broadcastPicture.addEventListener('click',function(){
 })
 
 broadcastVideo.addEventListener('click',function(){
-		socket.emit('broadcastVideo');
+	socket.emit('clearAll');
+	socket.emit('broadcastVideo');
 })
 
 
@@ -289,6 +309,7 @@ const getImage = function() {
 
 
 countdownButton.addEventListener('click', function(){
+	socket.emit('clearAll');
 	if (typeof countdownSeconds === 'undefined'){
 		alert('Enter an amount of seconds first')
 	} else{
@@ -298,7 +319,7 @@ countdownButton.addEventListener('click', function(){
 
 
 socket.on('drawCircles', function (data) {
-
+	socket.emit('clearAll');
     //reference: https://stackoverflow.com/questions/1484506/random-color-generator
     function getRandomColor() {
         var letters = '0123456789ABCDEF';
@@ -333,16 +354,16 @@ socket.on('showVisualFeedback',function(){
 	visualfeedbackcanvas=document.getElementById("visualfeedback");
 	visualfeedbackcanvas.height = resolutionHeight;
 	visualfeedbackcanvas.width = resolutionWidth;
-	
-	
+
+
 	feedbackctx = visualfeedback.getContext('2d');
 
 	var feedbackimage=new Image();
 	var CircelPicture = canvas.toDataURL();
 
 	feedbackimage.onload = async function(){
-		
-		
+
+
 		console.log(CircelPicture);
 
 		feedbackctx.drawImage(feedbackimage,0,0, visualfeedbackcanvas.width,visualfeedbackcanvas.height);
@@ -351,8 +372,25 @@ socket.on('showVisualFeedback',function(){
 
 });
 
+snakeButton.addEventListener('click', function(){
+	socket.emit('clearAll');
+	entirePage.style.display="none";
+	snakeEntirePage.style.display="block";
+	window.scrollTo(0, 0);
+})
+
+triangulationSnake.addEventListener('click', function(){
+	socket.emit("startSnake", {
+		size: snakeLength
+	})
+})
+
+triangulationSnakeStop.addEventListener('click', function(){
+	socket.emit('stopSnake')
+})
+
 homebutton2.addEventListener('click',function(){
 	entirePage.style.display="";
-	secondEntirePage.style.display="none";
-	thirdEntirePage.style.display="none";
+	snakeEntirePage.style.display="none";
+	socket.emit('stopSnake')
 })
