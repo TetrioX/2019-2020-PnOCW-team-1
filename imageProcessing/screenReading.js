@@ -639,7 +639,6 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	}
 	return foundScreenSquares
 }
-    console.log("l " + l)
 
 // returns a list with the best possible screens it can recognize from the calculated squares
 // This is not the best solution and could be in proofd in the future
