@@ -641,13 +641,31 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 }
 //ref: https://stackoverflow.com/questions/22663353/algorithm-to-remove-extreme-outliers-in-array/22663905
 function inQuartiles(data) {
+    var q1,q3
     data.sort(function (a, b) { return a - b });
     var l = data.length;
-    var LQ = data[Math.round(l / 4)];
-    var UQ = data[Math.round(3 * l / 4)];
+    console.log("l " + l)
+    if (l == 4) {
+        q1 = 1 / 2 * (data[0] + data[1]);
+        q3 = 1/2*(data[2] + data[3])
+    }
+    else if ((l / 4) % 1 === 0) {//find quartiles
+        q1 = 1 / 2 * (data[(l / 4)] + data[(l / 4) + 1]);
+        q3 = 1 / 2 * (data[(l * (3 / 4))] + data[(l * (3 / 4)) + 1]);
+        console.log(q1,q3)
+    } else {
+        q1 = data[Math.floor(l / 4 + 1)];
+        q3 = data[Math.ceil(l * (3 / 4) + 1)];
+    }
+    var iqr = q3 - q1;
+    console.log("iqr" + iqr)
+    var maxValue = q3;
+    var minValue = q1;
     var data4 = new Array();
+    console.log("bla")
     for (var i = 0; i < data.length; ++i) {
-        if (data[i] > LQ && data[i] < UQ) {
+        console.log(data[i])
+        if (data[i] > minValue && data[i] < maxValue) {
             data4.push(data[i]);
         }
     }
@@ -685,7 +703,7 @@ function getScreenFromSquares(squares, screens) {
                 listCoY.push(screenCorners[screens][i][j].y)
             }
             //Only remove outliers if 3 or more points
-            if (screenCorners[screens].length > 2) {
+            if (screenCorners[screens].length > 3) {
                 listCoX = inQuartiles(listCoX)
                 listCoY = inQuartiles(listCoY)
             }
