@@ -26,9 +26,10 @@ var debugDirPromise = new Promise(function(resolve, reject){
   else resolve()
   });
 }).catch((err) => {console.log(err)})
-var AllScreenPositions={};
+AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+                           '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
 var latSlaves = {}
-var picDimensions = [];
+var picDimensions = [500, 1000];
 var calibrationPicture;
 
 
@@ -192,7 +193,7 @@ async function resumeVideo(startTime){
   resumeTime = new Date()
   videoUpdater = setInterval(async function(){
     slaveIo.emit('updateVideo', new Date() + startTime - resumeTime)
-  }, 100)
+  }, 100/3)
 }
 
 var masterIo = io.of('/master').on('connect', function(socket){
