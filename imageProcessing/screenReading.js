@@ -639,38 +639,7 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	}
 	return foundScreenSquares
 }
-//ref: https://stackoverflow.com/questions/22663353/algorithm-to-remove-extreme-outliers-in-array/22663905
-function inQuartiles(data) {
-    var q1,q3
-    data.sort(function (a, b) { return a - b });
-    var l = data.length;
     console.log("l " + l)
-    if (l == 4) {
-        q1 = 1 / 2 * (data[0] + data[1]);
-        q3 = 1/2*(data[2] + data[3])
-    }
-    else if ((l / 4) % 1 === 0) {//find quartiles
-        q1 = 1 / 2 * (data[(l / 4)] + data[(l / 4) + 1]);
-        q3 = 1 / 2 * (data[(l * (3 / 4))] + data[(l * (3 / 4)) + 1]);
-        console.log(q1,q3)
-    } else {
-        q1 = data[Math.floor(l / 4 + 1)];
-        q3 = data[Math.ceil(l * (3 / 4) + 1)];
-    }
-    var iqr = q3 - q1;
-    console.log("iqr" + iqr)
-    var maxValue = q3;
-    var minValue = q1;
-    var data4 = new Array();
-    console.log("bla")
-    for (var i = 0; i < data.length; ++i) {
-        console.log(data[i])
-        if (data[i] > minValue && data[i] < maxValue) {
-            data4.push(data[i]);
-        }
-    }
-    return data4
-}
 
 // returns a list with the best possible screens it can recognize from the calculated squares
 // This is not the best solution and could be in proofd in the future
@@ -678,6 +647,53 @@ function getScreenFromSquares(squares, screens) {
 
     function array_Sum(t) {
         return t.reduce(function (a, b) { return a + b; }, 0);
+    }
+
+    function distance_between(x1, y1, x2, y2) {
+        return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1))
+    }
+
+    function avg_distance_between(xCord, yCord) {
+        var len = xCord.length
+        var dist = []
+        for (let i = 0; i < len; i++) {
+            let avg = 0;
+            for (let j = 0; j < len; j++) {
+                if (i != j) {
+                    avg += distance_between(xCord[i],yCord[i],xCord[j],yCord[j])
+                }
+            }
+            dist[i] = avg/(len-1)
+        }
+        return dist
+    }
+
+    function outlierRemove(xCord, yCord) {
+        var dist = avg_distance_between(xCord, yCord)
+        //small check if function is working
+        if (xCord.length != yCord.length || xCord.length != dist.length) {
+            throw new Error("List of coordinates are not equal") 
+        }
+        var n = xCord.length
+        //avg
+        var avg = array_Sum(dist) / n
+        //variance
+        var variance = 0
+        for (let i = 0; i < n; i++) {
+            variance += (dist[i] - avg) * (dist[i] - avg)
+        }
+        variance = Math.sqrt(variance / n)
+        //nu uitfilteren met variantie
+        console.log
+        var pointsX = []
+        var pointsY = []
+        for (let i = 0; i < n; i++) {
+            if (dist[i] <= avg + variance) {
+                pointsX.push(xCord[i])
+                pointsY.push(yCord[i])
+            }
+        }
+        return {x:pointsX, y:pointsY}
     }
 
 	let screenCorners = {}
@@ -702,10 +718,13 @@ function getScreenFromSquares(squares, screens) {
                 listCoX.push(screenCorners[screens][i][j].x)
                 listCoY.push(screenCorners[screens][i][j].y)
             }
-            //Only remove outliers if 3 or more points
-            if (screenCorners[screens].length > 3) {
-                listCoX = inQuartiles(listCoX)
-                listCoY = inQuartiles(listCoY)
+            //Only remove outliers if 2 or more points
+            if (screenCorners[screens].length > 2) {
+                console.log(listCoX + "//" +listCoY)
+                let outliers = outlierRemove(listCoX, listCoY)
+                listCoX = outliers.x
+                listCoY = outliers.y
+                console.log(listCoX + "//" + listCoY)
             }
             //calculate avg
             results[screens].push({
