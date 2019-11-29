@@ -126,7 +126,7 @@ function findLowerCommonTangent(adj, X, Y) {
     let Z = adj[Y].get(0)
     let Z$$ = adj[X].get(0);
 
-   // console.log("Z =", Z)
+    //console.log("Z =", Z)
     //console.log("Z$$ =", Z$$)
 
     while(true){
@@ -164,9 +164,15 @@ var pointsOnLine = function(points) {
    return false;
 };
 
-
+const radianAnglebetweenPoints = function(pt1, pt2){
+    return angleBetweenPoints(pt1, pt2) * (Math.PI/180)
+}
 const angleBetweenPoints = function (point1, point2) {
     return Math.atan2(point2[1] - point1[1], point2[0] - point1[0])*(180/Math.PI);
+};
+
+const radianAngleBetweenPointsDict = function (point1, point2) {
+    return Math.atan2(point2.y - point1.y, point2.x - point1.x);
 };
 
 
@@ -181,7 +187,8 @@ module.exports = {
     pointsOnLine: pointsOnLine,
     getLeftMost: getLeftMost,
     getRightMost: getRightMost,
-    angleBetweenPoints: angleBetweenPoints
+    angleBetweenPoints: angleBetweenPoints,
+    radianAnglebetweenPoints: radianAnglebetweenPoints,
+    radianAngleBetweenPointsDict: radianAngleBetweenPointsDict
 
 };
-

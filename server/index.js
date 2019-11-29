@@ -1,11 +1,15 @@
 var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
-const scrnrec = require('../imageProcessing/screenRecognitionDirect.js')
-const scrnread = require('../imageProcessing/screenReading.js')
-const imgprcssrgb = require('../ImageProcessingRGB/imageProcessingRGB.js')
+var path = require('path');
+var ss = require('socket.io-stream');
+// const scrnrec = require('../screenProcessing/screenRecognitionDirect.js')
+const scrnread = require('../screenProcessing/screenReading.js')
+const imgprcssrgb = require('../ImageProcessingHSL/imageProcessingHSL.js')
 const screenorientation = require('../screenOrientation/orientationCalculation.js')
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
+const geometry = require('../triangulate_divide_and_conquer/geometry.js')
+var snakeJs = require('../SnakeLogic/snake.js')
 // load config file
 const config = require('./config.json');
 
@@ -23,6 +27,7 @@ var debugDirPromise = new Promise(function(resolve, reject){
   });
 }).catch((err) => {console.log(err)})
 var AllScreenPositions={};
+var latSlaves = {}
 var picDimensions = [];
 var calibrationPicture;
 
@@ -30,7 +35,7 @@ var calibrationPicture;
 //App setup
 var app = express();
 var server = app.listen(config.port, function(){
-    console.log('listening to requests on port '+config.port)
+    console.log('listening to requests on port '+ config.port)
 });
 //Socket setup
 // pingInterval is used to determine the latency
@@ -45,8 +50,9 @@ var number = 0
 
 
 function deleteSlave(socket) {
-   delete slaves[socket.id]
-    masterIo.emit("removeSlave", socket.id)
+  delete AllScreenPositions[slaves[socket.id]];
+  delete slaves[socket.id];
+  masterIo.emit("removeSlave", socket.id);
 }
 
 function addSlave(socket) {
@@ -223,12 +229,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
-          setTimeout(function() {
-            // if it takes longer than 1 seconds reject the promise
-            // TODO: should be rejected and handled
-            resolve()
-          }, 1000);
-        }))
+
+
+            setTimeout(() => reject(new Error("Failed to show grid on screens")), 1000);
+        }).catch(function() {
+            deleteSlave(slaveSockets[slave]);
+        }));
         // add the grid to screens
         screens[slaves[slave]] = gridAndCombs.colorGrid
         // add the new color combinations to the colorComb Object
@@ -237,7 +243,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // wait for grids to be created
       await Promise.all(createGridPromises)
       let pictures = await takePicture(nbOfPictures)
-		calibrationPicture = pictures[0]
+		  calibrationPicture = pictures[0]
       if (pictures == null){
         return null
       }
@@ -246,6 +252,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       Object.keys(slaves).forEach(function(slave, index) {
         slaveSockets[slave].emit('removeGrid')
       })
+      pictures = await Promise.all(pictures) // wait for pictures to be recieved
       if (saveDebugFiles) {
         await debugDirPromise
         fs.writeFile(debugPath+`/screens.json`, JSON.stringify(screens), (err) => {if (err) console.log(err)})
@@ -275,21 +282,24 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let i = 0
       while(true){
         let picPromise = new Promise(function(resolve, reject) {
-          socket.emit('takeOnePicture', {}, async function(callBackData){
-            resolve(callBackData)
+          ss(socket).emit('takeOnePicture', async function(stream){
+            resolve(new Promise(function(resolve, reject) {
+              stream.setEncoding('utf-8') // we want to recieve a string
+              stream.on('data', (chunk) => {
+                resolve(decodeBase64Image(chunk.toString()).data)
+              });
+              stream.on('error', (err) => reject(err))
+            }).catch((err) => reject(err)))
           })
-          setTimeout(function() {
-            // if it takes longer than 3 seconds reject the promise
-            // TODO: should be rejected and handled
-            reject()
-          }, 3000);
+          setTimeout(() => reject(new Error("Failed to take picture")), 5000);
         }).catch(function(error) {
+          console.log(error)
           // failed to retrieve the image
           socket.emit('alert', "Retrieving one of the images timed out.")
           throw new Error("Retrieving one of the images timed out.")
         })
-        let picture = await picPromise
-        pictures.push(decodeBase64Image(picture).data)
+        let pic = await picPromise
+        pictures.push(pic)
         i += 1
         if (i < n){
           // promises that will be fulfilled once the screens have changed color
@@ -316,7 +326,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
           break
         }
       }
-      await sleep(Number(gridPause))
       return pictures
     }
 
@@ -325,12 +334,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var screenKeys = Object.keys(screens)
       if (screenKeys.length == 0){
         socket.emit('alert', "didn't find any screens.")
+        socket.emit('showVisualFeedback');
         return
       } else{
         socket.emit('alert', "found these screens: "+screenKeys.toString() )
+        socket.emit('showVisualFeedback');
       }
       console.log(screens)
-      AllScreenPositions = screens;
+      AllScreenPositions = {...AllScreenPositions, ...screens};
     });
 
     function sleep(ms){
@@ -338,10 +349,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }
 
     socket.on('upload-image', function (data) {
-		if (data.destination) fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
-		else fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
-        masterIo.emit('imageSaved')
-        imageIndex += 1;
+  		if (data.destination)
+        fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+  		else
+        fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
+      masterIo.emit('imageSaved')
+      imageIndex += 1;
     });
 
     socket.on('drawLine', function(data){
@@ -349,25 +362,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
   	});
 
     socket.on('triangulate', async function(data){
-		
-		if (Object.keys(AllScreenPositions).length < 1) {
-			socket.emit('alert', 'Please do screen recognition first');
-			return;
-		}
-		
-		let centers = screenorientation.getScreenCenters(AllScreenPositions)
-		var angles = delaunay.getAngles(centers);
-		console.log(angles)
-			
-        Object.keys(slaves).forEach(function(slave, index) {
-          if (typeof angles[slaves[slave]] !== 'undefined'){
-            slaveSockets[slave].emit('triangulate', {
-              angles: angles[slaves[slave]],
-              corners: AllScreenPositions[slaves[slave]],
-              picDim: picDimensions
-            });
-          }
-        })
+      if (Object.keys(AllScreenPositions).length < 1) {
+  			socket.emit('alert', 'Please do screen recognition first');
+  			return;
+  		}
+
+      var centers = screenorientation.getScreenCenters(AllScreenPositions);
+      var connections = delaunay.getConnections(centers);
+
+      Object.keys(slaves).forEach(function(slave, index) {
+        slaveSockets[slave].emit('triangulate', {
+  				corners: AllScreenPositions[slaves[slave]],
+  				picDim: picDimensions,
+          connections: connections,
+          centers: centers
+        });
+      })
     });
 
     socket.on('calibrate', function(data) {
@@ -382,11 +392,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
                 })
         })
     });
-    socket.on('broadcastImage', function(data){
-		
+
+	socket.on('broadcastImage', function(data){
+    clearInterval(videoUpdater)
+
 		// load the image that should be sent
 		let image = selectImage(data.image)
-		
+
 		// send to each slave
 		Object.keys(slaves).forEach(function(slave, index) {
 			slaveSockets[slave].emit('showPicture', {
@@ -395,8 +407,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				picDim: picDimensions
 			});
 		})
-    })
-	
+  })
+
 	const selectImage = function(selection) {
 		console.log(selection)
 		switch (selection) {
@@ -406,16 +418,40 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				return fs.readFileSync('./public/ImageShowOffTest.jpg').toString('base64');
 			case "TestImage2" :
 				return fs.readFileSync('./public/ImageShowOffTest2.jpg').toString('base64');
+			case "FaculteitsFoto" :
+				return fs.readFileSync('./public/FaculteitsFoto.jpg').toString('base64');
 			case "CalibrationPicture" :
-				if (calibrationPicture) 
+				if (calibrationPicture)
 					return calibrationPicture.toString('base64');
 				else socket.emit('alert', 'Please do screen recognition first');
 				break;
-			case "video" : 
-				return fs.createReadStream('./public/video.mp4')
-		}		
+		}
 	}
-	
+
+  var videoUpdater = null
+	socket.on('broadcastVideo', function(){
+
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // picDimensions = [500, 1000]
+
+    clearInterval(videoUpdater)
+    // send to each slave
+		Object.keys(slaves).forEach(function(slave, index) {
+			slaveSockets[slave].emit('showVideo', {
+				corners: AllScreenPositions[slaves[slave]],
+				picDim: picDimensions
+			});
+		})
+
+    videoUpdater = setInterval(function(){
+      slaveIo.emit('updateVideo', {
+        maxLat: Math.max(Object.values(latSlaves))
+      })
+    }, 100/3)
+
+  })
+
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
       clearInterval(countdownUpdater)
@@ -431,6 +467,81 @@ var masterIo = io.of('/master').on('connect', function(socket){
       	clearInterval(countdownUpdater)
       }, data*1000);
     })
+
+  var snakeUpdater = null
+  var snake;
+  var connections;
+  var centers;
+  socket.on('startSnake', function(data){
+
+    if (Object.keys(AllScreenPositions).length < 1) {
+      socket.emit('alert', 'Please do screen recognition first');
+      return;
+    }
+
+    clearInterval(snakeUpdater)
+    centers = screenorientation.getScreenCenters(AllScreenPositions)
+    connections = delaunay.getConnections(centers)
+
+    const firstSlave = Object.keys(AllScreenPositions)[0]
+    const startPos = centers[firstSlave]
+
+    var randInt = Math.floor(Math.random() * connections[firstSlave].length)
+    var nextPoint = {x: connections[firstSlave][randInt][0], y: connections[firstSlave][randInt][1]}
+    var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
+    var nextSlave = getSlaveByPosition(nextPoint)
+
+    snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos)
+    snake.changeDirectionOnPosition(direction, startPos, nextSlave)
+
+    Object.keys(slaves).forEach(function(slave, index) {
+      slaveSockets[slave].emit('createSnake', {
+        corners: AllScreenPositions[slaves[slave]],
+        picDim: picDimensions,
+      });
+    })
+
+    snakeUpdater = setInterval(function(){
+      slaveIo.emit('updateSnake', {
+        maxLat: Math.max(Object.values(latSlaves)),
+        snake: snake
+      })
+      changed = snake.updateSnake(70)
+      if (changed) changeSnakeDirection(snake)
+    }, 100/3) // 33 fps, gekozen door de normale
+  });
+
+  socket.on('stopSnake', function(){
+    clearInterval(snakeUpdater);
+    slaveIo.emit('stopSnake')
+  })
+
+
+  function changeSnakeDirection(snake) {
+    var currentPoint = centers[snake.nextSlave]
+    var randInt = Math.floor(Math.random() * connections[snake.nextSlave].length)
+
+    var nextPoint = {x: connections[snake.nextSlave][randInt][0], y: connections[snake.nextSlave][randInt][1]}
+    var nextSlave = getSlaveByPosition(nextPoint)
+    var direction = geometry.radianAngleBetweenPointsDict(currentPoint, nextPoint)
+    snake.changeDirectionOnPosition(direction, currentPoint, nextSlave)
+  }
+
+  function getSlaveByPosition(pos){
+	    // var slaveIDs = Object.keys(AllScreenPositions)
+      for(let slaveId of Object.keys(AllScreenPositions)){
+        center = centers[slaveId]
+        if(center.x == pos.x && center.y == pos.y)
+          return slaveId
+      }
+  }
+
+socket.on('clearAll', function(){
+  clearInterval(snakeUpdater);
+  slaveIo.emit('stopSnake');
+  clearInterval(videoUpdater);
+  clearInterval(countdownUpdater);
+})
 
 });
 
@@ -448,9 +559,10 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
   socket.on('disconnect', function() {
     deleteSlave(socket)
   })
+  socket.on('update-latency', function(lat){
+    latSlaves[socket] = lat
+  })
 });
-
-
 
 
 //creating grids with a number of columns and a number of rows

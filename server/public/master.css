@@ -58,7 +58,7 @@ h1{
 
 #broadcastPicture{
 	margin-top: 15px;
-	margin-bottom: 20px;	
+	margin-bottom: 20px;
 }
 .container{
 	margin: 20px;
@@ -80,7 +80,11 @@ h1{
 
 #secondEntirePage{
 	height: 100vh !important;
-	width: 100vw !important; 
+	width: 100vw !important;
+	text-align: center;
+}
+
+#snakeEntirePage{
 	text-align: center;
 }
 
@@ -92,4 +96,12 @@ h1{
 #changePageButton{
 	right: 10px;
 	bottom: 10px;
+}
+
+#thirdEntirePage{
+	text-align: center;
+}
+
+.border{
+	border: 3px !important;
 }

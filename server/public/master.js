@@ -7,7 +7,7 @@ setTimeout(function() {
 		alert("authentication failed")
 		window.location.href="/";
 	}
-}, 1000);
+}, 2000);
 
 //listen for events from server
 socket.on('registerMaster', function (data) {
@@ -15,26 +15,35 @@ socket.on('registerMaster', function (data) {
 });
 
 //Emit events to server
-
+var selectResolution = document.getElementById('exampleFormControlSelect1');
 var entirePage =document.getElementById('entirePage');
 var slaveButtons = {};
 var numberOnButton = 0;
 var drawButtonLine = document.getElementById('drawLine');
-var drawstarButton = document.getElementById('drawStar');
 var triangulateButton = document.getElementById('triangulate');
 var anglePicker = document.getElementById('anglePicker');
 var broadcastPicture = document.getElementById('broadcastPicture');
+var broadcastVideo = document.getElementById('broadcastVideo');
 var makeGridButton = document.getElementById("calibrateButton");
 var countdownButton = document.getElementById("countdownButton")
 var homebutton = document.getElementById('changePageButton');
+var homebutton2 = document.getElementById('changePageButton2');
 var secondEntirePage = document.getElementById("secondEntirePage");
 var rowPicker = document.getElementById("rowPicker");
 var columnPicker = document.getElementById("columnPicker");
-var countdownPicker = document.getElementById("countdownPicker")
+var countdownPicker = document.getElementById("countdownPicker");
+
+var snakeButton = document.getElementById("snakeButton");
+var snakeLengthPicker = document.getElementById('snakeLengthPicker');
+var triangulationSnake = document.getElementById('triangulationSnake');
+var triangulationSnakeStop = document.getElementById('triangulationSnakeStop');
+var homebutton2 = document.getElementById('changePageButton2');
+
 
 var numberOfRows = rowPicker.valueAsNumber;
 var numberOfColumns = columnPicker.valueAsNumber;
-var countdownSeconds = countdownPicker.valueAsNumber
+var countdownSeconds = countdownPicker.valueAsNumber;
+var snakeLength = snakeLengthPicker.valueAsNumber;
 
 var angle = 0;
 rowPicker.addEventListener('input', function(){
@@ -42,10 +51,13 @@ rowPicker.addEventListener('input', function(){
 });
 
 columnPicker.addEventListener('input', function(){
-	numberOfColumns =columnPicker.valueAsNumber
+	numberOfColumns = columnPicker.valueAsNumber
 })
 countdownPicker.addEventListener('input', function(){
 	countdownSeconds = countdownPicker.valueAsNumber
+})
+snakeLengthPicker.addEventListener('input', function(){
+	snakeLength = snakeLengthPicker.valueAsNumber
 })
 
 
@@ -54,11 +66,8 @@ anglePicker.addEventListener('input', function () {
 	angle = -anglePicker.value / 180 * Math.PI
 })
 
-drawstarButton.addEventListener('click', function () {
-	socket.emit('drawStar')
-});
-
 triangulateButton.addEventListener('click', function () {
+	socket.emit('clearAll');
 	socket.emit('triangulate',{
 		numberOfRows:numberOfRows,
 		numberOfColumns:numberOfColumns
@@ -66,7 +75,8 @@ triangulateButton.addEventListener('click', function () {
 });
 
 drawButtonLine.addEventListener('click', function() {
-    socket.emit('drawLine',{
+		socket.emit('clearAll');
+		socket.emit('drawLine',{
         angle:angle
     })
 });
@@ -109,6 +119,7 @@ socket.on('removeSlave', function (data) {
 
 var useCameraButton = document.getElementById('useCamBtn');
 useCameraButton.addEventListener('click',function(){
+	socket.emit('clearAll');
 	console.log("Hoi")
 	document.getElementById("cameraDiv").style.display = "";
 });
@@ -121,15 +132,28 @@ video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
-navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
-	.then(function (stream) {
+var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
+var resolutionWidth = 640;
+var resolutionHeight = 480;
+selectResolution.addEventListener('input',function(){
+	resolutionWidth = resolutions[selectResolution.value][0];
+	resolutionHeight = resolutions[selectResolution.value][1];
+	console.log( resolutionWidth,'x', resolutionHeight );
+	navigator.mediaDevices.getUserMedia({
+	    video: {
+	        width: resolutionWidth ,
+	        height: resolutionHeight,
+	        facingMode: "environment"
+	    }, audio: false
+	}).then(function (stream) {
 		video.srcObject = stream;
 		video.play();
 	})
 	.catch(function (err) {
 		console.log("An error occurred: " + err);
 	});
-
+})
+/*
 function takePicture(data){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
@@ -142,21 +166,60 @@ function takePicture(data){
 		destination: data.destination
 	});
 }
+*/
+//ref: https://tutorialzine.com/2016/07/take-a-selfie-with-js
+
+function takePicture(data) {
+
+    var hidden_canvas = document.querySelector('canvas'),
+        video = document.querySelector('video.camera_stream'),
+        image = document.querySelector('img.photo'),
+
+        // Get the exact size of the video element.
+        width = video.videoWidth,
+        height = video.videoHeight,
+
+        // Context object for working with the canvas.
+        context = hidden_canvas.getContext('2d');
+
+    // Set the canvas to the same dimensions as the video.
+    hidden_canvas.width = width;
+    hidden_canvas.height = height;
+
+    // Draw a copy of the current frame from the video on the canvas.
+    context.drawImage(video, 0, 0, width, height);
+
+    socket.emit('upload-image', {
+        image: true,
+        buffer: hidden_canvas.toDataURL('image/png'),
+        destination: data.destination
+    });
+
+    // Set the dataURL as source of an image element, showing the captured photo.
+    image.setAttribute('src', imageDataURL);
+
+}
 
 startbutton.addEventListener('click', function () {
+	socket.emit('clearAll');
 	takePicture({});
 });
+
+
 
 function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-socket.on('takeOnePicture', function(data, callback){
+ss(socket).on('takeOnePicture', function(callback){
 	var context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
 	context.drawImage(video, 0, 0);
-	callback(canvas.toDataURL('image/png'))
+	var stream = ss.createStream();
+	stream.setDefaultEncoding('utf-8')
+	callback(stream)
+	stream.end(canvas.toDataURL('image/png'))
 })
 
 socket.on('takePictures', async function(data, callback){
@@ -183,11 +246,12 @@ socket.on('alert', function(data){
 
 //make the entire screen your camera for the screenrecognition
 screenrecognitionbutton.addEventListener('click',function(){
+	socket.emit('clearAll');
 	entirePage.style.display="none";
 	secondEntirePage.style.display=""
 	screenrecognitionvideo.setAttribute('autoplay', '');
 	screenrecognitionvideo.setAttribute('muted', '');
-	
+
 
 	navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
 		.then(function (stream) {
@@ -201,6 +265,7 @@ screenrecognitionbutton.addEventListener('click',function(){
 })
 
 homebutton.addEventListener('click',function(){
+	socket.emit('clearAll');
 	entirePage.style.display="";
 	secondEntirePage.style.display="none";
 })
@@ -211,6 +276,7 @@ homebutton.addEventListener('click',function(){
 
 
 makeGridButton.addEventListener('click',function(){
+	socket.emit('clearAll');
 	socket.emit('changeBackgroundOfAllSlaves',{
 		numberOfRows:numberOfRows,
 		numberOfColumns:numberOfColumns
@@ -218,25 +284,32 @@ makeGridButton.addEventListener('click',function(){
 });
 
 broadcastPicture.addEventListener('click',function(){
+	socket.emit('clearAll');
 	img = getImage()
-	
+
 	if (getImage())
 		socket.emit('broadcastImage', {image: img});
 	else
 		alert("Please select a picture.")
 })
 
+broadcastVideo.addEventListener('click',function(){
+	socket.emit('clearAll');
+	socket.emit('broadcastVideo');
+})
+
 
 const getImage = function() {
-    var ele = document.getElementsByName('picture'); 
-	
-    for(i = 0; i < ele.length; i++) 
-        if(ele[i].checked) 
+    var ele = document.getElementsByName('picture');
+
+    for(i = 0; i < ele.length; i++)
+        if(ele[i].checked)
 			return ele[i].value
 }
 
 
 countdownButton.addEventListener('click', function(){
+	socket.emit('clearAll');
 	if (typeof countdownSeconds === 'undefined'){
 		alert('Enter an amount of seconds first')
 	} else{
@@ -244,8 +317,9 @@ countdownButton.addEventListener('click', function(){
 	}
 })
 
-socket.on('drawCircles', function (data) {
 
+socket.on('drawCircles', function (data) {
+	socket.emit('clearAll');
     //reference: https://stackoverflow.com/questions/1484506/random-color-generator
     function getRandomColor() {
         var letters = '0123456789ABCDEF';
@@ -268,5 +342,55 @@ socket.on('drawCircles', function (data) {
             context.stroke();
         }
     }
+;
+
+});
+
+socket.on('showVisualFeedback',function(){
+	console.log('hou u bakkes');
+	secondEntirePage.style.display="none";
+	var thirdEntirePage = document.getElementById('thirdEntirePage');
+	thirdEntirePage.style.display="";
+	visualfeedbackcanvas=document.getElementById("visualfeedback");
+	visualfeedbackcanvas.height = resolutionHeight;
+	visualfeedbackcanvas.width = resolutionWidth;
+
+
+	feedbackctx = visualfeedback.getContext('2d');
+
+	var feedbackimage=new Image();
+	var CircelPicture = canvas.toDataURL();
+
+	feedbackimage.onload = async function(){
+
+
+		console.log(CircelPicture);
+
+		feedbackctx.drawImage(feedbackimage,0,0, visualfeedbackcanvas.width,visualfeedbackcanvas.height);
+	}
+	feedbackimage.src=CircelPicture;
+
+});
+
+snakeButton.addEventListener('click', function(){
+	socket.emit('clearAll');
+	entirePage.style.display="none";
+	snakeEntirePage.style.display="block";
+	window.scrollTo(0, 0);
 })
 
+triangulationSnake.addEventListener('click', function(){
+	socket.emit("startSnake", {
+		size: snakeLength
+	})
+})
+
+triangulationSnakeStop.addEventListener('click', function(){
+	socket.emit('stopSnake')
+})
+
+homebutton2.addEventListener('click',function(){
+	entirePage.style.display="";
+	snakeEntirePage.style.display="none";
+	socket.emit('stopSnake')
+})
