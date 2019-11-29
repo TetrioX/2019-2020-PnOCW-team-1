@@ -118,10 +118,13 @@ video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
+
+
+
 var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
-var resolutionWidth = 640;
-var resolutionHeight = 480;
-selectResolution.addEventListener('input',function(){
+
+
+function choosePictureResolution(value){
 	resolutionWidth = resolutions[selectResolution.value][0];
 	resolutionHeight = resolutions[selectResolution.value][1];
 	console.log( resolutionWidth,'x', resolutionHeight );
@@ -138,7 +141,10 @@ selectResolution.addEventListener('input',function(){
 	.catch(function (err) {
 		console.log("An error occurred: " + err);
 	});
-})
+}
+
+choosePictureResolution(4);
+selectResolution.addEventListener('input',choosePictureResolution(selectResolution.value));
 /*
 function takePicture(data){
 	var context = canvas.getContext('2d');
@@ -326,7 +332,6 @@ socket.on('drawCircles', function (data) {
 });
 
 socket.on('showVisualFeedback',function(){
-	console.log('hou u bakkes');
 	secondEntirePage.style.display="none";
 	var thirdEntirePage = document.getElementById('thirdEntirePage');
 	thirdEntirePage.style.display="";
@@ -343,7 +348,6 @@ socket.on('showVisualFeedback',function(){
 	feedbackimage.onload = async function(){
 		
 		
-		console.log(CircelPicture);
 
 		feedbackctx.drawImage(feedbackimage,0,0, visualfeedbackcanvas.width,visualfeedbackcanvas.height);
 	}
