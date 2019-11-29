@@ -733,7 +733,7 @@ masterButton.addEventListener('click',function(){
 		video.pause()
 		video.preload = "auto";
 		video.muted = true
-		video.src = './static/video.mp4'
+		video.src = './static/big_buck_bunny.mp4'
 		document.body.appendChild(video);
 	});
 
