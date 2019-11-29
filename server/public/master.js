@@ -27,6 +27,7 @@ var broadcastVideo = document.getElementById('broadcastVideo');
 var makeGridButton = document.getElementById("calibrateButton");
 var countdownButton = document.getElementById("countdownButton")
 var homebutton = document.getElementById('changePageButton');
+var homebutton2 = document.getElementById('changePageButton2');
 var secondEntirePage = document.getElementById("secondEntirePage");
 var rowPicker = document.getElementById("rowPicker");
 var columnPicker = document.getElementById("columnPicker");
@@ -132,8 +133,8 @@ video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 
 var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
-var resolutionWidth = 1280;
-var resolutionHeight = 720;
+var resolutionWidth = 640;
+var resolutionHeight = 480;
 selectResolution.addEventListener('input',function(){
 	resolutionWidth = resolutions[selectResolution.value][0];
 	resolutionHeight = resolutions[selectResolution.value][1];
@@ -167,6 +168,7 @@ function takePicture(data){
 }
 */
 //ref: https://tutorialzine.com/2016/07/take-a-selfie-with-js
+
 function takePicture(data) {
 
     var hidden_canvas = document.querySelector('canvas'),
@@ -202,6 +204,8 @@ startbutton.addEventListener('click', function () {
 	socket.emit('clearAll');
 	takePicture({});
 });
+
+
 
 function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -313,6 +317,7 @@ countdownButton.addEventListener('click', function(){
 	}
 })
 
+
 socket.on('drawCircles', function (data) {
 	socket.emit('clearAll');
     //reference: https://stackoverflow.com/questions/1484506/random-color-generator
@@ -337,7 +342,35 @@ socket.on('drawCircles', function (data) {
             context.stroke();
         }
     }
-})
+;
+
+});
+
+socket.on('showVisualFeedback',function(){
+	console.log('hou u bakkes');
+	secondEntirePage.style.display="none";
+	var thirdEntirePage = document.getElementById('thirdEntirePage');
+	thirdEntirePage.style.display="";
+	visualfeedbackcanvas=document.getElementById("visualfeedback");
+	visualfeedbackcanvas.height = resolutionHeight;
+	visualfeedbackcanvas.width = resolutionWidth;
+
+
+	feedbackctx = visualfeedback.getContext('2d');
+
+	var feedbackimage=new Image();
+	var CircelPicture = canvas.toDataURL();
+
+	feedbackimage.onload = async function(){
+
+
+		console.log(CircelPicture);
+
+		feedbackctx.drawImage(feedbackimage,0,0, visualfeedbackcanvas.width,visualfeedbackcanvas.height);
+	}
+	feedbackimage.src=CircelPicture;
+
+});
 
 snakeButton.addEventListener('click', function(){
 	socket.emit('clearAll');
