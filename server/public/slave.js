@@ -631,10 +631,7 @@ masterButton.addEventListener('click',function(){
   ctx.drawImage(picture, 0, 0, picture.width,    picture.height,     // source rectangle
                    0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
-	corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
-	transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
-			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+  transformSlave(myCanvas, corners, refPictureLength);
  };
 
  /**
@@ -643,89 +640,76 @@ masterButton.addEventListener('click',function(){
  const pasteVideo = function(myCanvas, video, corners, refPictureLength){
 	 myCanvas.width = video.videoWidth;
 	 myCanvas.height = video.videoHeight;
-
-	 corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
-	 transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
-		 corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+	 transformSlave(myCanvas, corners, refPictureLength);
 	};
 
- const drawVideo = function(myCanvas, video) {
-	 myCanvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight,     // source rectangle
-										0, 0, myCanvas.width, myCanvas.height);
- }
+ 	const drawVideo = function(myCanvas, video) {
+	 	myCanvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight,     // source rectangle
+								0, 0, myCanvas.width, myCanvas.height);
+ 	}
 
-
- const transformAngles = function(myCanvas, corners, refPictureLength){
+	const transformSlave = function(myCanvas, corners, refPictureLength){
 		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-
 		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
- };
+ 	};
 
- function drawAnglesDegree(myCanvas, radianAngles, center, refPictureLength) {
-	myCanvas.width = refPictureLength.x
- 	myCanvas.height = refPictureLength.y
-	context = myCanvas.getContext('2d');
+	function drawTriangulation(centers, connections, refPictureLength) {
+		//Constants
+		const outerRadius = 20,
+		 			innerRadius = 7.5;
+		var rot = Math.PI / 2 * 3,
+				step = Math.PI / 5,
+		 		x,
+				y;
 
-	center = scaleCenter(center, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
+		context.fillStyle = 'black';
+		context.lineWidth = 10;
 
- 		const cx = center.x;
- 		const cy = center.y;
- 	//draw star
- 	const outerRadius = 20;
- 	const innerRadius = 7.5;
-	var rot = Math.PI / 2 * 3;
- 	var x = cx;
- 	var y = cy;
- 	var step = Math.PI / 5;
+		// Draw all centers
+		for (let centerId in centers) {
+			// Define center
+			center = centers[centerId]
+			center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
+			var cx = center.x;
+			var cy = center.y;
 
- 	context.beginPath();
- 	context.moveTo(cx, cy - outerRadius);
- 	for (let i = 0; i < 5; i++) {
- 		x = cx + Math.cos(rot) * outerRadius;
- 		y = cy + Math.sin(rot) * outerRadius;
- 		context.lineTo(x, y);
- 		rot += step;
+			// Draw the star in the current center.
+			context.beginPath();
+			context.moveTo(cx, cy - outerRadius);
+			for (let i = 0; i < 5; i++) {
+				x = cx + Math.cos(rot) * outerRadius;
+				y = cy + Math.sin(rot) * outerRadius;
+				context.lineTo(x, y);
+				rot += step;
 
- 		x = cx + Math.cos(rot) * innerRadius;
- 		y = cy + Math.sin(rot) * innerRadius;
- 		context.lineTo(x, y);
- 		rot += step
- 	}
- 	context.lineTo(cx, cy - outerRadius);
- 	context.closePath();
- 	context.lineWidth = 5;
- 	context.strokeStyle = 'black';
- 	context.stroke();
- 	context.fillStyle = 'black';
- 	context.fill();
+				x = cx + Math.cos(rot) * innerRadius;
+				y = cy + Math.sin(rot) * innerRadius;
+				context.lineTo(x, y);
+				rot += step
+			}
+			context.lineTo(cx, cy - outerRadius);
+			context.closePath();
+			context.fill();
 
- 	//draw lines
- 	for(radianAngle of radianAngles){
- 		var dx = length * Math.cos(Number(radianAngle) * Math.PI * 2 / 360);
- 		var dy = length * Math.sin(Number(radianAngle) * Math.PI * 2 / 360);
-
- 		// start point
- 		context.moveTo(cx, cy);
- 		// end point
- 		context.lineTo(cx+dx, cy+dy);
-
- 		context.lineWidth = 10;
- 		// Make the line visible
-
- 		context.stroke();
- 	}
- }
+			// Draw the lines between all connected centers.
+			for(let cnctPoint of connections[centerId]){
+				context.moveTo(cx, cy);	// start point
+				context.lineTo(cnctPoint[0], cnctPoint[1]); // end point
+				context.stroke(); // Make the line visible
+			}
+		}
+	}
 
 	socket.on('showPicture', async function(data){
 		cleanHTML()
 		canvas.style.display = "block"
+		// This is for smoother picture monitoring. Else white borders are possible.
+		document.body.style.backgroundColor = "black";
 		var img = new Image()
+
 		img.onload = function() {
 			pastePicture(canvas, img, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-			// This is for smoother picture monitoring. Else white borders are possible.
-			document.body.style.backgroundColor = "black";
 		}
 
 		img.src = 'data:image/jpeg;base64,' + data.picture;
@@ -738,7 +722,6 @@ masterButton.addEventListener('click',function(){
 		cleanHTML()
 		canvas.style.display = "block"
 		document.body.style.backgroundColor = "black";
-		video.style.display = 'block'
 
 		video.onloadeddata = async function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
@@ -820,51 +803,55 @@ masterButton.addEventListener('click',function(){
 	socket.on('triangulate', function(data){
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
-		console.log('center', data.center)
-		console.log('corners', data.corners)
 		canvas.style.display = "block"
-		drawAnglesDegree(canvas, data.angles, data.center, {x: data.picDim[1], y: data.picDim[0]})
-		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
+		canvas.width = data.picDim[1]
+		canvas.height = data.picDim[0]
+		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
+		drawTriangulation(data.centers, data.connections, {x: data.picDim[1], y: data.picDim[0]})
 	});
 
 
 	const drawSnake = function(snake) {
+		// Draw each segment of the snake.
 	  for (let part of snake.parts)
 	    drawSnakePart(part)
 	}
 
 	const drawSnakePart = function(snakePart) {
-
+		// Color the segments of the snake.
 		if (snakePart.name % 2 == 1 || snakePart.name == 0) context.fillStyle = "#008000";
 	  else context.fillStyle = "#004000";
+
+		// Draw the given snake segment.
 	  context.beginPath();
 	  context.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) ,
-	          snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
-	          snakePart.size / 2, 0, 2 * Math.PI);
+	          		snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
+	          		snakePart.size / 2, 0, 2 * Math.PI);
 	  context.fill();
 
+		// The snake's head isn't whole without eyes. Draw them on the first segment.
 	  if (snakePart.name == 0) {
 	    context.fillStyle = "#000000";
 	    context.beginPath();
 	    context.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-	            snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-	            snakePart.size / 6, 0, 2 * Math.PI);
+	            		snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+	            		snakePart.size / 6, 0, 2 * Math.PI);
 	    context.fill();
 	    context.beginPath();
 	    context.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-	            snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-	            snakePart.size / 6, 0, 2 * Math.PI);
+	            		snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+	            		snakePart.size / 6, 0, 2 * Math.PI);
 	    context.fill();
 	  }
 	}
 
 	socket.on('createSnake', function(data){
 		cleanHTML()
-		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block";
+		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.width = data.picDim[1];
 		canvas.height = data.picDim[0];
-		transformAngles(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 	})
 
 	socket.on('updateSnake', function(data){

@@ -353,19 +353,23 @@ var masterIo = io.of('/master').on('connect', function(socket){
       var screenKeys = Object.keys(screens)
       if (screenKeys.length == 0){
         socket.emit('alert', "didn't find any screens.")
+        socket.emit('showVisualFeedback');
         return
       } else{
         socket.emit('alert', "found these screens: "+screenKeys.toString() )
+        socket.emit('showVisualFeedback');
       }
       console.log(screens)
       AllScreenPositions = {...AllScreenPositions, ...screens};
     });
 
     socket.on('upload-image', function (data) {
-		if (data.destination) fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
-		else fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
-        masterIo.emit('imageSaved')
-        imageIndex += 1;
+  		if (data.destination)
+        fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+  		else
+        fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
+      masterIo.emit('imageSaved')
+      imageIndex += 1;
     });
 
     socket.on('drawLine', function(data){
@@ -373,26 +377,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
   	});
 
     socket.on('triangulate', async function(data){
+      if (Object.keys(AllScreenPositions).length < 1) {
+  			socket.emit('alert', 'Please do screen recognition first');
+  			return;
+  		}
 
-		if (Object.keys(AllScreenPositions).length < 1) {
-			socket.emit('alert', 'Please do screen recognition first');
-			return;
-		}
+      var centers = screenorientation.getScreenCenters(AllScreenPositions);
+      var connections = delaunay.getConnections(centers);
 
-    let centers = screenorientation.getScreenCenters(AllScreenPositions)
-		var angles = delaunay.getAngles(centers);
-		console.log(angles)
-
-        Object.keys(slaves).forEach(function(slave, index) {
-          if (typeof angles[slaves[slave]] !== 'undefined'){
-            slaveSockets[slave].emit('triangulate', {
-              angles: angles[slaves[slave]],
-              corners: AllScreenPositions[slaves[slave]],
-              picDim: picDimensions,
-              center: centers[slaves[slave]]
-            });
-          }
-        })
+      Object.keys(slaves).forEach(function(slave, index) {
+        slaveSockets[slave].emit('triangulate', {
+  				corners: AllScreenPositions[slaves[slave]],
+  				picDim: picDimensions,
+          connections: connections,
+          centers: centers
+        });
+      })
     });
 
     socket.on('calibrate', function(data) {
@@ -445,9 +445,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
 	socket.on('broadcastVideo', async function(){
 
-    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                          '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // picDimensions = [500, 1000]
+
+    clearInterval(videoUpdater)
     // send to each slave
     let videoPromises = []
     // start loading the video
@@ -502,44 +504,28 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }, data*1000);
     })
 
-  function getSlaveByPosition(slaves, pos){
-	    var slaveIDs = Object.keys(slaves)
-        for(var i=0; i < slaveIDs.length; i++){
-            var current_slave = slaves[slaveIDs[i]]
-            if(current_slave.center === pos){
-                return current_slave
-            }
-        }
-  }
-
   var snakeUpdater = null
   var snake;
   var connections;
   var centers;
   socket.on('startSnake', function(data){
 
-    AllScreenPositions = {'4': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                          '3': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
+    if (Object.keys(AllScreenPositions).length < 1) {
+      socket.emit('alert', 'Please do screen recognition first');
+      return;
+    }
 
     clearInterval(snakeUpdater)
     centers = screenorientation.getScreenCenters(AllScreenPositions)
-    console.log("center: ", centers)
     connections = delaunay.getConnections(centers)
-    console.log("center: ", centers)
-    console.log("cons: ", connections)
+
     const firstSlave = Object.keys(AllScreenPositions)[0]
-    console.log(firstSlave)
     const startPos = centers[firstSlave]
-    console.log("first", firstSlave, " ", startPos)
+
     var randInt = Math.floor(Math.random() * connections[firstSlave].length)
     var nextPoint = {x: connections[firstSlave][randInt][0], y: connections[firstSlave][randInt][1]}
     var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
     var nextSlave = getSlaveByPosition(nextPoint)
-
-    console.log("next", nextSlave, " ", nextPoint)
-
-    console.log("dir: ", direction)
 
     snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos)
     snake.changeDirectionOnPosition(direction, startPos, nextSlave)
@@ -558,7 +544,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       })
       changed = snake.updateSnake(70)
       if (changed) changeSnakeDirection(snake)
-    }, 100/3)
+    }, 100/3) // 33 fps, gekozen door de normale
   });
 
   socket.on('stopSnake', function(){
@@ -578,17 +564,17 @@ var masterIo = io.of('/master').on('connect', function(socket){
   }
 
   function getSlaveByPosition(pos){
-	    var slaveIDs = Object.keys(AllScreenPositions)
+	    // var slaveIDs = Object.keys(AllScreenPositions)
       for(let slaveId of Object.keys(AllScreenPositions)){
         center = centers[slaveId]
         if(center.x == pos.x && center.y == pos.y)
           return slaveId
-        }
+      }
   }
 
 socket.on('clearAll', function(){
   clearInterval(snakeUpdater);
-  slaveIo.emit('stopSnake')
+  slaveIo.emit('stopSnake');
   clearInterval(videoUpdater);
   clearInterval(countdownUpdater);
 })

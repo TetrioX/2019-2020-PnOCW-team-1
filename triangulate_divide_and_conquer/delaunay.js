@@ -47,7 +47,7 @@ function getConnections(slaves){
         coords.push(point)
     }
 
-    console.log("coords:", coords)
+    // console.log("coords:", coords)
 
     const triangulation = Delaunay(coords)
 
