@@ -719,11 +719,9 @@ function getScreenFromSquares(squares, screens) {
             }
             //Only remove outliers if 2 or more points
             if (screenCorners[screens].length > 2) {
-                console.log(listCoX + "//" +listCoY)
                 let outliers = outlierRemove(listCoX, listCoY)
                 listCoX = outliers.x
                 listCoY = outliers.y
-                console.log(listCoX + "//" + listCoY)
             }
             //calculate avg
             results[screens].push({
