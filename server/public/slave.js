@@ -760,7 +760,15 @@ masterButton.addEventListener('click',function(){
 		let cTime = (data + latency)/1000
 		let lTime = video.currentTime
 		let offset = lTime - cTime
-		video.currentTime = video.currentTime - offset/3
+		let newPlaybackRateDelta = (1.0 + offset*20 - video.playbackRate)/3
+		if (offset > 0){
+			video.playbackRate += Math.min(newPlaybackRateDelta, 0.2)
+		} else if (offset < 0){
+			video.playbackRate = Math.max(newPlaybackRateDelta, -0.2)
+		}
+		 else{
+		video.playbackRate = 1.0
+		}
 	})
 
 	socket.on('pauseAt', function(time){
