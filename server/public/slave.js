@@ -758,16 +758,9 @@ masterButton.addEventListener('click',function(){
 
 	socket.on('updateVideo', function(data){
 		let cTime = (data + latency)/1000
-		let ltime = video.currentTime
-		let offset = ltime - cTime
-		if (offset > 0){
-			video.playbackRate = Math.min(1.0 + offset, 1.25)
-		} else if (offset < 0){
-			video.playbackRate = Math.max(1.0 + offset, 0.75)
-		}
-		 else{
-		video.playbackRate = 1.0
-		}
+		let lTime = video.currentTime
+		let offset = lTime - cTime
+		video.currentTime = video.currentTime - offset/3
 	})
 
 	socket.on('pauseAt', function(time){

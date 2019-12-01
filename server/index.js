@@ -190,9 +190,9 @@ async function resumeVideo(startTime){
   })
   await sleep(maxLat)
   resumeTime = new Date()
-  videoUpdater = setInterval(async function(){
-    slaveIo.emit('updateVideo', new Date() + startTime - resumeTime)
-  }, 200)
+  videoUpdater = setInterval(function(){
+    slaveIo.emit('updateVideo', startTime - resumeTime + new Date())
+  }, 100)
 }
 
 var masterIo = io.of('/master').on('connect', function(socket){
