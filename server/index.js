@@ -26,10 +26,9 @@ var debugDirPromise = new Promise(function(resolve, reject){
   else resolve()
   });
 }).catch((err) => {console.log(err)})
-AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                           '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+AllScreenPositions = {}
 var latSlaves = {}
-var picDimensions = [500, 1000];
+var picDimensions = [];
 var calibrationPicture;
 
 
@@ -445,8 +444,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
 	}
 
 	socket.on('broadcastVideo', async function(){
-    picDimensions = [500, 1000]
-
     clearInterval(videoUpdater)
     // send to each slave
     let videoPromises = []
