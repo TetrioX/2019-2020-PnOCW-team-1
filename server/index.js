@@ -192,7 +192,7 @@ async function resumeVideo(startTime){
   resumeTime = new Date()
   videoUpdater = setInterval(async function(){
     slaveIo.emit('updateVideo', new Date() + startTime - resumeTime)
-  }, 100/3)
+  }, 200)
 }
 
 var masterIo = io.of('/master').on('connect', function(socket){

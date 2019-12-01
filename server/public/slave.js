@@ -752,7 +752,7 @@ masterButton.addEventListener('click',function(){
 			video.play()
 			vidDrawer = setInterval(function(){
 				drawVideo(canvas, video)
-			}, 100/3)
+			}, 100/6)
 		}, maxLat - latency)
 	})
 
