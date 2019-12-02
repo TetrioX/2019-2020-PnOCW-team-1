@@ -18,10 +18,10 @@ const pixelColor = function(color) {
 	s = hsl[1]
 	l = hsl[2]
 
-    if (l < 10 || l > 90) {
+    if (l < 15 || l > 80) {
         return 0
     }
-    if (s < 20) {
+    if (s < 30) {
         return 0
     }
 
