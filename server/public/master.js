@@ -37,7 +37,7 @@ var snakeButton = document.getElementById("snakeButton");
 var snakeLengthPicker = document.getElementById('snakeLengthPicker');
 var triangulationSnake = document.getElementById('triangulationSnake');
 var triangulationSnakeStop = document.getElementById('triangulationSnakeStop');
-var homebutton2 = document.getElementById('changePageButton2');
+var homebutton3 = document.getElementById('changePageButton3');
 
 
 var numberOfRows = rowPicker.valueAsNumber;
@@ -375,6 +375,11 @@ socket.on('showVisualFeedback',function(){
 	feedbackimage.src=CircelPicture;
 
 });
+
+homebutton3.addEventListener('click',function(){
+	entirePage.style.display="";
+	thirdEntirePage.style.display="none"
+})
 
 snakeButton.addEventListener('click', function(){
 	socket.emit('clearAll');
