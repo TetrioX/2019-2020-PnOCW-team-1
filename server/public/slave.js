@@ -752,18 +752,19 @@ masterButton.addEventListener('click',function(){
 			video.play()
 			vidDrawer = setInterval(function(){
 				drawVideo(canvas, video)
-			}, 100/3)
+			}, 100/6)
 		}, maxLat - latency)
 	})
 
 	socket.on('updateVideo', function(data){
 		let cTime = (data + latency)/1000
-		let ltime = video.currentTime
-		let offset = ltime - cTime
+		let lTime = video.currentTime
+		let offset = lTime - cTime
+		let newPlaybackRateDelta = (1.0 + offset*20 - video.playbackRate)/3
 		if (offset > 0){
-			video.playbackRate = Math.min(1.0 + offset, 1.25)
+			video.playbackRate += Math.min(newPlaybackRateDelta, 0.2)
 		} else if (offset < 0){
-			video.playbackRate = Math.max(1.0 + offset, 0.75)
+			video.playbackRate = Math.max(newPlaybackRateDelta, -0.2)
 		}
 		 else{
 		video.playbackRate = 1.0
