@@ -1,9 +1,68 @@
 
-class World {
-  constructor() {
-    this.objects = []
+let World = class {
+  constructor(dim) {
+    this.dimensions = dim
+    this.objects = {};
+    this.deadObjects = {};
+    this.Id = 0;
+  }
+
+  addSnake(snake) {
+    this.objects[this.Id] = snake;
+    this.Id++
+  }
+
+  killSnake(snakeId) {
+    this.deadObjects[snakeId] = this.objects[snakeId];
+    delete this.objects[snakeId];
+  }
+
+  checkCollision() {
+    let colObj = []
+    for (let snakeId in this.objects)
+      for (let otherId in this.objects) {
+        if (snakeId == otherId && snakeCollidesWithItself(this.objects[snakeId])
+          || snakeId != otherId && snakeCollidesWithOther(this.objects[snakeId], this.objects[otherId]))
+            colObj.push(snakeId)
+       }
+    return colObj
+  }
+
+  updateWorld(vel) {
+    for (let snakeId in this.objects)
+      this.objects[snakeId].updateSnake(vel)
+    let collided = this.checkCollision();
+    for (let snakeId of collided)
+      this.killSnake(snakeId)
+  }
 }
+
+/*
+ * CollisionDetection.
+ */
+const snakeCollidesWithItself = function(snake){
+  return snake.parts.length > 5 && snakeCollidesWith(snake.parts[0], snake.parts.slice(5, snake.length))
 }
+
+const snakeCollidesWithOther = function(snake, otherSnake) {
+  return snakeCollidesWith(snake.parts[0], otherSnake.parts)
+}
+
+const snakeCollidesWith = function(object, snakeParts) {
+  for (let part of snakeParts)
+    if (collidesWith(part, object))
+      return true;
+  return false;
+}
+
+const collidesWith = function(A, B) {
+  return distanceBetween(A.pos, B.pos) <= A.size/2 + B.size/2
+}
+
+const distanceBetween = function(pos1, pos2) {
+  return Math.sqrt((pos1.x - pos2.x)**2 + (pos1.y - pos2.y)**2)
+}
+
 
 let Snake = class {
   constructor(size, partSize, headPos) {
@@ -163,10 +222,13 @@ const drawSnakePart = function(snakePart) {
   }
 }
 
-
+var world = new World({x: canvas.width, y: canvas.height})
 var stop = false;
 var snake = new Snake(100, 20, {x: 100, y: 100})
+var snake2 = new Snake(100, 20, {x: 100, y: 300})
 console.log(snake.parts)
+world.addSnake(snake)
+world.addSnake(snake2)
 
 var leftButton = document.getElementById('Left');
 var upButton = document.getElementById('Up');
@@ -177,8 +239,9 @@ var stopButton = document.getElementById('Stop');
 const drawCanvas = function(canvas) {
   ctx = canvas.getContext('2d')
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawSnake(snake);
-  snake.updateSnake(100)
+  for (let snakeId in world.objects)
+    drawSnake(world.objects[snakeId]);
+  world.updateWorld(100)
   // console.log(snake)
   if (!stop) setTimeout(drawCanvas, 100/3, canvas);
 }
