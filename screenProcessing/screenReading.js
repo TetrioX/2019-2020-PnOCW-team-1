@@ -69,7 +69,7 @@ function joinMatrixes(matrixes, nbOfColors){
 
 function colorToValue(colorString) {
   if (colorString == "red") { return 1 }
-  else if (colorString == "green") { return 2 }
+  else if (colorString == "#00FF00") { return 2 }
   else if (colorString == "blue") { return 3 }
   else if (colorString == "#FFFF00") { return 4 }
   else if (colorString == "#FF00FF") { return 5 }
@@ -671,7 +671,7 @@ function getScreenFromSquares(squares, screens) {
         var dist = avg_distance_between(xCord, yCord)
         //small check if function is working
         if (xCord.length != yCord.length || xCord.length != dist.length) {
-            throw new Error("List of coordinates are not equal") 
+            throw new Error("List of coordinates are not equal")
         }
         var n = xCord.length
         //avg
@@ -707,7 +707,7 @@ function getScreenFromSquares(squares, screens) {
 	// get the average of the screens
 	// NOTE: this could be improved by using the squares that are close to the corner
     Object.keys(screenCorners).forEach(async function (screens, index) {
-        results[screens] = [] 
+        results[screens] = []
         //for each corner
         for (let j = 0; j < 4; j++) {
             let listCoX = []

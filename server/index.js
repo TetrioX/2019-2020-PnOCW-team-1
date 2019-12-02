@@ -46,7 +46,7 @@ var slaveSockets = {}
 var number = 0
 
 //adjust this if you want to have more colorlist
- const possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
+ const possibleColors =[ "red", "#00FF00", "blue", "#00FFFF","#FFFF00","#FF00FF"]
 
 
 function deleteSlave(socket) {
