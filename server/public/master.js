@@ -4,7 +4,8 @@ var passwordbutton = document.getElementById('passwordbutton');
 var entirePage =document.getElementById('entirePage');
 new Promise(function(resolve, reject){
 
-
+	userspassword.focus();
+	userspassword.select();
 	userspassword.addEventListener("keyup", function(event) {
   		if (event.keyCode === 13) {
    		event.preventDefault();
