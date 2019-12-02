@@ -36,6 +36,7 @@ var countdownPicker = document.getElementById("countdownPicker");
 var snakeButton = document.getElementById("snakeButton");
 var snakeLengthPicker = document.getElementById('snakeLengthPicker');
 var triangulationSnake = document.getElementById('triangulationSnake');
+var gameSnake = document.getElementById('gameSnake');
 var triangulationSnakeStop = document.getElementById('triangulationSnakeStop');
 var homebutton2 = document.getElementById('changePageButton2');
 
@@ -367,8 +368,8 @@ socket.on('showVisualFeedback',function(){
 	var CircelPicture = canvas.toDataURL();
 
 	feedbackimage.onload = async function(){
-		
-		
+
+
 
 		feedbackctx.drawImage(feedbackimage,0,0, visualfeedbackcanvas.width,visualfeedbackcanvas.height);
 	}
@@ -386,6 +387,15 @@ snakeButton.addEventListener('click', function(){
 triangulationSnake.addEventListener('click', function(){
 	socket.emit("startSnake", {
 		size: snakeLength
+	})
+})
+
+players = [0, 1, 2]
+gameSnake.addEventListener('click', function(){
+	socket.emit('clearAll');
+	socket.emit("startGame", {
+		size: snakeLength,
+		players: players
 	})
 })
 

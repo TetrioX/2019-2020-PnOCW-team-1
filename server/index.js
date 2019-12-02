@@ -10,6 +10,9 @@ const screenorientation = require('../screenOrientation/orientationCalculation.j
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('../triangulate_divide_and_conquer/geometry.js')
 var snakeJs = require('../SnakeLogic/snake.js')
+var worldJs = require('../SnakeLogic/world.js')
+// var collisionJs = require('../SnakeLogic/snake.js')
+
 // load config file
 const config = require('./config.json');
 
@@ -536,7 +539,50 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
   }
 
+  var world;
+  function createWorld() {
+    world = new worldJs.World({x: picDimensions[1], y: picDimensions[0]});
+  }
+
+  function deleteWorld() {
+    world = null;
+  }
+
+  var stopGame = true;
+  socket.on('startGame', function(data) {
+
+    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+                      '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    picDimensions = [500, 1000]
+
+    clearInterval(snakeUpdater)
+    createWorld();
+    for (let playerId of data.players) {
+      startX = Math.floor(Math.random() * picDimensions[1])
+      startY = Math.floor(Math.random() * picDimensions[0])
+      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, {x: startX, y: startY})
+      world.addSnake(snake, playerId)
+    }
+
+    Object.keys(slaves).forEach(function(slave, index) {
+      slaveSockets[slave].emit('createSnake', {
+        corners: AllScreenPositions[slaves[slave]],
+        picDim: picDimensions,
+      });
+    })
+
+    snakeUpdater = setInterval(function(){
+      slaveIo.emit('updateWorld', {
+        maxLat: Math.max(Object.values(latSlaves)),
+        world: world
+      })
+      world.updateWorld(50)
+    }, 1000/60) // 60 fps, gekozen door de normale
+  })
+
 socket.on('clearAll', function(){
+  stopGame = true;
+  deleteWorld();
   clearInterval(snakeUpdater);
   slaveIo.emit('stopSnake');
   clearInterval(videoUpdater);

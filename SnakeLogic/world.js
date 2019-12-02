@@ -10,9 +10,8 @@ let World = class {
     this.Id = 0;
   }
 
-  addSnake(snake) {
-    this.objects[this.Id] = snake;
-    this.Id++
+  addSnake(snake, Id = this.Id) {
+    this.objects[Id] = snake;
   }
 
   killSnake(snakeId) {
@@ -24,8 +23,8 @@ let World = class {
     let colObj = []
     for (let snakeId in this.objects)
       for (let otherId in this.objects) {
-        if (snakeId == otherId && snakeCollidesWithItself(this.objects[snakeId])
-          || snakeId != otherId && snakeCollidesWithOther(this.objects[snakeId], this.objects[otherId]))
+        if (snakeId == otherId && collision.snakeCollidesWithItself(this.objects[snakeId])
+          || snakeId != otherId && collision.snakeCollidesWithOther(this.objects[snakeId], this.objects[otherId]))
             colObj.push(snakeId)
        }
     return colObj

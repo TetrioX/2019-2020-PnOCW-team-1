@@ -795,6 +795,16 @@ masterButton.addEventListener('click',function(){
 	  drawSnake(snake);
 	}
 
+	socket.on('updateWorld', function(data){
+		setTimeout(updateW, data.maxLat - latency, data.world)
+	})
+
+	function updateW(world) {
+	  context.clearRect(0, 0, canvas.width, canvas.height);
+		for (let snakeId in world.objects)
+      drawSnake(world.objects[snakeId]);
+	}
+
 	socket.on('stopSnake', function(){
 		cleanHTML()
 		// show the start page again.

@@ -236,14 +236,21 @@ var rightButton = document.getElementById('Right');
 var downButton = document.getElementById('Down');
 var stopButton = document.getElementById('Stop');
 
+ctx = canvas.getContext('2d')
 const drawCanvas = function(canvas) {
-  ctx = canvas.getContext('2d')
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let snakeId in world.objects)
-    drawSnake(world.objects[snakeId]);
-  world.updateWorld(100)
-  // console.log(snake)
-  if (!stop) setTimeout(drawCanvas, 100/3, canvas);
+  if (stop) return;
+    beginTime = new Date();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let snakeId in world.objects)
+      drawSnake(world.objects[snakeId]);
+    world.updateWorld(100)
+
+    endTime = new Date();
+    if (endTime - beginTime > 0)
+      tOut = 1000/60 - (endTime - beginTime);
+    else
+      tOut = 0;
+    setTimeout(drawCanvas, tOut, canvas)
 }
 
 stopButton.addEventListener('click',function(){
