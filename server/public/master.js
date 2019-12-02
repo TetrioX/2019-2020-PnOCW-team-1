@@ -3,6 +3,14 @@ var userspassword = document.getElementById('masterpassword');
 var passwordbutton = document.getElementById('passwordbutton');
 var entirePage =document.getElementById('entirePage');
 new Promise(function(resolve, reject){
+
+
+	userspassword.addEventListener("keyup", function(event) {
+  		if (event.keyCode === 13) {
+   		event.preventDefault();
+   		passwordbutton.click();
+  		}
+	});
 	passwordbutton.addEventListener('click',function(){
 		var socket = io('/master', { query: "passwd="+userspassword.value });
 		setTimeout(function(){
