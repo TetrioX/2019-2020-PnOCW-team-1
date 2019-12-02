@@ -24,7 +24,7 @@ precision = 30 // reference number to determine difference precision
  * @see https://nodejs.org/api/buffer.html
  */
 const imageReading = function(buff, toBuff, channel, scale=true) {
-    assert(buff.length == channel * toBuff.length)
+    assert(buff.length * 3 == channel * toBuff.length)
 	if (scale){
     var scaleValue = 255 / 6
   } else{
@@ -35,31 +35,31 @@ const imageReading = function(buff, toBuff, channel, scale=true) {
 
 		k = clrdis.pixelColor(rgb)
 
-    // switch (k) {
-    //   case 1 :
-    //     toBuff[i/channel*3] = 255;
-    //     break;
-    //   case 2 :
-    //     toBuff[i/channel*3 + 1] = 255;
-    //     break;
-    //   case 3 :
-    //     toBuff[i/channel*3 + 2] = 255;
-    //     break;
-    //   case 4 :
-    //     toBuff[i/channel*3] = 255;
-    //     toBuff[i/channel*3+1] = 255;
-    //     break;
-    //   case 5 :
-    //     toBuff[i/channel*3] = 255;
-    //     toBuff[i/channel*3+2] = 255;
-    //     break;
-    //   case 6 :
-    //     toBuff[i/channel*3+1] = 255;
-    //     toBuff[i/channel*3+2] = 255;
-    //     break;
-    // }
+     switch (k) {
+       case 1 :
+         toBuff[i/channel*3] = 255;
+         break;
+       case 2 :
+         toBuff[i/channel*3 + 1] = 255;
+         break;
+       case 3 :
+         toBuff[i/channel*3 + 2] = 255;
+         break;
+       case 4 :
+         toBuff[i/channel*3] = 255;
+         toBuff[i/channel*3+1] = 255;
+         break;
+       case 5 :
+         toBuff[i/channel*3] = 255;
+         toBuff[i/channel*3+2] = 255;
+         break;
+       case 6 :
+         toBuff[i/channel*3+1] = 255;
+         toBuff[i/channel*3+2] = 255;
+         break;
+     }
 
-		toBuff[i/channel] = k * scaleValue
+	//	toBuff[i/channel] = k * scaleValue
     }
 }
 
