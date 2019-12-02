@@ -24,7 +24,7 @@ precision = 30 // reference number to determine difference precision
  * @see https://nodejs.org/api/buffer.html
  */
 const imageReading = function(buff, toBuff, channel, scale=true) {
-    assert(buff.length * 3 == channel * toBuff.length)
+    assert(buff.length == channel * toBuff.length)
 	if (scale){
     var scaleValue = 255 / 6
   } else{
@@ -34,7 +34,7 @@ const imageReading = function(buff, toBuff, channel, scale=true) {
     rgb = new Array(buff[i], buff[i+1], buff[i+2])
 
 		k = clrdis.pixelColor(rgb)
-
+    /*
      switch (k) {
        case 1 :
          toBuff[i/channel*3] = 255;
@@ -58,8 +58,8 @@ const imageReading = function(buff, toBuff, channel, scale=true) {
          toBuff[i/channel*3+2] = 255;
          break;
      }
-
-	//	toBuff[i/channel] = k * scaleValue
+    */
+	toBuff[i/channel] = k * scaleValue
     }
 }
 
