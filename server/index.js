@@ -46,7 +46,11 @@ var io = socket(server, {pingInterval: 200});
 
 var slaves = {}
 var slaveSockets = {}
-var number = 0
+var slaveColors = {}
+var players = {}
+var playerSockets = {}
+var slaveNumber = 0
+var playerNumber = 0
 
 //adjust this if you want to have more colorlist
  const possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
@@ -59,13 +63,24 @@ function deleteSlave(socket) {
 }
 
 function addSlave(socket) {
-    slaves[socket.id] = ++number
+    slaves[socket.id] = ++slaveNumber
     slaveSockets[socket.id] = socket
     masterIo.emit('registerSlave', {
         number: number,
         socket_id: socket.id
     })
     socket.emit('slaveID', number)
+}
+
+function deletePlayer(socket) {
+  delete AllScreenPositions[slaves[socket.id]];
+  delete player[socket.id];
+}
+
+function addPlayer(socket) {
+    player[socket.id] = ++playerNumber
+    playerSockets[socket.id] = socket
+    socket.emit('playerID', number)
 }
 
 // Decoding base-64 image
@@ -160,6 +175,10 @@ function getColorComb(n){
 
 app.get('/master', function(req,res){
 	res.sendFile(__dirname + '/public/master.html')
+})
+
+app.get('/player', function(req,res){
+  res.sendFile(__dirname + '/public/player.html')
 })
 
 app.get('', function(req,res){
@@ -618,6 +637,13 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
     latSlaves[socket] = lat
   })
 });
+
+var playerIo = io.of('/master').on('connect', function(socket){
+  addPlayer(socket)
+  socket.on('disconnect', function() {
+    deletePlayer(socket)
+  })
+})
 
 
 //creating grids with a number of columns and a number of rows

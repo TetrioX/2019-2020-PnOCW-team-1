@@ -1,6 +1,8 @@
 
 var playerId,
-    playerSocket;
+
+//make connection
+var socket = io('/player');
 
 var wrapper = document.getElementById("wrapper"),
     loadScreen = document.getElementById("loadScreen"),
@@ -31,6 +33,10 @@ socket.on('setupGame', function(){
       playerId: playerId
     })
   })
+})
+
+socket.on('playerID', function(number){
+  playerId = number
 })
 
 socket.on('startGame', function(){
