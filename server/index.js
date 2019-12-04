@@ -549,6 +549,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
   }
 
   var stopGame = true;
+  var masterData = {0: {light: "#666666", dark: "#AAAAAA"}}
   socket.on('startGame', function(data) {
 
     AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
@@ -557,10 +558,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     clearInterval(snakeUpdater)
     createWorld();
-    for (let playerId of data.players) {
+    var snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, {x: startX, y: startY}, )
+    for (let playerId of players) {
       startX = Math.floor(Math.random() * picDimensions[1])
       startY = Math.floor(Math.random() * picDimensions[0])
-      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, {x: startX, y: startY})
+      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, {x: startX, y: startY}, )
       world.addSnake(snake, playerId)
     }
 

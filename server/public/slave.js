@@ -744,15 +744,17 @@ masterButton.addEventListener('click',function(){
 
 
 	const drawSnake = function(snake) {
+		// Determine snake color.
+		colors = snake.colors
 		// Draw each segment of the snake.
 	  for (let part of snake.parts)
-	    drawSnakePart(part)
+	    drawSnakePart(part, snake.colors)
 	}
 
-	const drawSnakePart = function(snakePart) {
+	const drawSnakePart = function(snakePart, colors) {
 		// Color the segments of the snake.
-		if (snakePart.name % 2 == 1 || snakePart.name == 0) context.fillStyle = "#008000";
-	  else context.fillStyle = "#004000";
+		if (snakePart.name % 2 == 1 || snakePart.name == 0) context.fillStyle = colors.light;
+	  else context.fillStyle = colors.dark;
 
 		// Draw the given snake segment.
 	  context.beginPath();

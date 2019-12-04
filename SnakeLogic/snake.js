@@ -1,5 +1,5 @@
 let Snake = class {
-  constructor(size, partSize, headPos) {
+  constructor(size, partSize, headPos, colors) {
     for (let i = 0; i < size; i++) {
       let pos = {x: headPos.x - partSize / 3 * i, y: headPos.y}
       let part;
@@ -7,6 +7,7 @@ let Snake = class {
       else part = new SnakePart(this, i, pos, partSize, 0, partSize)
       this.parts.push(part)
     }
+    this.colors = colors;
     this.headPos = headPos;
   }
 
