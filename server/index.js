@@ -580,6 +580,15 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }, 1000/60) // 60 fps, gekozen door de normale
   })
 
+  socket.on('changeSnakeDirection', function(data){
+    snake = world.objects[data.playerId]
+    if (snake && snake.parts[0].dir - data.direction != Math.PI
+              && snake.parts[0].dir - data.direction != -Math.PI)
+      snake.changeDirection(data.direction);
+  })
+
+
+
 socket.on('clearAll', function(){
   stopGame = true;
   deleteWorld();

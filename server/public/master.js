@@ -37,7 +37,11 @@ var snakeButton = document.getElementById("snakeButton");
 var snakeLengthPicker = document.getElementById('snakeLengthPicker');
 var triangulationSnake = document.getElementById('triangulationSnake');
 var gameSnake = document.getElementById('gameSnake');
-var triangulationSnakeStop = document.getElementById('triangulationSnakeStop');
+var triangulationSnakeStop = document.getElementById('triangulationSnakeStop'),
+		leftButton = document.getElementById('leftButton'),
+		rightButton = document.getElementById('rightButton'),
+		upButton = document.getElementById('upButton'),
+		downButton = document.getElementById('downButton');
 var homebutton2 = document.getElementById('changePageButton2');
 
 
@@ -407,4 +411,32 @@ homebutton2.addEventListener('click',function(){
 	entirePage.style.display="";
 	snakeEntirePage.style.display="none";
 	socket.emit('stopSnake')
+})
+
+leftButton.addEventListener('click', function(){
+	socket.emit('changeSnakeDirection', {
+		playerId: 0,
+		direction: -Math.PI
+	})
+})
+
+rightButton.addEventListener('click', function(){
+	socket.emit('changeSnakeDirection', {
+		playerId: 0,
+		direction: 0
+	})
+})
+
+upButton.addEventListener('click', function(){
+	socket.emit('changeSnakeDirection', {
+		playerId: 0,
+		direction: -Math.PI / 2
+	})
+})
+
+downButton.addEventListener('click', function(){
+	socket.emit('changeSnakeDirection', {
+		playerId: 0,
+		direction: Math.PI / 2
+	})
 })

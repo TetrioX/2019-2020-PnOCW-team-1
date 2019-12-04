@@ -3,8 +3,8 @@ let Snake = class {
     for (let i = 0; i < size; i++) {
       let pos = {x: headPos.x - partSize / 3 * i, y: headPos.y}
       let part;
-      if (i > size - size / 10) part = new SnakePart(this, i, pos, (size - i + 1) * partSize / (size / 10 + 1), 0)
-      else part = new SnakePart(this, i, pos, partSize, 0)
+      if (i > size - size / 10) part = new SnakePart(this, i, pos, (size - i + 1) * partSize / (size / 10 + 1), 0, partSize)
+      else part = new SnakePart(this, i, pos, partSize, 0, partSize)
       this.parts.push(part)
     }
     this.headPos = headPos;
@@ -36,15 +36,16 @@ let Snake = class {
 }
 
 let SnakePart = class {
-  constructor(snake, name, startPosition, size, direction) {
-      // this.snake = snake;
+  constructor(snake, name, startPosition, size, direction, originalSize) {
+
       this.pos = startPosition;
       this.size = size;
       this.name = name;
       this.dir = direction;
-      this.devMax = size / 5;
+      this.devMax = originalSize / 5;
       this.deviation = 0;
       this.devSide = 1;
+      this.cycleTime = 1000 / originalSize;
   }
 
   newDir = [];

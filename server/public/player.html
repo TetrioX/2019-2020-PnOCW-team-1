@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="static/player.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<meta charsert= "uft-8">
+	<title>
+		Slave Page
+	</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src=/static/scripts/socket.io-stream.js></script>
+
+
+</head>
+<body>
+  <div id="wrapper">
+    <div class="container">
+      <div id="jumbotron">
+        <div class="jumbotron">
+            <h1 class="display-4">Player Page</h1>
+            <p class="lead">You are player <span id="playerID"> </span>. Wait for the master to start the game.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loadScreen" style="display:none">
+    <button id="readyButton" class="btn btn-dark">Ready</button>
+  </div>
+
+  <div id="controlScreen" style="display:none">
+    	<button id="leftButton" class="btn btn-dark">Left</button>
+      <button id="upButton" class="btn btn-dark">Up</button>
+      <button id="rightButton" class="btn btn-dark">Right</button>
+      <button id="downButton" class="btn btn-dark">Down</button>
+  </div>
+
+  <div id="losingScreen" style="display:none">
+    <div class="container">
+      <div id="jumbotron">
+        <div class="jumbotron">
+            <h1 class="display-4">You lose</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <script src="static/master.js"></script>
+</body>
+</html>
