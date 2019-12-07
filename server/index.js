@@ -29,7 +29,7 @@ var debugDirPromise = new Promise(function(resolve, reject){
   else resolve()
   });
 }).catch((err) => {console.log(err)})
-var AllScreenPositions={};
+AllScreenPositions = {}
 var latSlaves = {}
 var picDimensions = [];
 var calibrationPicture;
@@ -53,7 +53,7 @@ var slaveNumber = 0
 var playerNumber = 0
 
 //adjust this if you want to have more colorlist
- const possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
+ const possibleColors =[ "red", "#00FF00", "blue", "#00FFFF","#FFFF00","#FF00FF"]
 
 
 /*****************
@@ -88,6 +88,10 @@ function addPlayer(socket) {
     playerSockets[socket.id] = socket
     console.log("hello, ik ben ", playerNumber)
     socket.emit('playerID', playerNumber)
+}
+
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Decoding base-64 image
@@ -201,7 +205,7 @@ app.get('/player', function(req,res){
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
-app.use('/debug', express.static(__dirname + '/'))
+app.use('/debug', express.static(__dirname + '/debug'))
 
 app.use('/static', express.static(__dirname +  '/public'))
 
@@ -219,6 +223,22 @@ io.of('/master').use(function(socket, next) {
   }
 
 });
+
+// variables/function needed for video by master and slave
+var videoUpdater = null
+async function resumeVideo(startTime){
+  clearInterval(videoUpdater)
+  let maxLat = Math.max(Object.values(latSlaves))
+  slaveIo.emit('playVideo', {
+    maxLat: maxLat
+  })
+  await sleep(maxLat)
+  resumeTime = new Date()
+  videoUpdater = setInterval(function(){
+    let offset = startTime - resumeTime + Date.parse(new Date())
+    slaveIo.emit('updateVideo', offset)
+  }, 200)
+}
 
 var masterIo = io.of('/master').on('connect', function(socket){
     socket.broadcast.emit('registerMaster')
@@ -384,10 +404,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
       AllScreenPositions = {...AllScreenPositions, ...screens};
     });
 
-    function sleep(ms){
-    	return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     socket.on('upload-image', function (data) {
   		if (data.destination)
         fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
@@ -480,28 +496,43 @@ var masterIo = io.of('/master').on('connect', function(socket){
   // Video show-off //
   ////////////////////
 
-  var videoUpdater = null
-	socket.on('broadcastVideo', function(){
-
-    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-    //                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    // picDimensions = [500, 1000]
-
+	socket.on('broadcastVideo', async function(){
     clearInterval(videoUpdater)
     // send to each slave
+    let videoPromises = []
+    // start loading the video
 		Object.keys(slaves).forEach(function(slave, index) {
-			slaveSockets[slave].emit('showVideo', {
-				corners: AllScreenPositions[slaves[slave]],
-				picDim: picDimensions
-			});
+      if (slaves[slave] in AllScreenPositions){
+        videoPromises.push(new Promise(function(resolve, reject){
+          slaveSockets[slave].emit('loadVideo', {
+    				corners: AllScreenPositions[slaves[slave]],
+    				picDim: picDimensions
+    			}, function(callbackData){
+            resolve()
+          })
+          setTimeout(function(){
+            deleteSlave(slaveSockets[slave])
+            resolve()
+          }, 5000);
+        }))
+      }
 		})
-
-    videoUpdater = setInterval(function(){
-      slaveIo.emit('updateVideo', {
-        maxLat: Math.max(Object.values(latSlaves))
-      })
-    }, 100/3)
-
+    await Promise.all(videoPromises)
+    // start all videos at the start time (0s) at the same time
+    // and start the updater
+    resumeVideo(0)
+    // get promises that resolve when the video has finished
+    vidEndedPromises = []
+    Object.keys(slaves).forEach(function(slave, index) {
+      if (slaves[slave] in AllScreenPositions){
+        vidEndedPromises.push(new Promise((resolve, reject) => {
+          slaveSockets[slave].emit('vidEnded', null, resolve)
+        }))
+      }
+    })
+    await Promise.all(vidEndedPromises)
+    console.log('all videos ended')
+    clearInterval(videoUpdater)
   })
 
   ///////////////
@@ -694,6 +725,11 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
   })
   socket.on('update-latency', function(lat){
     latSlaves[socket] = lat
+  })
+  socket.on('waitForBuffer', function(time){
+    console.log('wait for buffer')
+    slaveIo.emit('pauseAt', time)
+    socket.emit('waitForBuffer', null, resumeVideo(time*1000))
   })
 });
 
