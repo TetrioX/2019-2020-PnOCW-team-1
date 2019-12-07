@@ -46,7 +46,7 @@ var io = socket(server, {pingInterval: 200});
 
 var slaves = {}
 var slaveSockets = {}
-var slaveColors = {}
+var playerColors = {}
 var players = {}
 var playerSockets = {}
 var slaveNumber = 0
@@ -66,21 +66,22 @@ function addSlave(socket) {
     slaves[socket.id] = ++slaveNumber
     slaveSockets[socket.id] = socket
     masterIo.emit('registerSlave', {
-        number: number,
+        number: slaveNumber,
         socket_id: socket.id
     })
-    socket.emit('slaveID', number)
+    socket.emit('slaveID', slaveNumber)
 }
 
 function deletePlayer(socket) {
   delete AllScreenPositions[slaves[socket.id]];
-  delete player[socket.id];
+  delete players[socket.id];
 }
 
 function addPlayer(socket) {
-    player[socket.id] = ++playerNumber
+    players[socket.id] = ++playerNumber
     playerSockets[socket.id] = socket
-    socket.emit('playerID', number)
+    console.log("hello, ik ben ", playerNumber)
+    socket.emit('playerID', playerNumber)
 }
 
 // Decoding base-64 image
@@ -197,6 +198,11 @@ io.of('/master').use(function(socket, next) {
   }
 
 });
+
+
+/***************
+  * Master Io *
+ ***************/
 
 var masterIo = io.of('/master').on('connect', function(socket){
     socket.broadcast.emit('registerMaster')
@@ -415,6 +421,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
         })
     });
 
+  ////////////////////
+  // Image show-off //
+  ////////////////////
+
 	socket.on('broadcastImage', function(data){
     clearInterval(videoUpdater)
 
@@ -450,6 +460,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		}
 	}
 
+  ////////////////////
+  // Video show-off //
+  ////////////////////
+
   var videoUpdater = null
 	socket.on('broadcastVideo', function(){
 
@@ -474,6 +488,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   })
 
+  ///////////////
+  // Countdown //
+  ///////////////
+
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
       clearInterval(countdownUpdater)
@@ -489,6 +507,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
       	clearInterval(countdownUpdater)
       }, data*1000);
     })
+
+
+  ////////////////////////
+  // Animation show-off //
+  ////////////////////////
 
   var snakeUpdater = null
   var snake;
@@ -558,30 +581,48 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
   }
 
-  var world;
-  function createWorld() {
-    world = new worldJs.World({x: picDimensions[1], y: picDimensions[0]});
-  }
 
-  function deleteWorld() {
-    world = null;
-  }
+  /////////////////
+  // Game set up //
+  /////////////////
+  var gamePromises = []
+  socket.on('startGame', async function(data) {
 
-  var stopGame = true;
-  var masterData = {0: {light: "#666666", dark: "#AAAAAA"}}
-  socket.on('startGame', function(data) {
+    playerColors[0] = {light: "#666666", dark: "#333333"};
 
-    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                      '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
+    Object.keys(players).forEach(async function(player, index) {
+      console.log(player)
+      let promise = new Promise(function(resolve, reject) {
+        playerSockets[player].emit('setupGame', null, function(callBackData){
+          playerColors[players[player]] = callBackData.colors;
+          playerSockets[player].emit('startGame')
+          resolve()
+        })
+        setTimeout(function() {
+          // if it takes longer than 0.5 seconds reject the promise
+          deletePlayer(playerSockets[player])
+          resolve()
+        }, 60 * 1000);
+      })
+      gamePromises.push(promise)
+    })
+    await Promise.all(gamePromises);
+
+    // Game start
+
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                   '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // picDimensions = [500, 1000]
 
     clearInterval(snakeUpdater)
     createWorld();
-    var snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, {x: startX, y: startY}, )
-    for (let playerId of players) {
+
+    console.log(playerColors)
+
+    for (let playerId in playerColors) {
       startX = Math.floor(Math.random() * picDimensions[1])
       startY = Math.floor(Math.random() * picDimensions[0])
-      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, {x: startX, y: startY}, )
+      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, {x: startX, y: startY}, playerColors[playerId])
       world.addSnake(snake, playerId)
     }
 
@@ -602,10 +643,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
   })
 
   socket.on('changeSnakeDirection', function(data){
-    snake = world.objects[data.playerId]
-    if (snake && snake.parts[0].dir - data.direction != Math.PI
-              && snake.parts[0].dir - data.direction != -Math.PI)
-      snake.changeDirection(data.direction);
+    changeSnakeDirectionGame(data.playerId, data.direction)
   })
 
 
@@ -622,6 +660,9 @@ socket.on('clearAll', function(){
 });
 
 
+/***************
+  * Slave Io *
+ ***************/
 var slaveIo = io.of('/slave').on('connect', function(socket){
   addSlave(socket)
 
@@ -640,13 +681,30 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
   })
 });
 
-var playerIo = io.of('/master').on('connect', function(socket){
+
+/***************
+  * Player Io *
+ ***************/
+var playerIo = io.of('/player').on('connect', function(socket){
   addPlayer(socket)
+
+  socket.on('ready', function(data) {
+    playerColors[data.playerId] = data.colors
+  })
+
+  socket.on('changeSnakeDirection', function(data){
+    changeSnakeDirectionGame(data.playerId, data.direction)
+  })
+
   socket.on('disconnect', function() {
     deletePlayer(socket)
   })
 })
 
+
+/********************
+  * Grid functions *
+ ********************/
 
 //creating grids with a number of columns and a number of rows
 function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
@@ -675,4 +733,23 @@ function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
     result.colorGrid['sideBorder'] = sideBorder;
 
     return result;
+}
+
+/*********************
+  * Snake functions *
+ *********************/
+var world;
+function createWorld() {
+  world = new worldJs.World({x: picDimensions[1], y: picDimensions[0]});
+}
+
+function deleteWorld() {
+  world = null;
+}
+
+function changeSnakeDirectionGame(playerId, newDir) {
+  snake = world.objects[playerId]
+  if (snake && snake.parts[0].dir - newDir != Math.PI
+            && snake.parts[0].dir - newDir != -Math.PI)
+    snake.changeDirection(newDir);
 }

@@ -86,6 +86,10 @@ drawButtonLine.addEventListener('click', function() {
     })
 });
 
+/***********************************
+  * Slave communication functions *
+ ***********************************/
+
 function createSlaveButton(number,id) {
 		var btn = document.createElement("BUTTON");
 		btn.innerHTML = "Change color of " + number;
@@ -120,7 +124,10 @@ socket.on('removeSlave', function (data) {
 		removeSlaveButton(data)
 });
 
-//Foto nemen
+
+/**************************
+  * Foto nemen functions *
+ **************************/
 
 var useCameraButton = document.getElementById('useCamBtn');
 useCameraButton.addEventListener('click',function(){
@@ -294,6 +301,11 @@ makeGridButton.addEventListener('click',function(){
 	});
 });
 
+
+/*********************
+  * Image functions *
+ *********************/
+
 broadcastPicture.addEventListener('click',function(){
 	socket.emit('clearAll');
 	img = getImage()
@@ -304,12 +316,6 @@ broadcastPicture.addEventListener('click',function(){
 		alert("Please select a picture.")
 })
 
-broadcastVideo.addEventListener('click',function(){
-	socket.emit('clearAll');
-	socket.emit('broadcastVideo');
-})
-
-
 const getImage = function() {
     var ele = document.getElementsByName('picture');
 
@@ -318,6 +324,20 @@ const getImage = function() {
 			return ele[i].value
 }
 
+
+/*********************
+  * Video functions *
+ *********************/
+
+broadcastVideo.addEventListener('click',function(){
+	socket.emit('clearAll');
+	socket.emit('broadcastVideo');
+})
+
+
+/*************************
+  * Countdown functions *
+ *************************/
 
 countdownButton.addEventListener('click', function(){
 	socket.emit('clearAll');
@@ -328,6 +348,10 @@ countdownButton.addEventListener('click', function(){
 	}
 })
 
+
+/*******************************
+  * Visual feedback functions *
+ *******************************/
 
 socket.on('drawCircles', function (data) {
 	socket.emit('clearAll');
@@ -381,6 +405,11 @@ socket.on('showVisualFeedback',function(){
 
 });
 
+
+/*********************
+  * Snake functions *
+ *********************/
+
 snakeButton.addEventListener('click', function(){
 	socket.emit('clearAll');
 	entirePage.style.display="none";
@@ -394,7 +423,7 @@ triangulationSnake.addEventListener('click', function(){
 	})
 })
 
-players = [0, 1, 2]
+// players = [0, 1, 2]
 gameSnake.addEventListener('click', function(){
 	socket.emit('clearAll');
 	socket.emit("startGame", {

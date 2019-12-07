@@ -41,7 +41,7 @@ let World = class {
  * CollisionDetection.
  */
 const snakeCollidesWithItself = function(snake){
-  return snake.parts.length > 5 && snakeCollidesWith(snake.parts[0], snake.parts.slice(5, snake.length))
+  return snake.parts.length > 30 && snakeCollidesWith(snake.parts[0], snake.parts.slice(30, snake.length))
 }
 
 const snakeCollidesWithOther = function(snake, otherSnake) {
@@ -173,8 +173,8 @@ let SnakePart = class {
 }
 
 const drawSnake = function(snake) {
-  for (let part of snake.parts)
-    drawSnakePartShadow(part)
+  // for (let part of snake.parts)
+  //   drawSnakePartShadow(part)
   for (let part of snake.parts)
     drawSnakePart(part)
 }
@@ -224,8 +224,8 @@ const drawSnakePart = function(snakePart) {
 
 var world = new World({x: canvas.width, y: canvas.height})
 var stop = false;
-var snake = new Snake(100, 20, {x: 100, y: 100})
-var snake2 = new Snake(100, 20, {x: 100, y: 300})
+var snake = new Snake(300, 20, {x: 100, y: 100})
+var snake2 = new Snake(300, 20, {x: 100, y: 300})
 console.log(snake.parts)
 world.addSnake(snake)
 world.addSnake(snake2)
@@ -238,20 +238,15 @@ var stopButton = document.getElementById('Stop');
 
 ctx = canvas.getContext('2d')
 const drawCanvas = function(canvas) {
-  if (stop) return;
-    beginTime = new Date();
+  setInterval(function(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let snakeId in world.objects)
       drawSnake(world.objects[snakeId]);
-    world.updateWorld(100)
-
-    endTime = new Date();
-    if (endTime - beginTime > 0)
-      tOut = 1000/60 - (endTime - beginTime);
-    else
-      tOut = 0;
-    setTimeout(drawCanvas, tOut, canvas)
+    world.updateWorld(50)
+  }, 1000/60) // 60 fps, gekozen door de normale
 }
+
+
 
 stopButton.addEventListener('click',function(){
   stop = stop ? false : true;

@@ -1,0 +1,15 @@
+.container{
+    margin-top: 100px;
+}
+
+#loadScreen{
+	text-align: center;
+}
+
+#controlScreen{
+	text-align: center;
+}
+
+#losingScreen{
+	text-align: center;
+}

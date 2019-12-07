@@ -501,6 +501,12 @@ masterButton.addEventListener('click',function(){
         };
     }; // start_countdown END
 })();
+
+
+/**********************************************
+  * Transformation and broadcasting function *
+ **********************************************/
+
 (function() {
 	//
   // This code was written by nickname MvG
@@ -511,137 +517,99 @@ masterButton.addEventListener('click',function(){
   // No license was connected to the written code below,
   // but all credits belong to the rightful owner.
 
- /**
-  * Return the adjugate of a given matrix.
-  **/
- const adj = function(m) { // Compute the adjugate of m
- 	return [
- 		m[4]*m[8]-m[5]*m[7], m[2]*m[7]-m[1]*m[8], m[1]*m[5]-m[2]*m[4],
- 		m[5]*m[6]-m[3]*m[8], m[0]*m[8]-m[2]*m[6], m[2]*m[3]-m[0]*m[5],
- 		m[3]*m[7]-m[4]*m[6], m[1]*m[6]-m[0]*m[7], m[0]*m[4]-m[1]*m[3]
- 	];
- }
+ 	/**
+   * Return the adjugate of a given matrix.
+   **/
+ 	const adj = function(m) { // Compute the adjugate of m
+ 		return [
+ 			m[4]*m[8]-m[5]*m[7], m[2]*m[7]-m[1]*m[8], m[1]*m[5]-m[2]*m[4],
+ 			m[5]*m[6]-m[3]*m[8], m[0]*m[8]-m[2]*m[6], m[2]*m[3]-m[0]*m[5],
+ 			m[3]*m[7]-m[4]*m[6], m[1]*m[6]-m[0]*m[7], m[0]*m[4]-m[1]*m[3]
+ 		];
+ 	}
 
- /**
-  * Compute the product of two given matrices.
-  **/
- const multmm = function(a, b) { // multiply two matrices
- 	var c = Array(9);
- 	for (var i = 0; i != 3; ++i)
- 		for (var j = 0; j != 3; ++j) {
- 			var cij = 0;
- 			for (var k = 0; k != 3; ++k)
- 				cij += a[3*i + k]*b[3*k + j];
- 			c[3*i + j] = cij;
- 		}
- 	return c;
- }
+ 	/**
+   * Compute the product of two given matrices.
+   **/
+ 	const multmm = function(a, b) { // multiply two matrices
+ 		var c = Array(9);
+ 		for (var i = 0; i != 3; ++i)
+ 			for (var j = 0; j != 3; ++j) {
+ 				var cij = 0;
+ 				for (var k = 0; k != 3; ++k)
+ 					cij += a[3*i + k]*b[3*k + j];
+ 				c[3*i + j] = cij;
+ 			}
+ 		return c;
+ 	}
 
- /**
-  * Compute the product of a given matrix and a given vector.
-  **/
- const multmv = function(m, v) { // multiply matrix and vector
- 	return [
- 		m[0]*v[0] + m[1]*v[1] + m[2]*v[2],
- 		m[3]*v[0] + m[4]*v[1] + m[5]*v[2],
- 		m[6]*v[0] + m[7]*v[1] + m[8]*v[2]
- 	];
- }
+ 	/**
+   * Compute the product of a given matrix and a given vector.
+   **/
+ 	const multmv = function(m, v) { // multiply matrix and vector
+ 		return [
+ 			m[0]*v[0] + m[1]*v[1] + m[2]*v[2],
+ 			m[3]*v[0] + m[4]*v[1] + m[5]*v[2],
+ 			m[6]*v[0] + m[7]*v[1] + m[8]*v[2]
+ 		];
+ 	}
 
- /**
-  * Compute the solution of the given system.
-  **/
- const basisToPoints = function(x1, y1, x2, y2, x3, y3, x4, y4) {
- 	var m = [
- 		x1, x2, x3,
- 		y1, y2, y3,
- 		1,  1,  1
- 	];
- 	var v = multmv(adj(m), [x4, y4, 1]);
- 	return multmm(m, [
- 		v[0], 0, 0,
- 		0, v[1], 0,
- 		0, 0, v[2]
- 	]);
- }
+  /**
+   * Compute the solution of the given system.
+   **/
+ 	const basisToPoints = function(x1, y1, x2, y2, x3, y3, x4, y4) {
+ 		var m = [
+ 			x1, x2, x3,
+ 			y1, y2, y3,
+ 			1,  1,  1
+ 		];
+ 		var v = multmv(adj(m), [x4, y4, 1]);
+ 		return multmm(m, [
+ 			v[0], 0, 0,
+ 			0, v[1], 0,
+ 			0, 0, v[2]
+ 		]);
+ 	}
 
- /**
-  * Calculate the transformation matrix to transform given source points onto given destination points.
-  **/
- const general2DProjection = function(x1s, y1s, x1d, y1d, x2s, y2s, x2d, y2d,
- 		x3s, y3s, x3d, y3d, x4s, y4s, x4d, y4d) {
- 	var s = basisToPoints(x1s, y1s, x2s, y2s, x3s, y3s, x4s, y4s);
- 	var d = basisToPoints(x1d, y1d, x2d, y2d, x3d, y3d, x4d, y4d);
- 	return multmm(d, adj(s));
- }
-
- /**
-  * Transform the given html element from a given point set to a rectangle.
-  **/
- function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
- 	var w = window.innerWidth, h = window.innerHeight;
- 	var t = general2DProjection(x1, y1, 0, 0, x2, y2, w, 0, x3, y3, 0, h, x4, y4, w, h);
- 	for(i = 0; i != 9; ++i) t[i] = t[i]/t[8];
- 	t = [t[0], t[3], 0, t[6],
- 		 t[1], t[4], 0, t[7],
- 		 0   , 0   , 1, 0   ,
- 		 t[2], t[5], 0, t[8]];
- 	t = "matrix3d(" + t.join(", ") + ")"; //setup the html 3D transformation.
- 	elt.style.transform = t;
- }
-
- function scaleCenter(center, refPicture, newPicture){
-	 temp = {}
-	 temp.x = center.x * newPicture.x / refPicture.x;
-	 temp.y = center.y * newPicture.y / refPicture.y;
-	 return temp
- }
-
- function scalePoints(corners, refPicture, newPicture) {
- 	temp = [{}, {}, {}, {}]
-	for (let i in corners) {
-		temp[i].x = corners[i].x * newPicture.x / refPicture.x;
-		temp[i].y = corners[i].y * newPicture.y / refPicture.y;
+ 	/**
+   * Calculate the transformation matrix to transform given source points onto given destination points.
+   **/
+ 	const general2DProjection = function(x1s, y1s, x1d, y1d, x2s, y2s, x2d, y2d,
+ 			x3s, y3s, x3d, y3d, x4s, y4s, x4d, y4d) {
+ 		var s = basisToPoints(x1s, y1s, x2s, y2s, x3s, y3s, x4s, y4s);
+ 		var d = basisToPoints(x1d, y1d, x2d, y2d, x3d, y3d, x4d, y4d);
+ 		return multmm(d, adj(s));
 	}
-	return temp
- }
 
- function scalePointsStart(corners, refPicture, newPicture) {
- 	temp = [{}, {}, {}, {}]
-	verh = refPicture.x * refPicture.y / newPicture.y >= newPicture.x ? newPicture.y / refPicture.y : newPicture.x / refPicture.x;
-	for (let i in corners) {
-		temp[i].x = corners[i].x * verh;
-		temp[i].y = corners[i].y * verh;
-	}
-	return temp
- }
+ 	/**
+   * Transform the given html element from a given point set to a rectangle.
+   **/
+ 	function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
+ 		var w = window.innerWidth, h = window.innerHeight;
+ 		var t = general2DProjection(x1, y1, 0, 0, x2, y2, w, 0, x3, y3, 0, h, x4, y4, w, h);
+ 		for(i = 0; i != 9; ++i) t[i] = t[i]/t[8];
+ 		t = [t[0], t[3], 0, t[6],
+ 		 		 t[1], t[4], 0, t[7],
+ 		 		 0   , 0   , 1, 0   ,
+ 		 		 t[2], t[5], 0, t[8]];
+ 		t = "matrix3d(" + t.join(", ") + ")"; //setup the html 3D transformation.
+ 		elt.style.transform = t;
+ 	}
 
- /**
-  * Paste the given part of the given picture on the client canvas.
-  **/
- const pastePicture = function(myCanvas, picture, corners, refPictureLength){
- 	myCanvas.width = picture.width;
-	myCanvas.height = picture.height;
-  ctx = myCanvas.getContext('2d');
+	function scaleCenter(center, refPicture, newPicture){
+	 	temp = {}
+	 	temp.x = center.x * newPicture.x / refPicture.x;
+	 	temp.y = center.y * newPicture.y / refPicture.y;
+	 	return temp
+ 	}
 
-  ctx.drawImage(picture, // 0, 0, picture.width,    picture.height,     // source rectangle
-                   0, 0, myCanvas.width, myCanvas.height); // destination rectangle
-
-  transformSlave(myCanvas, corners, refPictureLength);
- };
-
- /**
-	* Paste the given part of the given picture on the client canvas.
-	**/
- const pasteVideo = function(myCanvas, video, corners, refPictureLength){
-	 myCanvas.width = video.videoWidth;
-	 myCanvas.height = video.videoHeight;
-	 transformSlave(myCanvas, corners, refPictureLength);
-	};
-
- 	const drawVideo = function(myCanvas, video) {
-	 	myCanvas.getContext('2d').drawImage(video, // 0, 0, video.videoWidth, video.videoHeight,     // source rectangle
-								0, 0, myCanvas.width, myCanvas.height);
+ 	function scalePoints(corners, refPicture, newPicture) {
+ 		temp = [{}, {}, {}, {}]
+		for (let i in corners) {
+			temp[i].x = corners[i].x * newPicture.x / refPicture.x;
+			temp[i].y = corners[i].y * newPicture.y / refPicture.y;
+		}
+		return temp
  	}
 
 	const transformSlave = function(myCanvas, corners, refPictureLength){
@@ -650,58 +618,27 @@ masterButton.addEventListener('click',function(){
 				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
  	};
 
-	function drawTriangulation(centers, connections, refPictureLength) {
-		//Constants
-		const outerRadius = 20,
-		 			innerRadius = 7.5;
-		var rot = Math.PI / 2 * 3,
-				step = Math.PI / 5,
-		 		x,
-				y;
 
-		context.fillStyle = 'black';
-		context.lineWidth = 10;
+	/********************
+	  * Image show-off *
+	 ********************/
 
-		// Draw all centers
-		for (let centerId in centers) {
-			// Define center
-			center = centers[centerId]
-			center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
-			var cx = center.x;
-			var cy = center.y;
+	// Paste the given part of the given picture on the client canvas.
+	const pastePicture = function(myCanvas, picture, corners, refPictureLength){
+		myCanvas.width = picture.width;
+		myCanvas.height = picture.height;
+		ctx = myCanvas.getContext('2d');
 
-			// Draw the star in the current center.
-			context.beginPath();
-			context.moveTo(cx, cy - outerRadius);
-			for (let i = 0; i < 5; i++) {
-				x = cx + Math.cos(rot) * outerRadius;
-				y = cy + Math.sin(rot) * outerRadius;
-				context.lineTo(x, y);
-				rot += step;
+		ctx.drawImage(picture, // 0, 0, picture.width,    picture.height,     // source rectangle
+			                   0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
-				x = cx + Math.cos(rot) * innerRadius;
-				y = cy + Math.sin(rot) * innerRadius;
-				context.lineTo(x, y);
-				rot += step
-			}
-			context.lineTo(cx, cy - outerRadius);
-			context.closePath();
-			context.fill();
-
-			// Draw the lines between all connected centers.
-			for(let cnctPoint of connections[centerId]){
-				context.moveTo(cx, cy);	// start point
-				context.lineTo(cnctPoint[0], cnctPoint[1]); // end point
-				context.stroke(); // Make the line visible
-			}
-		}
-	}
+		transformSlave(myCanvas, corners, refPictureLength);
+	};
 
 	socket.on('showPicture', function(data){
 		cleanHTML()
 		canvas.style.display = "block"
-		// This is for smoother picture monitoring. Else white borders are possible.
-		document.body.style.backgroundColor = "black";
+		document.body.style.backgroundColor = "black"; // This is for smoother picture monitoring. Else white borders are possible.
 		var img = new Image()
 
 		img.onload = function() {
@@ -711,7 +648,26 @@ masterButton.addEventListener('click',function(){
 		img.src = 'data:image/jpeg;base64,' + data.picture;
 	});
 
+
+	/********************
+	  * Video show-off *
+	 ********************/
+
+	// Paste the given part of the given picture on the client canvas.
+	const pasteVideo = function(myCanvas, video, corners, refPictureLength){
+		myCanvas.width = video.videoWidth;
+		myCanvas.height = video.videoHeight;
+		transformSlave(myCanvas, corners, refPictureLength);
+	};
+
+	// Draw the current frame of the video
+	const drawVideo = function(myCanvas, video) {
+		myCanvas.getContext('2d').drawImage(video, // 0, 0, video.videoWidth, video.videoHeight,     // source rectangle
+									0, 0, myCanvas.width, myCanvas.height);
+	}
+
 	var video = document.createElement("video");
+	// Transform the canvas the video will be played on and start playing the video.
 	socket.on('showVideo', function(data){
 		cleanHTML()
 		canvas.style.display = "block"
@@ -728,9 +684,63 @@ masterButton.addEventListener('click',function(){
 		document.body.appendChild(video);
 	});
 
+	// Update the video.
 	socket.on('updateVideo', function(data){
 		setTimeout(drawVideo, data.maxLat - latency, canvas, video)
 	})
+
+
+	/*****************************
+	  * Triangulation functions *
+	 *****************************/
+
+	// Draw the given triangulation in the canvas
+	function drawTriangulation(centers, connections, refPictureLength) {
+	 	//Constants
+	 	const outerRadius = 20,
+	 				innerRadius = 7.5;
+	 	var rot = Math.PI / 2 * 3,
+	 			step = Math.PI / 5,
+	 			x,
+	 			y;
+
+	 	context.fillStyle = 'black';
+	 	context.lineWidth = 10;
+
+	 	// Draw all centers
+	 	for (let centerId in centers) {
+	 		// Define center
+	 		center = centers[centerId]
+	 		center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
+	 		var cx = center.x;
+	 		var cy = center.y;
+
+	 		// Draw the star in the current center.
+	 		context.beginPath();
+	 		context.moveTo(cx, cy - outerRadius);
+	 		for (let i = 0; i < 5; i++) {
+	 			x = cx + Math.cos(rot) * outerRadius;
+	 			y = cy + Math.sin(rot) * outerRadius;
+	 			context.lineTo(x, y);
+	 			rot += step;
+
+	 			x = cx + Math.cos(rot) * innerRadius;
+	 			y = cy + Math.sin(rot) * innerRadius;
+	 			context.lineTo(x, y);
+	 			rot += step
+	 		}
+	 		context.lineTo(cx, cy - outerRadius);
+	 		context.closePath();
+	 		context.fill();
+
+	 		// Draw the lines between all connected centers.
+	 		for(let cnctPoint of connections[centerId]){
+	 			context.moveTo(cx, cy);	// start point
+	 			context.lineTo(cnctPoint[0], cnctPoint[1]); // end point
+	 			context.stroke(); // Make the line visible
+	 		}
+		}
+	}
 
 	socket.on('triangulate', function(data){
 		cleanHTML()
@@ -742,6 +752,10 @@ masterButton.addEventListener('click',function(){
 		drawTriangulation(data.centers, data.connections, {x: data.picDim[1], y: data.picDim[0]})
 	});
 
+
+	/*********************
+	  * Snake functions *
+	 *********************/
 
 	const drawSnake = function(snake) {
 		// Determine snake color.
