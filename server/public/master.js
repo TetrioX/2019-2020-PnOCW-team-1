@@ -170,21 +170,22 @@ function choosePictureResolution(value){
 }
 
 choosePictureResolution(4);
-selectResolution.addEventListener('input',choosePictureResolution(selectResolution.value));
-/*
-function takePicture(data){
-	var context = canvas.getContext('2d');
-	canvas.width = video.videoWidth;
-	canvas.height = video.videoHeight;
-	context.drawImage(video, 0, 0);
+selectResolution.addEventListener('input', choosePictureResolution(selectResolution.value));
 
-	socket.emit('upload-image', {
-		image: true,
-		buffer: canvas.toDataURL('image/png'),
-		destination: data.destination
-	});
-}
-*/
+				/*
+				function takePicture(data){
+					var context = canvas.getContext('2d');
+					canvas.width = video.videoWidth;
+					canvas.height = video.videoHeight;
+					context.drawImage(video, 0, 0);
+
+					socket.emit('upload-image', {
+						image: true,
+						buffer: canvas.toDataURL('image/png'),
+						destination: data.destination
+					});
+				}
+				*/
 //ref: https://tutorialzine.com/2016/07/take-a-selfie-with-js
 
 function takePicture(data) {
@@ -246,9 +247,6 @@ socket.on('takePictures', async function(data, callback){
 					colorValue: '#ffffff',
 					id: key
 					});
-
-
-
 	}
 	await sleep(1000);
 		// console.log(key, " ", data.slaves[key])

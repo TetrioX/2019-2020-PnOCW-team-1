@@ -56,6 +56,9 @@ var playerNumber = 0
  const possibleColors =[ "red", "green", "blue", "#00FFFF","#FFFF00","#FF00FF"]
 
 
+/*****************
+  * Slave setup *
+ *****************/
 function deleteSlave(socket) {
   delete AllScreenPositions[slaves[socket.id]];
   delete slaves[socket.id];
@@ -72,6 +75,9 @@ function addSlave(socket) {
     socket.emit('slaveID', slaveNumber)
 }
 
+/*****************
+  * Player setup *
+ *****************/
 function deletePlayer(socket) {
   delete AllScreenPositions[slaves[socket.id]];
   delete players[socket.id];
@@ -101,6 +107,11 @@ function decodeBase64Image(dataString)
 
     return response;
 }
+
+
+/**************************
+  * Recognition function *
+ **************************/
 
 // Fisher–Yates Shuffle
 // source: https://bost.ocks.org/mike/shuffle/
@@ -174,6 +185,11 @@ function getColorComb(n){
 }
 //Static files
 
+
+/***************
+  * App setup *
+ ***************/
+
 app.get('/master', function(req,res){
 	res.sendFile(__dirname + '/public/master.html')
 })
@@ -189,6 +205,11 @@ app.use('/debug', express.static(__dirname + '/'))
 
 app.use('/static', express.static(__dirname +  '/public'))
 
+
+/***************
+  * Master Io *
+ ***************/
+
 io.of('/master').use(function(socket, next) {
   let passwd = socket.handshake.query.passwd
   if (passwd == config.masterPasswd){
@@ -199,11 +220,6 @@ io.of('/master').use(function(socket, next) {
 
 });
 
-
-/***************
-  * Master Io *
- ***************/
-
 var masterIo = io.of('/master').on('connect', function(socket){
     socket.broadcast.emit('registerMaster')
     var imageIndex = 0;
@@ -213,9 +229,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     socket.on('changeBackgroundColor', function(data){
 		if (data.id) slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
-		else {
-			slaveIo.emit('changeBackgroundColor', data);
-		  }
+		else slaveIo.emit('changeBackgroundColor', data);
   	});
 
     async function calibrate(numberOfRows, numberOfColumns){
@@ -257,7 +271,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
-
 
             setTimeout(() => reject(new Error("Failed to show grid on screens")), 1000);
         }).catch(function() {
@@ -301,6 +314,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       socket.emit('drawCircles', result)
       return result
     }
+
 
     // takes a picture with i the current picture and n the total number of pictures
     // and pictues a list with all taken pictures
@@ -350,9 +364,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           // wait untill all screens have changed
           await Promise.all(promises)
         }
-        else{
-          break
-        }
+        else break;
       }
       return pictures
     }
@@ -389,6 +401,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('drawLine', data);
   	});
 
+    ////////////////////////////
+    // Triangulation show-off //
+    ////////////////////////////
+
     socket.on('triangulate', async function(data){
       if (Object.keys(AllScreenPositions).length < 1) {
   			socket.emit('alert', 'Please do screen recognition first');
@@ -408,18 +424,18 @@ var masterIo = io.of('/master').on('connect', function(socket){
       })
     });
 
-    socket.on('calibrate', function(data) {
-        slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
-        socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
-            socket.emit('takePictures', {slaves: slaves},
-                function (callbackData) {
-                    console.log('Took enough pictures.')
-                    imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
-                    for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
-                    scrnrec.findScreen(imgs) // Implement the screen recognition
-                })
-        })
-    });
+          // socket.on('calibrate', function(data) {
+          //     slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
+          //     socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
+          //         socket.emit('takePictures', {slaves: slaves},
+          //             function (callbackData) {
+          //                 console.log('Took enough pictures.')
+          //                 imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
+          //                 for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
+          //                 scrnrec.findScreen(imgs) // Implement the screen recognition
+          //             })
+          //     })
+          // });
 
   ////////////////////
   // Image show-off //
