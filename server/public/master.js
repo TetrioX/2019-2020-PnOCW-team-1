@@ -41,6 +41,7 @@ new Promise(function(resolve, reject){
 	var countdownButton = document.getElementById("countdownButton")
 	var homebutton = document.getElementById('changePageButton');
 	var homebutton2 = document.getElementById('changePageButton2');
+	var homebutton3 = document.getElementById('changePageButton3');
 	var secondEntirePage = document.getElementById("secondEntirePage");
 	var rowPicker = document.getElementById("rowPicker");
 	var columnPicker = document.getElementById("columnPicker");
