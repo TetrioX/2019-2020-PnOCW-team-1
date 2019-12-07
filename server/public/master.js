@@ -427,8 +427,8 @@ triangulationSnake.addEventListener('click', function(){
 gameSnake.addEventListener('click', function(){
 	socket.emit('clearAll');
 	socket.emit("startGame", {
-		size: snakeLength,
-		players: players
+		size: snakeLength
+		// players: players
 	})
 })
 
