@@ -450,59 +450,50 @@ new Promise(function(resolve, reject){
 		socket.emit('stopSnake')
 	})
 
-
-
-
-
-
-
-
-
-})
-
-// players = [0, 1, 2]
-gameSnake.addEventListener('click', function(){
-	socket.emit('clearAll');
-	socket.emit("startGame", {
-		size: snakeLength
-		// players: players
+	// players = [0, 1, 2]
+	gameSnake.addEventListener('click', function(){
+		socket.emit('clearAll');
+		socket.emit("startGame", {
+			size: snakeLength
+			// players: players
+		})
 	})
-})
 
-triangulationSnakeStop.addEventListener('click', function(){
-	socket.emit('stopSnake')
-})
-
-homebutton2.addEventListener('click',function(){
-	entirePage.style.display="";
-	snakeEntirePage.style.display="none";
-	socket.emit('stopSnake')
-})
-
-leftButton.addEventListener('click', function(){
-	socket.emit('changeSnakeDirection', {
-		playerId: 0,
-		direction: -Math.PI
+	triangulationSnakeStop.addEventListener('click', function(){
+		socket.emit('stopSnake')
 	})
-})
 
-rightButton.addEventListener('click', function(){
-	socket.emit('changeSnakeDirection', {
-		playerId: 0,
-		direction: 0
+	homebutton2.addEventListener('click',function(){
+		entirePage.style.display="";
+		snakeEntirePage.style.display="none";
+		socket.emit('stopSnake')
 	})
-})
 
-upButton.addEventListener('click', function(){
-	socket.emit('changeSnakeDirection', {
-		playerId: 0,
-		direction: -Math.PI / 2
+	leftButton.addEventListener('click', function(){
+		socket.emit('changeSnakeDirection', {
+			playerId: 0,
+			direction: -Math.PI
+		})
 	})
-})
 
-downButton.addEventListener('click', function(){
-	socket.emit('changeSnakeDirection', {
-		playerId: 0,
-		direction: Math.PI / 2
+	rightButton.addEventListener('click', function(){
+		socket.emit('changeSnakeDirection', {
+			playerId: 0,
+			direction: 0
+		})
+	})
+
+	upButton.addEventListener('click', function(){
+		socket.emit('changeSnakeDirection', {
+			playerId: 0,
+			direction: -Math.PI / 2
+		})
+	})
+
+	downButton.addEventListener('click', function(){
+		socket.emit('changeSnakeDirection', {
+			playerId: 0,
+			direction: Math.PI / 2
+		})
 	})
 })
