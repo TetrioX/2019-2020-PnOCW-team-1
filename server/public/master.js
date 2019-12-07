@@ -436,9 +436,10 @@ new Promise(function(resolve, reject){
 	})
 
 	triangulationSnake.addEventListener('click', function(){
-		socket.emit("startSnake", {
-			size: snakeLength
-		})
+		socket.emit('clearAll');
+		if (snakeLength)
+			socket.emit("startSnake", { size: snakeLength })
+		else alert('You gotta choose a length.')
 	})
 
 	triangulationSnakeStop.addEventListener('click', function(){
@@ -454,10 +455,9 @@ new Promise(function(resolve, reject){
 	// players = [0, 1, 2]
 	gameSnake.addEventListener('click', function(){
 		socket.emit('clearAll');
-		socket.emit("startGame", {
-			size: snakeLength
-			// players: players
-		})
+		if (snakeLength)
+			socket.emit("startGame", { size: snakeLength })
+		else alert('You gotta choose a length.')
 	})
 
 	triangulationSnakeStop.addEventListener('click', function(){
