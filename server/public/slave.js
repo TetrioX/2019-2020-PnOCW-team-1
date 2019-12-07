@@ -29,6 +29,10 @@ function cleanHTML(){
 	context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+function sleep(ms){
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 //listen for events from server
 
 socket.on('changeBackgroundColor',function(data){
@@ -697,7 +701,7 @@ masterButton.addEventListener('click',function(){
 		}
 	}
 
-	socket.on('showPicture', function(data){
+	socket.on('showPicture', async function(data){
 		cleanHTML()
 		canvas.style.display = "block"
 		// This is for smoother picture monitoring. Else white borders are possible.
@@ -711,26 +715,91 @@ masterButton.addEventListener('click',function(){
 		img.src = 'data:image/jpeg;base64,' + data.picture;
 	});
 
-	var video = document.createElement("video");
-	socket.on('showVideo', function(data){
+	video = document.createElement("video")
+	let vidBufferCheck = null
+	let vidDrawer = null
+	socket.on('loadVideo', async function(data, callback){
+		clearInterval(vidBufferCheck);
+		clearInterval(vidDrawer);
 		cleanHTML()
 		canvas.style.display = "block"
 		document.body.style.backgroundColor = "black";
-
-		video.onloadeddata = function() {
+		video.onloadeddata = async function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+			await waitForBuffer(5)
+			callback()
 		}
 
-		video.style.display = 'block'
-		video.autoplay = true
+		video.pause()
+		video.preload = "auto";
 		video.muted = true
-		video.src = './static/video.mp4'
-		document.body.appendChild(video);
+		video.style.display = "block"
+		video.style.visibility = "hidden"
+		video.src = './static/big_buck_bunny.mp4'
+		document.body.appendChild(video)
 	});
 
-	socket.on('updateVideo', function(data){
-		setTimeout(drawVideo, data.maxLat - latency, canvas, video)
+	socket.on('vidEnded', function(data, callback){
+		video.onended = function(){
+			callback()
+			clearInterval(vidBufferCheck);
+		}
 	})
+
+	socket.on('playVideo', function(maxLat){
+		console.log("playing video")
+		setTimeout(() => {
+			video.play()
+			vidDrawer = setInterval(function(){
+				drawVideo(canvas, video)
+			}, 100/6)
+		}, maxLat - latency)
+	})
+
+	socket.on('updateVideo', function(data){
+		let cTime = (data + latency)/1000
+		let lTime = video.currentTime
+		let offset = lTime - cTime
+		let newVidPBR = video.playbackRate + (1.0 - offset/20 - video.playbackRate)/3
+		video.playbackRate = newVidPBR
+	})
+
+	socket.on('pauseAt', function(time){
+		console.log('pausing at '+time)
+		video.pause()
+		video.currentTime = time
+	})
+
+	socket.on('waitForBuffer', async function(data, callback){
+		await waitForBuffer(5)
+		resolve()
+	})
+
+	// returns a promise that waits for a certain amount of seconds to be buffered (sBuffered)
+	function waitForBuffer(sBuffered){
+		return new Promise(async function(resolve, reject){
+			while (true){
+				if (video.buffered.length >= 1){
+					if (video.buffered.end(0) - video.currentTime >= sBuffered ||
+							video.buffered.end(0) - video.duration <= 0.1){
+						resolve()
+						break
+					}
+				}
+				await sleep(50)
+			}
+		})
+	}
+
+	function startBufferCheck(){
+		const minBuffered = 1 // minimum number of seconds to buffer
+		vidBufferCheck = setInterval(async function(){
+			if (video.buffered.end(0) - video.currentTime < minBuffered ||
+					video.buffered.end(0) - video.duration > 0.1){
+				socket.emit('waitForBuffer', video.currentTime)
+			}
+		}, 200)
+	}
 
 	socket.on('triangulate', function(data){
 		cleanHTML()

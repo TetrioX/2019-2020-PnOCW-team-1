@@ -11,7 +11,27 @@
 	<script src=/static/scripts/socket.io-stream.js></script>
 </head>
 <body>
-	<div id ="entirePage" class="mx-auto col-12 col-sm-12 col-md-8 col-lg-4 border border-lg border-dark rounded">
+	<div id="passwordPage">
+		<div class= "container">
+			<div class="jumbotron">
+			   	<h1 class="display-4">Sorry, we need a password</h1>
+			  	<hr class="my-4">
+			  	<div class="form-group">
+	    			<label for="exampleInputPassword1">Don't guess, you will not find it!</label>
+	   				<input type="password" class="form-control" id="masterpassword">
+	  			</div>
+	  			<div id="alertdiv" class="alert alert-danger" role="alert" style="display: none">
+  				Wrong password, We said you wouldn't guess it!
+				</div>
+			 	<button class="btn btn-primary btn-lg" placeholder ="password" id="passwordbutton">Submit!</button>
+			</div>
+		</div>
+  	</div>
+
+
+
+	
+	<div id ="entirePage" style="display:none;"class="mx-auto col-12 col-sm-12 col-md-8 col-lg-4 border border-lg border-dark rounded">
 		<h1>Master Page</h1>
 
 		<div id ="cameradiv" class="border border-lg border-danger rounded">
@@ -145,7 +165,7 @@
 	<div id="thirdEntirePage" style="display:none;">
 		<canvas id="visualfeedback"></canvas>
 		<div>
-			<button id="changePageButton2" class="btn btn-dark">Home</button>
+			<button id="changePageButton3" class="btn btn-dark">Home</button>
 		</div>
 	</div>
 
