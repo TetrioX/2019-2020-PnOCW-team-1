@@ -633,8 +633,7 @@ masterButton.addEventListener('click',function(){
 		myCanvas.height = picture.height;
 		ctx = myCanvas.getContext('2d');
 
-		ctx.drawImage(picture, // 0, 0, picture.width,    picture.height,     // source rectangle
-			                   0, 0, myCanvas.width, myCanvas.height); // destination rectangle
+		ctx.drawImage(picture, 0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
 		transformSlave(myCanvas, corners, refPictureLength);
 	};
@@ -666,8 +665,7 @@ masterButton.addEventListener('click',function(){
 
 	// Draw the current frame of the video
 	const drawVideo = function(myCanvas, video) {
-		myCanvas.getContext('2d').drawImage(video, // 0, 0, video.videoWidth, video.videoHeight,     // source rectangle
-									0, 0, myCanvas.width, myCanvas.height);
+		myCanvas.getContext('2d').drawImage(video, 0, 0, myCanvas.width, myCanvas.height);
 	}
 
 	video = document.createElement("video")
