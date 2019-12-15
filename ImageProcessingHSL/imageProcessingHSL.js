@@ -167,7 +167,7 @@ async function doImgDiff(imgs, demand_same_size=false, save_diff=true) {
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
         if (save_diff) to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./ diff-${i+1}.png`) )
-		    tempResult[i] = buftomat.createMatrix(tempResult[i], new_size)
+		tempResult[i] = buftomat.createMatrix(tempResult[i], new_size)
     }
 
     if(verbose) console.log('8. to_file_promises =', to_file_promises)
