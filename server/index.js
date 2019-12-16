@@ -383,6 +383,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       AllScreenPositions = {}
       clearInterval(videoUpdater)
       clearInterval(countdownUpdater)
+      slaveIo.emit('refresh')
     })
 
     socket.on('drawLine', function(data){

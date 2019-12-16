@@ -90,6 +90,10 @@ socket.on('changeBackgroundOfAllSlaves', function(data, callback){
 	}, 300);
 });
 
+socket.on('refresh', function(){
+	location.reload(true)
+})
+
 socket.on('changeGrid', function(data, callback){
 	updateGrid(data)
 	// callback after 200ms
