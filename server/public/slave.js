@@ -727,6 +727,7 @@ masterButton.addEventListener('click',function(){
 		video = document.createElement("video")
 		canvas.style.display = "block"
 		document.body.style.backgroundColor = "black";
+		video.src = 'static/big_buck_bunny.mp4'
 		video.onloadeddata = async function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			await waitForBuffer(5)
@@ -739,7 +740,6 @@ masterButton.addEventListener('click',function(){
 		video.style.display = "block"
 		video.style.visibility = "hidden"
 		video.currentTime = 0
-		video.src = 'static/big_buck_bunny.mp4'
 		document.body.appendChild(video)
 	});
 
