@@ -23,7 +23,8 @@ let World = class {
     let colObj = []
     for (let snakeId in this.objects)
       for (let otherId in this.objects) {
-        if (snakeId == otherId && collision.snakeCollidesWithItself(this.objects[snakeId])
+        if (collision.snakeOutOfBounds(this.objects[snakeId], this.dimensions)
+          || snakeId == otherId && collision.snakeCollidesWithItself(this.objects[snakeId])
           || snakeId != otherId && collision.snakeCollidesWithOther(this.objects[snakeId], this.objects[otherId]))
             colObj.push(snakeId)
        }

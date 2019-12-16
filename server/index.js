@@ -671,9 +671,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
     console.log(playerColors)
 
     for (let playerId in playerColors) {
-      startX = Math.floor(Math.random() * picDimensions[1])
       startY = Math.floor(Math.random() * picDimensions[0])
-      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 75, {x: startX, y: startY}, playerColors[playerId])
+      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 75, {x: 1, y: startY}, playerColors[playerId])
       world.addSnake(snake, playerId)
     }
 

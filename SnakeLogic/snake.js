@@ -33,6 +33,7 @@ let Snake = class {
       let changed = part.updatePosition(vel, dim)
       if (changed) res = true;
       if (part.name == 0) this.headPos = part.pos
+      part.headPos = this.headPos
     }
     return res;
   }
@@ -40,7 +41,6 @@ let Snake = class {
 
 let SnakePart = class {
   constructor(snake, name, startPosition, size, direction, originalSize) {
-
       this.pos = startPosition;
       this.size = size;
       this.name = name;
@@ -49,6 +49,7 @@ let SnakePart = class {
       this.deviation = 0;
       this.devSide = 1;
       this.cycleTime = 1000 / originalSize;
+      this.headPos = this.Pos;
   }
 
   newDir = [];
@@ -100,14 +101,6 @@ let SnakePart = class {
       this.pos.y += (vel/30-r) * Math.sin(this.dir);
     }
     this.timePassed++;
-
-    if (dim) {
-      if (this.pos.x > dim.x) this.pos.x -= dim.x
-      if (this.pos.x < 0) this.pos.x += dim.x
-      if (this.pos.y > dim.y) this.pos.y -= dim.y
-      if (this.pos.y < 0) this.pos.y += dim.y
-    }
-
     if (this.name == 0) return changed
   }
 
