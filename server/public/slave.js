@@ -17,6 +17,9 @@ var countdownTimer = document.getElementById('timer')
 var wrapper = document.getElementById("wrapper")
 var length = 1000;
 var gridElements = []
+video = document.createElement("video")
+let vidBufferCheck = null
+let vidDrawer = null
 
 function cleanHTML(){
 	removeGrid()
@@ -26,6 +29,9 @@ function cleanHTML(){
 	countdownTimer.style.display = "none"
 	entirePage.style.display = "none"
 	canvas.style.display = "none"
+	video.src = ""
+	clearInterval(vidBufferCheck);
+	clearInterval(vidDrawer);
 	context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -714,13 +720,7 @@ masterButton.addEventListener('click',function(){
 
 		img.src = 'data:image/jpeg;base64,' + data.picture;
 	});
-
-	video = document.createElement("video")
-	let vidBufferCheck = null
-	let vidDrawer = null
 	socket.on('loadVideo', async function(data, callback){
-		clearInterval(vidBufferCheck);
-		clearInterval(vidDrawer);
 		cleanHTML()
 		canvas.style.display = "block"
 		document.body.style.backgroundColor = "black";
@@ -743,6 +743,7 @@ masterButton.addEventListener('click',function(){
 		video.onended = function(){
 			callback()
 			clearInterval(vidBufferCheck);
+			clearInterval(vidDrawer);
 		}
 	})
 
