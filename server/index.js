@@ -305,7 +305,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           ss(socket).emit('takeOnePicture', async function(stream){
             resolve(new Promise(async function(resolve, reject) {
               stream.setEncoding('utf-8') // we want to recieve a string
-              stream.on('data', (chunk) => {
+              stream.on('data', async (chunk) => {
                 let image = await decodeBase64Image(chunk.toString())
                 resolve(image.data)
               });
