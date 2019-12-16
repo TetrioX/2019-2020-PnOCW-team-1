@@ -104,6 +104,7 @@ downButton.addEventListener('click', function(){
 
 socket.on('cleanAll', function(){
   cleanHTML()
+  wrapper.style.display = "";
 })
 
 socket.on('updatePosition', function(data){
