@@ -85,13 +85,6 @@ let SnakePart = class {
   // 30 fps
   timePassed = 0;
   updatePosition(vel, dim) {
-    if (dim) {
-      if (this.pos.x > dim.x) this.pos.x -= dim.x
-      if (this.pos.x < 0) this.pos.x += dim.x
-      if (this.pos.y > dim.y) this.pos.y -= dim.y
-      if (this.pos.y < 0) this.pos.y += dim.y
-    }
-
     let changed = false;
     this.updateDeviation();
     let posX = this.pos.x + vel / 30 * Math.cos(this.dir);
@@ -107,6 +100,14 @@ let SnakePart = class {
       this.pos.y += (vel/30-r) * Math.sin(this.dir);
     }
     this.timePassed++;
+
+    if (dim) {
+      if (this.pos.x > dim.x) this.pos.x -= dim.x
+      if (this.pos.x < 0) this.pos.x += dim.x
+      if (this.pos.y > dim.y) this.pos.y -= dim.y
+      if (this.pos.y < 0) this.pos.y += dim.y
+    }
+
     if (this.name == 0) return changed
   }
 

@@ -690,7 +690,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         maxLat: Math.max(Object.values(latSlaves)),
         world: world
       })
-      world.updateWorld(50)
+      world.updateWorld(30)
       for (let plId in world.objects) {
         if (plId == '0') socket.emit('updatePosition', {
           headPos : world.objects[plId].headPos,
