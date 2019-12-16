@@ -25,17 +25,17 @@ const pixelColor = function(color) {
         return 0
     }
 
-	if (h >= 308 || h < 45) //rood
+	if (h >= 317 || h < 45) //rood
 		return 1
-	else if (h >= 45 && h < 110) //roodgroen geel
+	else if (h >= 45 && h < 100) //roodgroen geel
 		return 4
-	else if (h >= 110 && h < 170) //groen
+	else if (h >= 100 && h < 160) //groen
 		return 2
-	else if (h >= 170 && h < 210) //groenblauw cyaan
+	else if (h >= 160 && h < 200) //groenblauw cyaan
 		return 6
-	else if (h >= 210 && h < 240) //blauw
+	else if (h >= 200 && h < 240) //blauw
 		return 3
-	else if (h >= 240 && h < 308) //roodblauw magenta
+	else if (h >= 240 && h < 317) //roodblauw magenta
 		return 5
 	else return 0 //zwart
 }
