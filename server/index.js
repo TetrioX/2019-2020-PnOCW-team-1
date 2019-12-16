@@ -583,7 +583,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
     var nextSlave = getSlaveByPosition(nextPoint)
 
-    snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos)
+    snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos, {light: "#008000", dark: "#004000"})
     snake.changeDirectionOnPosition(direction, startPos, nextSlave)
 
     Object.keys(slaves).forEach(function(slave, index) {
