@@ -71,7 +71,7 @@ function sleep(ms){
 
 // Decoding base-64 image
 // Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
-function decodeBase64Image(dataString)
+async function decodeBase64Image(dataString)
 {
     let matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
     let response = {};
@@ -306,7 +306,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
             resolve(new Promise(function(resolve, reject) {
               stream.setEncoding('utf-8') // we want to recieve a string
               stream.on('data', (chunk) => {
-                resolve(decodeBase64Image(chunk.toString()).data)
+                let image = await decodeBase64Image(chunk.toString())
+                resolve(image.data)
               });
               stream.on('error', (err) => reject(err))
             }).catch((err) => reject(err)))
@@ -364,14 +365,21 @@ var masterIo = io.of('/master').on('connect', function(socket){
       AllScreenPositions = {...AllScreenPositions, ...screens};
     });
 
-    socket.on('upload-image', function (data) {
+    socket.on('upload-image', async function (data) {
+      let image = await decodeBase64Image(data.buffer)
   		if (data.destination)
-        fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+        fs.writeFileSync(`./slave-${data.destination}.png`, image.data)
   		else
-        fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
+        fs.writeFileSync(`./image-${imageIndex}.png`, image.data);
       masterIo.emit('imageSaved')
       imageIndex += 1;
     });
+
+    socket.on('reset', function(data){
+      AllScreenPositions = {}
+      clearInterval(videoUpdater)
+      clearInterval(countdownUpdater)
+    })
 
     socket.on('drawLine', function(data){
       slaveIo.emit('drawLine', data);
