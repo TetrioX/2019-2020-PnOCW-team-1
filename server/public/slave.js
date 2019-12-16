@@ -29,9 +29,9 @@ function cleanHTML(){
 	countdownTimer.style.display = "none"
 	entirePage.style.display = "none"
 	canvas.style.display = "none"
-	video.remove()
 	clearInterval(vidBufferCheck);
 	clearInterval(vidDrawer);
+	video.src = ""
 	context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
