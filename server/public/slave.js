@@ -3,6 +3,7 @@ var socket = io('/slave');
 
 //listen for events from client
 var masterButton = document.getElementById("masterButton");
+var playerButton = document.getElementById("playerButton");
 var socketID = null;
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext('2d');
@@ -391,8 +392,12 @@ socket.on('drawLine', function(data){
 	draw(data.angle);
 });
 
-masterButton.addEventListener('click',function(){
+masterButton.addEventListener('click', function(){
 	window.location.href="/master";
+});
+
+playerButton.addEventListener('click', function(){
+	window.location.href="/player";
 });
 
 // Original version https://gist.github.com/LogIN-/e1e3feff907066a1b5ed

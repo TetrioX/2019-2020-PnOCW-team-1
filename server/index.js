@@ -634,11 +634,13 @@ var masterIo = io.of('/master').on('connect', function(socket){
   /////////////////
   var gamePromises = []
   socket.on('startGame', async function(data) {
+    gamePromises = []
+    playerColors = {}
+    deleteWorld()
 
     playerColors[0] = {light: "#666666", dark: "#333333"};
 
     Object.keys(players).forEach(async function(player, index) {
-      console.log(player)
       let promise = new Promise(function(resolve, reject) {
         playerSockets[player].emit('setupGame', null, function(callBackData){
           playerColors[players[player]] = callBackData.colors;
@@ -658,7 +660,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     // Game start
 
     // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-    //                   '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    //                    '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
     // picDimensions = [500, 1000]
 
     clearInterval(snakeUpdater)
@@ -685,7 +687,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
         maxLat: Math.max(Object.values(latSlaves)),
         world: world
       })
-      world.updateWorld(50)
+      if (world != null) world.updateWorld(50)
+      else clearInterval(snakeUpdater)
     }, 1000/60) // 60 fps, gekozen door de normale
   })
 
@@ -739,10 +742,6 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
  ***************/
 var playerIo = io.of('/player').on('connect', function(socket){
   addPlayer(socket)
-
-  socket.on('ready', function(data) {
-    playerColors[data.playerId] = data.colors
-  })
 
   socket.on('changeSnakeDirection', function(data){
     changeSnakeDirectionGame(data.playerId, data.direction)

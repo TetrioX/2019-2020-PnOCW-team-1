@@ -16,6 +16,8 @@ var wrapper = document.getElementById("wrapper"),
     upButton = document.getElementById('upButton'),
     downButton = document.getElementById('downButton');
 
+var selectColor = document.getElementById('colorSelect');
+
 function cleanHTML(){
 	wrapper.style.display = "none";
   loadScreen.style.display = "none";
@@ -28,11 +30,29 @@ socket.on('setupGame', function(data, callback){
   loadScreen.style.display = 'block';
 
   readyButton.addEventListener('click', function(){
-  	callback({
-      colors: {light: "#008000", dark: "#004000"}
+    colors = colorSelector(selectColor.value)
+    callback({
+      colors: colors
     })
   })
 })
+
+const colorSelector = function(val) {
+  switch (val) {
+    case "0" : // Green
+      return {light: "#008000", dark: "#004000"};
+    case "1" : // Red
+      return {light: "#800000", dark: "#400000"};
+    case "2" : // Blue
+      return {light: "#000080", dark: "#000040"};
+    case "3" : // Yellow
+      return {light: "#F0EA38", dark: "#9A9625"};
+    case "4" : // Orange
+      return {light: "#E69C2D", dark: "#A26F22"};
+    case "5" : // Purple
+      return {light: "#A82BDE", dark: "#641686"};
+  }
+}
 
 socket.on('playerID', function(number){
   console.log(number)
