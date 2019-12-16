@@ -317,7 +317,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
           console.log(error)
           // failed to retrieve the image
           socket.emit('alert', "Retrieving one of the images timed out.")
-          throw new Error("Retrieving one of the images timed out.")
         })
         let pic = await picPromise
         pictures.push(pic)
