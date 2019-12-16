@@ -89,6 +89,19 @@
   transform: translate(-85%, -70%);
 }
 
+#positionCanvas{
+  background-color: gray;
+  border: 2px solid #000000;
+  width: 25vw;
+  height: 25vh;
+  margin: 0;
+  position: absolute;
+  top: 30%;
+  left: 85%;
+  -ms-transform: translate(-85%, -30%);
+  transform: translate(-85%, -30%);
+}
+
 #losingScreen{
 	text-align: center;
 }

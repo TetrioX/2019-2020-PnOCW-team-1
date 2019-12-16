@@ -18,6 +18,8 @@ var wrapper = document.getElementById("wrapper"),
 
 var selectColor = document.getElementById('colorSelect');
 
+var canvas = document.getElementById('positionCanvas');
+
 function cleanHTML(){
 	wrapper.style.display = "none";
   loadScreen.style.display = "none";
@@ -54,10 +56,10 @@ const colorSelector = function(val) {
   }
 }
 
-socket.on('playerID', function(number){
-  console.log(number)
-  playerId = number
-  document.getElementById("playerID").innerHTML = number;
+socket.on('playerID', function(data){
+  console.log(data.socket)
+  playerId = data.socket
+  document.getElementById("playerID").innerHTML = data.number;
 })
 
 socket.on('startGame', function(){
@@ -102,4 +104,15 @@ downButton.addEventListener('click', function(){
 
 socket.on('cleanAll', function(){
   cleanHTML()
+})
+
+socket.on('updatePosition', function(data){
+  console.log(data.headPos)
+  context = canvas.getContext('2d')
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#FF0000";
+  context.beginPath();
+  context.arc(data.headPos.x * canvas.width / data.dim.x, data.headPos.y * canvas.height / data.dim.y,
+              canvas.height / 50, 0, 2 * Math.PI);
+  context.fill();
 })

@@ -87,7 +87,7 @@ function addPlayer(socket) {
     players[socket.id] = ++playerNumber
     playerSockets[socket.id] = socket
     console.log("hello, ik ben ", playerNumber)
-    socket.emit('playerID', playerNumber)
+    socket.emit('playerID', {number: playerNumber, socket: socket.id})
 }
 
 function sleep(ms){
@@ -643,7 +643,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     Object.keys(players).forEach(async function(player, index) {
       let promise = new Promise(function(resolve, reject) {
         playerSockets[player].emit('setupGame', null, function(callBackData){
-          playerColors[players[player]] = callBackData.colors;
+          playerColors[player] = callBackData.colors;
           playerSockets[player].emit('startGame')
           resolve()
         })
@@ -661,9 +661,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     // Game start
 
-    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-    //                    '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    // picDimensions = [500, 1000]
+    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    picDimensions = [500, 1000]
 
     clearInterval(snakeUpdater)
     createWorld();
@@ -673,7 +673,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     for (let playerId in playerColors) {
       startX = Math.floor(Math.random() * picDimensions[1])
       startY = Math.floor(Math.random() * picDimensions[0])
-      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, {x: startX, y: startY}, playerColors[playerId])
+      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 75, {x: startX, y: startY}, playerColors[playerId])
       world.addSnake(snake, playerId)
     }
 
@@ -685,12 +685,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
     })
 
     snakeUpdater = setInterval(function(){
+      if (world == null) clearInterval(snakeUpdater)
       slaveIo.emit('updateWorld', {
         maxLat: Math.max(Object.values(latSlaves)),
         world: world
       })
-      if (world != null) world.updateWorld(50)
-      else clearInterval(snakeUpdater)
+      world.updateWorld(50)
+      for (let plId in world.objects) {
+        if (plId == '0') socket.emit('updatePosition', {
+          headPos : world.objects[plId].headPos,
+          dim: world.dimensions
+        })
+        else playerSockets[plId].emit('updatePosition', {
+          headPos : world.objects[plId].headPos,
+          dim: world.dimensions
+        })
+      }
     }, 1000/60) // 60 fps, gekozen door de normale
   })
 
@@ -794,6 +804,7 @@ function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
  *********************/
 var world;
 function createWorld() {
+  console.log({x: picDimensions[1], y: picDimensions[0]})
   world = new worldJs.World({x: picDimensions[1], y: picDimensions[0]});
 }
 

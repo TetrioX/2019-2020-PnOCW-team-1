@@ -32,7 +32,7 @@ let World = class {
 
   updateWorld(vel) {
     for (let snakeId in this.objects)
-      this.objects[snakeId].updateSnake(vel)
+      this.objects[snakeId].updateSnake(vel, this.dimensions)
     let collided = this.checkCollision();
     for (let snakeId of collided)
       this.killSnake(snakeId)

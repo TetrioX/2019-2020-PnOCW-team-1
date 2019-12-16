@@ -14,6 +14,7 @@ let Snake = class {
   parts = []
 
   changeDirection(newDir) {
+    console.log("ye")
     for (let part of this.parts)
       part.cacheNewDirection(newDir, {x: this.parts[0].pos.x, y: this.parts[0].pos.y})
   }
@@ -26,11 +27,12 @@ let Snake = class {
       part.cacheNewDirection(newDir, pos)
   }
 
-  updateSnake(vel) {
+  updateSnake(vel, dim) {
     let res = false;
     for (let part of this.parts){
-      let changed = part.updatePosition(vel)
+      let changed = part.updatePosition(vel, dim)
       if (changed) res = true;
+      if (part.name == 0) this.headPos = part.pos
     }
     return res;
   }
@@ -82,7 +84,12 @@ let SnakePart = class {
 
   // 30 fps
   timePassed = 0;
-  updatePosition(vel) {
+  updatePosition(vel, dim) {
+    if (this.pos.x > dim.x) this.pos.x -= dim.x
+    if (this.pos.x < 0) this.pos.x += dim.x
+    if (this.pos.y > dim.y) this.pos.y -= dim.y
+    if (this.pos.y < 0) this.pos.y += dim.y
+
     let changed = false;
     this.updateDeviation();
     let posX = this.pos.x + vel / 30 * Math.cos(this.dir);
