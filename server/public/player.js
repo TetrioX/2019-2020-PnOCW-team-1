@@ -99,3 +99,7 @@ downButton.addEventListener('click', function(){
 		direction: Math.PI / 2
 	})
 })
+
+socket.on('cleanAll', function(){
+  cleanHTML()
+})

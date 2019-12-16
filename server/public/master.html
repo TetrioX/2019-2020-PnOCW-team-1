@@ -30,7 +30,7 @@
 
 
 
-	
+
 	<div id ="entirePage" style="display:none;"class="mx-auto col-12 col-sm-12 col-md-8 col-lg-4 border border-lg border-dark rounded">
 		<h1>Master Page</h1>
 
@@ -147,6 +147,8 @@
 			<button type="button" id="snakeButton" class="btn btn-outline-success">Go to snake.</button>
 		</div>
 	</div>
+
+
 	<div id="secondEntirePage" style="display: none;">
 		<video  id="screenrecognitionvideo"></video>
 		<div>
@@ -154,6 +156,8 @@
 			<button id="changePageButton" class="btn btn-dark">Home</button>
 		</div>
 	</div>
+
+
 	<div id="snakeEntirePage" style="display: none;">
 		<form class="input">
 			<input id="snakeLengthPicker" type="number" name="snakeLength" min="1" max ="360" placeholder="Snake length">
@@ -162,11 +166,9 @@
 		<button id="gameSnake" class="btn btn-light">Start game</button>
 		<button id="triangulationSnakeStop" class="btn btn-light">Stop triangulation</button>
 		<button id="changePageButton2" class="btn btn-dark" style="">Home</button>
-		<button id="leftButton" class="btn btn-dark">Left</button>
-		<button id="upButton" class="btn btn-dark">Up</button>
-		<button id="rightButton" class="btn btn-dark">Right</button>
-		<button id="downButton" class="btn btn-dark">Down</button>
 	</div>
+
+
 	<div id="thirdEntirePage" style="display:none;">
 		<canvas id="visualfeedback"></canvas>
 		<div>
@@ -175,7 +177,13 @@
 	</div>
 
 
-
+	<div id="controlSnakePage" style="display:none">
+			<button id="leftButton" class="btn btn-dark"><</button>
+			<button id="upButton" class="btn btn-dark">^</button>
+			<button id="rightButton" class="btn btn-dark">></button>
+			<button id="downButton" class="btn btn-dark">v</button>
+			<button id="changePageButton4" class="btn btn-dark" style="">Home</button>
+	</div>
 
 
 	<script src="static/master.js"></script>

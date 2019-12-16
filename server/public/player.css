@@ -3,12 +3,90 @@
 }
 
 #loadScreen{
-  top: 50%;
-	text-align: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+#colorSelect{
+  text-align: center;
+  font-size: 15vh;
+  width: 70vw;
+  height: 30vh;
+  margin: 0;
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  -ms-transform: translate(-50%, -25%);
+  transform: translate(-50%, -25%);
+}
+
+#readyButton{
+  text-align: center;
+  font-size: 12.5vh;
+  width: 40vw;
+  height: 25vh;
+  margin: 0;
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  -ms-transform: translate(-50%, -65%);
+  transform: translate(-50%, -65%);
 }
 
 #controlScreen{
 	text-align: center;
+}
+
+#upButton{
+  text-align: center;
+  font-size: 12.5vh;
+  width: 25vw;
+  height: 25vh;
+  margin: 0;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  -ms-transform: translate(-50%, -30%);
+  transform: translate(-50%, -30%);
+}
+
+#downButton{
+  text-align: center;
+  font-size: 12.5vh;
+  width: 25vw;
+  height: 25vh;
+  margin: 0;
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  -ms-transform: translate(-50%, -70%);
+  transform: translate(-50%, -70%);
+}
+
+#leftButton{
+  text-align: center;
+  font-size: 12.5vh;
+  width: 25vw;
+  height: 25vh;
+  margin: 0;
+  position: absolute;
+  top: 70%;
+  left: 15%;
+  -ms-transform: translate(-15%, -70%);
+  transform: translate(-15%, -70%);
+}
+
+#rightButton{
+  text-align: center;
+  font-size: 12.5vh;
+  width: 25vw;
+  height: 25vh;
+  margin: 0;
+  position: absolute;
+  top: 70%;
+  left: 85%;
+  -ms-transform: translate(-85%, -70%);
+  transform: translate(-85%, -70%);
 }
 
 #losingScreen{

@@ -42,6 +42,7 @@ new Promise(function(resolve, reject){
 	var homebutton = document.getElementById('changePageButton');
 	var homebutton2 = document.getElementById('changePageButton2');
 	var homebutton3 = document.getElementById('changePageButton3');
+	var homebutton4 = document.getElementById('changePageButton4');
 	var secondEntirePage = document.getElementById("secondEntirePage");
 	var rowPicker = document.getElementById("rowPicker");
 	var columnPicker = document.getElementById("columnPicker");
@@ -56,7 +57,6 @@ new Promise(function(resolve, reject){
 			rightButton = document.getElementById('rightButton'),
 			upButton = document.getElementById('upButton'),
 			downButton = document.getElementById('downButton');
-	var homebutton2 = document.getElementById('changePageButton2');
 
 
 	var numberOfRows = rowPicker.valueAsNumber;
@@ -497,4 +497,16 @@ new Promise(function(resolve, reject){
 			direction: Math.PI / 2
 		})
 	})
+
+	socket.on('startGame', function(){
+		snakeEntirePage.style.display="none";
+		controlSnakePage.style.display="";
+	})
+
+	homebutton4.addEventListener('click',function(){
+		snakeEntirePage.style.display="";
+		controlSnakePage.style.display="none";
+		socket.emit('stopSnake')
+	})
+
 })

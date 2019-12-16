@@ -656,6 +656,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
       gamePromises.push(promise)
     })
     await Promise.all(gamePromises);
+    socket.emit('startGame')
+
 
     // Game start
 
@@ -705,6 +707,7 @@ socket.on('clearAll', function(){
   slaveIo.emit('stopSnake');
   clearInterval(videoUpdater);
   clearInterval(countdownUpdater);
+  playerIo.emit('cleanAll')
 })
 
 });
