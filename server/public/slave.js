@@ -17,7 +17,7 @@ var countdownTimer = document.getElementById('timer')
 var wrapper = document.getElementById("wrapper")
 var length = 1000;
 var gridElements = []
-video = document.createElement("video")
+var video = document.createElement("video")
 let vidBufferCheck = null
 let vidDrawer = null
 
@@ -29,7 +29,7 @@ function cleanHTML(){
 	countdownTimer.style.display = "none"
 	entirePage.style.display = "none"
 	canvas.style.display = "none"
-	video.src = ""
+	video.remove()
 	clearInterval(vidBufferCheck);
 	clearInterval(vidDrawer);
 	context.clearRect(0, 0, canvas.width, canvas.height);
@@ -722,6 +722,7 @@ masterButton.addEventListener('click',function(){
 	});
 	socket.on('loadVideo', async function(data, callback){
 		cleanHTML()
+		video.src = ""
 		canvas.style.display = "block"
 		document.body.style.backgroundColor = "black";
 		video.onloadeddata = async function() {
@@ -735,7 +736,7 @@ masterButton.addEventListener('click',function(){
 		video.muted = true
 		video.style.display = "block"
 		video.style.visibility = "hidden"
-		video.src = './static/big_buck_bunny.mp4'
+		video.src = 'static/big_buck_bunny.mp4'
 		document.body.appendChild(video)
 	});
 
