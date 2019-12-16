@@ -722,7 +722,7 @@ masterButton.addEventListener('click',function(){
 	});
 	socket.on('loadVideo', async function(data, callback){
 		cleanHTML()
-		video.src = ""
+		video = document.createElement("video")
 		canvas.style.display = "block"
 		document.body.style.backgroundColor = "black";
 		video.onloadeddata = async function() {
@@ -736,6 +736,7 @@ masterButton.addEventListener('click',function(){
 		video.muted = true
 		video.style.display = "block"
 		video.style.visibility = "hidden"
+		video.currentTime = 0
 		video.src = 'static/big_buck_bunny.mp4'
 		document.body.appendChild(video)
 	});
@@ -762,7 +763,7 @@ masterButton.addEventListener('click',function(){
 		let cTime = (data + latency)/1000
 		let lTime = video.currentTime
 		let offset = lTime - cTime
-		let newVidPBR = video.playbackRate + (1.0 - offset/20 - video.playbackRate)/3
+		let newVidPBR = video.playbackRate + (1.0 - offset/5 - video.playbackRate)/3
 		video.playbackRate = newVidPBR
 	})
 
