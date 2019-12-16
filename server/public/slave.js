@@ -709,7 +709,9 @@ masterButton.addEventListener('click',function(){
 
 	socket.on('showPicture', async function(data){
 		cleanHTML()
+		console.log('drawing picture', data)
 		canvas.style.display = "block"
+		console.log(canvas.style.display)
 		// This is for smoother picture monitoring. Else white borders are possible.
 		document.body.style.backgroundColor = "black";
 		var img = new Image()
