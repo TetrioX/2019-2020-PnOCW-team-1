@@ -502,7 +502,6 @@ new Promise(function(resolve, reject){
 	socket.on('startGame', function(){
 		snakeEntirePage.style.display="none";
 		controlSnakePage.style.display="";
-		socket.emit('clearAll');
 	})
 
 	socket.on('updatePosition', function(data){
