@@ -262,11 +262,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }))
       // wait for grids to be created
       await Promise.all(createGridPromises)
-      let pictures = await takePicture(nbOfPictures)
-		  calibrationPicture = pictures[0]
-      if (pictures == null){
-        return null
+      let pictures = await takePicture(nbOfPictures).catch((err) => {
+        console.log(err)
+        return
+      })
+      for (pic of pictures){
+        if (typeof pic === 'undefined'){
+          return
+        }
       }
+		  calibrationPicture = pictures[0]
       // remove all the grids
       // TODO: use the callback
       Object.keys(slaves).forEach(function(slave, index) {
