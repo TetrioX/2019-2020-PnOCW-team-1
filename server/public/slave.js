@@ -17,6 +17,9 @@ var countdownTimer = document.getElementById('timer')
 var wrapper = document.getElementById("wrapper")
 var length = 1000;
 var gridElements = []
+var video = document.createElement("video")
+let vidBufferCheck = null
+let vidDrawer = null
 
 function cleanHTML(){
 	removeGrid()
@@ -26,6 +29,9 @@ function cleanHTML(){
 	countdownTimer.style.display = "none"
 	entirePage.style.display = "none"
 	canvas.style.display = "none"
+	clearInterval(vidBufferCheck);
+	clearInterval(vidDrawer);
+	video.src = ""
 	context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -83,6 +89,10 @@ socket.on('changeBackgroundOfAllSlaves', function(data, callback){
 		callback()
 	}, 300);
 });
+
+socket.on('refresh', function(){
+	location.reload(true)
+})
 
 socket.on('changeGrid', function(data, callback){
 	updateGrid(data)
@@ -703,7 +713,9 @@ masterButton.addEventListener('click',function(){
 
 	socket.on('showPicture', async function(data){
 		cleanHTML()
+		console.log('drawing picture', data)
 		canvas.style.display = "block"
+		console.log(canvas.style.display)
 		// This is for smoother picture monitoring. Else white borders are possible.
 		document.body.style.backgroundColor = "black";
 		var img = new Image()
@@ -714,16 +726,12 @@ masterButton.addEventListener('click',function(){
 
 		img.src = 'data:image/jpeg;base64,' + data.picture;
 	});
-
-	video = document.createElement("video")
-	let vidBufferCheck = null
-	let vidDrawer = null
 	socket.on('loadVideo', async function(data, callback){
-		clearInterval(vidBufferCheck);
-		clearInterval(vidDrawer);
 		cleanHTML()
+		video = document.createElement("video")
 		canvas.style.display = "block"
 		document.body.style.backgroundColor = "black";
+		video.src = 'static/big_buck_bunny.mp4'
 		video.onloadeddata = async function() {
 			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			await waitForBuffer(5)
@@ -735,7 +743,7 @@ masterButton.addEventListener('click',function(){
 		video.muted = true
 		video.style.display = "block"
 		video.style.visibility = "hidden"
-		video.src = './static/big_buck_bunny.mp4'
+		video.currentTime = 0
 		document.body.appendChild(video)
 	});
 
@@ -743,6 +751,7 @@ masterButton.addEventListener('click',function(){
 		video.onended = function(){
 			callback()
 			clearInterval(vidBufferCheck);
+			clearInterval(vidDrawer);
 		}
 	})
 
@@ -760,7 +769,7 @@ masterButton.addEventListener('click',function(){
 		let cTime = (data + latency)/1000
 		let lTime = video.currentTime
 		let offset = lTime - cTime
-		let newVidPBR = video.playbackRate + (1.0 - offset/20 - video.playbackRate)/3
+		let newVidPBR = video.playbackRate + (1.0 - offset/5 - video.playbackRate)/3
 		video.playbackRate = newVidPBR
 	})
 

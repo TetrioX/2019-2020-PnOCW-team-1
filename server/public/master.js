@@ -21,12 +21,12 @@ new Promise(function(resolve, reject){
 				document.getElementById('alertdiv').style.display="";
 			}
 		}, 500)
-		
+
 	});
 }).then(function(socket){
 	passwordPage.style.display="none";
 	entirePage.style.display="";
-	
+
 
 	//Emit events to server
 	var selectResolution = document.getElementById('exampleFormControlSelect1');
@@ -45,6 +45,7 @@ new Promise(function(resolve, reject){
 	var rowPicker = document.getElementById("rowPicker");
 	var columnPicker = document.getElementById("columnPicker");
 	var countdownPicker = document.getElementById("countdownPicker");
+	var resetButton = document.getElementById("resetbutton");
 
 	var snakeButton = document.getElementById("snakeButton");
 	var snakeLengthPicker = document.getElementById('snakeLengthPicker');
@@ -74,7 +75,9 @@ new Promise(function(resolve, reject){
 		snakeLength = snakeLengthPicker.valueAsNumber
 	})
 
-
+	resetButton.addEventListener('click', function(){
+		socket.emit('reset')
+	})
 
 	anglePicker.addEventListener('input', function () {
 		angle = -anglePicker.value / 180 * Math.PI
@@ -381,8 +384,8 @@ new Promise(function(resolve, reject){
 		var CircelPicture = canvas.toDataURL();
 
 		feedbackimage.onload = async function(){
-			
-			
+
+
 
 			feedbackctx.drawImage(feedbackimage,0,0, visualfeedbackcanvas.width,visualfeedbackcanvas.height);
 		}
@@ -429,4 +432,3 @@ new Promise(function(resolve, reject){
 })
 
 //listen for events from server
-
