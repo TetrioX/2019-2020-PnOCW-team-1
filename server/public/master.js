@@ -508,13 +508,13 @@ new Promise(function(resolve, reject){
 	})
 
 	socket.on('updatePosition', function(data){
-	  context = snakeCanvas.getContext('2d')
-	  context.clearRect(0, 0, canvas.width, canvas.height);
-	  context.fillStyle = "#FF0000";
-	  context.beginPath();
-	  context.arc(data.headPos.x * canvas.width / data.dim.x, data.headPos.y * canvas.height / data.dim.y,
+	  ctxt = snakeCanvas.getContext('2d')
+	  ctxt.clearRect(0, 0, canvas.width, canvas.height);
+	  ctxt.fillStyle = "#FF0000";
+	  ctxt.beginPath();
+	  ctxt.arc(data.headPos.x * canvas.width / data.dim.x, data.headPos.y * canvas.height / data.dim.y,
 	              canvas.height / 50, 0, 2 * Math.PI);
-	  context.fill();
+	  ctxt.fill();
 	})
 
 	homebutton4.addEventListener('click',function(){

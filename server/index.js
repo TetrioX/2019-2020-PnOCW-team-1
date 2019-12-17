@@ -708,7 +708,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       if (world == null) clearInterval(snakeUpdater)
       else world.updateWorld(30)
       for (let plId in world.objects) {
-        if (plId == '0') socket.emit('updatePosition', {
+        if (plId == 0) socket.emit('updatePosition', {
           headPos : world.objects[plId].headPos,
           dim: world.dimensions
         })
