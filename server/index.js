@@ -624,6 +624,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   function changeSnakeDirection(snake) {
     var currentPoint = centers[snake.nextSlave]
+    if (!connections[snake.nextSlave]){
+      clearInterval(snakeUpdater)
+      return
+    }
     var randInt = Math.floor(Math.random() * connections[snake.nextSlave].length)
 
     var nextPoint = {x: connections[snake.nextSlave][randInt][0], y: connections[snake.nextSlave][randInt][1]}
