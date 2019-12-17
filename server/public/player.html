@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="static/player.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<meta charsert= "uft-8">
+	<title>
+		Player Page
+	</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src=/static/scripts/socket.io-stream.js></script>
+
+
+</head>
+<body>
+  <div id="wrapper">
+    <div class="container">
+      <div id="jumbotron">
+        <div class="jumbotron">
+            <h1 class="display-4">Player Page</h1>
+            <p class="lead">You are player <span id="playerID"> </span>. Wait for the master to start the game.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loadScreen" style="display:none">
+		<select class="form-control" id="colorSelect">
+			<option value="0">Green</option>
+			<option value="1">Red</option>
+			<option value="2">Blue</option>
+			<option value="3">Yellow</option>
+			<option value="4">Orange</option>
+			<option value="5">Purple</option>
+		</select>
+    <button id="readyButton" class="btn btn-dark">Ready</button>
+  </div>
+
+  <div id="controlScreen" style="display:none">
+			<canvas id="positionCanvas"></canvas>
+    	<button id="leftButton" class="btn btn-dark"><</button>
+      <button id="upButton" class="btn btn-dark">^</button>
+      <button id="rightButton" class="btn btn-dark">></button>
+      <button id="downButton" class="btn btn-dark">v</button>
+  </div>
+
+  <div id="losingScreen" style="display:none">
+    <div class="container">
+      <div id="jumbotron">
+        <div class="jumbotron">
+            <h1 class="display-4">You lose</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <script src="static/player.js"></script>
+</body>
+</html>

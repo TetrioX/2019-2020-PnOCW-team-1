@@ -10,6 +10,9 @@ const screenorientation = require('../screenOrientation/orientationCalculation.j
 const delaunay = require('../triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('../triangulate_divide_and_conquer/geometry.js')
 var snakeJs = require('../SnakeLogic/snake.js')
+var worldJs = require('../SnakeLogic/world.js')
+// var collisionJs = require('../SnakeLogic/snake.js')
+
 // load config file
 const config = require('./config.json');
 
@@ -43,12 +46,19 @@ var io = socket(server, {pingInterval: 200});
 
 var slaves = {}
 var slaveSockets = {}
-var number = 0
+var playerColors = {}
+var players = {}
+var playerSockets = {}
+var slaveNumber = 0
+var playerNumber = 0
 
 //adjust this if you want to have more colorlist
  const possibleColors =[ "red", "#00FF00", "blue", "#00FFFF","#FFFF00","#FF00FF"]
 
 
+/*****************
+  * Slave setup *
+ *****************/
 function deleteSlave(socket) {
   delete AllScreenPositions[slaves[socket.id]];
   delete slaves[socket.id];
@@ -56,13 +66,28 @@ function deleteSlave(socket) {
 }
 
 function addSlave(socket) {
-    slaves[socket.id] = ++number
+    slaves[socket.id] = ++slaveNumber
     slaveSockets[socket.id] = socket
     masterIo.emit('registerSlave', {
-        number: number,
+        number: slaveNumber,
         socket_id: socket.id
     })
-    socket.emit('slaveID', number)
+    socket.emit('slaveID', slaveNumber)
+}
+
+/*****************
+  * Player setup *
+ *****************/
+function deletePlayer(socket) {
+  delete AllScreenPositions[slaves[socket.id]];
+  delete players[socket.id];
+}
+
+function addPlayer(socket) {
+    players[socket.id] = ++playerNumber
+    playerSockets[socket.id] = socket
+    console.log("hello, ik ben ", playerNumber)
+    socket.emit('playerID', {number: playerNumber, socket: socket.id})
 }
 
 function sleep(ms){
@@ -86,6 +111,11 @@ async function decodeBase64Image(dataString)
 
     return response;
 }
+
+
+/**************************
+  * Recognition function *
+ **************************/
 
 // Fisher–Yates Shuffle
 // source: https://bost.ocks.org/mike/shuffle/
@@ -159,8 +189,17 @@ function getColorComb(n){
 }
 //Static files
 
+
+/***************
+  * App setup *
+ ***************/
+
 app.get('/master', function(req,res){
 	res.sendFile(__dirname + '/public/master.html')
+})
+
+app.get('/player', function(req,res){
+  res.sendFile(__dirname + '/public/player.html')
 })
 
 app.get('', function(req,res){
@@ -169,6 +208,11 @@ app.get('', function(req,res){
 app.use('/debug', express.static(__dirname + '/debug'))
 
 app.use('/static', express.static(__dirname +  '/public'))
+
+
+/***************
+  * Master Io *
+ ***************/
 
 io.of('/master').use(function(socket, next) {
   let passwd = socket.handshake.query.passwd
@@ -205,9 +249,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     socket.on('changeBackgroundColor', function(data){
 		if (data.id) slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
-		else {
-			slaveIo.emit('changeBackgroundColor', data);
-		  }
+		else slaveIo.emit('changeBackgroundColor', data);
   	});
 
     async function calibrate(numberOfRows, numberOfColumns){
@@ -249,7 +291,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
           slaveSockets[slave].emit('changeBackgroundOfAllSlaves', gridAndCombs.colorGrid, function(callBackData){
             resolve()
           })
-
 
             setTimeout(() => reject(new Error("Failed to show grid on screens")), 1000);
         }).catch(function() {
@@ -299,6 +340,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       return result
     }
 
+
     // takes a picture with i the current picture and n the total number of pictures
     // and pictues a list with all taken pictures
     async function takePicture(n){
@@ -347,9 +389,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           // wait untill all screens have changed
           await Promise.all(promises)
         }
-        else{
-          break
-        }
+        else break;
       }
       return pictures
     }
@@ -390,6 +430,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
       slaveIo.emit('drawLine', data);
   	});
 
+    ////////////////////////////
+    // Triangulation show-off //
+    ////////////////////////////
+
     socket.on('triangulate', async function(data){
       if (Object.keys(AllScreenPositions).length < 1) {
   			socket.emit('alert', 'Please do screen recognition first');
@@ -409,18 +453,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
       })
     });
 
-    socket.on('calibrate', function(data) {
-        slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
-        socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
-            socket.emit('takePictures', {slaves: slaves},
-                function (callbackData) {
-                    console.log('Took enough pictures.')
-                    imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
-                    for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
-                    scrnrec.findScreen(imgs) // Implement the screen recognition
-                })
-        })
-    });
+          // socket.on('calibrate', function(data) {
+          //     slaveIo.emit('changeBackgroundColor', {colorValue: '#000000'});
+          //     socket.emit('takePictures', {slaves: {0: 'm'}}, function (callbackData) {
+          //         socket.emit('takePictures', {slaves: slaves},
+          //             function (callbackData) {
+          //                 console.log('Took enough pictures.')
+          //                 imgs = [`./Pictures/slave-m.png`] // If this picture doesnot exist an error may be send
+          //                 for (var key in slaves) imgs.push(`./Pictures/slave-${slaves[key]}.png`) // Implement all slave pictures
+          //                 scrnrec.findScreen(imgs) // Implement the screen recognition
+          //             })
+          //     })
+          // });
+
+  ////////////////////
+  // Image show-off //
+  ////////////////////
 
 	socket.on('broadcastImage', function(data){
     clearInterval(videoUpdater)
@@ -456,6 +504,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
 				break;
 		}
 	}
+
+  ////////////////////
+  // Video show-off //
+  ////////////////////
 
 	socket.on('broadcastVideo', async function(){
     clearInterval(videoUpdater)
@@ -496,6 +548,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
     clearInterval(videoUpdater)
   })
 
+  ///////////////
+  // Countdown //
+  ///////////////
 
     var countdownUpdater = null
     socket.on('startCountdown', function(data){
@@ -512,6 +567,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
       	clearInterval(countdownUpdater)
       }, data*1000);
     })
+
+
+  ////////////////////////
+  // Animation show-off //
+  ////////////////////////
 
   var snakeUpdater = null
   var snake;
@@ -536,7 +596,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
     var nextSlave = getSlaveByPosition(nextPoint)
 
-    snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos)
+    snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos, {light: "#008000", dark: "#004000"})
     snake.changeDirectionOnPosition(direction, startPos, nextSlave)
 
     Object.keys(slaves).forEach(function(slave, index) {
@@ -581,16 +641,103 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
   }
 
+
+  /////////////////
+  // Game set up //
+  /////////////////
+  var gamePromises = []
+  socket.on('startGame', async function(data) {
+    gamePromises = []
+    playerColors = {}
+    deleteWorld()
+
+    playerColors[0] = {light: "#666666", dark: "#333333"};
+
+    Object.keys(players).forEach(async function(player, index) {
+      let promise = new Promise(function(resolve, reject) {
+        playerSockets[player].emit('setupGame', null, function(callBackData){
+          playerColors[player] = callBackData.colors;
+          playerSockets[player].emit('startGame')
+          resolve()
+        })
+        setTimeout(function() {
+          // if it takes longer than 0.5 seconds reject the promise
+          deletePlayer(playerSockets[player])
+          resolve()
+        }, 60 * 1000);
+      })
+      gamePromises.push(promise)
+    })
+    await Promise.all(gamePromises);
+    socket.emit('startGame')
+
+
+    // Game start
+
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                    '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // picDimensions = [500, 1000]
+
+    clearInterval(snakeUpdater)
+    createWorld();
+
+    console.log(playerColors)
+
+    for (let playerId in playerColors) {
+      startY = Math.floor(Math.random() * picDimensions[0])
+      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 75, {x: 1, y: startY}, playerColors[playerId])
+      world.addSnake(snake, playerId)
+    }
+
+    Object.keys(slaves).forEach(function(slave, index) {
+      slaveSockets[slave].emit('createSnake', {
+        corners: AllScreenPositions[slaves[slave]],
+        picDim: picDimensions,
+      });
+    })
+
+    snakeUpdater = setInterval(function(){
+      if (world == null) clearInterval(snakeUpdater)
+      slaveIo.emit('updateWorld', {
+        maxLat: Math.max(Object.values(latSlaves)),
+        world: world
+      })
+      world.updateWorld(30)
+      for (let plId in world.objects) {
+        if (plId == '0') socket.emit('updatePosition', {
+          headPos : world.objects[plId].headPos,
+          dim: world.dimensions
+        })
+        else playerSockets[plId].emit('updatePosition', {
+          headPos : world.objects[plId].headPos,
+          dim: world.dimensions
+        })
+      }
+    }, 1000/60) // 60 fps, gekozen door de normale
+  })
+
+  socket.on('changeSnakeDirection', function(data){
+    changeSnakeDirectionGame(data.playerId, data.direction)
+  })
+
+
+
 socket.on('clearAll', function(){
+  stopGame = true;
+  deleteWorld();
   clearInterval(snakeUpdater);
   slaveIo.emit('stopSnake');
   clearInterval(videoUpdater);
   clearInterval(countdownUpdater);
+  playerIo.emit('cleanAll')
 })
 
 });
 
 
+/***************
+  * Slave Io *
+ ***************/
 var slaveIo = io.of('/slave').on('connect', function(socket){
   addSlave(socket)
 
@@ -614,6 +761,26 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
   })
 });
 
+
+/***************
+  * Player Io *
+ ***************/
+var playerIo = io.of('/player').on('connect', function(socket){
+  addPlayer(socket)
+
+  socket.on('changeSnakeDirection', function(data){
+    changeSnakeDirectionGame(data.playerId, data.direction)
+  })
+
+  socket.on('disconnect', function() {
+    deletePlayer(socket)
+  })
+})
+
+
+/********************
+  * Grid functions *
+ ********************/
 
 //creating grids with a number of columns and a number of rows
 function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
@@ -642,4 +809,24 @@ function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
     result.colorGrid['sideBorder'] = sideBorder;
 
     return result;
+}
+
+/*********************
+  * Snake functions *
+ *********************/
+var world;
+function createWorld() {
+  console.log({x: picDimensions[1], y: picDimensions[0]})
+  world = new worldJs.World({x: picDimensions[1], y: picDimensions[0]});
+}
+
+function deleteWorld() {
+  world = null;
+}
+
+function changeSnakeDirectionGame(playerId, newDir) {
+  snake = world.objects[playerId]
+  if (snake && snake.parts[0].dir - newDir != Math.PI
+            && snake.parts[0].dir - newDir != -Math.PI)
+    snake.changeDirection(newDir);
 }
