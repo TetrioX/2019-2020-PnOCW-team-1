@@ -47,6 +47,7 @@ new Promise(function(resolve, reject){
 	var rowPicker = document.getElementById("rowPicker");
 	var columnPicker = document.getElementById("columnPicker");
 	var countdownPicker = document.getElementById("countdownPicker");
+	var resetButton = document.getElementById("resetbutton");
 
 	var snakeButton = document.getElementById("snakeButton");
 	var snakeLengthPicker = document.getElementById('snakeLengthPicker');
@@ -81,7 +82,9 @@ new Promise(function(resolve, reject){
 		snakeLength = snakeLengthPicker.valueAsNumber
 	})
 
-
+	resetButton.addEventListener('click', function(){
+		socket.emit('reset')
+	})
 
 	anglePicker.addEventListener('input', function () {
 		angle = -anglePicker.value / 180 * Math.PI

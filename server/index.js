@@ -96,7 +96,7 @@ function sleep(ms){
 
 // Decoding base-64 image
 // Source: http://stackoverflow.com/questions/20267939/nodejs-write-base64-image-file
-function decodeBase64Image(dataString)
+async function decodeBase64Image(dataString)
 {
     let matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
     let response = {};
@@ -303,11 +303,16 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }))
       // wait for grids to be created
       await Promise.all(createGridPromises)
-      let pictures = await takePicture(nbOfPictures)
-		  calibrationPicture = pictures[0]
-      if (pictures == null){
-        return null
+      let pictures = await takePicture(nbOfPictures).catch((err) => {
+        console.log(err)
+        return
+      })
+      for (pic of pictures){
+        if (typeof pic === 'undefined'){
+          return
+        }
       }
+		  calibrationPicture = pictures[0]
       // remove all the grids
       // TODO: use the callback
       Object.keys(slaves).forEach(function(slave, index) {
@@ -345,10 +350,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
       while(true){
         let picPromise = new Promise(function(resolve, reject) {
           ss(socket).emit('takeOnePicture', async function(stream){
-            resolve(new Promise(function(resolve, reject) {
+            resolve(new Promise(async function(resolve, reject) {
               stream.setEncoding('utf-8') // we want to recieve a string
-              stream.on('data', (chunk) => {
-                resolve(decodeBase64Image(chunk.toString()).data)
+              stream.on('data', async (chunk) => {
+                let image = await decodeBase64Image(chunk.toString())
+                resolve(image.data)
               });
               stream.on('error', (err) => reject(err))
             }).catch((err) => reject(err)))
@@ -358,7 +364,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
           console.log(error)
           // failed to retrieve the image
           socket.emit('alert', "Retrieving one of the images timed out.")
-          throw new Error("Retrieving one of the images timed out.")
         })
         let pic = await picPromise
         pictures.push(pic)
@@ -404,14 +409,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
       AllScreenPositions = {...AllScreenPositions, ...screens};
     });
 
-    socket.on('upload-image', function (data) {
+    socket.on('upload-image', async function (data) {
+      let image = await decodeBase64Image(data.buffer)
   		if (data.destination)
-        fs.writeFileSync(`./slave-${data.destination}.png`, decodeBase64Image(data.buffer).data)
+        fs.writeFileSync(`./slave-${data.destination}.png`, image.data)
   		else
-        fs.writeFileSync(`./image-${imageIndex}.png`, decodeBase64Image(data.buffer).data);
+        fs.writeFileSync(`./image-${imageIndex}.png`, image.data);
       masterIo.emit('imageSaved')
       imageIndex += 1;
     });
+
+    socket.on('reset', function(data){
+      AllScreenPositions = {}
+      clearInterval(videoUpdater)
+      clearInterval(countdownUpdater)
+      slaveIo.emit('refresh')
+    })
 
     socket.on('drawLine', function(data){
       slaveIo.emit('drawLine', data);
