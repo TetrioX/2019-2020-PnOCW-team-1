@@ -42,7 +42,7 @@ var server = app.listen(config.port, function(){
 });
 //Socket setup
 // pingInterval is used to determine the latency
-var io = socket(server, {pingInterval: 200});
+var io = socket(server, {pingInterval: 200, pingTimeout: 600000});
 
 var slaves = {}
 var slaveSockets = {}
