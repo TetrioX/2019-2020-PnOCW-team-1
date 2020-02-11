@@ -1,18 +1,20 @@
 let Snake = class {
-  constructor(size, partSize, headPos) {
+  constructor(size, partSize, headPos, colors) {
     for (let i = 0; i < size; i++) {
       let pos = {x: headPos.x - partSize / 3 * i, y: headPos.y}
       let part;
-      if (i > size - size / 10) part = new SnakePart(this, i, pos, (size - i + 1) * partSize / (size / 10 + 1), 0)
-      else part = new SnakePart(this, i, pos, partSize, 0)
+      if (i > size - size / 10) part = new SnakePart(this, i, pos, (size - i + 1) * partSize / (size / 10 + 1), 0, partSize)
+      else part = new SnakePart(this, i, pos, partSize, 0, partSize)
       this.parts.push(part)
     }
+    this.colors = colors;
     this.headPos = headPos;
   }
 
   parts = []
 
   changeDirection(newDir) {
+    console.log("ye")
     for (let part of this.parts)
       part.cacheNewDirection(newDir, {x: this.parts[0].pos.x, y: this.parts[0].pos.y})
   }
@@ -25,26 +27,29 @@ let Snake = class {
       part.cacheNewDirection(newDir, pos)
   }
 
-  updateSnake(vel) {
+  updateSnake(vel, dim) {
     let res = false;
     for (let part of this.parts){
-      let changed = part.updatePosition(vel)
+      let changed = part.updatePosition(vel, dim)
       if (changed) res = true;
+      if (part.name == 0) this.headPos = part.pos
+      part.headPos = this.headPos
     }
     return res;
   }
 }
 
 let SnakePart = class {
-  constructor(snake, name, startPosition, size, direction) {
-      // this.snake = snake;
+  constructor(snake, name, startPosition, size, direction, originalSize) {
       this.pos = startPosition;
       this.size = size;
       this.name = name;
       this.dir = direction;
-      this.devMax = size / 5;
+      this.devMax = originalSize / 5;
       this.deviation = 0;
       this.devSide = 1;
+      this.cycleTime = 1000 / originalSize;
+      this.headPos = this.Pos;
   }
 
   newDir = [];
@@ -80,7 +85,7 @@ let SnakePart = class {
 
   // 30 fps
   timePassed = 0;
-  updatePosition(vel) {
+  updatePosition(vel, dim) {
     let changed = false;
     this.updateDeviation();
     let posX = this.pos.x + vel / 30 * Math.cos(this.dir);

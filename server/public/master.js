@@ -21,12 +21,12 @@ new Promise(function(resolve, reject){
 				document.getElementById('alertdiv').style.display="";
 			}
 		}, 500)
-		
+
 	});
 }).then(function(socket){
 	passwordPage.style.display="none";
 	entirePage.style.display="";
-	
+
 
 	//Emit events to server
 	var selectResolution = document.getElementById('exampleFormControlSelect1');
@@ -41,16 +41,24 @@ new Promise(function(resolve, reject){
 	var countdownButton = document.getElementById("countdownButton")
 	var homebutton = document.getElementById('changePageButton');
 	var homebutton2 = document.getElementById('changePageButton2');
+	var homebutton3 = document.getElementById('changePageButton3');
+	var homebutton4 = document.getElementById('changePageButton4');
 	var secondEntirePage = document.getElementById("secondEntirePage");
 	var rowPicker = document.getElementById("rowPicker");
 	var columnPicker = document.getElementById("columnPicker");
 	var countdownPicker = document.getElementById("countdownPicker");
+	var resetButton = document.getElementById("resetbutton");
 
 	var snakeButton = document.getElementById("snakeButton");
 	var snakeLengthPicker = document.getElementById('snakeLengthPicker');
 	var triangulationSnake = document.getElementById('triangulationSnake');
-	var triangulationSnakeStop = document.getElementById('triangulationSnakeStop');
-	var homebutton3 = document.getElementById('changePageButton3');
+	var gameSnake = document.getElementById('gameSnake');
+	var triangulationSnakeStop = document.getElementById('triangulationSnakeStop'),
+			leftButton = document.getElementById('leftButton'),
+			rightButton = document.getElementById('rightButton'),
+			upButton = document.getElementById('upButton'),
+			downButton = document.getElementById('downButton'),
+			snakeCanvas = document.getElementById('positionCanvas');
 
 
 	var numberOfRows = rowPicker.valueAsNumber;
@@ -74,7 +82,9 @@ new Promise(function(resolve, reject){
 		snakeLength = snakeLengthPicker.valueAsNumber
 	})
 
-
+	resetButton.addEventListener('click', function(){
+		socket.emit('reset')
+	})
 
 	anglePicker.addEventListener('input', function () {
 		angle = -anglePicker.value / 180 * Math.PI
@@ -94,6 +104,11 @@ new Promise(function(resolve, reject){
 	        angle:angle
 	    })
 	});
+
+
+	/***********************************
+	  * Slave communication functions *
+	 ***********************************/
 
 	function createSlaveButton(number,id) {
 			var btn = document.createElement("BUTTON");
@@ -129,7 +144,10 @@ new Promise(function(resolve, reject){
 			removeSlaveButton(data)
 	});
 
-	//Foto nemen
+
+	/**************************
+	  * Foto nemen functions *
+	 **************************/
 
 	var useCameraButton = document.getElementById('useCamBtn');
 	useCameraButton.addEventListener('click',function(){
@@ -145,8 +163,6 @@ new Promise(function(resolve, reject){
 	video.setAttribute('autoplay', '');
 	video.setAttribute('muted', '');
 	video.setAttribute('playsinline', '');
-
-
 
 
 	var resolutions=[[1280,720],[1920,1080],[2560,1440],[3840,2160],[640,480]];
@@ -303,6 +319,11 @@ new Promise(function(resolve, reject){
 		});
 	});
 
+
+	/*********************
+	  * Image functions *
+	 *********************/
+
 	broadcastPicture.addEventListener('click',function(){
 		socket.emit('clearAll');
 		img = getImage()
@@ -313,20 +334,28 @@ new Promise(function(resolve, reject){
 			alert("Please select a picture.")
 	})
 
+	const getImage = function() {
+			var ele = document.getElementsByName('picture');
+
+			for(i = 0; i < ele.length; i++)
+					if(ele[i].checked)
+				return ele[i].value
+	}
+
+
+	/*********************
+	  * Video functions *
+	 *********************/
+
 	broadcastVideo.addEventListener('click',function(){
 		socket.emit('clearAll');
 		socket.emit('broadcastVideo');
 	})
 
 
-	const getImage = function() {
-	    var ele = document.getElementsByName('picture');
-
-	    for(i = 0; i < ele.length; i++)
-	        if(ele[i].checked)
-				return ele[i].value
-	}
-
+	/*************************
+	  * Countdown functions *
+	 *************************/
 
 	countdownButton.addEventListener('click', function(){
 		socket.emit('clearAll');
@@ -337,6 +366,9 @@ new Promise(function(resolve, reject){
 		}
 	})
 
+	/*******************************
+	  * Visual feedback functions *
+	 *******************************/
 
 	socket.on('drawCircles', function (data) {
 		socket.emit('clearAll');
@@ -381,8 +413,8 @@ new Promise(function(resolve, reject){
 		var CircelPicture = canvas.toDataURL();
 
 		feedbackimage.onload = async function(){
-			
-			
+
+
 
 			feedbackctx.drawImage(feedbackimage,0,0, visualfeedbackcanvas.width,visualfeedbackcanvas.height);
 		}
@@ -395,6 +427,11 @@ new Promise(function(resolve, reject){
 		thirdEntirePage.style.display="none"
 	})
 
+
+	/*********************
+	  * Snake functions *
+	 *********************/
+
 	snakeButton.addEventListener('click', function(){
 		socket.emit('clearAll');
 		entirePage.style.display="none";
@@ -403,9 +440,10 @@ new Promise(function(resolve, reject){
 	})
 
 	triangulationSnake.addEventListener('click', function(){
-		socket.emit("startSnake", {
-			size: snakeLength
-		})
+		socket.emit('clearAll');
+		if (snakeLength)
+			socket.emit("startSnake", { size: snakeLength })
+		else alert('You gotta choose a length.')
 	})
 
 	triangulationSnakeStop.addEventListener('click', function(){
@@ -418,15 +456,72 @@ new Promise(function(resolve, reject){
 		socket.emit('stopSnake')
 	})
 
+	// players = [0, 1, 2]
+	gameSnake.addEventListener('click', function(){
+		socket.emit('clearAll');
+		if (snakeLength)
+			socket.emit("startGame", { size: snakeLength })
+		else alert('You gotta choose a length.')
+	})
 
+	triangulationSnakeStop.addEventListener('click', function(){
+		socket.emit('stopSnake')
+	})
 
+	homebutton2.addEventListener('click',function(){
+		entirePage.style.display="";
+		snakeEntirePage.style.display="none";
+		socket.emit('stopSnake')
+	})
 
+	leftButton.addEventListener('click', function(){
+		socket.emit('changeSnakeDirection', {
+			playerId: 0,
+			direction: -Math.PI
+		})
+	})
 
+	rightButton.addEventListener('click', function(){
+		socket.emit('changeSnakeDirection', {
+			playerId: 0,
+			direction: 0
+		})
+	})
 
+	upButton.addEventListener('click', function(){
+		socket.emit('changeSnakeDirection', {
+			playerId: 0,
+			direction: -Math.PI / 2
+		})
+	})
 
+	downButton.addEventListener('click', function(){
+		socket.emit('changeSnakeDirection', {
+			playerId: 0,
+			direction: Math.PI / 2
+		})
+	})
 
+	socket.on('startGame', function(){
+		snakeEntirePage.style.display="none";
+		controlSnakePage.style.display="";
+	})
+
+	socket.on('updatePosition', function(data){
+	  ctxt = snakeCanvas.getContext('2d')
+	  ctxt.clearRect(0, 0, canvas.width, canvas.height);
+	  ctxt.fillStyle = "#FF0000";
+	  ctxt.beginPath();
+	  ctxt.arc(data.headPos.x * canvas.width / data.dim.x, data.headPos.y * canvas.height / data.dim.y,
+	              canvas.height / 50, 0, 2 * Math.PI);
+	  ctxt.fill();
+	})
+
+	homebutton4.addEventListener('click',function(){
+		snakeEntirePage.style.display="";
+		controlSnakePage.style.display="none";
+		socket.emit('clearAll');
+		socket.emit('stopSnake')
+	})
 
 })
-
-//listen for events from server
-

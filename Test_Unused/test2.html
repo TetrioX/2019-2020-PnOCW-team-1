@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		Master Page
+	</title>
+</head>
+<body>
+  <input type="file" accept="video/*" />
+  <input type="submit" onClick="reloadRandomFrame()" value="load random frame" /><br/>
+  <canvas id="prevImgCanvas">Your browser does not support the HTML5 canvas tag.</canvas>
+  <script type="text/javascript">
+    var video = document.createElement("video");
+    console.log(video)
+    var canvas = document.getElementById("prevImgCanvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    video.addEventListener('loadeddata', function() {
+      reloadRandomFrame();
+      console.log(video)
+    }, false);
+
+    video.addEventListener('seeked', function() {
+      var context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }, false);
+
+    var playSelectedFile = function(event) {
+      var file = this.files[0];
+      console.log(this.files[0])
+      var fileURL = URL.createObjectURL(file);
+        console.log(fileURL)
+      video.src = fileURL;
+    }
+
+    var input = document.querySelector('input');
+    input.addEventListener('change', playSelectedFile, false);
+
+    function reloadRandomFrame() {
+      if (!isNaN(video.duration)) {
+        var rand = Math.round(Math.random() * video.duration * 1000) + 1;
+        video.currentTime = rand / 1000;
+      }
+    }
+  </script>
+</body>
+</html>
