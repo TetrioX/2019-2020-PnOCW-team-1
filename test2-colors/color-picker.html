@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+		color picker
+	</title>
+</head>
+<body>
+<div id="main">
+  <input type="color" id="color">
+</div>
+<script>
+  var main = document.getElementById("main")
+  var colorPicker = document.getElementById('color')
+  var body = document.body
+  colorPicker.addEventListener('input', function () {
+		body.style.backgroundColor = colorPicker.value
+    main.style.display = "none"
+  });
+  body.addEventListener("keypress", function() {
+    main.style.display = "block"
+  });
+
+</script>
+</body>
+</html>
