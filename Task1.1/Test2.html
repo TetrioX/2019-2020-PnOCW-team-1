@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<script>
+
+(function () {
+
+    var SyncTimeframe = 1000 * 60 * 60 * 3; // 3 Hours
+    var LastSyncKey = 'LastSyncWithTimeServer';
+    var TimeDiffKey = 'Local-Server-TimeDiff';
+
+    var RetryMax = 3;
+    var RetryCount = 0;
+    var AcceptedDelay = 500;
+
+    if (window.localStorage.getItem(LastSyncKey) == null) {
+        window.localStorage.setItem(LastSyncKey, '' + (new Date(0)));
+    }
+
+    LastSync = new Date(window.localStorage.getItem(LastSyncKey));
+
+    if ( Math.abs((new Date()) - LastSync) > SyncTimeframe) {
+        SyncTime();
+    }
+    else {
+        ShowTime();
+    }
+
+    function SyncTime() {
+        var StartTime = new Date();
+
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("HEAD", "http://www.googleapis.com",true);
+        xmlhttp.onreadystatechange=function() {
+
+            if (xmlhttp.readyState==4) {
+                TimeDiff=new Date(xmlhttp.getResponseHeader("Date")) -
+                                (new Date()) + ((new Date()) - StartTime) / 2;
+
+                if (++RetryCount < 3 && (new Date()) - StartTime > AcceptedDelay) {
+                   SyncTime();
+                }
+                else {
+                    window.localStorage.setItem(LastSyncKey, '' + (new Date()));
+                    window.localStorage.setItem(TimeDiffKey, TimeDiff);
+                    ShowTime();
+                }
+            }
+        }
+        xmlhttp.send(null);
+    }
+
+    function ShowTime(){
+        var AllNodes=document.getElementsByClassName("RealServerTime");
+
+        var diff = parseInt(window.localStorage.getItem(TimeDiffKey), 10);
+
+        // format Date and Time
+        var TimeToString=(new Date(Date.now() + diff)).toTimeString().split(' ')[0];
+
+        for(var ipos=0;ipos<AllNodes.length;ipos++){
+            AllNodes[ipos].innerHTML=TimeToString;
+        }
+
+        window.setTimeout(ShowTime, 1000);
+    }
+})();
+
+
+</script>
+</body>
+</html>
