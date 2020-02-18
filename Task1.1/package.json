@@ -8,6 +8,7 @@
     "canvas": "^2.6.0",
     "ctx": "^0.3.0",
     "nerdamer": "^1.0.4",
+    "ntp-time-sync": "^0.1.0",
     "ntpsync": "^0.2.3",
     "sharp": "^0.23.1",
     "solve": "^1.2.0",
