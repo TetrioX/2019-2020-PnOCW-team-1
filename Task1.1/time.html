@@ -1,0 +1,696 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nl" lang="nl"><head><title>Time.is - de juiste tijd in elke tijdzone</title><script data-cfasync="false">
+var freestar=freestar||{}
+freestar.hitTime=Date.now()
+freestar.queue=freestar.queue||[]
+freestar.config=freestar.config||{}
+freestar.debug=window.location.search.indexOf('fsdebug')===-1?false:true
+freestar.config.enabled_slots=['time.is_728x90_970x90_970x250_300x250_320x50_ATF2','time.is_728x90_970x90_970x250_300x250_320x50_ATF','time.is_728x90_970x90_970x250_300x250_320x50_Middle'];
+!function(a,b){var c=b.getElementsByTagName("script")[0],d=b.createElement("script"),e="https://a.pub.network/timeis";e+=freestar.debug?"/qa/pubfig.min.js":"/pubfig.min.js",d.async=!0,d.src=e,c.parentNode.insertBefore(d,c)}(window,document);
+</script>
+
+<!--[if lt IE 9]>
+<script>
+document.createElement('nav');
+document.createElement('section');
+document.createElement('article');
+document.createElement('footer');
+document.createElement('quote');
+document.createElement('cite');
+document.createElement('time');
+</script>
+<![endif]-->
+<script>
+var updint=1000,U="undefined",N=null,E=true,F=!E,O="object",S="string",D=document,A=0,fc={a:0},bfc=1,uT="Time.is ",sT,tD,pY=lY=73,cY=syncn=rsy=0,ztrans=1585443600000,newzo=120,ss={"0218":"&uarr; 07:49 &darr; 18:02 (10h 13m)","0219":"&uarr; 07:47 &darr; 18:03 (10h 17m)"},destT=0,yrp="",csup=1,czo=0,rqT=0,syncT=0,syncquota=10,earliest_syncT=0,xR=1,syncm='',syncdt='',adH=110,mZ=64,ltr=1,ticks=0,state={chosen_loc:0,current_page:"specific_location"};
+function _tD(M){sT=M;tD=new Date().getTime()-M-Math.round(lY/2);cY=lY-pY;if(cY<10)cY=10}
+_tD(1582035972398)
+function gob(e){if(typeof e==O)return e;if(D.getElementById)return D.getElementById(e);return eval(e)}
+function bluritem(e){e=gob(e);e.className=e.className.replace('focused','blr');bfc=1}
+function focusitem(e){bfc=0;e=gob(e);e.className=e.className.replace('blr','focused');e.className=e.className.replace('submitted','focused')}
+function mouseover(e){e.className=e.className.replace('mout','hovered')}
+function mouseout(e){e.className=e.className.replace('hovered','mout')}
+function setfocus(g){if(typeof fc[g]==U)fc[g]=1;else fc[g]++
+if(fc['a']!=0&&fc['a']!=g)losefocus(fc['a'])
+fc['a']=g;gob(g).className=gob(g).className.replace('hide','show');bfc=0}
+function losefocus(g){if(fc['a']!=g)fc[g]=0;else{fc[g]--;if(fc[g]<1){fc['a']=0;fc[g]=0;gob(g).className=gob(g).className.replace('show','hide');bfc=1}}}
+dmode=0
+function setcookie(n,v){var x=new Date();x.setDate(x.getDate()+365);D.cookie=n+'='+encodeURIComponent(v)+'; expires='+x.toGMTString()+'; path=/'
+if(D.cookie.length<1)csup=0}
+function httpSync(){
+nextSyncT=0
+array_name='main'
+xR=N
+gob('syncH').innerHTML=p_syncing;gob('syncDtl').innerHTML='&nbsp;';gob('msgs').className=gob('msgs').className.replace('hdn','vsbl')
+if(window.XMLHttpRequest)xR=new XMLHttpRequest()
+else if(window.ActiveXObject)xR=new ActiveXObject("Microsoft.XMLHTTP")
+if(xR!=N){
+rqT=new Date()
+czo=-rqT.getTimezoneOffset()
+xR.onreadystatechange=s_C
+xR.open('get','/t/?'+l+'.'+syncn+'.'+lY+'.'+tD+'.'+rsy+'p.'+czo+'.'+locs[array_name][conf['h']][1]+'.'+rqT.getTime()+'.'+sT+'.'+yrp,E)
+xR.send(N)
+yrp=''
+}else xR='N/A'
+}
+var Y=['','']
+function s_C(){
+var o,dots='...',sym=Y[0],syd=Y[1]
+if(xR.readyState==4){
+if(xR.status==200){
+var rpT=new Date(),n=rpT-rqT,r=xR.responseText.split("\n")
+sT=r[1]
+var prevST=syncT
+syncT=new Date()
+syncT.setTime(syncT.getTime()-tD)
+if(syncn===0||rsy||n<lY){if(r[0].length==13)r.unshift('ok');if(r.length<7||r[0]!=='ok'){
+if(r[0].substr(0,6)=='error:')p_failm=r[0].substr(6)
+else gob('msgs').className='w90 pulldowncv nonet'
+hideTO=setTimeout('sync_cleanup(0)',4000)
+}else{p_failm=p_fail
+if(rsy&&(syncT-prevST<60000)){syncquota--
+if(syncquota<0)earliest_syncT=new Date(syncT.getTime()+120000)
+}else if(earliest_syncT==0)syncquota=10
+}
+rsy=0
+lY=n
+_tD(r[1])
+
+Y=T_I.initClock()
+sym=Y[0]
+syd=Y[1]
+}
+nextSyncT=new Date()
+nextSyncT.setTime(nextSyncT.getTime()-tD+3600000)
+if(49<cY&&syncn<1){for(var i=0;i<syncn;i++)dots+='.'
+sym=p_syncing+dots
+syd=''
+syncn++
+httpSync()}
+else{o=gob('front_loc');if(o)o.style.visibility='visible'
+;o=gob('socbuttons');if(o)o.style.visibility='inherit'
+}
+if(syd=='')syd='&nbsp;'
+spdays={}
+for(i=5;i<r.length-1;i++)spdays[r[i].substr(0,4)]=r[i].substr(4,r[i].length)
+if(zone_id!=='UTC'){// zone_offset=r[2];zone_id=r[3]
+}
+}else{sym=p_conn_failed
+syd=xR.statusText
+if(syd!='')syd=' ('+syd+')'
+if(!A){if(xR.statusText!="")sym+=syd
+syd='<a href="javascript:T_I.check_again()">'+p_try_again+'</a>'
+}
+}
+gob('syncH').innerHTML=sym
+gob('syncDtl').innerHTML=syd
+var ac=gob('accuracy')
+if(ac)ac.innerHTML=syd
+setmsgH(0)
+}}
+function sg(q,sd){
+T_I.set_susdiv(sd);o=gob(sd)
+if((N!==q.match(/^Plaats \d+ \(niet verplicht\)$/))||q=='Typ een locatie'||q=='Automatisch')return ''
+q=q.replace(/ +$/,'').replace(/^ +/, '')
+if(q.length<4)q=q.toLowerCase()
+var n=sd.replace('susdiv','')
+if((typeof complocurls!=U)&&(typeof complocurls[n]!=U)&&(complocurls[n][0]==q))return ''
+if(typeof prevq[sd]!==U&&q==prevq[sd]||q==e_loc){o.className=o.className.replace('hide','show')
+return ''}
+if(q.length<1){o.innerHTML='';chosen_sus[sd]=0;prevq[sd]=q;current_q[sd]=q;return ''}
+prevq[sd]=q
+if(sus[q]){T_I.populate_sus(sd,q,1);return ''}
+var xh=N,xhp=[]
+if(window.XMLHttpRequest)xh=new XMLHttpRequest()
+else if(window.ActiveXObject)xh=new ActiveXObject('Microsoft.XMLHTTP')
+if(xh!=N){rqT=new Date()
+xh.onreadystatechange=function(){if(xh.readyState==4)if(xh.status==200){
+var xr=xh.responseText.split("\n"),st=xr.shift(),q1=xr.shift()
+for(var i in xr){
+if(i==='indexOf')break
+xr[i]=xr[i].split('	')
+}
+sus[q1]=xr
+if(typeof prevsustime[xhp['sd']]==U||prevsustime[xhp['sd']]<xhp['t']){prevsustime[xhp['sd']]=xhp['t'];T_I.populate_sus(xhp['sd'],xhp['q'],1)}}}
+xhp['sd']=sd
+xhp['t']=new Date()
+if(q=='.')q='.a'
+if(q=='..')q='.,'
+xhp['q']=q
+xh.open("get",'/s/'+l+'/'+q.length+'/'+encodeURIComponent(q.replace(/ /g,'_'))+'?'+xhp['t'].getTime(),E)
+xh.send(N)
+}else xh='N/A'
+}
+function arrows(sd,e){var k=e.which||e.keyCode
+if(k==40||k==38)T_I.cycle_sus(sd,k-39)
+else if(k==9||k==13)T_I.take_chosen(sd,k)
+else return E
+return F}
+function togglesimple(x){var g='',c=bod.className
+if(x!==0&&c.indexOf('simplify')!=-1){dmode=0;bod.className=c.replace('simplify','showall');x=1}
+else if(x!==1&&c.indexOf('showall')!=-1){dmode=1;bod.className=c.replace('showall','simplify');x=0;g='none'}else x=''
+if(x!==''){var gp=gob("___plusone_0");if(gp!=N)gp.style.display=g
+setsizes(1);T_I.tick('',0)}}var kacs={h:"/",j:"js:togglesimple(2)",f:"js:t_FS()",S:"js:t_s()",O:"/customize",s:"js:tl_a()",c:"/calendar",w:"js:setcol((conf['c']*1+1)%2)",m:"js:toggle_menu(2)",Z:"js:change_clock_size()"}
+handle_keys=function(ev){if(!bfc)return E
+var i,u,e=ev||event,k=e.which||e.keyCode
+if(e.altKey||e.metaKey||e.ctrlKey)return E
+if(typeof kacs[String.fromCharCode(k)]===S){
+u=kacs[String.fromCharCode(k)]
+if(u.substr(0,3)=="js:")eval(u.substr(3))
+else{if(u.substr(0,4)=="http")open(u,"_blank")
+else location=u}return F}
+if((96<k&&k<123)||(64<k&&k<91)){toggle_menu(0);t_search(1)}
+i=locs.favs.length-k+48;if((48<k&&k<58)&&U!==typeof locs.favs[i]){location='/'+locs.favs[i][4];return F}
+return E}
+handle_arrow_keys=function(ev){
+if(fc["a"]==1)return E
+var e=ev||event,k=e.which||e.keyCode
+if(e.altKey||e.metaKey||e.ctrlKey)return E
+if(k==27){toggle_menu(0);t_search(0);togglesimple(1);return F}
+if(bfc&&36<k&&k<41&&typeof kacs[k]===S){
+var u=kacs[k]
+if(u.substr(0,3)=="js:")eval(u.substr(3))
+else location=u
+return F
+}
+return E
+}
+function toggle_more(){
+var t=gob('top'),cn='less'
+if(t.className=='less')cn='more'
+t.className=cn
+set_mw()
+}
+D.onkeypress=this.handle_keys
+D.onkeydown=this.handle_arrow_keys
+</script>
+<meta name="description" content="7 miljoen plaatsen, 46 talen, op de atoomklok gelijk gezet."/>
+<meta property="og:image" content="https://static.time.is/img/shareable/time_is_110011.png"/><meta property="og:image" content="https://static.time.is/img/shareable/time_is_110011_dark.png"/><meta property="og:image" content="https://static.time.is/img/shareable/time_is_with_milliseconds_110742.png"/><meta property="og:image" content="https://static.time.is/img/shareable/time_is_with_milliseconds_110742_dark.png"/><meta name="viewport" content="user-scalable=0, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+<link rel="image_src" href="//static.time.is/img/shareable/time_is_110011.png"/><link rel="icon" type="image/x-icon" href="//static.time.is/favicon.ico"/>
+<link rel="apple-touch-icon" href="//static.time.is/img/apple-touch-icon.png"/>
+<link rel="search" type="application/opensearchdescription+xml" title="Time.is" href="//static.time.is/opensearch.xml"/>
+<link rel="alternate" type="application/rss+xml" title="Time Zone News from Time.is" href="https://rss.time.is/time_zone_news.rss"><style>
+*{margin:0;padding:0;border:0;outline:0}
+div,h1,h2,h3,label,time{clear:both}
+div,img,form{float:left}
+#clock{float:left}
+body{background:#fff}
+span a,.nw,#clock{white-space:nowrap}
+body,select,input,textarea{font:18px/26px 'Times New Roman',Times,FreeSerif,serif;color:#333;letter-spacing:2px}
+#nav h3{letter-spacing:1px}
+@font-face{
+font-family:'Timeis';
+font-style:normal;
+font-weight:normal;
+src:url('//static.time.is/fonts/Time-is-short.ttf') format('truetype');
+}
+@font-face {
+font-family: 'Montserrat';
+font-style: normal;
+font-weight: 600;
+font-display: swap;
+src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'), url(https://fonts.gstatic.com/s/montserrat/v14/JTURjIg1_i6t8kCHKm45_bZF3gnD_g.woff2) format('woff2');
+unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+font-family: 'Montserrat';
+font-style: normal;
+font-weight: 400;
+font-display: swap;
+src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+font-family: 'Montserrat';
+font-style: normal;
+font-weight: 400;
+font-display: swap;
+src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+font-family: 'Montserrat';
+font-style: normal;
+font-weight: 900;
+font-display: swap;
+src: local('Montserrat Black'), local('Montserrat-Black'), url(https://fonts.gstatic.com/s/montserrat/v14/JTURjIg1_i6t8kCHKm45_epG3gfD_u50.woff2) format('woff2');
+unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+font-family: 'Montserrat';
+font-style: normal;
+font-weight: 900;
+font-display: swap;
+src: local('Montserrat Black'), local('Montserrat-Black'), url(https://fonts.gstatic.com/s/montserrat/v14/JTURjIg1_i6t8kCHKm45_epG3gnD_g.woff2) format('woff2');
+unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+body.ms,body.ms #dd,body.ms #pL{font-family:Montserrat,'Arial Black','Arial-BoldMT','Arial Bold',Arial,Helvetica,sans-serif}
+.ms time{font-family:Timeis,'Arial Black','Arial-BoldMT','Arial Bold',Arial,Helvetica,sans-serif}
+.ms h1,.ms h2,.ms h3,.ms #dd{font-weight:900;font-style:normal}
+.ms #dd,.ms #pL{font-weight:normal}
+.ms div,.ms select,.ms .txtin,.ms .button,.ms textarea,.ms #dd,.ms #pL{font-family:Montserrat,Arial,Helvetica,sans-serif}
+.ms #favs li span{color:#000;font-weight:400;font-size:20px}
+.wb #favs li span{color:#fff}
+.ms #favs li .time,.ms .event_summary,.ms #msgdiv h1{font-weight:400}
+.ms #msgdiv h1 span,.ms #msgdiv h1#syncH{font-weight:900}
+body.ms,.ms select,.ms input,.ms textarea,.ms h1,.ms h2,body.ms #dd,.ms .tbx div{letter-spacing:0}
+.ms #nav h3{letter-spacing:0;font-weight:400}
+.ms #nav a.logo{color:#fff;text-transform:uppercase;letter-spacing:4px}
+.ms nav .logo{font-family:Montserrat;font-weight:900}
+.ms nav .slogan{font-weight:900}
+#clock{font-size:100px;line-height:normal;position:relative;font-weight:bold}
+#clock span{display:inline-block;text-align:center}
+.monospace{display:inline-block;text-align:center;width:12px}
+#clock0_bg{margin:60px 0}
+div.lg a:link,div.lg a:visited{text-transform:uppercase;font-weight:600;font-size:16px;padding:20px 30px;letter-spacing:3px}
+blockquote{font-weight:900}
+#favs li .time span{display:inline-block;text-align:center;width:13px}
+@media only screen and (max-width:639px){.monospace{width:10px}}
+@media only screen and (max-width:1280px){#clock0_bg{margin:60px 0}}
+@media only screen and (max-width:1024px){#clock0_bg{margin:30px 0}}
+@media only screen and (max-width:768px){#clock0_bg{margin:20px 0}}
+@media only screen and (max-height:720px){#clock0_bg{margin:20px 0}}
+@media only screen and (max-width:400px){div.lg a:link,div.lg a:visited{font-size:14px;padding:15px 20px;letter-spacing:2px}}.divider{color:#ccc}
+.lsp{float:right;color:#333}
+.lsp ul{list-style:none;text-align:right}
+a:link,a:visited{color:#333;text-decoration:none;border-bottom:1px solid #ccc}
+h1,h2,#dd{font-size:36px;line-height:40px;font-weight:normal;letter-spacing:1px}
+.w90{margin-left:5%;width:90%}
+#c{padding-bottom:40px}
+#msgdiv{float:left;position:relative;z-index:8}
+div#msgs h1{margin-right:30px;float:left}
+.lg a:link,.lg a:visited{background:#c35;float:left;display:block;color:#fff;border:0;padding:20px;font:26px/20px Montserrat,Arial,sans-serif;font-weight:900;letter-spacing:2px}
+.lg{z-index:9;position:relative}
+#pl{display:none}
+time{cursor:pointer;direction:ltr}
+#fs-video-container,#fs-video-container div{float:none}
+
+#top{width:90%;margin:0 5%}
+#clock0_bg{width:100%}
+#clock0,#pL,#lC,#dd,#daydiv{text-align:right}
+select{height:40px}
+#pL a:link,#pL a:visited,#pL1 a,#lC,#daydiv,#daydiv1{color:#333}
+
+#pL,#pL1{margin-bottom:20px}
+#favs{width:100%;list-style:none;margin:0 0 10px 0;padding:0;float:right}
+#favs span{color:#999}
+.tbx div{clear:none;float:left;text-align:left;white-space:nowrap;font-size:18px;line-height:22px;font-style:normal;font-weight:normal;letter-spacing:2px}
+.tbx a{display:block;margin:0 0 10px 10px;padding:10px 20px;border:1px solid #eee;background:#eee;text-decoration:none}
+.txtin,.dateinput{background:#eee;border:1px solid #ddd;width:138px;padding:10px;color:#333}
+.mout{border-color:#eee}
+</style><link rel="stylesheet" href="//static.time.is/css/t200213.css"/><script async=true>
+var elem = document.createElement('script');
+elem.src = 'https://quantcast.mgr.consensu.org/cmp.js';
+elem.async = true;
+elem.type = "text/javascript";
+var scpt = document.getElementsByTagName('script')[0];
+scpt.parentNode.insertBefore(elem, scpt);
+(function() {
+var gdprAppliesGlobally = false;
+function addFrame() {
+if (!window.frames['__cmpLocator']) {
+if (document.body) {
+var body = document.body,
+iframe = document.createElement('iframe');
+iframe.style = 'display:none';
+iframe.name = '__cmpLocator';
+body.appendChild(iframe);
+} else {
+setTimeout(addFrame, 5);
+}
+}
+}
+addFrame();
+function cmpMsgHandler(event) {
+var msgIsString = typeof event.data === "string";
+var json;
+if(msgIsString) {
+json = event.data.indexOf("__cmpCall") != -1 ? JSON.parse(event.data) : {};
+} else {
+json = event.data;
+}
+if (json.__cmpCall) {
+var i = json.__cmpCall;
+window.__cmp(i.command, i.parameter, function(retValue, success) {
+var returnMsg = {"__cmpReturn": {
+"returnValue": retValue,
+"success": success,
+"callId": i.callId
+}};
+event.source.postMessage(msgIsString ?
+JSON.stringify(returnMsg) : returnMsg, '*');
+});
+}
+}
+window.__cmp = function (c) {
+var b = arguments;
+if (!b.length) {
+return __cmp.a;
+}
+else if (b[0] === 'ping') {
+b[2]({"gdprAppliesGlobally": gdprAppliesGlobally,
+"cmpLoaded": false}, true);
+} else if (c == '__cmp')
+return false;
+else {
+if (typeof __cmp.a === 'undefined') {
+__cmp.a = [];
+}
+__cmp.a.push([].slice.apply(b));
+}
+}
+window.__cmp.gdprAppliesGlobally = gdprAppliesGlobally;
+window.__cmp.msgHandler = cmpMsgHandler;
+if (window.addEventListener) {
+window.addEventListener('message', cmpMsgHandler, false);
+}
+else {
+window.attachEvent('onmessage', cmpMsgHandler);
+}
+})();
+window.__cmp('init', {
+'Language': 'en',
+'Initial Screen Reject Button Text': 'I DO NOT ACCEPT',
+'Initial Screen Accept Button Text': 'I ACCEPT',
+'Purpose Screen Body Text': 'You can set your consent preferences and determine how you want your data to be used based on the purposes below. You may set your preferences for us independently from those of third-party partners. Each purpose has a description so that you know how we and partners use your data.',
+'Purpose Screen Vendor Link Text': 'See Vendors',
+'Purpose Screen Save and Exit Button Text': 'SAVE &amp; EXIT',
+'Vendor Screen Body Text': 'You can set consent preferences for individual third-party partners we work with below. Expand each company list item to see what purposes they use data for to help make your choices. In some cases, companies may use your data without asking for your consent, based on their legitimate interests. You can click on their privacy policy links for more information and to object to such processing. ',
+'Vendor Screen Accept All Button Text': 'ACCEPT ALL',
+'Vendor Screen Reject All Button Text': 'REJECT ALL',
+'Vendor Screen Purposes Link Text': 'Back to Purposes',
+'Vendor Screen Save and Exit Button Text': 'SAVE &amp; EXIT',
+'Initial Screen Body Text': 'We and our partners use technologies, such as cookies, and process personal data, such as IP addresses and cookie identifiers, to personalise ads and content based on your interests, measure the performance of ads and content, and derive insights about the audiences who saw ads and content. Click below to consent to the use of this technology and the processing of your personal data for these purposes. You can change your mind and change your consent choices at any time by returning to this site. ',
+'Initial Screen Body Text Option': 1,
+'Publisher Name': 'Time.is',
+'Publisher Purpose IDs': [1,4,5],
+'Consent Scope': 'service',
+'Min Days Between UI Displays': 90,
+'Publisher Purpose Legitimate Interest IDs': [1,4,5],
+'Google Personalization': false,
+'UI Layout': 'banner',
+'Non-Consent Display Frequency': 90,
+});
+</script>
+
+
+<style>
+div .qc-cmp-button {
+background-color: #666666 !important;
+border-color: #666666 !important;
+border-width:1px;
+border-radius:0px;
+}
+.qc-cmp-button:hover {
+background-color: #000000 !important;
+border-color: #000000 !important;
+color: #ffffff !important;
+}
+.qc-cmp-alt-action,
+.qc-cmp-link {
+color: #666666 !important;
+}
+.qc-cmp-button.qc-cmp-secondary-button:hover
+{
+border-color: transparent !important;
+background-color: #000000 !important;
+}
+.qc-cmp-button {
+color: #ffffff !important;
+}
+.qc-cmp-button.qc-cmp-secondary-button {
+color: #cc3355 !important;
+}
+.qc-cmp-button.qc-cmp-button.qc-cmp-secondary-button:hover {
+color:#ffffff !important;
+}
+.qc-cmp-button.qc-cmp-secondary-button {
+border-color: #cc3355 !important;
+background-color: transparent !important;
+}
+.qc-cmp-ui,
+.qc-cmp-ui .qc-cmp-main-messaging,
+.qc-cmp-ui .qc-cmp-messaging,
+.qc-cmp-ui .qc-cmp-beta-messaging,
+.qc-cmp-ui .qc-cmp-title,
+.qc-cmp-ui .qc-cmp-sub-title,
+.qc-cmp-ui .qc-cmp-purpose-info,
+.qc-cmp-ui .qc-cmp-table,
+.qc-cmp-ui .qc-cmp-table-header,
+.qc-cmp-ui .qc-cmp-vendor-list,
+.qc-cmp-ui .qc-cmp-vendor-list-title {
+color: #000000 !important;
+}
+.qc-cmp-ui a,
+.qc-cmp-ui .qc-cmp-alt-action,
+.qc-cmp-toggle-status  {
+color: #cc3355 !important;
+}
+.qc-cmp-ui {
+background-color: #ffffff !important;
+}
+.qc-cmp-publisher-purposes-table .qc-cmp-table-header {
+background-color: #ffffff !important;
+}
+.qc-cmp-publisher-purposes-table .qc-cmp-table-row {
+background-color: #ffffff !important;
+}
+.qc-cmp-vendor-list .qc-cmp-vendor-row {
+background-color: #ffffff !important;
+}
+.qc-cmp-vendor-list .qc-cmp-vendor-row-header {
+background-color: #ffffff !important;
+}
+.qc-cmp-table {
+border: 1px solid #000000 !important;
+}
+.qc-cmp-table-row {
+border-top: 1px solid #000000 !important;
+}
+.qc-cmp-table-row:last-child {
+border-bottom: 1px solid #000000 !important;
+}
+.qc-cmp-toggle-status {
+color: #000000 !important;
+}
+.qc-cmp-arrow-down {
+background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='#000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E %3Cpolyline points='2 5 8 11 14 5'/%3E %3C/svg%3E") center no-repeat;
+}
+.qc-cmp-small-toggle.qc-cmp-toggle-on,
+.qc-cmp-toggle.qc-cmp-toggle-on {
+background-color: #cc3355 !important;
+border-color: #cc3355 !important;
+}
+.qc-cmp-ui-container p{clear:both}
+
+</style>
+<script src="//static.time.is/js/t200213.js"></script>
+</head>
+<body id="bdy" onload="in_s()" class="showall ms bw "><div id="top">
+<div class="lg"><h2><a href="https://time.is/" target="_top" title="Time.is">Time.is</a></h2></div>
+<div class="icon-nav tr">
+<a href="#nav" onclick="return toggle_menu(1)" title="menu">
+<div style="margin-top:2px;width:100%;border-top:5px solid #aaa;padding:3px 0 2px 0;border-bottom:5px solid #aaa;margin-bottom:5px"></div>
+<div style="width:100%;border-top:5px solid #aaa;padding:2px 0;margin-bottom:4px"></div>
+</a>
+</div>
+<script>
+function t_search(x){var qi=gob('q'),w=600
+if(x){
+scrollTo(0,0)
+qi.focus()
+if(ww<915)w=ww*.9-80
+if(qi.value.indexOf('')!=-1)qi.value=qi.value.replace('','');setfocus('susdiv');sg(qi.value,'susdiv');focusitem(qi);if(dmode)bod.className=bod.className.replace('simplify','showall');gob('qbox').className='fcs'
+}else{
+qi.blur()
+w=100
+if(ww<915)w=100
+if(ww<641||state.current_page=='Unix_time_now')w=0
+if(qi.value==='')qi.value=''
+losefocus('susdiv')
+bluritem(qi)
+if(dmode)bod.className=bod.className.replace('showall','simplify')
+setTimeout("gob('qbox').className=''",200)
+}
+qi.style.width=w+'px'
+}
+</script>
+<form id="qbox" class="tr" action="/" method="get" autocomplete="off" accept-charset="UTF-8" onsubmit="return T_I.submit(gob('q').value)">
+<input type="text" id="q" name="q" value="" tabindex="1" maxlength="100" accesskey="3" class="txtin blr mout"
+onfocus="t_search(1)"
+onblur="t_search(0)"
+onmouseover="mouseover(this)" onmouseout="mouseout(this)"
+onkeydown="arrows('susdiv',event)"
+onkeyup="sg(this.value,'susdiv')"/>
+<div id="susdiv" class="susdiv" onmouseover="setfocus('susdiv')" onmouseout="losefocus('susdiv')"></div>
+</form>
+</div><div id="time_section" class="w1"><div id="msgs" class="tr w90 vsbl"><div id="msgdiv"><h1 id="syncH" style="float:left">Exact time now:</h1></div><div id="syncDtl" class="w1">&nbsp;</div><div id="front_loc" class="w1" style="visibility:hidden">Plaatselijke tijd in <a href="Leuven">Leuven, België</a>:</div></div><div style="width:100%"><div id="clock0_bg" onclick="clockclick(event)"><time id="clock">15:26:12</time></div></div><noscript><h2 class="w90 error">De klok loopt niet omdat JavaScript ontbreekt of is uitgezet. Controleer uw browserinstellingen.</h2></noscript><div id="dd" class="w90 tr" onclick="location='/calendar'" title="Klik hier voor een kalender">dinsdag 18 februari 2020 (week 8)</div><div id="daydiv" class="w90 tr" style="display:none"></div><div id="lC" class="w90 tr"><span id="locw">Zon: <span id="sun" class="nw">&uarr; 07:49 &darr; 18:02 (10h 13m)</span> <a href="Leuven#time_zone">Meer informatie</a></span><div class="lsp w90 tr"></div></div><div class="w90 tr"><ul id="favs" class="tbx"><li><a href="/Tokyo" id="time1">Tokio<br><span id="favt1">23:26</span></a></li><li><a href="/Beijing" id="time2">Peking<br><span id="favt2">22:26</span></a></li><li><a href="/Moscow" id="time3">Moskou<br><span id="favt3">17:26</span></a></li><li><a href="/Paris" id="time4">Parijs<br><span id="favt4">15:26</span></a></li><li><a href="/London" id="time5">Londen<br><span id="favt5">14:26</span></a></li><li><a href="/New_York" id="time6">New York<br><span id="favt6">09:26</span></a></li><li><a href="/Los_Angeles" id="time7">Los Angeles<br><span id="favt7">06:26</span></a></li></ul></div><div class="tr" style="width:90%;padding:0 5% 20px 5%"><div class="rad" style="float:right;padding-top:0"><div id="time.is_728x90_970x90_970x250_300x250_320x50_ATF" style="position:relative;float:right"></div><div id="time.is_728x90_970x90_970x250_300x250_320x50_ATF2" style="position:relative;float:right;clear:none;margin-right:20px"></div></div></div>
+</div>
+<script>
+bod=gob('bdy')
+var l='nl',conf={d:'%l %j %F %Y (%W)',t:'H:i:s',f:'ms',c:'2',o:'',z:'1',a:'1',b:'51ea29.4e4185.28571f.2d99db.80265.1bb85e.1c3b23',w:'0',v:'20200218',h:0,i:'1',Z:'1',m:'',u:''},locs={favs:[['1850147','444','Tokio','Tokio, Japan','Tokyo','35,68950','139,69171','8.336.599',''],['1816670','43d','Peking','Peking, China','Beijing','39,90750','116,39723','11.716.620',''],['524901','71d','Moskou','Moskou, Rusland','Moscow','55,75222','37,61556','10.381.222',''],['2988507','71f','Parijs','Parijs, Frankrijk','Paris','48,85341','2,34880','2.138.551',''],['2643743','716','Londen','Londen, Verenigd Koninkrijk','London','51,50853','-0,12574','7.556.900',''],['5128581','161','New York','New York, Verenigde Staten','New_York','40,71427','-74,00597','8.175.133','10'],['5368361','14e','Los Angeles','Los Angeles, Californië, Verenigde Staten','Los_Angeles','34,05223','-118,24368','3.971.883','89']],main:[['2792482','706','Leuven','Leuven, België','Leuven','50,87959','4,70093','92.892','']]},zones={'706':['Europe/Brussels','CET',[60,1585443600,120]],'444':['Asia/Tokyo','JST',[540]],'43d':['Asia/Shanghai','CST',[480]],'71d':['Europe/Moscow','MSK',[180]],'71f':['Europe/Paris','CET',[60,1585443600,120]],'716':['Europe/London','GMT',[0,1585443600,60]],'161':['America/New_York','EST',[-300,1583650800,-240]],'14e':['America/Los_Angeles','PST',[-480,1583661600,-420]]},
+susdest='/'
+zone_id='Europe/Brussels'
+zone_code='706'
+zone_offset=60
+p_time_diff="Het verschil tussen uw klok en Time.is is %t (±%D). "
+p_time_diff_short="Verschil: %t (±%D) "
+p_failh="Precieze tijd niet opgehaald. "
+p_fail="De klokvergelijking was onnauwkeurig omdat uw verbinding of computer traag of druk is. "
+p_syncing="Bezig uw klok te controleren"
+p_conn_failed="Kan geen verbinding maken met Time.is"
+p_try_again="Opnieuw proberen?"
+p_no_match="Niets gevonden"
+p_no_au="Het spijt ons zeer: voor geluid heeft u een recente versie van Firefox, Opera of Safari nodig!"
+p_no_cookie_support="error_no_cookie_support"
+p_td="Vandaag"
+e_loc="Typ een locatie"
+
+days=["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"]
+daysh=["zo","ma","di","wo","do","vr","za"]
+daysI=["z","m","d","w","d","v","z"]
+months=["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"]
+monthsh=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"]
+p_exactt="Uw klok loopt precies gelijk!"
+p_t_is="De juiste tijd is:"
+p_w="week "
+p_wn="week %n"
+p_d="dag"
+p_ds=" dagen"
+p_h=" uur"
+p_hs=" uur"
+p_m=" minuut"
+p_ms=" minuten"
+p_s=" seconde"
+p_ss=" seconden"
+p_ss_short=" s"
+p_ur_late="Uw klok loopt %t achter."
+p_ur_early="Uw klok loopt %t voor."
+p_acc="Nauwkeurigheid vergelijking: ±%t."
+p_acc_short="Precisie: ±%t"
+p_last_s="Laatst geijkt: %t"
+p_last_s_short="Laatst geijkt: %t"
+p_dec_sym=","
+p_and=" en "
+p_time_remaining="Dat is over: %t"
+p_time_since="Dat is nu %t geleden."
+
+p_now='nu'
+p_yesterday='gisteren'
+p_tomorrow='morgen'
+p_today='vandaag'
+p_in_n='over %n'
+p_ago='%n geleden'
+p_In_x_days='Nog %n %days'
+p_x_days_ago='%n %days geleden'
+p_x_days_before='%n %days voor %other_date'
+p_x_days_after='%n %days na %other_date'
+
+p_today_date='[Vandaag]: %d'
+units=[p_ss,p_ms,p_hs,p_ds],units_sing=[p_s,p_m,p_h,' '+p_d]
+
+p_enter_loc='Typ een locatie'
+
+p_default_time_format='H:i:s'
+p_date_formats=['%l %j %F %Y (%W)',
+'%l %d-%m-%Y (%W)',
+'%l %d.%m.%Y (%W)',
+'%Y-%m-%d']
+
+
+spdays={'0220':'<a target="_blank" href="https://www.un.org/development/desa/dspd/">World Day of Social Justice</a>'}
+noctp=1;adheight=0;show_big_clock=1;force24=0;beginning_of_time()
+onresize=function(){setsizes(2)}
+</script>
+<div class="w90"><div class="noprint tr faded adjustright" style="position:relative;float:right;margin-right:-10px">
+<div id="socbuttons"
+class="off" style="height:32px;margin-left:10px"></div><div id="social_div" class="hide"></div>
+<div class="noprint tr" style="font-size:14px;float:right;margin:0 10px 10px 10px">Deel deze pagina!</div></div></div><section id="top_cities">
+<div class="cloud w90 wb"><a href="Abu_Dhabi" class="s14">Abu Dhabi</a> <a href="Addis_Ababa" class="s10">Addis Abeba</a> <a href="Amsterdam" class="s14">Amsterdam</a> <a href="Antananarivo" class="s12">Antananarivo</a> <a href="Auckland,_New_Zealand" class="s15">Auckland</a> <a href="Baghdad" class="s7">Bagdad</a> <a href="Bangkok" class="s7">Bangkok</a> <a href="Barcelona" class="s11">Barcelona</a> <a href="Berlin" class="s11">Berlijn</a> <a href="Bogotá" class="s6">Bogota</a> <a href="Boston" class="s14">Boston</a> <a href="Brussels" class="s13">Brussel</a> <a href="Buenos_Aires" class="s3 bold">Buenos Aires</a> <a href="Caracas" class="s9">Caracas</a> <a href="Cairo" class="s6">Caïro</a> <a href="Chicago" class="s5 bold">Chicago</a> <a href="Delhi" class="s2 bold">Delhi</a> <a href="Dhaka" class="s4 bold">Dhaka</a> <a href="Dubai" class="s4 bold">Dubai</a> <a href="Dublin" class="s13">Dublin</a> <a href="Frankfurt" class="s14">Frankfurt am Main</a> <a href="Hanoi" class="s12">Hanoi</a> <a href="Havana" class="s10">Havana</a> <a href="Helsinki" class="s15">Helsinki</a> <a href="Hong_Kong" class="s5 bold">Hongkong</a> <a href="Honolulu" class="s16">Honolulu</a> <a href="Istanbul" class="s2 bold">Istanbul</a> <a href="Jakarta" class="s5 bold">Jakarta</a> <a href="Cape_Town" class="s8">Kaapstad</a> <a href="Guangzhou" class="s9">Kanton</a> <a href="Karachi" class="s3 bold">Karachi</a> <a href="Kyiv" class="s9">Kiev</a> <a href="Kinshasa" class="s6">Kinshasa</a> <a href="Kuala_Lumpur" class="s11">Kuala Lumpur</a> <a href="Lagos" class="s5 bold">Lagos</a> <a href="Las_Vegas" class="s15">Las Vegas</a> <a href="Lima" class="s6">Lima</a> <a href="London" class="s1 bold">Londen</a> <a href="Los_Angeles" class="s1 bold">Los Angeles</a> <a href="Luanda" class="s10">Luanda</a> <a href="Madrid" class="s9">Madrid</a> <a href="Manila" class="s4 bold">Manilla</a> <a href="Mecca" class="s12">Mekka</a> <a href="Mexico_City" class="s2 bold">Mexico-stad</a> <a href="Miami" class="s15">Miami</a> <a href="Milan" class="s12">Milaan</a> <a href="Moscow" class="s2 bold">Moskou</a> <a href="New_Delhi" class="s16">New Delhi</a> <a href="New_York" class="s1 bold">New York</a> <a href="Mumbai" class="s3 bold">Numbai</a> <a href="Nuuk" class="s16">Nuuk</a> <a href="Osaka" class="s10">Osaka</a> <a href="Oslo" class="s15">Oslo</a> <a href="Paris" class="s3 bold">Parijs</a> <a href="Beijing" class="s1 bold">Peking</a> <a href="Prague" class="s13">Praag</a> <a href="Yangon" class="s8">Rangoon</a> <a href="Reykjavik" class="s16">Reykjavik</a> <a href="Rio_de_Janeiro" class="s7">Rio de Janeiro</a> <a href="Riyadh" class="s8">Riyad</a> <a href="Rome" class="s10">Rome</a> <a href="San_Francisco" class="s13">San Francisco</a> <a href="Santiago" class="s8">Santiago</a> <a href="Seoul" class="s4 bold">Seoel</a> <a href="Shenzhen" class="s9">Shenzhen</a> <a href="Singapore" class="s4 bold">Singapore</a> <a href="Saint_Petersburg" class="s7">Sint-Petersburg</a> <a href="Shanghai" class="s3 bold">Sjanghai</a> <a href="Stockholm" class="s12">Stockholm</a> <a href="Sydney" class="s5 bold">Sydney</a> <a href="São_Paulo" class="s2 bold">São Paulo</a> <a href="Taipei" class="s6 bold">Taipei</a> <a href="Tehran" class="s7">Teheran</a> <a href="Tel_Aviv" class="s13">Tel Aviv</a> <a href="Tokyo" class="s1 bold">Tokio</a> <a href="Toronto" class="s8">Toronto</a> <a href="Vancouver" class="s11">Vancouver</a> <a href="Washington,_D.C." class="s14">Washington, D.C.</a> <a href="Vienna" class="s11">Wenen</a> <br>
+<br>
+<a class="s6" href="UTC">UTC</a>
+<a class="s6" href="GMT">GMT</a>
+<a class="s6" href="CET">CET</a><br>
+<a class="s6" href="PT">Pacific Time</a>
+<a class="s6" href="MT">Mountain Time</a>
+<a class="s6" href="CT">Central Time</a>
+<a class="s6" href="ET">Eastern Time</a>
+<a class="s6" href="China_Standard_Time">China Standard Time</a>
+<a class="s6" href="India_Standard_Time">India Standard Time</a>
+</div>
+<div class="cad"><div id="time.is_728x90_970x90_970x250_300x250_320x50_Middle" style="position:relative;float:right"></div></div>
+</section>
+<section id="quote">
+<blockquote>"Now is no time to think of what you do not have. Think of what you can do with what there is."</blockquote>
+<cite>Ernest Hemingway</cite>
+</section><div id="menupositioner" class="tr">
+<div id="close-menu" class="close-btn" onclick="toggle_menu(0)">×</div>
+
+<nav id="nav">
+<div>
+<h3><a href="/" class="logo">Time.is</a> <span class="slogan"><span>- </span>de precieze tijd voor elke tijdzone</span></h3>
+
+<div id="menulinks"><ul><li class="chosen"><a href="/">Precieze tijd</a></li><li><a href="/compare">Tijd hier&amp;daar</a></li><li><a href="/time_zones">Tijdzones</a></li><li><a href="/DST_2020">Zomertijd</a></li><li><a href="/just">Alleen de tijd</a></li><li><a href="/calendar">Kalender</a></li><li id="aub"><a href="sound">Geluid</a></li><li><a href="/customize">Instellingen</a></li></ul><ul><li><a href="/apps">Apps</a></li><li><a href="/widgets">Widgets</a></li><li><a href="/time_zone_news">Tijdzonenieuws</a></li><li><a href="/mailing_list">Nieuwsbrief</a></li></ul><ul><li><a href="/UTC">UTC</a></li><li><a href="/Unix_time_now">Unixklok</a></li><li><a href="/Unix_time_converter">Van/naar Unixtijd</a></li></ul><ul><li><a href="/about">Over Time.is</a></li><li><a href="/contact">Contact</a></li></ul></div></div>
+<div id="follow_app">
+<div id="follow"><div>Volg ons</div>
+<a href="https://www.facebook.com/exact.time.is" target="_blank" style="background:url('//static.time.is/img/social_icons5.png') 224px 32px" onmouseover="Zpos(this,224,0)" onmouseout="Zpos(this,224,32)" title="Volg Time.is op Facebook">Facebook</a>
+<a href="https://twitter.com/Time_is" target="_blank" style="background:url('//static.time.is/img/social_icons5.png') 192px 32px" onmouseover="Zpos(this,192,0)" onmouseout="Zpos(this,192,32)" title="Volg Time.is op Twitter">Twitter</a>
+</div>
+<div id="appbadge"><a href="https://itunes.apple.com/app/time.is-exact-time-for-any/id857189816?ls=1&amp;mt=8"><img src="//static.time.is/img/app_store_badge/Download_on_the_App_Store_Badge_NL_135x40.svg" alt="Download on the App Store"></a></div>
+</div>
+</nav>
+<script>
+place_badges()
+</script>
+<footer id="footer"><nav><ul class="hzlist" style="padding-bottom:0"><li class="first"><a href="/advertise">Advertenties</a></li><li class="last"><a href="/terms_of_use">Gebruiksvoorwaarden</a></li><li><a href="/terms_of_use#privacy_policy">Privacybeleid</a></li></ul></nav>
+<div>
+Time.is geeft de precieze, officiele atoomkloktijd voor iedere tijdzone (meer dan 7 miljoen locaties) in 51 talen.<br>
+Geautomatiseerde toegang is verboden
+Cookies en Javascript zijn vereist.
+<br>
+Copyright &copy; 2009-2020 <a href="http://digitz.no/">Digitz.no</a>.
+<span class="nw">Alle rechten voorbehouden.</span>
+</div>
+<div id="footerlangs">
+<br>
+<a href="/?lang=en" title="English">What time is it?</a>
+<a href="/?lang=zh" title="Chinese (simplified) / 中文">几点了？</a>
+<a href="/?lang=ar" title="Arabic / العربية">كم الساعة</a>
+<a href="/?lang=de" title="German / Deutsch">Wieviel Uhr ist es?</a>
+<a href="/?lang=es" title="Spanish / español">¿Qué hora es?</a>
+<a href="/?lang=fr" title="French / français">Quelle heure est-il?</a>
+<a href="/?lang=hi" title="Hindi / हिंदी">क्या समय हुआ है?</a>
+<a href="/?lang=ja" title="Japanese / 日本語">今何時ですか？</a>
+<a href="/?lang=pt_br" title="Portuguese (Brazil) / português (Brasil)">Que horas são?</a>
+<a href="/?lang=ru" title="Russian / русский">Который сейчас час?</a>
+<a href="https://saatkac.info.tr/" title="Turkish / Türkçe">Saat kaç?</a>
+<a href="/?lang=ta" title="Tamil / தமிழ்">என்ன நேரம்?</a>
+<a href="/languages">&gg; choose language</a>
+</div>
+<div>Time.is uses your IP address to detect your location. <a href="https://ip.fish/">Your IP address is 134.58.253.56.</a> Your detected location is <a href="Leuven">Leuven, Belgium</a>.</div>
+</footer>
+</div><script>function update_ATFad_pos(){
+var y=0,ad=ATFad.getBoundingClientRect
+if(ad){
+ad=ATFad.getBoundingClientRect()
+if(ww<641&&400<wh&&wh<ad.bottom-ad.height/2+ATFy)y=ad.bottom+ATFy-wh-ad.height/2+2
+ATFad.style.top='-'+y+'px'
+ATFy=y
+}}
+var ATFy,ATFad=gob('time.is_728x90_970x90_970x250_300x250_320x50_ATF')
+setInterval('update_ATFad_pos()',50)
+</script><script>
+var lang='nl_NL',glang='nl',tweet='kijk of uw klok gelijk loopt, en zie de juiste tijd in elke tijdzone',like_url='https://time.is/'
+function in_s(){init_s('right','https://www.facebook.com/exact.time.is','https%3A%2F%2Ftime.ishttps%3A%2F%2Ftime.is%2F','%2F%2Fstatic.time.is%2Fimg%2Fshareable%2Ftime_is_110011.png','kijk of uw klok gelijk loopt, en zie de juiste tijd in elke tijdzone https://Time.is/','',' data-colorscheme="dark"','loading...','Uw naam','Uw e-mailadres<br>(wordt niet gedeeld)','Naam van ontvanger','E-mail adres van ontvanger','Verstuur bericht')}
+</script><script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create','UA-69493661-1','auto')
+ga('set','anonymizeIp',true)
+ga('set','contentGroup1','main_page')
+ga('send','pageview')
+</script></body></html>
