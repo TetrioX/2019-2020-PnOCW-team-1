@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+		color picker
+	</title>
+</head>
+<body>
+<div id="left" style="height: 100%; width: 50%; left:0; position: fixed;">
+  <input type="color" id="colorl">
+</div>
+<div id="right" style="height: 100%; width: 50%; right:0; position: fixed;">
+  <input type="color" id="colorr">
+</div>
+<script>
+  var left = document.getElementById("left")
+  var right = document.getElementById("right")
+  var colorPickerL = document.getElementById('colorl')
+  var colorPickerR = document.getElementById('colorr')
+  var body = document.body
+  colorPickerL.addEventListener('input', function () {
+		left.style.backgroundColor = colorPickerL.value
+  });
+  colorPickerR.addEventListener('input', function () {
+		right.style.backgroundColor = colorPickerR.value
+  });
+
+</script>
+</body>
+</html>
