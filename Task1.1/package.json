@@ -1,0 +1,24 @@
+{
+  "name": "Task3",
+  "version": "0.0.1",
+  "description": "my first socket.io app",
+  "dependencies": {
+    "algebra.js": "^0.2.6",
+    "calculus": "0.0.2",
+    "canvas": "^2.6.0",
+    "ctx": "^0.3.0",
+    "nerdamer": "^1.0.4",
+    "ntp-time-sync": "^0.1.0",
+    "ntpsync": "^0.2.3",
+    "sharp": "^0.23.1",
+    "solve": "^1.2.0",
+    "yargs": "^14.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
+}
