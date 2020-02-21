@@ -1,8 +1,11 @@
-#JetBeans IDE
+# JetBeans IDE
 .idea
 
 # Visual Studio
 .vs
 
-#Mac OS
+#vMac OS
 .DS_Store
+
+# Node.js
+node_modules
