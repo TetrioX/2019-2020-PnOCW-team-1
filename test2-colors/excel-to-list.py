@@ -14,13 +14,13 @@ incidence = None # incidence
 reflection = None # reflection
 screenDevice = None # screenDevice
 imageID = None # imageID
-origHexCol = "#ff0000" # origHexCol
+origHexCol = None # origHexCol
 picHexCol = None # picHexCol
 
 global ws
 result = []
 keys = []
-wb = load_workbook(filename = './result.xlsx')
+wb = load_workbook(filename = './hue20.xlsx')
 ws = wb.active
 
 image = 2
