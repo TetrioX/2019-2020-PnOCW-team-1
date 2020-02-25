@@ -1,17 +1,23 @@
 # Dependency: openpyxl, pillow, opencv-python
 
-from os import walk
+from os import walk, path
 import cv2
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook, cell as xlcell
 import time
+
 
 ### Config
 # number of picks for each color
 global nbp
-nbp = 5
+nbp = 20
 
 global ws
-wb = Workbook()
+if (path.isfile("./result.xlsx")) and input("An existing result.xlsx file has been found. \
+Do you want to use this file? (Y/n)\n").lower() != "n":
+    print("==> reading result.xlsx (this can take several minutes)...", flush=True)
+    wb = load_workbook(filename = './result.xlsx')
+else:
+    wb = Workbook()
 ws = wb.active
 
 # header
@@ -39,7 +45,6 @@ def writeBlock(col, row, val, nb):
 
 def pickColor(file, row):
     global pressedkey, nbp, cnbp
-    cv2.destroyAllWindows()
     image = cv2.imread(file)
     name = file.split("/")[-1]
     cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
@@ -53,41 +58,84 @@ def pickColor(file, row):
             cv2.waitKey(10)
             time.sleep(0.010)
         cnbp += 1
+    cv2.destroyAllWindows()
 
 def getColor(event,x,y,flags,param):
     global pressedkey, ws, cnbp
     if event == cv2.EVENT_LBUTTONDOWN:
-        ws["L"+str(param[1] + cnbp)] = rgbToHex(param[0][y, x][0], param[0][y, x][1], param[0][y, x][2])
+        ws["L"+str(param[1] + cnbp)] = rgbToHex(param[0][y, x][2], param[0][y, x][1], param[0][y, x][0])
         pressedkey = True
     if event == cv2.EVENT_RBUTTONDOWN:
+        if input("Do you want to save the file? (Y/n)\n") != "n":
+            wb.save('result.xlsx')
         quit()
 
 def rgbToHex(r, g, b):
     return "#{0:02x}{1:02x}{2:02x}".format(int(r), int(g), int(b))
 
+
+# source: https://stackoverflow.com/questions/23562366/how-to-get-value-present-in-a-merged-cell
+def within_range(bounds: tuple, cell: xlcell) -> bool:
+    column_start, row_start, column_end, row_end = bounds
+    row = cell.row
+    if row >= row_start and row <= row_end:
+        column = cell.column
+        if column >= column_start and column <= column_end:
+            return True
+    return False
+def get_value_merged(sheet, cell) -> any:
+    for merged in sheet.merged_cells:
+        if within_range(merged.bounds, cell):
+            return sheet.cell(merged.min_row, merged.min_col).value
+    return cell.value
+
+# look for old colors
+print("==> looking for old picks...", flush=True)
+pickedList = set()
+while ws["L"+str(image)].value is not None:
+    group = ws["A"+str(image)].value
+    file = ws["J"+str(image)].value
+    if group is not None and file is not None:
+        pickedList.add(group + file)
+    image += 1
+# pick new colors
+print("==> picking new colors...", flush=True)
 for group in walk("./"):
     if (group[0] == "./"):
         continue
-    print(group)
     for pic in group[2]:
-        pictureName = pic.split(".")[0].split("_")
-        print(pictureName)
+        groupName = group[0].split("/")[-1]
+        fileName = pic.split(".")[0]
+        pictureName = fileName.split("_")
+        if len(pictureName) < 12 or (len(pictureName) - 9)%3 != 0 or (len(pictureName) - 9)//3 < int(pictureName[4]):
+            print(group[0] + "/" + pic + " is poorly formatted")
+            continue
+        hash = groupName + fileName
+        if hash in pickedList:
+            print(group[0] + "/" + pic + " has already been picked")
+            pickedList.remove(hash)
+            continue
         nbc = int(pictureName[4])
         blocksize = nbp*nbc
-        writeBlock("A", image, group[0][2:], blocksize)
+        writeBlock("A", image, groupName, blocksize)
         writeBlock("B", image, pictureName[0], blocksize)
         writeBlock("C", image, pictureName[1], blocksize)
         writeBlock("D", image, pictureName[2], blocksize)
         writeBlock("E", image, pictureName[3], blocksize)
         writeBlock("F", image, pictureName[4], blocksize)
-        writeBlock("G", image, pictureName[int(pictureName[4])*3 + 5], blocksize)
-        writeBlock("H", image, pictureName[int(pictureName[4])*3 + 6], blocksize)
-        writeBlock("I", image, pictureName[int(pictureName[4])*3 + 7], blocksize)
-        writeBlock("J", image, pictureName[int(pictureName[4])*3 + 8], blocksize)
+        writeBlock("G", image, pictureName[-4], blocksize)
+        writeBlock("H", image, pictureName[-3], blocksize)
+        writeBlock("I", image, pictureName[-2], blocksize)
+        writeBlock("J", image, fileName, blocksize)
         for i in range(nbc):
-            writeBlock("K", image + i, \
+            writeBlock("K", image + i*nbp, \
                 rgbToHex(pictureName[5 + i * 3], pictureName[6 + i * 3], pictureName[7 + i * 3]), nbp)
             pickColor(group[0]+'/'+pic, image + i*nbp)
+        print(group[0] + "/" + pic + " has been added")
         image += blocksize
 
+if len(pickedList) != 0:
+    print("WARNING: The following files were already in excel but were not find in the actual data set. They might have been renamed:\n ", pickedList)
+
+print("==> saving excel file")
 wb.save('result.xlsx')

@@ -4,7 +4,7 @@ from openpyxl import load_workbook, cell as xlcell
 
 
 # filters (None means doesnt filter)
-group = "01" # group
+group = None # group
 brigthness = None # brigthness
 pictureDevice = None # pictureDevice
 ratioScreenPicture = None # ratioScreenPicture
@@ -14,12 +14,13 @@ incidence = None # incidence
 reflection = None # reflection
 screenDevice = None # screenDevice
 imageID = None # imageID
-origHexCol = "#ff0000" # origHexCol
+origHexCol = None # origHexCol
 picHexCol = None # picHexCol
 
 global ws
 result = []
 keys = []
+print("==> reading result.xlsx (this can take several minutes)...", flush=True)
 wb = load_workbook(filename = './result.xlsx')
 ws = wb.active
 
@@ -48,6 +49,7 @@ def get_value_merged(sheet, cell) -> any:
             return sheet.cell(merged.min_row, merged.min_col).value
     return cell.value
 
+print("==> filtering values", flush=True)
 while ws["L"+str(image)].value is not None:
     if checkFilter("A", image, group) \
     and checkFilter("B", image, brigthness) \
