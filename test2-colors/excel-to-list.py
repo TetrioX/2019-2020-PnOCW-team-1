@@ -14,7 +14,7 @@ incidence = None # incidence
 reflection = None # reflection
 screenDevice = None # screenDevice
 imageID = None # imageID
-origHexCol = None # origHexCol
+origHexCol = "#ff0000" # origHexCol
 picHexCol = None # picHexCol
 
 global ws
