@@ -19,6 +19,7 @@ picHexCol = None # picHexCol
 
 global ws
 result = []
+keys = []
 wb = load_workbook(filename = './result.xlsx')
 ws = wb.active
 
@@ -61,5 +62,7 @@ while ws["L"+str(image)].value is not None:
     and checkFilter("K", image, origHexCol) \
     and checkFilter("L", image, picHexCol):
         result.append(ws["L"+str(image)].value)
+        keys.append(get_value_merged(ws, ws["K"+str(image)]))
     image += 1
-print(result)
+print("result: ", result)
+print("keys: ", keys)
