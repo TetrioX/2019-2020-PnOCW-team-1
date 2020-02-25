@@ -37,17 +37,25 @@ for i in inputlist :
     s2.append(hsl[2])
     l2.append(hsl[1])
 
-dfHS = pd.DataFrame(dict(Hue=h2, Saturation=s2))
-figHS = px.scatter(dfHS, x="Hue", y="Saturation", marginal_y="violin",
+df = pd.DataFrame(dict(Hue=h2,Lightness=l2, Saturation=s2))
+figHS = px.scatter(df, x="Hue", y="Saturation", marginal_y="box",
            marginal_x="box")
 figHS.show()
 
-dfHL = pd.DataFrame(dict(Hue=h2, Lightness=l2))
-figHL = px.scatter(dfHL, x="Hue", y="Lightness", marginal_y="violin",
+figHL = px.scatter(df, x="Hue", y="Lightness", marginal_y="box",
            marginal_x="box")
 figHL.show()
 
-dfLS = pd.DataFrame(dict(Lightness=l2, Saturation=s2))
-figLS = px.scatter(dfLS, x="Lightness", y="Saturation", marginal_y="violin",
+figLS = px.scatter(df, x="Lightness", y="Saturation", marginal_y="box",
            marginal_x="box")
 figLS.show()
+
+figALL = px.scatter_matrix(df, dimensions=["Hue", "Lightness", "Saturation"])
+figALL.show()
+
+figtest = px.histogram(df, x="Hue", y="Saturation")
+figtest.show()
+figtest2 = px.histogram(df, x="Hue", y="Lightness")
+figtest2.show()
+figtest3 = px.histogram(df, x="Lightness", y="Saturation")
+figtest3.show()
