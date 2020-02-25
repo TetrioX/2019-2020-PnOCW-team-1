@@ -70,7 +70,7 @@ for group in walk("./"):
         continue
     print(group)
     for pic in group[2]:
-        pictureName = pic.split("_")
+        pictureName = pic.split(".")[0].split("_")
         print(pictureName)
         nbc = int(pictureName[4])
         blocksize = nbp*nbc
