@@ -44,13 +44,22 @@ for i in inputlist :
     s2.append(hsl[2])
     l2.append(hsl[1])
 
-### !!!!!!! gegevens aanpassen !!!!!!!!!
+### !!!!!!! Gegevens aanpassen !!!!!!!!!
 for i in range(len(inputcolor)) :
    if inputcolor[i] == "#5500ff" and h2[i]>180:
        h2[i] = h2[i] - 360
    if inputcolor[i] == "#aa00ff" and h2[i]<180:
        h2[i] = h2[i] + 360    
        
+### Gegevens orderen TODO
+d = {}
+for i in range(len(inputcolor)):
+    if inputcolor[i] in d:
+        d[inputcolor[i]] = [inputlist[i]]
+    else:
+        d[inputcolor[i]] = d[inputcolor[i]].append(inputlist[i])
+
+##for i in sorted(d,key = hexToRGB) : 
 
 df = pd.DataFrame(dict(Hue=h2,Lightness=l2, Saturation=s2))
 figHS = px.scatter(df, x="Hue", y="Saturation", marginal_y="box",
@@ -77,7 +86,7 @@ for i in range(len(inputcolor)) :
    if not inputcolor[i] in hist:
        hist[inputcolor[i]] = [h2[i]]
    else:
-    hist[inputcolor[i]].append(h2[i])
+       hist[inputcolor[i]].append(h2[i])
 
 hist_data = []
 group_labels = []
