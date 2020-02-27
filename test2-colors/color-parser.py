@@ -89,6 +89,9 @@ def get_value_merged(sheet, cell) -> any:
             return sheet.cell(merged.min_row, merged.min_col).value
     return cell.value
 
+def get_hash(groupName, fileName):
+    return groupName + "/" + fileName
+
 # look for old colors
 print("==> looking for old picks...", flush=True)
 pickedList = set()
@@ -96,8 +99,10 @@ while ws["L"+str(image)].value is not None:
     group = ws["A"+str(image)].value
     file = ws["J"+str(image)].value
     if group is not None and file is not None:
-        pickedList.add(group + file)
+        pickedList.add(get_hash(group, file))
     image += 1
+oldMax = image
+
 # pick new colors
 print("==> picking new colors...", flush=True)
 for group in walk("./"):
@@ -110,8 +115,7 @@ for group in walk("./"):
         if len(pictureName) < 12 or (len(pictureName) - 9)%3 != 0 or (len(pictureName) - 9)//3 < int(pictureName[4]):
             print(group[0] + "/" + pic + " is poorly formatted")
             continue
-        hash = groupName + fileName
-        if hash in pickedList:
+        if get_hash(groupName, fileName) in pickedList:
             print(group[0] + "/" + pic + " has already been picked")
             pickedList.remove(hash)
             continue
@@ -135,7 +139,24 @@ for group in walk("./"):
         image += blocksize
 
 if len(pickedList) != 0:
-    print("WARNING: The following files were already in excel but were not find in the actual data set. They might have been renamed:\n ", pickedList)
+    print("The following files were already in excel but were not find in the actual data set. They might have been renamed/removed:\n ")
+    for hash in pickedList:
+        print(hash)
+    if input("Do you want to remove these files? (y/N)\n") = "y":
+        print("==> deleting old entries...", flush=True)
+        image = 2
+        while len(pickedList) > 0:
+            group = ws["A"+str(image)].value
+            file = ws["J"+str(image)].value
+            if group is not None and file is not None and get_hash(groupName, fileName) in pickedList:
+                ws.delete_rows(image)
+            else:
+                image += 1
+            if image > oldMax:
+                if input("ERROR: Couldn't remove all old entries. This is most likely a bug. Do you still want to save?(Y/n)\n") = "n":
+                    quit()
+                break
+
 
 print("==> saving excel file")
 wb.save('result.xlsx')
