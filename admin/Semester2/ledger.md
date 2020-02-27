@@ -16,3 +16,13 @@
   - De vergelijkingen uitvoeren:
     - Verschillende PC's vergelijken (Windows, Mac, Linux)
     - Op eenzelfde PC vergelijken (Browser, verschillende workload...)
+
+## Team meeting 3 - 25/02/2020
+- Team synchronisatie heeft de meeste testen al gedaan. Deze testen omvatten verschillen 
+ in workload, computers en browsers. Het verslag 
+(met vandaag de deadline) is voor ongeveer de helft klaar.
+- Team kleuren deed al enkele testen met foto's van een rood scherm,
+ telkens met lichtjes andere belichting. Er werd een programma geschreven waarbij 
+ bij elke foto 5 punten geselecteerd moesten worden en waarbij de kleurwaarden 
+ (alsook saturatie, hue...) in een Excel-bestand werden gegoten. Uit dit bestand konden
+  dan enkele 3D-grafieken verkregen worden.
