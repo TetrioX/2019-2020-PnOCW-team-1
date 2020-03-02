@@ -50,14 +50,6 @@ for i in range(len(inputcolor)) :
        h2[i] = h2[i] - 360
    if inputcolor[i] == "#aa00ff" and h2[i]<180:
        h2[i] = h2[i] + 360    
-       
-### Gegevens orderen TODO
-d = {}
-for i in range(len(inputcolor)):
-    if inputcolor[i] in d:
-        d[inputcolor[i]] = [inputlist[i]]
-    else:
-        d[inputcolor[i]] = d[inputcolor[i]].append(inputlist[i])
 
 ##for i in sorted(d,key = hexToRGB) : 
 
@@ -102,8 +94,7 @@ for i in range(len(inputcolor)):
 fig = ff.create_distplot(hist_data, group_labels, bin_size=5,show_rug=False,show_hist=False,colors=colors)
 fig.show()
 
-
-N = 18    # Number of boxes
+    # Number of boxes
 
 # generate an array of rainbow colors by fixing the saturation and lightness of the HSL
 # representation of colour and marching around the hue.
