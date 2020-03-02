@@ -16,7 +16,15 @@ incidence = None # incidence
 reflection = None # reflection
 screenDevice = None # screenDevice
 imageID = None # imageID
-origHexCol = "#ff0000" # origHexCol
+origHexCol = lambda x: x == "#ff0000" or x == "#ff5500"\
+                or x == "#ffaa00" or x == "#ffff00"\
+                or x == "#aaff00" or x == "#55ff00"\
+                or x == "#00ff00" or x == "#00ff55"\
+                or x == "#00ffaa" or x == "#00ffff"\
+                or x == "#00aaff" or x == "#0055ff"\
+                or x == "#0000ff" or x == "#5500ff"\
+                or x == "#aa00ff" or x == "#ff00ff"\
+                or x == "#ff00aa" or x == "#ff0055" # origHexCol
 
 global ws
 result = []
@@ -31,8 +39,11 @@ def checkFilters(values, filters, row):
         val = row[filters[i][0]].value
         if val is not None:
             values[i] = val
-        if values[i] != filters[i][1] and filters[i][1] is not None:
-            return False
+        if callable(filters[i][1]):
+            return filters[i][1](values[i])     
+        else:
+            if values[i] != filters[i][1] and filters[i][1] is not None:
+                return False
     return True
 
 
