@@ -138,6 +138,7 @@ for i in range(len(inputcolor)) :
        hist[inputcolor[i]].append(h2[i])
 
 hist_data = []
+group_labels = []
 for i in hist:
     group_labels.append(str(i))
     hist_data.append(np.asarray(hist[i]))
