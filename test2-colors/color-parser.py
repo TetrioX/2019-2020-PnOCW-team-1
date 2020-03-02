@@ -2,8 +2,9 @@
 
 from os import walk, path
 import cv2
-from openpyxl import Workbook, load_workbook, cell as xlcell
+from openpyxl import Workbook, load_workbook, cell, worksheet
 import time
+import math
 
 
 ### Config
@@ -15,7 +16,7 @@ global ws
 if (path.isfile("./result.xlsx")) and input("An existing result.xlsx file has been found. \
 Do you want to use this file? (Y/n)\n").lower() != "n":
     print("==> reading result.xlsx (this can take several minutes)...", flush=True)
-    wb = load_workbook(filename = './result.xlsx')
+    wb = load_workbook(filename = './result.xlsx', data_only=True)
 else:
     wb = Workbook()
 ws = wb.active
@@ -34,60 +35,69 @@ ws["J1"] = "imageID"
 ws["K1"] = "origHexCol"
 ws["L1"] = "picHexCol"
 
-
-
 image = 2 # current row
 
-def writeBlock(col, row, val, nb):
+def mergeRows(col, row, nb):
     if nb != 1:
-        ws.merge_cells(col+str(row)+":"+col+str(int(row)+int(nb-1)))
-    ws[col+str(row)] = val
+        ws.merge_cells(start_row=row, start_column=col, end_row=row+nb-1, end_column=col)
 
-def pickColor(file, row):
+def pickColor(file, pictureName, picNum, row):
     global pressedkey, nbp, cnbp
     image = cv2.imread(file)
     name = file.split("/")[-1]
-    cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty(name,cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
-    cv2.imshow(name, image)
-    cv2.setMouseCallback(name, getColor, (image, row))
     cnbp = 0
-    while (cnbp < nbp):
-        pressedkey = False
-        while pressedkey == False:
-            cv2.waitKey(10)
-            time.sleep(0.010)
-        cnbp += 1
-    cv2.destroyAllWindows()
+    sratio = min(100, int(pictureName[2]))
+    nbOfColors = int(pictureName[4])
+    if (sratio < 100 and nbOfColors > 2) or (sratio < 50 and nbOfColors > 1):
+        cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty(name,cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+        cv2.imshow(name, image)
+        cv2.setMouseCallback(name, getColor, (image, row))
+        while (cnbp < nbp):
+            pressedkey = False
+            while pressedkey == False:
+                cv2.waitKey(10)
+                time.sleep(0.010)
+            cnbp += 1
+        cv2.destroyAllWindows()
+    else:
+        eratio = (100 - sratio)/150 + 0.05
+        height, width = image.shape[:2]
+        nbOfRows = math.ceil(math.sqrt(nbp))
+        nbOfCols = math.ceil(nbp/nbOfRows)
+        eheight = eratio * height
+        ewidth = eratio * width
+        hsize = (height - eheight*2)/(nbOfRows + 5)
+        wsize = (width - ewidth*2)/(nbOfCols + 5)/nbOfColors
+        wcsize = (width - ewidth*2)/nbOfColors
+        for w in range(3, 3 + nbOfCols):
+            for h  in range(3, 3 + nbOfRows):
+                if cnbp >= nbp:
+                    break
+                x = int(ewidth + wcsize*picNum + wsize*w)
+                y = int(eheight + hsize*h)
+                row[-1] = rgbToHex(image[y, x][2], image[y, x][1], image[y, x][0])
+                ws.append(row)
+                cnbp += 1
+
 
 def getColor(event,x,y,flags,param):
     global pressedkey, ws, cnbp
     if event == cv2.EVENT_LBUTTONDOWN:
-        ws["L"+str(param[1] + cnbp)] = rgbToHex(param[0][y, x][2], param[0][y, x][1], param[0][y, x][0])
+        param[1][-1] = rgbToHex(param[0][y, x][2], param[0][y, x][1], param[0][y, x][0])
+        ws.append(param[1])
         pressedkey = True
     if event == cv2.EVENT_RBUTTONDOWN:
         if input("Do you want to save the file? (Y/n)\n") != "n":
             wb.save('result.xlsx')
-        quit()
+        if input("Do you want to exit?(y/N)?") == "y":
+            quit()
+
+
 
 def rgbToHex(r, g, b):
     return "#{0:02x}{1:02x}{2:02x}".format(int(r), int(g), int(b))
 
-
-# source: https://stackoverflow.com/questions/23562366/how-to-get-value-present-in-a-merged-cell
-def within_range(bounds: tuple, cell: xlcell) -> bool:
-    column_start, row_start, column_end, row_end = bounds
-    row = cell.row
-    if row >= row_start and row <= row_end:
-        column = cell.column
-        if column >= column_start and column <= column_end:
-            return True
-    return False
-def get_value_merged(sheet, cell) -> any:
-    for merged in sheet.merged_cells:
-        if within_range(merged.bounds, cell):
-            return sheet.cell(merged.min_row, merged.min_col).value
-    return cell.value
 
 def get_hash(groupName, fileName):
     return groupName + "/" + fileName
@@ -101,8 +111,8 @@ while ws["L"+str(image)].value is not None:
     if group is not None and file is not None:
         pickedList.add(get_hash(group, file))
     image += 1
+ws.delete_rows(image)
 oldMax = image
-
 # pick new colors
 print("==> picking new colors...", flush=True)
 for group in walk("./"):
@@ -115,26 +125,21 @@ for group in walk("./"):
         if len(pictureName) < 12 or (len(pictureName) - 9)%3 != 0 or (len(pictureName) - 9)//3 < int(pictureName[4]):
             print(group[0] + "/" + pic + " is poorly formatted")
             continue
-        if get_hash(groupName, fileName) in pickedList:
+        hash = get_hash(groupName, fileName)
+        if hash in pickedList:
             print(group[0] + "/" + pic + " has already been picked")
             pickedList.remove(hash)
             continue
         nbc = int(pictureName[4])
         blocksize = nbp*nbc
-        writeBlock("A", image, groupName, blocksize)
-        writeBlock("B", image, pictureName[0], blocksize)
-        writeBlock("C", image, pictureName[1], blocksize)
-        writeBlock("D", image, pictureName[2], blocksize)
-        writeBlock("E", image, pictureName[3], blocksize)
-        writeBlock("F", image, pictureName[4], blocksize)
-        writeBlock("G", image, pictureName[-4], blocksize)
-        writeBlock("H", image, pictureName[-3], blocksize)
-        writeBlock("I", image, pictureName[-2], blocksize)
-        writeBlock("J", image, fileName, blocksize)
+        row = [groupName, pictureName[0], pictureName[1], pictureName[2], pictureName[3],\
+        pictureName[4], pictureName[-4], pictureName[-3], pictureName[-2], fileName, None, None]
         for i in range(nbc):
-            writeBlock("K", image + i*nbp, \
-                rgbToHex(pictureName[5 + i * 3], pictureName[6 + i * 3], pictureName[7 + i * 3]), nbp)
-            pickColor(group[0]+'/'+pic, image + i*nbp)
+            row[-2] = rgbToHex(pictureName[5 + i * 3], pictureName[6 + i * 3], pictureName[7 + i * 3])
+            pickColor(group[0]+'/'+pic, pictureName, i, row)
+        #    mergeRows(11, image + i*nbp, nbp)
+        # for i in range(1, 11):
+        #    mergeRows(i, image, nbp*nbc)
         print(group[0] + "/" + pic + " has been added")
         image += blocksize
 
@@ -142,7 +147,7 @@ if len(pickedList) != 0:
     print("The following files were already in excel but were not find in the actual data set. They might have been renamed/removed:\n ")
     for hash in pickedList:
         print(hash)
-    if input("Do you want to remove these files? (y/N)\n") = "y":
+    if input("Do you want to remove these files? (y/N)\n") == "y":
         print("==> deleting old entries...", flush=True)
         image = 2
         while len(pickedList) > 0:
@@ -153,7 +158,7 @@ if len(pickedList) != 0:
             else:
                 image += 1
             if image > oldMax:
-                if input("ERROR: Couldn't remove all old entries. This is most likely a bug. Do you still want to save?(Y/n)\n") = "n":
+                if input("ERROR: Couldn't remove all old entries. This is most likely a bug. Do you still want to save?(Y/n)\n") == "n":
                     quit()
                 break
 
