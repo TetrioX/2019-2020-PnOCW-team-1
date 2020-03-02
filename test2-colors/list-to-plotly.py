@@ -79,6 +79,25 @@ figHSL2.show()
 figHSL3 = px.scatter(dfHSL, x='Saturation', y='Lightness',
         range_x = [0,1], range_y = [0,1])
 figHSL3.show()
-### BOX
-fig = px.box(dfHSL, y="Hue", points="all",range_y=[0,360])
-fig.show()
+
+dfHSL = pd.DataFrame(dict(Hue=h2,Lightness=l2, Saturation=s2))
+figHSL = px.scatter_matrix(dfHSL, dimensions=["Hue", "Lightness", "Saturation"],)
+figHSL.show()
+
+### R/G
+dfHSL = pd.DataFrame(dict(Red=r,Green=g, Blue=b))
+figHSL = px.scatter(dfHSL, x='Red', y='Green',
+        range_x = [0,255], range_y = [0,255])
+figHSL.show()
+### R/B
+figHSL2 = px.scatter(dfHSL, x='Red', y='Blue',
+        range_x = [0,255], range_y = [0,255])
+figHSL2.show()
+### B/G
+figHSL3 = px.scatter(dfHSL, x='Blue', y='Green',
+        range_x = [0,255], range_y = [0,255])
+figHSL3.show()
+
+dfRGB = pd.DataFrame(dict(Red=r, Green=g, Blue=b))
+figRGB = px.scatter_matrix(dfRGB, dimensions=["Red","Green","Blue"])
+figRGB.show()
