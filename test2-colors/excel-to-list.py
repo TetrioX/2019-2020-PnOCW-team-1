@@ -4,7 +4,7 @@ from openpyxl import load_workbook, cell as xlcell
 
 
 # filters (None means doesnt filter)
-group = None # group
+group = "Group 3" # group
 brigthness = None # brigthness
 pictureDevice = None # pictureDevice
 ratioScreenPicture = None # ratioScreenPicture
@@ -21,7 +21,7 @@ global ws
 result = []
 keys = []
 print("==> reading result.xlsx (this can take several minutes)...", flush=True)
-wb = load_workbook(filename = './result.xlsx')
+wb = load_workbook(filename = './resultAll.xlsx')
 ws = wb.active
 
 image = 2
