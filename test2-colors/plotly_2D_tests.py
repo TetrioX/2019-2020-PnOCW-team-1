@@ -30,6 +30,44 @@ inputcolor = ['#00aaff', '#00aaff', '#00aaff', '#00aaff', '#00aaff', '#00aaff', 
 N= int(len(inputlist)/18)
 print(N)
 
+### Gegevens orderen 
+d = {}
+for i in range(len(inputcolor)):
+    if not inputcolor[i] in d:
+        d[inputcolor[i]] = [inputlist[i]]
+    else:
+        d[inputcolor[i]].append(inputlist[i])
+
+### comparator
+def compare(x, y):
+    rgb1 = hexToRGB(x)
+    rgb2 = hexToRGB(y)
+    hsl1 = rgb_to_hls(rgb1[0]/255,rgb1[1]/255,rgb1[2]/255)
+    hsl2 = rgb_to_hls(rgb2[0]/255,rgb2[1]/255,rgb2[2]/255)
+    if hsl1[0]*360< hsl2[0]*360:
+        return -1
+    elif hsl1[0]*360> hsl2[0]*360:
+        return 1
+    else:
+        return 0
+print("BEFORE")
+
+### for i in sorted(d,key = hexToRGB) : 
+from functools import cmp_to_key
+inputcolor_sorted = sorted(d, key=cmp_to_key(compare))
+print(inputcolor_sorted)
+inputcolor = []
+inputlist = []
+for i in inputcolor_sorted :
+    for j in range(N):
+        inputcolor.append(i)
+    inputlist.extend(d[i])
+print("AFTER")
+for i in range(20):
+    print(i)
+    print(inputlist[16*20+i])
+    print(inputcolor[16*20+i])
+    
 for i in inputlist :
     rgb = hexToRGB(i)
     r.append(rgb[0])
