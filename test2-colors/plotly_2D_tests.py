@@ -49,6 +49,7 @@ print(len(inputlist))
 print(len(inputcolor))
 
 
+
 N= int(len(inputlist)/18)
 print(N)
 """
@@ -72,7 +73,6 @@ def compare(x, y):
         return 1
     else:
         return 0
-print("BEFORE")
 
 ### for i in sorted(d,key = hexToRGB) :
 from functools import cmp_to_key
@@ -84,14 +84,8 @@ for i in inputcolor_sorted :
     for j in range(N):
         inputcolor.append(i)
     inputlist.extend(d[i])
-print("AFTER")
-for i in range(20):
-    print(i)
-    print(inputlist[16*20+i])
-    print(inputcolor[16*20+i])
 """
 for i in inputlist :
-    print(i)
     rgb = hexToRGB(i)
     r.append(rgb[0])
     g.append(rgb[1])
@@ -104,16 +98,18 @@ for i in inputlist :
     h2.append(hsl[0]*360)
     s2.append(hsl[2])
     l2.append(hsl[1])
-
+"""
 ### !!!!!!! Gegevens aanpassen !!!!!!!!!
 for i in range(len(inputcolor)) :
-   if inputcolor[i] == "#5500ff" and h2[i]>180:
+   if inputcolor[i] == "#" and h2[i]>180:
        h2[i] = h2[i] - 360
-   if inputcolor[i] == "#aa00ff" and h2[i]<180:
+   if inputcolor[i] == "#ff0055" and h2[i]<180:
        h2[i] = h2[i] + 360
-
+   if inputcolor[i] == "#ffaa00" and h2[i]>180:
+       h2[i] = h2[i] - 360
 ##for i in sorted(d,key = hexToRGB) :
-
+"""
+"""
 df = pd.DataFrame(dict(Hue=h2,Lightness=l2, Saturation=s2))
 figHS = px.scatter(df, x="Hue", y="Saturation", marginal_y="box",
            marginal_x="box",color=inputcolor)
@@ -132,7 +128,7 @@ figALL = px.scatter_matrix(df, dimensions=["Hue", "Lightness", "Saturation"],col
 
 figtest = px.histogram(df, x="Hue",color=inputcolor)
 #figtest.show()
-
+"""
 #plot for All colors to see peaks in Hue range
 hist = {}
 for i in range(len(inputcolor)) :
@@ -142,7 +138,6 @@ for i in range(len(inputcolor)) :
        hist[inputcolor[i]].append(h2[i])
 
 hist_data = []
-group_labels = []
 for i in hist:
     group_labels.append(str(i))
     hist_data.append(np.asarray(hist[i]))
@@ -152,8 +147,21 @@ for i in range(len(inputcolor)):
     if inputcolor[i] != inputcolor[i-1]:
         colors.append(inputcolor[i])
 # Create distplot with custom bin_size
-fig = ff.create_distplot(hist_data, group_labels, bin_size=5,show_rug=False,show_hist=False,colors=colors)
+fig = ff.create_distplot(hist_data, group_labels, bin_size=5,show_rug=False,show_hist=False,) #colors=colors,
+fig.update_layout(title='Effect van reflectie op een groen scherm')
+fig.update({'layout': {'xaxis': {'range': [0,1]}}})
 fig.show()
+
+"""
+>>> fig.update({'layout': {'xaxis': {'color': 'pink'}}}) # doctest: +ELLIPSIS
+Figure(...)
+>>> fig.to_plotly_json() # doctest: +SKIP
+    {'data': [],
+     'layout': {'xaxis':
+                {'color': 'pink',
+                 'range': [0, 1]}}}
+"""
+
 
     # Number of boxes
 
@@ -184,7 +192,7 @@ for i in range(len(colors)):
 # format the layout
 fig.update_layout(
     xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-    yaxis=dict(zeroline=False, gridcolor='gray'),
+    yaxis=dict(zeroline=False, gridcolor='gray',dtick=20,autorange=True),
     paper_bgcolor='rgb(255,255,255)',
     plot_bgcolor='rgb(255,255,255)',
 )
