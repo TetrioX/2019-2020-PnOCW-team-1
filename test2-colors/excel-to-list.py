@@ -12,7 +12,7 @@ pictureDevice = None # pictureDevice
 ratioScreenPicture = None # ratioScreenPicture
 distance = None # distance
 nbOfColros = None # nbOfColros
-incidence = None # incidence
+incidence = lambda x : True # incidence
 reflection = None # reflection
 screenDevice = None # screenDevice
 imageID = None # imageID
@@ -25,6 +25,15 @@ origHexCol = lambda x: x == "#ff0000" or x == "#ff5500"\
                 or x == "#0000ff" or x == "#5500ff"\
                 or x == "#aa00ff" or x == "#ff00ff"\
                 or x == "#ff00aa" or x == "#ff0055" # origHexCol
+
+def key(row):
+    ind = row[0]
+    if ind == "0":
+        return "geen licht"
+    if ind == "1":
+        return "artificieel licht"
+    if ind == "2":
+        return "natuurlijk licht"
 
 global ws
 result = []
@@ -64,7 +73,7 @@ for row in ws.iter_rows(min_row=2, max_col=12):
         break
     if checkFilters(curValues, filters, row):
         result.append(row[11].value)
-        keys.append(curValues[-1])
+        keys.append(key(curValues))
 
 with open('result.txt', 'w') as filehandle:
     for listitem in result:
