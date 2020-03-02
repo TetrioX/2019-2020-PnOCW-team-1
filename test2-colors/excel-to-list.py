@@ -40,7 +40,7 @@ def checkFilters(values, filters, row):
         if val is not None:
             values[i] = val
         if callable(filters[i][1]):
-            return filters[i][1](values[i])     
+            return filters[i][1](values[i])
         else:
             if values[i] != filters[i][1] and filters[i][1] is not None:
                 return False
@@ -60,8 +60,16 @@ curValues = [None]*len(filters)
 
 print("==> filtering values", flush=True)
 for row in ws.iter_rows(min_row=2, max_col=12):
+    if row[11].value is None:
+        break
     if checkFilters(curValues, filters, row):
         result.append(row[11].value)
         keys.append(curValues[-1])
-print("result: ", result)
-print("keys: ", keys)
+
+with open('result.txt', 'w') as filehandle:
+    for listitem in result:
+        filehandle.write('%s\n' % listitem)
+
+with open('keys.txt', 'w') as filehandle:
+    for listitem in keys:
+        filehandle.write('%s\n' % listitem)
