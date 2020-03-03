@@ -82,6 +82,7 @@ figHSL3.show()
 
 dfHSL = pd.DataFrame(dict(Hue=h2,Lightness=l2, Saturation=s2))
 figHSL = px.scatter_matrix(dfHSL, dimensions=["Hue", "Lightness", "Saturation"],)
+figHSL.update({'layout': {'xaxis': {'range': [0,360]}}})
 figHSL.show()
 
 ### R/G
