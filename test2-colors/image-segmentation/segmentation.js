@@ -1,13 +1,9 @@
 const fil = require('./filter.js');
 
-
+// bugg [r1, g1, b1, r2, g2, b2, ...]
 function segmentate(buff, toBuff, channel) {
   fil.filter(buff, toBuff, channel)
 
-}
-
-module.exports = {
-  segmentate: segmentate
 }
 
 function rgb2hsl(rgbArr){
@@ -43,4 +39,9 @@ function rgb2hsl(rgbArr){
 		if(H<0) H += 360;
 
     return [H, S, L];
+}
+
+
+module.exports = {
+  segmentate: segmentate
 }
