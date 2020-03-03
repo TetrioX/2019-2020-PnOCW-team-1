@@ -144,18 +144,17 @@ async function doImgDiff(imgs) {
     // finally call our algorithm to calculate pixel differences:
     let tempResult = [] // Buffer list on which our output buffers will be printed
 	  let to_file_promises = []
-    let output_meta = { raw: { width: new_size.width, height: new_size.height, channels: 1 } } // Channels:  1 -> Bw ; 3 -> rgb
+    let output_meta = { raw: { width: new_size.width, height: new_size.height, channels: 3, space: "hsv" } } // Channels:  1 -> Bw ; 3 -> rgb
     for(let i = 0; i < imgs_buffs.length; ++i) {
-		    tempResult.push( Buffer.alloc(new_size.width * new_size.height))
+		    tempResult.push( Buffer.alloc(output_meta.raw.channels * new_size.width * new_size.height))
 		    // We store the output in the array of the first image.
         // We could create a new Buffer by doing 'let new_buffer = Buffer.alloc(n)'.
-        assert(imgs_buffs[i].length == new_size.width * new_size.height * channel)
-		    seg.segmentate(imgs_buffs[i], tempResult[i], channel)
-		    assert(tempResult[i].length == new_size.width * new_size.height)
+		    seg.segmentate(imgs_buffs[i], tempResult[i], channel, new_size)
 		    if(verbose > 2) console.log(`7.${i+1} result buffer =`, tempResult[i])
         // Now save this to file asynchronously, and keep the promise such that we can
         // return an array of promises.
         to_file_promises.push( sharp(tempResult[i], output_meta).toFile(`./ seg-${i+1}.png`) )
+
     }
 
     if(verbose) console.log('8. to_file_promises =', to_file_promises)
