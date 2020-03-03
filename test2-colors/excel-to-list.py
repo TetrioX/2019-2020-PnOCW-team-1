@@ -12,15 +12,14 @@ pictureDevice = None # pictureDevice
 ratioScreenPicture = None # ratioScreenPicture
 distance = None # distance
 nbOfColros = None # nbOfColros
-incidence = lambda x : True # incidence
+incidence = lambda x: True # incidence
 reflection = None # reflection
 screenDevice = None # screenDevice
 imageID = None # imageID
-origHexCol = "#00ffff"
-neigborColsf = lambda x : x == "#00ff00"
+origHexCol = "#0000ff"
+neigborColsf = None
 
 def key(row):
-    return row[-1]
     ind = row[0]
     if ind == "0":
         return "geen licht"
@@ -78,9 +77,9 @@ for row in ws.iter_rows(min_row=2, max_col=12):
             for col in neigborCols:
                 if neigborColsf(col):
                     for row in neigbors:
-                        if checkFilters(curValues, filters, row):
+                        if checkFilters(curValues, filters, row) and row[11].value != "#ffffff":
                             result.append(row[11].value)
-                            keys.append(key(curValues))
+                            keys.append(key(col))
                     continue
             neigbors = []
             neigborCols = set()

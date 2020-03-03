@@ -149,8 +149,8 @@ for i in range(len(inputcolor)):
         colors.append(inputcolor[i])
 # Create distplot with custom bin_size
 fig = ff.create_distplot(hist_data, group_labels, bin_size=5,show_rug=False,show_hist=False,) #colors=colors,
-fig.update_layout(title='Effect van reflectie op een groen scherm')
-fig.update({'layout': {'xaxis': {'range': [0,1]}}})
+# fig.update_layout(title='Effect van buurkleuren op rood')
+fig.update({'layout': {'xaxis': {'range': [0,360]}}})
 fig.show()
 
 """
