@@ -1,6 +1,6 @@
 
   // variables
-  var fpsGiven = 30
+  var fpsGiven = 60
   var amtGiven = 100
 
   // Static code
@@ -43,7 +43,10 @@
           // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
           then = now - (elapsed % fpsInterval);
 
+          var d1 = Date.now()
           draw(fpsInterval)
+          var d2 = Date.now()
+          console.log("workload: ", d2-d1)
 
       }
   }
@@ -68,9 +71,9 @@
 	  ctx.fill();
 
     // if
-    if (this.posX - this.radius <= 0 || this.posX + this.radius >= wdth)
+    if (this.posX - this.radius < 0 || this.posX + this.radius > wdth)
       this.velocityX *= -1
-    if (this.posY - this.radius <= 0 || this.posY + this.radius >= hght)
+    if (this.posY - this.radius < 0 || this.posY + this.radius > hght)
       this.velocityY *= -1
 
     // x = x0 + v*t
@@ -81,13 +84,13 @@
   function createCircles(amt){
     for (let i = 0; i < amt; i++) {
 
-      posX = (133 * i) % wdth
-      posY = (249 * i) % hght
+      rad = wdth / amt
+
+      posX = (133 * i) % (wdth - 2 * rad) + rad
+      posY = (249 * i) % (hght - 2 * rad) + rad
 
       velX = (-1)**(i % 5) * ((i * 97) % 30)
       velY = (-1)**(i % 7) * ((i * 43) % 30)
-
-      rad = wdth / amt
 
       r = i * 43 % 255
       g = i * 37 % 255
@@ -96,7 +99,7 @@
 
       circle = new Circle(posX, posY, rad, velX, velY, rgb)
       circles.push(circle)
-      console.log(circles)
+      // console.log(circles)
     }
 
     requestAnimationFrame(animate);
