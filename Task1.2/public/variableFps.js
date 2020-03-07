@@ -1,22 +1,23 @@
 //socket
-var socket = io("http://localhost:3000");
+const socket = io("http://localhost:3000");
 
-var button = document.getElementById("startAnimation");
-button.addEventListener('click', ()=> {
+const button = document.getElementById("startAnimation");
+button.addEventListener('click', () => {
+    button.style.display = 'none';
     socket.emit('start');
 });
 
-socket.on('startAnimation', function() {
+socket.on('startAnimation', function () {
     startAnimating(fpsGiven, amtGiven);
 });
 
 // variables
-var fpsGiven = 100;
-var amtGiven = 10;
+const fpsGiven = 60;
+const amtGiven = 1000;
 
 // Static code
 var myCanvas = document.getElementById("myCanvas");
-var ctx = myCanvas.getContext("2d");
+let ctx = myCanvas.getContext("2d");
 hght = myCanvas.height;
 wdth = myCanvas.width;
 src = 0;
@@ -43,6 +44,7 @@ function animate() {
 
     // request another frame
     requestAnimationFrame(animate);
+    //setTimeout(animate, 1000/60);
 
     // calc elapsed time since last loop
     now = Date.now();
@@ -54,9 +56,9 @@ function animate() {
         // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
         then = now - (elapsed % fpsInterval);
 
-        var d1 = Date.now();
+        const d1 = Date.now();
         draw(fpsInterval);
-        var d2 = Date.now();
+        const d2 = Date.now();
         console.log("workload: ", d2 - d1)
 
     }
@@ -93,6 +95,7 @@ Circle.prototype.update = function (tim) {
 };
 
 function createCircles(amt) {
+    let circle;
     for (let i = 0; i < amt; i++) {
 
         rad = wdth / amt;
