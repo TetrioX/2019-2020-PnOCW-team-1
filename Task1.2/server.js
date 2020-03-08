@@ -16,6 +16,7 @@ var slaveSockets = {}
 var slaveNumber = 0
 
 function deleteSlave(socket) {
+  console.log("deleteted")
   delete slaves[socket.id];
 }
 
@@ -52,19 +53,20 @@ var slaveIo = io.on('connection', function(socket){
         let promise = new Promise(function(resolve, reject) {
 
             slaveSockets[slave].emit('prepareAnimation', {
-              workload: 1000,
+              workload: 100,
               timeSent: Date.now()
             },
             function(callBackData){
-              if (maxFps > callBackData.maxFps) maxFps = callBackData.maxFps
-              slaveDelays[slave] = callBackData.delay
-              console.log("Delays: ", slaveDelays)
+              if (typeof callBackData.maxFps == 'number' &&
+               maxFps > callBackData.maxFps) maxFps = callBackData.maxFps;
+              slaveDelays[slave] = callBackData.delay;
+              console.log("Delays: ", slaveDelays);
               resolve()
             })
 
           setTimeout(function() {
             // if it takes longer than 0.5 seconds reject the promise
-            deleteSlave(slaveSockets[slave])
+            // deleteSlave(slaveSockets[slave])
             resolve()
           }, 1000);
         })
@@ -72,9 +74,10 @@ var slaveIo = io.on('connection', function(socket){
       })
       await Promise.all(synchroPromises);
 
-      console.log("Prep done")
-      var startTime = Date.now() + 50
+      console.log("Prep done: ", slaves)
+      startTime = Date.now() + 50
 
+      d1 = Date.now()
       Object.keys(slaves).forEach(function(slave, index) {
         slaveSockets[slave].emit('startAnimation', {
           delay: slaveDelays[slave],
@@ -83,31 +86,25 @@ var slaveIo = io.on('connection', function(socket){
         })
       })
 
-      checkInterval = setInterval(checkFrame, 3000);
+      console.log("MaxFps: ", maxFps)
+      checkInterval = setInterval(checkFrame, checkInt * 1000 / maxFps);
 
     })
 
 });
 
-var checkPromises
-async function checkFrame() {
-  checkPromises = []
-  slaveFrame = []
-  Object.keys(slaves).forEach(async function(slave, index) {
-    let promise = new Promise(function(resolve, reject) {
-        slaveSockets[slave].emit('checkframe', null, function(callBackData){
-          slaveFrame[slave] = callBackData
-          resolve()
-        })
-      setTimeout(function() {
-        resolve();
-      }, 50);
-    })
-    checkPromises.push(promise)
+var checkInt = 20
+var frame, startTime
+function checkFrame() {
+  delay = Date.now() - startTime
+  // console.log(delay)
+  frame = delay * maxFps / 1000 + 1
+  slaveIo.emit('atFrame', {
+    frame: frame
   })
-  await Promise.all(checkPromises);
-  console.log(slaveFrame)
 }
+
+
 
 var loadAdress = 3000
 

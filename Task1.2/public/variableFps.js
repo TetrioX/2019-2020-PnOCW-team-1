@@ -43,6 +43,11 @@ socket.on('stopAnimation', function(data) {
   ctx.clearRect(0, 0, wdth, hght);
 });
 
+var framesToCorrect = 0
+socket.on('atFrame', function(data){
+  console.log(data.frame, " ", frameCount)
+  framesToCorrect = data.frame - frameCount
+})
 
 // variables
 var fpsGiven = 60;
@@ -87,7 +92,7 @@ function animate() {
 
     // if enough time has elapsed, draw the next frame
     if (elapsed > fpsInterval) {
-      console.log("StartNu: ", Date.now())
+      // console.log("StartNu: ", Date.now())
         // Get ready for next frame by setting then=now, but also adjust for your
         // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
         then = now - (elapsed % fpsInterval);
@@ -112,13 +117,16 @@ function Circle(coordinateX, coordinateY, radius, velocityX, velocityY, color) {
     this.color = color
 }
 
-Circle.prototype.update = function (tim) {
+Circle.prototype.draw = function (tim) {
     // Draw Circle
     ctx.beginPath();
     ctx.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fillStyle = this.color;
     ctx.fill();
+};
+
+Circle.prototype.update = function (tim) {
 
     // if
     if (this.posX - this.radius < 0 || this.posX + this.radius > wdth)
@@ -157,8 +165,18 @@ function draw(dt) {
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, wdth, hght);
 
+    if (framesToCorrect) {
+      console.log("correction: ", framesToCorrect)
+      var correction = Math.sign(framesToCorrect) * dt
+      frameCount += Math.sign(framesToCorrect)
+      framesToCorrect = Math.round(framesToCorrect - Math.sign(framesToCorrect))
+    }
+    else var correction = 0
+
     for (let i = 0; i < circles.length; i++) {
         let circle = circles[i];
-        circle.update(dt);
+        circle.draw(dt + correction / 2);
+        circle.update(dt + correction);
     }
+
 }
