@@ -24,7 +24,10 @@ function addSlave(socket) {
     console.log("nr.: ", slaveNumber)
     slaves[socket.id] = ++slaveNumber
     slaveSockets[socket.id] = socket
-    // socket.emit('slaveID', slaveNumber)
+    socket.emit('ping', {
+      time: Date.now(),
+      id: socket.id
+    })
 }
 
 /******************
@@ -32,8 +35,15 @@ function addSlave(socket) {
  ******************/
 var maxFps = 60;
 
+var latency = {}
 var slaveIo = io.on('connection', function(socket){
     addSlave(socket)
+
+    socket.on('pong', function(data) {
+      d2 = Date.now()
+      latency[data.id] = d2 - data.time
+      console.log(latency)
+    });
 
     socket.on('stopAnimation', function() {
         slaveIo.emit('stopAnimation')
@@ -93,7 +103,7 @@ var slaveIo = io.on('connection', function(socket){
 
 });
 
-var checkInt = 20
+var checkInt = 10
 var frame, startTime
 function checkFrame() {
   delay = Date.now() - startTime
@@ -103,7 +113,6 @@ function checkFrame() {
     frame: frame
   })
 }
-
 
 
 var loadAdress = 3000

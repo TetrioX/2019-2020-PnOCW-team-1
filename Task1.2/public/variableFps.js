@@ -1,6 +1,11 @@
 //socket
 var socket = io("http://localhost:3000");
 
+//calcLatency
+socket.on('ping', function(data) {
+  socket.emit('pong', data)
+});
+
 // Knop voor animatie te starten
 var button = document.getElementById("startAnimation");
 button.addEventListener('click', ()=> {
@@ -46,8 +51,15 @@ socket.on('stopAnimation', function(data) {
 var framesToCorrect = 0
 socket.on('atFrame', function(data){
   console.log(data.frame, " ", frameCount)
-  framesToCorrect = data.frame - frameCount
+  framesToCorrect = Math.round(data.frame - frameCount)
 })
+
+// keep the latency between the server and slave
+var latency = 0;
+socket.on('pong', function(ms) {
+    latency += Math.min(latency*6/5 + 10,(ms - latency)/5)
+		socket.emit('update-latency', latency)
+});
 
 // variables
 var fpsGiven = 60;
@@ -176,7 +188,8 @@ function draw(dt) {
     for (let i = 0; i < circles.length; i++) {
         let circle = circles[i];
         circle.draw(dt + correction / 2);
-        circle.update(dt + correction);
+        circle.update(dt);
+        if (correction) circle.update(correction);
     }
 
 }
