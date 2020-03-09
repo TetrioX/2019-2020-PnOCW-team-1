@@ -1,7 +1,12 @@
 var express = require('express');
 var app = express();
 var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http, {
+  pingInterval: 1000,
+  pingTimeout: 500
+});
+var socket = require('socket.io');
+
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/public/variableFps.HTML');
@@ -24,40 +29,41 @@ function addSlave(socket) {
     console.log("nr.: ", slaveNumber)
     slaves[socket.id] = ++slaveNumber
     slaveSockets[socket.id] = socket
-    socket.emit('ping', {
-      time: Date.now(),
-      id: socket.id
-    })
 }
+
+var offsets
+
 
 /******************
   * Slave socket *
  ******************/
-var maxFps = 60;
+var maxFps, maxLat;
 
-var latency = {}
+
 var slaveIo = io.on('connection', function(socket){
     addSlave(socket)
-
-    socket.on('pong', function(data) {
-      d2 = Date.now()
-      latency[data.id] = d2 - data.time
-      console.log(latency)
-    });
+    socket.removeAllListeners()
 
     socket.on('stopAnimation', function() {
         slaveIo.emit('stopAnimation')
         clearInterval(checkInterval)
     })
 
+    socket.on('disconnect', function() {
+      deleteSlave(socket)
+    })
+
     var stop = false;
     var checkInterval
     socket.on('startAnimation', async function() {
+      var maxLat = 0, maxFps = 60
       var synchroPromises = []
-      var slaveDelays = {}
+      var slaveOffsets = {}
 
       slaveIo.emit('stopAnimation')
       clearInterval(checkInterval)
+
+      console.log('startAnimation')
 
       Object.keys(slaves).forEach(async function(slave, index) {
         let promise = new Promise(function(resolve, reject) {
@@ -68,9 +74,13 @@ var slaveIo = io.on('connection', function(socket){
             },
             function(callBackData){
               if (typeof callBackData.maxFps == 'number' &&
-               maxFps > callBackData.maxFps) maxFps = callBackData.maxFps;
-              slaveDelays[slave] = callBackData.delay;
-              console.log("Delays: ", slaveDelays);
+                 maxFps > callBackData.maxFps) maxFps = callBackData.maxFps;
+              if (typeof callBackData.lat == 'number' &&
+                maxLat < callBackData.lat) maxLat = callBackData.lat;
+              slaveOffsets[slave] = {
+                offset: callBackData.offset,
+              };
+              console.log("Delays: ", slaveOffsets);
               resolve()
             })
 
@@ -85,12 +95,12 @@ var slaveIo = io.on('connection', function(socket){
       await Promise.all(synchroPromises);
 
       console.log("Prep done: ", slaves)
-      startTime = Date.now() + 50
+      startTime = Date.now() + maxLat
 
       d1 = Date.now()
       Object.keys(slaves).forEach(function(slave, index) {
         slaveSockets[slave].emit('startAnimation', {
-          delay: slaveDelays[slave],
+          offset: slaveOffsets[slave].offset,
           fps: maxFps,
           startTime: startTime
         })
@@ -103,21 +113,18 @@ var slaveIo = io.on('connection', function(socket){
 
 });
 
-var checkInt = 10
+var checkInt = 5
 var frame, startTime
 function checkFrame() {
-  delay = Date.now() - startTime
-  // console.log(delay)
-  frame = delay * maxFps / 1000 + 1
   slaveIo.emit('atFrame', {
-    frame: frame
+    dt: Date.now() - startTime
   })
 }
 
 
 var loadAdress = 3000
 
-http.listen(loadAdress, function(){
+var server = http.listen(loadAdress, function(){
     console.log(`listening on *:${loadAdress}`);
 });
 

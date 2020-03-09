@@ -1,10 +1,6 @@
 //socket
 var socket = io("http://localhost:3000");
-
-//calcLatency
-socket.on('ping', function(data) {
-  socket.emit('pong', data)
-});
+socket.removeAllListeners()
 
 // Knop voor animatie te starten
 var button = document.getElementById("startAnimation");
@@ -18,15 +14,22 @@ buttonq.addEventListener('click', ()=> {
     socket.emit('stopAnimation');
 });
 
+// keep the latency between the server and slave
+var latency = 0;
+socket.on('pong', function(ms) {
+    latency += Math.min(latency*6/5 + 10,(ms - latency)/5)
+});
+
 // Socket reactie om animatie klaar te maken
-var delay, maxFps
+var maxFps
 socket.on('prepareAnimation', function(data, callback) {
-    delay = Date.now() - data.timeSent
-    console.log("delay: ", delay);
+    var clock = Date.now()
     prepareAnimation(data.workload);
     stop = false
+    frameCount = 0
     callback({
-      delay: delay,
+      lat: latency,
+      offset: clock - data.timeSent - latency,
       maxFps: maxFps
     })
 });
@@ -35,9 +38,9 @@ socket.on('prepareAnimation', function(data, callback) {
 var fps, fpsInterval, startTime, now, then, elapsed;
 socket.on('startAnimation', function(data) {
   fpsInterval = 1000 / data.fps;
-  then = data.startTime
+  then = data.startTime + data.offset
   startTime = then;
-  console.log("Start", data.startTime, " ", Date.now())
+  console.log("Start", then, " ", Date.now())
   animation = requestAnimationFrame(animate)
 });
 
@@ -50,16 +53,9 @@ socket.on('stopAnimation', function(data) {
 
 var framesToCorrect = 0
 socket.on('atFrame', function(data){
-  console.log(data.frame, " ", frameCount)
-  framesToCorrect = Math.round(data.frame - frameCount)
+  framesToCorrect = Math.round((data.dt + latency) / fpsInterval) - frameCount
 })
 
-// keep the latency between the server and slave
-var latency = 0;
-socket.on('pong', function(ms) {
-    latency += Math.min(latency*6/5 + 10,(ms - latency)/5)
-		socket.emit('update-latency', latency)
-});
 
 // variables
 var fpsGiven = 60;
@@ -109,9 +105,9 @@ function animate() {
         // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
         then = now - (elapsed % fpsInterval);
 
-        var d1 = Date.now();
+        // var d1 = Date.now();
         draw(fpsInterval);
-        var d2 = Date.now();
+        // var d2 = Date.now();
         // console.log(frameCount, ", workload: ", d2 - d1)
         frameCount++
 
@@ -141,9 +137,9 @@ Circle.prototype.draw = function (tim) {
 Circle.prototype.update = function (tim) {
 
     // if
-    if (this.posX - this.radius < 0 || this.posX + this.radius > wdth)
+    if (this.posX - this.radius <= 0 || this.posX + this.radius >= wdth)
         this.velocityX *= -1;
-    if (this.posY - this.radius < 0 || this.posY + this.radius > hght)
+    if (this.posY - this.radius <= 0 || this.posY + this.radius >= hght)
         this.velocityY *= -1;
 
     // x = x0 + v*t
@@ -179,9 +175,10 @@ function draw(dt) {
 
     if (framesToCorrect) {
       console.log("correction: ", framesToCorrect)
-      var correction = Math.sign(framesToCorrect) * dt
-      frameCount += Math.sign(framesToCorrect)
-      framesToCorrect = Math.round(framesToCorrect - Math.sign(framesToCorrect))
+      var correctionFactor = framesToCorrect > 0 ? 1/2 : -1/2;
+      var correction = correctionFactor * dt
+      frameCount += correctionFactor
+      framesToCorrect -= correctionFactor
     }
     else var correction = 0
 
