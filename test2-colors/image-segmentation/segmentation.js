@@ -2,7 +2,7 @@ const fil = require('./filter.js');
 
 // bugg [r1, g1, b1, r2, g2, b2, ...]
 function segmentate(buff, toBuff, channel) {
-  fil.filter(buff, toBuff, channel)
+  fil.conv(buff, toBuff, channel)
 
 }
 

@@ -1,5 +1,10 @@
 {
   "name": "test2-colors",
   "version": "1.0.0",
-  "dependencies": {}
+  "dependencies": {
+    "glur": "^1.1.2",
+    "install": "^0.13.0",
+    "jimp": "^0.9.3",
+    "npm": "^6.14.1"
+  }
 }

@@ -131,7 +131,7 @@ for group in walk("./"):
             pickedList.remove(hash)
             continue
         nbc = int(pictureName[4])
-        blocksize = nbp*nbc
+        blocksize = nbp*nbcy
         row = [groupName, pictureName[0], pictureName[1], pictureName[2], pictureName[3],\
         pictureName[4], pictureName[-4], pictureName[-3], pictureName[-2], fileName, None, None]
         for i in range(nbc):
