@@ -132,7 +132,7 @@ var colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
 
 function draw(dt) {
     ctx.clearRect(0, 0, wdth, hght);
-
+    // console.log(frameCount)
     // colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
     // color = Math.floor(frameCount % 5)
     // ctx.fillStyle = colors[color];
@@ -173,8 +173,10 @@ Square.prototype.draw = function () {
     ctx.fillRect(this.posX, this.posY, this.size, this.size)
 };
 
-Square.prototype.update = function (frame) {
-    var newSize = frame * this.updateFactor;
+var newSize
+Square.prototype.update = function (frame = 0) {
+  console.log(this.size, frame)
+    newSize = this.size + frame * this.updateFactor;
     if (newSize > this.maxSize) {
         newSize = 2 * this.maxSize - newSize
         this.updateFactor = -1
