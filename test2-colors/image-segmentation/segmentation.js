@@ -1,9 +1,58 @@
 const fil = require('./filter.js');
 
-// bugg [r1, g1, b1, r2, g2, b2, ...]
+// buff [r1, g1, b1, r2, g2, b2, ...]
 function segmentate(buff, toBuff, channel) {
-  fil.filter(buff, toBuff, channel)
+ // fil.filter(buff, toBuff, channel)
+  rgbbuff2hsl(buff)
+  kNN(buff,10, toBuff)
+  kNN(buff,10, toBuff)
+  kNN(buff,10, toBuff)
 
+}
+
+function rgbbuff2hsl(buff){
+  for (let i = 0; i < buff.length; i += 3){
+    hsl = rgb2hsl([buff[i],buff[i+1],buff[i+2]])
+    buff[i] = hsl[0]
+    buff[i+1] = hsl[1]
+    buff[i+2] = hsl[2]
+  }
+}
+
+function kNN(buff,k, toBuff){
+  locPoints = Math.floor(buff.length/(k*3))
+  locPoints -= locPoints%3
+  pointsColor = []
+  for(let i = 0; i<k*3; i+=3){
+    h = buff[locPoints*i]
+    pointsColor.push(h)
+  }
+  console.log(pointsColor)
+  newPointsColor = []
+  nbPointsColor = 
+  for(let i = 0; i<buff.length; i+=3){
+    ind = closest_to(pointsColor,buff[i])
+    toBuff[i] = pointsColor[ind]
+    newPointsColor[ind] += buff[i]
+    toBuff[i+1] = 100
+    toBuff[i+2] = 100
+  }
+}
+
+function closest_to(pointsColor,color){
+  let d = 500
+  let dColor = 0
+  for (i in pointsColor){
+    if (distance(pointsColor[i],color)<d){
+      d = distance(pointsColor[i],color)
+      dColor = i
+    }
+  }
+  return dColor
+}
+
+function distance(hue1,hue2){
+  return Math.sqrt(hue1-hue2)**2
 }
 
 function rgb2hsl(rgbArr){
