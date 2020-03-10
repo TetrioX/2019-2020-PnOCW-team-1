@@ -40,6 +40,7 @@ socket.on('startAnimation', function(data) {
   fpsInterval = 1000 / data.fps;
   then = data.startTime + data.offset
   startTime = then;
+  frameCount = 0
   console.log("Start", then, " ", Date.now())
   animation = requestAnimationFrame(animate)
 });
@@ -121,7 +122,6 @@ function animate() {
         draw(fpsInterval);
         // var d2 = Date.now();
         // console.log(frameCount, ", workload: ", d2 - d1)
-        frameCount++
 
     }
 }
@@ -151,7 +151,7 @@ function draw(dt) {
          square.update(1);
          if (correction) square.update(correctionFactor);
     }
-
+    frameCount++
 }
 
 
@@ -159,7 +159,7 @@ var squares = []
 function Square(coordinateX, coordinateY, maxSize) {
     this.posX = coordinateX;
     this.posY = coordinateY;
-    this.size = 0;
+    this.size = 10;
     this.maxSize = maxSize;
     this.updateFactor = 1;
     this.color = "#FF0000"
