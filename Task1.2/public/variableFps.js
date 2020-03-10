@@ -175,7 +175,7 @@ Square.prototype.draw = function () {
 
 var newSize
 Square.prototype.update = function (frame = 0) {
-  console.log(this.size, frame)
+  // console.log(this.size, frame)
     newSize = this.size + frame * this.updateFactor;
     if (newSize > this.maxSize) {
         newSize = 2 * this.maxSize - newSize
