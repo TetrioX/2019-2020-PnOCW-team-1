@@ -172,10 +172,16 @@ Square.prototype.draw = function () {
 };
 
 Square.prototype.update = function (frame) {
-  if (this.size >= 100 || this.size < 0){
-      this.updateFactor = -1 * this.updateFactor
+  newSize += frame * this.updateFactor;
+  if (newSize > this.maxSize) {
+    newSize = 2 * this.maxSize - newSize
+    this.updateFactor = -1
   }
-  this.size += this.updateFactor;
+  else if (newSize < 0) {
+    newSize = - newSize
+    this.updateFactor = 1
+  }
+  this.size = newSize
 };
 
 function createObjects(amt) {

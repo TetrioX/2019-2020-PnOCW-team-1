@@ -112,17 +112,17 @@ var slaveIo = io.on('connection', function(socket){
 
 });
 
-var checkInt = 1
+var checkInt = 3
 var frame, startTime, iteration = 0
 function checkFrame() {
   slaveIo.emit('atFrame', {
     dt: Date.now() - startTime
   })
-  if (iteration >= 500) {
-    slaveIo.emit('stopAnimation')
-    clearInterval(checkInterval)
-  }
-  iteration++
+  // if (iteration >= 500 / checkInt) {
+  //   slaveIo.emit('stopAnimation')
+  //   clearInterval(checkInterval)
+  // }
+  // iteration++
 }
 
 
