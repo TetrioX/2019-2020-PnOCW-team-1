@@ -71,7 +71,7 @@ wdth = myCanvas.width;
 // initialize the timer variables and start the animation
 
 function prepareAnimation(amtCir) {
-    createObjects(amtCir)
+    // createObjects(amtCir)
     // console.log("circles: ", circles)
 
     w1 = new Date()
@@ -114,79 +114,85 @@ function animate() {
     }
 }
 
-let circles = [];
-
-function Circle(coordinateX, coordinateY, radius, velocityX, velocityY, color) {
-    this.posX = coordinateX;
-    this.posY = coordinateY;
-    this.radius = radius;
-    this.velocityX = velocityX;
-    this.velocityY = velocityY;
-    this.color = color
-}
-
-Circle.prototype.draw = function (tim) {
-    // Draw Circle
-    ctx.beginPath();
-    ctx.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2, false);
-    ctx.closePath();
-    ctx.fillStyle = this.color;
-    ctx.fill();
-};
-
-Circle.prototype.update = function (tim) {
-
-    // if
-    if (this.posX - this.radius <= 0 || this.posX + this.radius >= wdth)
-        this.velocityX *= -1;
-    if (this.posY - this.radius <= 0 || this.posY + this.radius >= hght)
-        this.velocityY *= -1;
-
-    // x = x0 + v*t
-    this.posX += tim * this.velocityX / 1000;
-    this.posY += tim * this.velocityY / 1000;
-};
-
-function createObjects(amt) {
-    for (let i = 0; i < amt; i++) {
-
-        rad = wdth / amt**(1/2);
-
-        posX = (133 * i) % (wdth - 2 * rad) + rad;
-        posY = (249 * i) % (hght - 2 * rad) + rad;
-
-        velX = (-1) ** (i % 5) * ((i * 97) % 30);
-        velY = (-1) ** (i % 7) * ((i * 43) % 30);
-
-        r = i * 43 % 255;
-        g = i * 37 % 255;
-        b = i * 13 % 255;
-        rgb = `rgb(${r}, ${b}, ${g}, 1)`;
-
-        circle = new Circle(posX, posY, rad, velX, velY, rgb);
-        circles.push(circle);
-    }
-}
-
+var scaling = 1
+var colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
 function draw(dt) {
     ctx.clearRect(0, 0, wdth, hght);
-    ctx.fillStyle = '#FFFFFF';
+
+    colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
+    color = Math.floor(frameCount % 5)
+    ctx.fillStyle = colors[color];
     ctx.fillRect(0, 0, wdth, hght);
 
     if (framesToCorrect) {
       console.log("correction: ", framesToCorrect)
-      var correctionFactor = framesToCorrect > 0 ? 1/2 : -1/2;
-      var correction = correctionFactor * dt
+      var correctionFactor = framesToCorrect > 0 ? 1 * scaling : -1 * scaling;
+      // var correction = correctionFactor * dt
       frameCount += correctionFactor
       framesToCorrect -= correctionFactor
     }
     else var correction = 0
 
-    for (let i = 0; i < circles.length; i++) {
-        let circle = circles[i];
-        circle.draw(dt + correction / 2);
-        circle.update(dt);
-        if (correction) circle.update(correction);
-    }
+    // for (let i = 0; i < circles.length; i++) {
+    //     let circle = circles[i];
+    //     circle.draw();
+    //     circle.update(dt);
+    //     if (correction) circle.update(correction);
+    // }
 
 }
+
+
+// let circles = [];
+//
+// function Circle(coordinateX, coordinateY, radius, velocityX, velocityY, color) {
+//     this.posX = coordinateX;
+//     this.posY = coordinateY;
+//     this.radius = radius;
+//     this.velocityX = velocityX;
+//     this.velocityY = velocityY;
+//     this.color = color
+// }
+//
+// Circle.prototype.draw = function () {
+//     // Draw Circle
+//     ctx.beginPath();
+//     ctx.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2, false);
+//     ctx.closePath();
+//     ctx.fillStyle = this.color;
+//     ctx.fill();
+// };
+//
+// Circle.prototype.update = function (tim) {
+//
+//     // if
+//     if (this.posX - this.radius <= 0 || this.posX + this.radius >= wdth)
+//         this.velocityX *= -1;
+//     if (this.posY - this.radius <= 0 || this.posY + this.radius >= hght)
+//         this.velocityY *= -1;
+//
+//     // x = x0 + v*t
+//     this.posX += tim * this.velocityX / 1000;
+//     this.posY += tim * this.velocityY / 1000;
+// };
+//
+// function createObjects(amt) {
+//     for (let i = 0; i < amt; i++) {
+//
+//         rad = wdth / amt**(1/2);
+//
+//         posX = (133 * i) % (wdth - 2 * rad) + rad;
+//         posY = (249 * i) % (hght - 2 * rad) + rad;
+//
+//         velX = (-1) ** (i % 5) * ((i * 97) % 30);
+//         velY = (-1) ** (i % 7) * ((i * 43) % 30);
+//
+//         r = i * 43 % 255;
+//         g = i * 37 % 255;
+//         b = i * 13 % 255;
+//         rgb = `rgb(${r}, ${b}, ${g}, 1)`;
+//
+//         circle = new Circle(posX, posY, rad, velX, velY, rgb);
+//         circles.push(circle);
+//     }
+// }
