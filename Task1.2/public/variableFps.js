@@ -137,7 +137,7 @@ function draw(dt) {
     // ctx.fillRect(0, 0, wdth, hght);
 
     if (framesToCorrect) {
-      // console.log("correction: ", framesToCorrect)
+      console.log("correction: ", framesToCorrect)
       var correctionFactor = framesToCorrect // > 0 ? 1 * scaling : -1 * scaling;
       var correction = correctionFactor
       frameCount += correctionFactor
