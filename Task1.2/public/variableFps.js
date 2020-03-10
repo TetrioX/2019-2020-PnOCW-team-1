@@ -1,5 +1,5 @@
 //socket
-var socket = io("http://localhost:3000");
+var socket = io("/");
 socket.removeAllListeners()
 
 // Knop voor animatie te starten
@@ -49,11 +49,16 @@ socket.on('stopAnimation', function(data) {
   stop = true
   circles = []
   ctx.clearRect(0, 0, wdth, hght);
-  av = corrections.forEach((item, i, ret = 0) => {
-    ret += item
-  });
 
-  console.log("Data: ", corrections.length, " ", av / corrections.length)
+  var sum = 0;
+  for( var i = 0; i < corrections.length; i++ ){
+      sum += parseInt( corrections[i], 10 ); //don't forget to add the base
+  }
+
+  var avg = sum / corrections.length;
+
+  console.log("Data: ", corrections.length, " ", avg)
+  console.log("List: ", corrections)
 });
 
 var corrections = []
@@ -143,8 +148,8 @@ function draw(dt) {
     for (let i = 0; i < squares.length; i++) {
          let square = squares[i];
          square.draw();
-         square.update(dt);
-         if (correction) square.update(correction);
+         square.update(1);
+         if (correction) square.update(correctionFactor);
     }
 
 }

@@ -118,15 +118,15 @@ function checkFrame() {
   slaveIo.emit('atFrame', {
     dt: Date.now() - startTime
   })
-  // if (iteration >= 500) {
-  //   slaveIo.emit('stopAnimation')
-  //   clearInterval(checkInterval)
-  // }
-  // iteration++
+  if (iteration >= 500) {
+    slaveIo.emit('stopAnimation')
+    clearInterval(checkInterval)
+  }
+  iteration++
 }
 
 
-var loadAdress = 3000
+var loadAdress = 7001
 
 var server = http.listen(loadAdress, function(){
     console.log(`listening on *:${loadAdress}`);
