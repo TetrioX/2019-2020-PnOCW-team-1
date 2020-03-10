@@ -49,11 +49,18 @@ socket.on('stopAnimation', function(data) {
   stop = true
   circles = []
   ctx.clearRect(0, 0, wdth, hght);
+  av = corrections.forEach((item, i, ret = 0) => {
+    ret += item
+  });
+
+  console.log("Data: ", corrections.length, " ", av / corrections.length)
 });
 
+var corrections = []
 var framesToCorrect = 0
 socket.on('atFrame', function(data){
   framesToCorrect = Math.round((data.dt + latency) / fpsInterval) - frameCount
+  if (framesToCorrect) corrections.push(framesToCorrect)
 })
 
 
@@ -71,7 +78,7 @@ wdth = myCanvas.width;
 // initialize the timer variables and start the animation
 
 function prepareAnimation(amtCir) {
-    // createObjects(amtCir)
+    createObjects(amtCir)
     // console.log("circles: ", circles)
 
     w1 = new Date()
@@ -119,80 +126,64 @@ var colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
 function draw(dt) {
     ctx.clearRect(0, 0, wdth, hght);
 
-    colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
-    color = Math.floor(frameCount % 5)
-    ctx.fillStyle = colors[color];
-    ctx.fillRect(0, 0, wdth, hght);
+    // colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
+    // color = Math.floor(frameCount % 5)
+    // ctx.fillStyle = colors[color];
+    // ctx.fillRect(0, 0, wdth, hght);
 
     if (framesToCorrect) {
-      console.log("correction: ", framesToCorrect)
+      // console.log("correction: ", framesToCorrect)
       var correctionFactor = framesToCorrect > 0 ? 1 * scaling : -1 * scaling;
-      // var correction = correctionFactor * dt
+      var correction = correctionFactor
       frameCount += correctionFactor
       framesToCorrect -= correctionFactor
     }
     else var correction = 0
 
-    // for (let i = 0; i < circles.length; i++) {
-    //     let circle = circles[i];
-    //     circle.draw();
-    //     circle.update(dt);
-    //     if (correction) circle.update(correction);
-    // }
+    for (let i = 0; i < squares.length; i++) {
+         let square = squares[i];
+         square.draw();
+         square.update(dt);
+         if (correction) square.update(correction);
+    }
 
 }
 
 
-// let circles = [];
-//
-// function Circle(coordinateX, coordinateY, radius, velocityX, velocityY, color) {
-//     this.posX = coordinateX;
-//     this.posY = coordinateY;
-//     this.radius = radius;
-//     this.velocityX = velocityX;
-//     this.velocityY = velocityY;
-//     this.color = color
-// }
-//
-// Circle.prototype.draw = function () {
-//     // Draw Circle
-//     ctx.beginPath();
-//     ctx.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2, false);
-//     ctx.closePath();
-//     ctx.fillStyle = this.color;
-//     ctx.fill();
-// };
-//
-// Circle.prototype.update = function (tim) {
-//
-//     // if
-//     if (this.posX - this.radius <= 0 || this.posX + this.radius >= wdth)
-//         this.velocityX *= -1;
-//     if (this.posY - this.radius <= 0 || this.posY + this.radius >= hght)
-//         this.velocityY *= -1;
-//
-//     // x = x0 + v*t
-//     this.posX += tim * this.velocityX / 1000;
-//     this.posY += tim * this.velocityY / 1000;
-// };
-//
-// function createObjects(amt) {
-//     for (let i = 0; i < amt; i++) {
-//
-//         rad = wdth / amt**(1/2);
-//
-//         posX = (133 * i) % (wdth - 2 * rad) + rad;
-//         posY = (249 * i) % (hght - 2 * rad) + rad;
-//
-//         velX = (-1) ** (i % 5) * ((i * 97) % 30);
-//         velY = (-1) ** (i % 7) * ((i * 43) % 30);
-//
-//         r = i * 43 % 255;
-//         g = i * 37 % 255;
-//         b = i * 13 % 255;
-//         rgb = `rgb(${r}, ${b}, ${g}, 1)`;
-//
-//         circle = new Circle(posX, posY, rad, velX, velY, rgb);
-//         circles.push(circle);
-//     }
-// }
+var squares = []
+function Square(coordinateX, coordinateY, maxSize) {
+    this.posX = coordinateX;
+    this.posY = coordinateY;
+    this.size = 0;
+    this.maxSize = maxSize;
+    this.updateFactor = 1;
+    this.color = "#FF0000"
+}
+
+Square.prototype.draw = function () {
+    // Draw Circle
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.posX,this.posY, this.size, this.size)
+};
+
+Square.prototype.update = function (frame) {
+  if (this.size >= 100 || this.size < 0){
+      this.updateFactor = -1 * this.updateFactor
+  }
+  this.size += this.updateFactor;
+};
+
+function createObjects(amt) {
+    for (let i = 0; i < 32; i++) {
+
+        rad = wdth / amt**(1/2);
+
+        size = 1500 / 8
+
+        posX = (size * i) % 1500;
+        posY = size * Math.floor(i / 8) ;
+
+        square = new Square(posX, posY, size);
+        squares.push(square);
+    }
+}

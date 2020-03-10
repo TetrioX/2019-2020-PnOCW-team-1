@@ -38,7 +38,7 @@ var offsets
   * Slave socket *
  ******************/
 var maxFps, maxLat;
-
+var checkInterval
 
 var slaveIo = io.on('connection', function(socket){
     addSlave(socket)
@@ -54,7 +54,6 @@ var slaveIo = io.on('connection', function(socket){
     })
 
     var stop = false;
-    var checkInterval
     socket.on('startAnimation', async function() {
       var maxLat = 0, maxFps = 60
       var synchroPromises = []
@@ -95,9 +94,9 @@ var slaveIo = io.on('connection', function(socket){
       await Promise.all(synchroPromises);
 
       console.log("Prep done: ", slaves)
-      startTime = Date.now() + maxLat
+      startTime = Date.now() + maxLat * 2
 
-      d1 = Date.now()
+      // d1 = Date.now()
       Object.keys(slaves).forEach(function(slave, index) {
         slaveSockets[slave].emit('startAnimation', {
           offset: slaveOffsets[slave].offset,
@@ -113,12 +112,17 @@ var slaveIo = io.on('connection', function(socket){
 
 });
 
-var checkInt = 5
-var frame, startTime
+var checkInt = 1
+var frame, startTime, iteration = 0
 function checkFrame() {
   slaveIo.emit('atFrame', {
     dt: Date.now() - startTime
   })
+  // if (iteration >= 500) {
+  //   slaveIo.emit('stopAnimation')
+  //   clearInterval(checkInterval)
+  // }
+  // iteration++
 }
 
 
