@@ -117,12 +117,7 @@ var frame, startTime, iteration = 0
 function checkFrame() {
   slaveIo.emit('atFrame', {
     dt: Date.now() - startTime
-  })
-  // if (iteration >= 500 / checkInt) {
-  //   slaveIo.emit('stopAnimation')
-  //   clearInterval(checkInterval)
-  // }
-  // iteration++
+  });
 }
 
 
