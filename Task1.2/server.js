@@ -112,8 +112,8 @@ var slaveIo = io.on('connection', function(socket){
 
 });
 
-var checkInt = 3
-var frame, startTime, iteration = 0
+var checkInt = 3;
+var frame, startTime, iteration = 0;
 function checkFrame() {
   slaveIo.emit('atFrame', {
     dt: Date.now() - startTime
