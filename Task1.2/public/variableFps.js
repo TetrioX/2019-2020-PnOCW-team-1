@@ -77,7 +77,7 @@ var amtGiven = 10;
 
 // Static code
 var myCanvas = document.getElementById("myCanvas");
-var ctx = myCanvas.getContext("2d");
+let ctx = myCanvas.getContext("2d");
 hght = myCanvas.height;
 wdth = myCanvas.width;
 
@@ -151,6 +151,7 @@ function draw(dt) {
 
     frameCount++
 }
+
 
 
 var squares = []
