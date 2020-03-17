@@ -30,10 +30,42 @@ const draw = () => {
     }
 };
 
-button.addEventListener('click', ()=> {
-    socket.emit('start');
-});
+var squares = []
+function Square(coordinateX, coordinateY, maxSize) {
+    this.posX = coordinateX;
+    this.posY = coordinateY;
+    this.size = 0;
+    this.maxSize = maxSize;
+    this.updateFactor = 1;
+    this.color = "#FF0000"
+}
 
-socket.on('startAnimation', function() {
-    animate()
-});
+Square.prototype.draw = function () {
+    // Draw Circle
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.posX,this.posY, this.size, this.size)
+};
+
+Square.prototype.update = function (tim) {
+  if (this.size >= 100 || this.size < 0){
+      this.updateFactor = -1 * this.updateFactor
+  }
+  this.size += this.updateFactor;
+};
+
+function createObjects(amt) {
+    squares = []
+    for (let i = 0; i < 32; i++) {
+
+        rad = wdth / amt**(1/2);
+
+        size = 1500 / 8
+
+        posX = (size * i) % 1500;
+        posY = size * Math.floor(i / 8) ;
+
+        square = new Square(posX, posY, size);
+        squares.push(square);
+    }
+    console.log(squares)
+}
