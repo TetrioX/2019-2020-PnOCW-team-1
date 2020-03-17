@@ -132,10 +132,6 @@ var colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
 
 function draw(dt) {
     ctx.clearRect(0, 0, wdth, hght);
-    // colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF', '#000000']
-    // color = Math.floor(frameCount % 5)
-    // ctx.fillStyle = colors[color];
-    // ctx.fillRect(0, 0, wdth, hght);
 
     if (framesToCorrect) {
         var correctionFactor = framesToCorrect // > 0 ? 1 * scaling : -1 * scaling;
@@ -143,13 +139,16 @@ function draw(dt) {
         frameCount += correctionFactor
         framesToCorrect -= correctionFactor
     } else var correction = 0
+
     console.log("correction: ", framesToCorrect)
+
     for (let i = 0; i < squares.length; i++) {
         let square = squares[i];
         square.draw();
         square.update(1);
         if (correction) square.update(correctionFactor);
     }
+
     frameCount++
 }
 
