@@ -6,7 +6,7 @@ var ss = require('socket.io-stream');
 const scrnread = require('./lib/screenProcessing/screenReading.js')
 const imgprcssrgb = require('./lib/ImageProcessingHSL/imageProcessingHSL.js')
 const screenorientation = require('./lib/screenOrientation/orientationCalculation.js')
-// const delaunay = require('./lib/triangulate_divide_and_conquer/delaunay.js')
+const delaunay = require('./lib/triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('./lib/triangulate_divide_and_conquer/geometry.js')
 var snakeJs = require('./lib/SnakeLogic/snake.js')
 var worldJs = require('./lib/SnakeLogic/world.js')
@@ -673,7 +673,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let promise = new Promise(function(resolve, reject) {
         slaveSockets[slave].emit('prepareAnimation',
           {
-            animation: "...",
+            animation: 30,
             timeSent: Date.now()
           },
           function(callBackData){

@@ -442,7 +442,10 @@ new Promise(function(resolve, reject){
 	triangulationSnake.addEventListener('click', function(){
 		socket.emit('clearAll');
 		if (snakeLength)
-			socket.emit("startSnake", { size: snakeLength })
+			socket.emit("startAnimation", {
+				animation: triangulationSnake,
+				size: snakeLength
+			})
 		else alert('You gotta choose a length.')
 	})
 

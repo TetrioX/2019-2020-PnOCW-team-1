@@ -910,4 +910,157 @@ playerButton.addEventListener('click', function(){
 		video.style.display = 'none';
 	})
 
+	/***********************
+		* Animation showoff *
+	 ***********************/
+
+	// Socket reactie om animatie klaar te maken
+	var maxFps
+	socket.on('prepareAnimation', function (data, callback) {
+	    var clock = Date.now()
+			setupCanvas()
+			prepareAnimation(data.animation);
+	    stop = false
+	    frameCount = 0
+	    callback({
+	        lat: latency,
+	        offset: clock - data.timeSent - latency,
+	        maxFps: maxFps
+	    })
+	});
+
+	function setupCanvas() {
+		cleanHTML()
+		canvas.style.display = "block";
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		canvas.width = 1500;
+		canvas.height = 600;
+		// transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+	}
+
+	// Socket reactie om animatie te starten
+	var fps, fpsInterval, startTime, now, then, elapsed;
+	socket.on('startAnimation', function(data) {
+		console.log('Start')
+	  fpsInterval = 1000 / data.fps;
+	  then = data.startTime + data.offset
+	  startTime = then;
+	  frameCount = 0
+	  console.log("Start", then, " ", Date.now())
+	  animation = requestAnimationFrame(animate)
+	});
+
+	// Socket reaction on control of server side.
+	var framesToCorrect = 0
+	socket.on('atFrame', function (data) {
+	    framesToCorrect = Math.round((data.dt + latency) / fpsInterval) - frameCount
+	})
+
+	// initialize the timer variables and start the animation
+	function prepareAnimation(animation) {
+	    createWorld(animation)
+	    w1 = new Date()
+	    draw(0)
+	    w2 = new Date()
+	    workload = w2 - w1
+	    maxFps = 1000 / workload
+	}
+
+	// the animation loop calculates time elapsed since the last loop
+	// and only draws if your specified fps interval is achieved
+	var frameCount = 0;
+	var animation
+
+	function animate() {
+
+	    // request another frame
+	    if (!stop) animation = requestAnimationFrame(animate);
+
+	    // calc elapsed time since last loop
+	    now = Date.now();
+	    elapsed = now - then;
+
+	    // if enough time has elapsed, draw the next frame
+	    if (elapsed > fpsInterval) {
+	        // Get ready for next frame by setting then=now, but also adjust for your
+	        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+	        then = now - (elapsed % fpsInterval);
+
+	        draw(fpsInterval);
+
+	    }
+	}
+
+	var scaling = 1
+	function draw(dt, ctx = context) {
+	    context.clearRect(0, 0, window.width, window.height);
+			console.log('Teken')
+	    if (framesToCorrect) {
+	        var correctionFactor = framesToCorrect // > 0 ? 1 * scaling : -1 * scaling;
+	        var correction = correctionFactor
+	        frameCount += correctionFactor
+	        framesToCorrect -= correctionFactor
+	    } else var correction = 0
+
+	    // console.log("correction: ", framesToCorrect)
+
+	    for (let i = 0; i < squares.length; i++) {
+	        let square = squares[i];
+	        square.draw(ctx);
+	        square.update(1);
+	        if (correction) square.update(correctionFactor);
+	    }
+
+	    frameCount++
+	}
+
+
+
+	var squares = []
+
+	function Square(coordinateX, coordinateY, maxSize) {
+	    this.posX = coordinateX;
+	    this.posY = coordinateY;
+	    this.size = 10;
+	    this.maxSize = maxSize;
+	    this.updateFactor = 1;
+	    this.color = "#FF0000"
+	}
+
+	Square.prototype.draw = function (ctx) {
+	    // Draw Circle
+	    context.fillStyle = this.color;
+	    context.fillRect(this.posX, this.posY, this.size, this.size)
+	};
+
+	var newSize
+	Square.prototype.update = function (frame = 0) {
+	  // console.log(this.size, frame)
+	    newSize = this.size + frame * this.updateFactor;
+	    if (newSize > this.maxSize) {
+	        newSize = 2 * this.maxSize - newSize
+	        this.updateFactor = -1
+	    } else if (newSize < 0) {
+	        newSize = -newSize
+	        this.updateFactor = 1
+	    }
+	    this.size = newSize
+	};
+
+	function createWorld(amt) {
+	    for (let i = 0; i < 32; i++) {
+
+	        // rad = window.width / amt ** (1 / 2);
+
+	        size = 1500 / 8
+
+	        posX = (size * i) % 1500;
+	        posY = size * Math.floor(i / 8);
+
+	        square = new Square(posX, posY, size);
+	        squares.push(square);
+	    }
+	}
+
+
 })()
