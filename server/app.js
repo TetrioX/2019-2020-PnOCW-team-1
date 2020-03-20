@@ -53,6 +53,19 @@ var playerNumber = 0
 //adjust this if you want to have more colorlist
  const possibleColors =[ "red", "#00FF00", "blue", "#00FFFF","#FFFF00","#FF00FF"]
 
+/*****************
+  * Slave setup *
+ *****************/
+var checkInterval;
+function clearAll() {
+  stopGame = true;
+  deleteWorld();
+  clearInterval(checkInterval);
+  clearInterval(videoUpdater);
+  clearInterval(countdownUpdater);
+  slaveIo.emit('clearAll');
+  playerIo.emit('clearAll');
+}
 
 /*****************
   * Slave setup *
@@ -571,76 +584,132 @@ var masterIo = io.of('/master').on('connect', function(socket){
   // Animation show-off //
   ////////////////////////
 
-  var snakeUpdater = null
-  var snake;
-  var connections;
-  var centers;
   socket.on('startSnake', function(data){
+    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    picDimensions = [500, 1000]
+    centers = screenorientation.getScreenCenters(AllScreenPositions)
+    connections = delaunay.getConnections(centers)
+    console.log(connections)
+  });
 
+  //   const firstSlave = Object.keys(AllScreenPositions)[0]
+  //   const startPos = centers[firstSlave]
+  //
+  //   var randInt = Math.floor(Math.random() * connections[firstSlave].length)
+  //   var nextPoint = {x: connections[firstSlave][randInt][0], y: connections[firstSlave][randInt][1]}
+  //   var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
+  //   var nextSlave = getSlaveByPosition(nextPoint)
+  //
+  //   snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos, {light: "#008000", dark: "#004000"})
+  //   snake.changeDirectionOnPosition(direction, startPos, nextSlave)
+  //
+  //   Object.keys(slaves).forEach(function(slave, index) {
+  //     slaveSockets[slave].emit('createSnake', {
+  //       corners: AllScreenPositions[slaves[slave]],
+  //       picDim: picDimensions,
+  //     });
+  //   })
+  //
+  //   snakeUpdater = setInterval(function(){
+  //     slaveIo.emit('updateSnake', {
+  //       maxLat: Math.max(Object.values(latSlaves)),
+  //       snake: snake
+  //     })
+  //     changed = snake.updateSnake(70)
+  //     if (changed) changeSnakeDirection(snake)
+  //   }, 100/3) // 33 fps, gekozen door de normale
+  // });
+  //
+  // socket.on('stopSnake', function(){
+  //   clearInterval(snakeUpdater);
+  //   slaveIo.emit('stopSnake')
+  // })
+  //
+  //
+  // function changeSnakeDirection(snake) {
+  //   var currentPoint = centers[snake.nextSlave]
+  //   if (!connections[snake.nextSlave]){
+  //     clearInterval(snakeUpdater)
+  //     return
+  //   }
+  //   var randInt = Math.floor(Math.random() * connections[snake.nextSlave].length)
+  //
+  //   var nextPoint = {x: connections[snake.nextSlave][randInt][0], y: connections[snake.nextSlave][randInt][1]}
+  //   var nextSlave = getSlaveByPosition(nextPoint)
+  //   var direction = geometry.radianAngleBetweenPointsDict(currentPoint, nextPoint)
+  //   snake.changeDirectionOnPosition(direction, currentPoint, nextSlave)
+  // }
+  //
+  // function getSlaveByPosition(pos){
+	//     // var slaveIDs = Object.keys(AllScreenPositions)
+  //     for(let slaveId of Object.keys(AllScreenPositions)){
+  //       center = centers[slaveId]
+  //       if(center.x == pos.x && center.y == pos.y)
+  //         return slaveId
+  //     }
+  // }
+
+  // Run the animation showoff
+  socket.on('startAnimation', async function() {
     if (Object.keys(AllScreenPositions).length < 1) {
       socket.emit('alert', 'Please do screen recognition first');
       return;
     }
 
-    clearInterval(snakeUpdater)
-    centers = screenorientation.getScreenCenters(AllScreenPositions)
-    connections = delaunay.getConnections(centers)
+    var maxLat = 0, maxFps = 60;
+    var synchroPromises = [];
+    var slaveOffsets = {};
 
-    const firstSlave = Object.keys(AllScreenPositions)[0]
-    const startPos = centers[firstSlave]
+    console.log('startAnimation')
 
-    var randInt = Math.floor(Math.random() * connections[firstSlave].length)
-    var nextPoint = {x: connections[firstSlave][randInt][0], y: connections[firstSlave][randInt][1]}
-    var direction = geometry.radianAngleBetweenPointsDict(startPos, nextPoint)
-    var nextSlave = getSlaveByPosition(nextPoint)
+    // Send all the data to slaves and wait for them to end their preparation.
+    Object.keys(slaves).forEach(async function(slave, index) {
+      let promise = new Promise(function(resolve, reject) {
+        slaveSockets[slave].emit('prepareAnimation',
+          {
+            animation: "...",
+            timeSent: Date.now()
+          },
+          function(callBackData){
+            if (typeof callBackData.maxFps == 'number' &&
+               maxFps > callBackData.maxFps) maxFps = callBackData.maxFps;
+            if (typeof callBackData.lat == 'number' &&
+              maxLat < callBackData.lat) maxLat = callBackData.lat;
+            slaveOffsets[slave] = callBackData.offset;
+            resolve()
+          })
+        // Define a timeout for slaves that take too long to answer
+        setTimeout(function() { resolve() }, 2000);
+      })
+      synchroPromises.push(promise)
+    })
+    // Wait for all slaves
+    await Promise.all(synchroPromises);
 
-    snake = new snakeJs.Snake(data.size, picDimensions[0] / 25, startPos, {light: "#008000", dark: "#004000"})
-    snake.changeDirectionOnPosition(direction, startPos, nextSlave)
+    console.log("Prep done: ", slaves)
+    startTime = Date.now() + maxLat * 2
 
+    // d1 = Date.now()
     Object.keys(slaves).forEach(function(slave, index) {
-      slaveSockets[slave].emit('createSnake', {
-        corners: AllScreenPositions[slaves[slave]],
-        picDim: picDimensions,
-      });
+      slaveSockets[slave].emit('startAnimation', {
+        offset: slaveOffsets[slave],
+        fps: maxFps,
+        startTime: startTime
+      })
     })
 
-    snakeUpdater = setInterval(function(){
-      slaveIo.emit('updateSnake', {
-        maxLat: Math.max(Object.values(latSlaves)),
-        snake: snake
-      })
-      changed = snake.updateSnake(70)
-      if (changed) changeSnakeDirection(snake)
-    }, 100/3) // 33 fps, gekozen door de normale
-  });
+    console.log("MaxFps: ", maxFps)
+    checkInterval = setInterval(checkFrame, checkInt * 1000 / maxFps);
 
-  socket.on('stopSnake', function(){
-    clearInterval(snakeUpdater);
-    slaveIo.emit('stopSnake')
   })
 
-
-  function changeSnakeDirection(snake) {
-    var currentPoint = centers[snake.nextSlave]
-    if (!connections[snake.nextSlave]){
-      clearInterval(snakeUpdater)
-      return
-    }
-    var randInt = Math.floor(Math.random() * connections[snake.nextSlave].length)
-
-    var nextPoint = {x: connections[snake.nextSlave][randInt][0], y: connections[snake.nextSlave][randInt][1]}
-    var nextSlave = getSlaveByPosition(nextPoint)
-    var direction = geometry.radianAngleBetweenPointsDict(currentPoint, nextPoint)
-    snake.changeDirectionOnPosition(direction, currentPoint, nextSlave)
-  }
-
-  function getSlaveByPosition(pos){
-	    // var slaveIDs = Object.keys(AllScreenPositions)
-      for(let slaveId of Object.keys(AllScreenPositions)){
-        center = centers[slaveId]
-        if(center.x == pos.x && center.y == pos.y)
-          return slaveId
-      }
+  var checkInt = 3; // The amount of frames the code will wait between iterations
+  var startTime;
+  function checkFrame() {
+    slaveIo.emit('atFrame', {
+      dt: Date.now() - startTime
+    });
   }
 
 
@@ -721,20 +790,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
     changeSnakeDirectionGame(data.playerId, data.direction)
   })
 
-
-
-socket.on('clearAll', function(){
-  stopGame = true;
-  deleteWorld();
-  clearInterval(snakeUpdater);
-  slaveIo.emit('stopSnake');
-  clearInterval(videoUpdater);
-  clearInterval(countdownUpdater);
-  playerIo.emit('cleanAll')
-})
+socket.on('clearAll', clearAll());
 
 });
-
 
 /***************
   * Slave Io *
