@@ -6,7 +6,7 @@ var ss = require('socket.io-stream');
 const scrnread = require('./lib/screenProcessing/screenReading.js')
 const imgprcssrgb = require('./lib/ImageProcessingHSL/imageProcessingHSL.js')
 const screenorientation = require('./lib/screenOrientation/orientationCalculation.js')
-const delaunay = require('./lib/triangulate_divide_and_conquer/delaunay.js')
+// const delaunay = require('./lib/triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('./lib/triangulate_divide_and_conquer/geometry.js')
 var snakeJs = require('./lib/SnakeLogic/snake.js')
 var worldJs = require('./lib/SnakeLogic/world.js')
@@ -52,20 +52,6 @@ var playerNumber = 0
 
 //adjust this if you want to have more colorlist
  const possibleColors =[ "red", "#00FF00", "blue", "#00FFFF","#FFFF00","#FF00FF"]
-
-/*****************
-  * Slave setup *
- *****************/
-var checkInterval;
-function clearAll() {
-  stopGame = true;
-  deleteWorld();
-  clearInterval(checkInterval);
-  clearInterval(videoUpdater);
-  clearInterval(countdownUpdater);
-  slaveIo.emit('clearAll');
-  playerIo.emit('clearAll');
-}
 
 /*****************
   * Slave setup *
@@ -262,6 +248,20 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		if (data.id) slaveIo.to(`${data.id}`).emit('changeBackgroundColor',data);
 		else slaveIo.emit('changeBackgroundColor', data);
   	});
+
+    ///////////////
+    // clear all //
+    ///////////////
+    var checkInterval;
+    function clearAll() {
+      stopGame = true;
+      deleteWorld();
+      clearInterval(checkInterval);
+      clearInterval(videoUpdater);
+      clearInterval(countdownUpdater);
+      slaveIo.emit('clearAll');
+      playerIo.emit('clearAll');
+    }
 
     async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
@@ -584,14 +584,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
   // Animation show-off //
   ////////////////////////
 
-  socket.on('startSnake', function(data){
-    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
-    centers = screenorientation.getScreenCenters(AllScreenPositions)
-    connections = delaunay.getConnections(centers)
-    console.log(connections)
-  });
+  // socket.on('startSnake', function(data){
+  //   AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+  //                      '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+  //   picDimensions = [500, 1000]
+  //   centers = screenorientation.getScreenCenters(AllScreenPositions)
+  //   connections = delaunay.getConnections(centers)
+  //   console.log(connections)
+  // });
 
   //   const firstSlave = Object.keys(AllScreenPositions)[0]
   //   const startPos = centers[firstSlave]
@@ -652,6 +652,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   // Run the animation showoff
   socket.on('startAnimation', async function() {
+
+    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    picDimensions = [500, 1000]
+
     if (Object.keys(AllScreenPositions).length < 1) {
       socket.emit('alert', 'Please do screen recognition first');
       return;
@@ -790,7 +795,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
     changeSnakeDirectionGame(data.playerId, data.direction)
   })
 
-socket.on('clearAll', clearAll());
+  socket.on('clearAll', function() {
+    clearAll()
+  });
 
 });
 
