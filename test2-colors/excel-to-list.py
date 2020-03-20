@@ -6,7 +6,7 @@ from openpyxl import load_workbook, cell as xlcell
 fileName = "resultAll.xlsx"
 
 # filters (None means doesnt filter)
-group = None # group
+group = "Group 3" # group
 brigthness = None # brigthness
 pictureDevice = None # pictureDevice
 ratioScreenPicture = None # ratioScreenPicture

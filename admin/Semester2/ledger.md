@@ -26,3 +26,18 @@
  bij elke foto 5 punten geselecteerd moesten worden en waarbij de kleurwaarden 
  (alsook saturatie, hue...) in een Excel-bestand werden gegoten. Uit dit bestand konden
   dan enkele 3D-grafieken verkregen worden.
+  
+## Team meeting 4 - 03/03/2020
+- Team kleuren gebruikte het programma dat vorige sessie geschreven werd om nog
+ meer foto's te testen. Alle foto's uit de gemeenschappelijke database werden gebruikt. 
+ Hieruit werden nog meer 3D-grafieken gegenereert die bestudeert en vergeleken werden. 
+ Ook het verslag van ST2.1 is afgewerkt.
+- Voor het deel synchronisatie werden de resterende testen met de browsers gedaan. 
+Ook werd er een lineair verband gevonden tussen de delay en offset van de klok. 
+Het verslag van ST1.1 werd afgewerkt.
+
+## Team meeting 5 - 10/03/2020
+- Bij het deel synchronisatie werd er een eerste animatie gemaakt
+ en deze werd gebruikt om de accuraatheid ervan te testen op verschillende browsers.
+- Team kleurenherkenning heeft verschillende filters geïmplementeerd en deze getest. 
+Er werd ook een algoritme geschreven om iteratief drempelwaarden te berekenen.

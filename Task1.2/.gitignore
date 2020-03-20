@@ -1,0 +1,14 @@
+node_modules/
+
+Pictures/
+
+image-*.png
+
+*diff-*.png
+
+screens.json
+colorCombs.json
+matrixes.json
+joinedmatrix.json
+
+config.json
