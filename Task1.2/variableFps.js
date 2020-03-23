@@ -1,7 +1,7 @@
 
   // variables
   var fpsGiven = 60
-  var amtGiven = 100
+  var amtGiven = 5000
 
   // Static code
   var myCanvas = document.getElementById("myCanvas");
