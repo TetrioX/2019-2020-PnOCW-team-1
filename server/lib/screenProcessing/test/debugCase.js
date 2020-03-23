@@ -4,7 +4,7 @@ const { argv } = require('yargs')
                 .boolean('get-screen')
 const fs = require('fs')
 const screenReading = require('../screenReading.js');
-const imgprcssrgb = require('../../ImageProcessingHSL/imageProcessingHSL.js')
+const readImage = require('../readImage.js')
 
 let verbose = argv.verbose;
 let getScreen = argv['get-screen']
@@ -34,12 +34,11 @@ async function runTestCase(paths) {
       for (let i = 0; i < useImages; i++){
         images.push(path+`/image-${i}.png`)
       }
-      matrixes = await imgprcssrgb.doImgDiff(images, false, false)
-      matrixes = matrixes.matrix
+      matrixes = await readImage.getImagesHslMatrix(images)
     } else matrixes = parseJsonFile(path + '/matrixes.json')
     colorCombs = parseJsonFile(path + '/colorCombs.json')
     screens = parseJsonFile(path + '/screens.json')
-    let squares = screenReading.getScreens(matrixes, screens, colorCombs, 6)
+    let squares = screenReading.getScreens(matrixes, screens, colorCombs)
     if(verbose >= 1) console.log("squares:", squares)
     if (getScreen){
       let screenPositions = screenReading.getScreenFromSquares(squares, screens)

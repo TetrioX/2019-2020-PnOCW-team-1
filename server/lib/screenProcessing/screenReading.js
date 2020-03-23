@@ -7,9 +7,28 @@
 
 const assert = require('assert')  // asserting pre-conditions
 const vctcalc = require('./vectorCalculation.js')
+/*
+const defaultTresholds = {
+	1: [351.3, 52.5],
+	4: [52.5, 88.0],
+	2: [88.0, 150.7],
+	6: [150.7, 204.0],
+	3: [204.0, 271.9],
+	5: [271.9, 351.3]
+}
+*/
+const defaultTresholds = {
+	1: [317, 45],
+	4: [45, 100],
+	2: [100, 160],
+	6: [160, 200],
+	3: [200, 240],
+	5: [240, 317]
+}
 
-// TODO
-const colorValues = {}
+const sRange = [20, 101]
+const lRange = [10, 90]
+
 
 const screenReading = function(buffer, dimensions) {
 
@@ -55,12 +74,14 @@ const createMatrix = function(buffer, dimensions) {
 	return matrix
 }
 
-function joinMatrixes(matrixes, nbOfColors){
-	let result = matrixes[0]
-	for (let j = 0; j < result.length; j++){
-		for (let i = 0; i < result[0].length; i++){
-			for (let m = 1; m < matrixes.length; m++){
-				result[j][i] += matrixes[m][j][i] * (nbOfColors + 1) ** m
+function joinMatrixes(matrixes, tresholds, nbOfColors){
+	let result = []
+	for (let j = 0; j < matrixes[0].length; j++){
+		result.push([])
+		for (let i = 0; i < matrixes[0][0].length; i++){
+			result[j].push(0)
+			for (let m = 0; m < matrixes.length; m++){
+				result[j][i] += getColorValueFromHsl(matrixes[m][j][i], tresholds) * (nbOfColors + 1) ** m
 			}
 		}
 	}
@@ -81,9 +102,39 @@ function colorToValue(colorString) {
 function colorToValueList(list, nbOfColors) {
 	let result = 0
   for (let i in list) {
-      result += colorToValue(list[i]) * (nbOfColors + 1) ** i
+    result += colorToValue(list[i]) * (nbOfColors + 1) ** i
   }
 	return result
+}
+
+/**
+ * returns true if the value is in the given range and false otherwise.
+ * range is defined as between the values if the first edge one is smaller.
+ * otherwise the range is defined outside the 2 values.
+ */
+function inRange(value, range) {
+	if (range[0] <= range[1]){
+		if (range[0] <= value && value < range[1]){
+			return true;
+		}
+	} else {
+		if (range[0] <= value || value < range[1]){
+			return true;
+		}
+	}
+	return false;
+}
+
+function getColorValueFromHsl(hsl, tresholds) {
+	if (!inRange(hsl[1], sRange) || !inRange(hsl[2], lRange)){
+		return 0
+	}
+	for (i in tresholds) {
+		if (inRange(hsl[0], tresholds[i])) {
+			return parseInt(i);
+		}
+	}
+	return 0;
 }
 
 /**
@@ -557,6 +608,16 @@ function checkNeighborsColor(corners, matrix, square, screens, border, nbOfColor
   return cornersOrientated
 }
 
+function getAvrHues(positions, matrixes, square, tresholds) {
+	let result = []
+	for (let i = 0; i < matrixes.length; i++) {
+		let color = getColorValueFromHsl(matrixes[i][positions[0].y][positions[0].x], tresholds)
+		for (pos of positions) {
+
+		}
+	}
+}
+
 function allElementsOfNoise(firstElement, matrix, noise) {
 	let elementsToCheck = [firstElement]
 	while(elementsToCheck.length != 0){
@@ -573,17 +634,15 @@ function allElementsOfNoise(firstElement, matrix, noise) {
 
 /** returns the screens of the given matrixes
 	*
-	* @param {Integer[[[]]]} matrixes list of matrixes that include a color value
+	* @param {Float[[[]]]} matrixes list of matrixes that include a hue value
 	*	for each pixel
 	* @param {Object} screens an object with as key a screen square and as value the
 	* color value on that location of the screen
 	* @param {Object} colorCombs an object with as key a color value and as
 	* value a screen square
-	* @param {Integer} nbOfColors number of colors used
+	@param {Float[[]]} tresholds the hue tresholds
 	*/
-function getScreens(matrixes, screens, colorCombs, nbOfColors) {
-	// join the matrixes in 1 matrix
-	let matrix = joinMatrixes(matrixes, nbOfColors)
+function getScreens(matrixes, screens, colorCombs, tresholds=null) {
 	// make a matrix with the same dimensions as the joined matrix to store noise
 	//let noiseMatrix = []
 	//for (row of matrix){
@@ -591,7 +650,11 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	//}
 	// a set of all colors that have been checked
 	// 0 is the value for noise and shouldn't be checked
-
+	if (tresholds === null) {
+		tresholds = defaultTresholds
+	}
+	let nbOfColors = Object.keys(tresholds).length
+	let matrix = joinMatrixes(matrixes, tresholds, nbOfColors)
   let foundColValues = new Set([0])
   let noise = new Set()
 	// an array of all valide screen squares
@@ -626,7 +689,8 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	      if (!cornersOrientated.corners.some((value) => {return value === null})) {
 	        foundScreenSquares.push({
 	          corners: cornersOrientated,
-	          square: colorCombs[matrix[j][i]]
+	          square: colorCombs[matrix[j][i]],
+						avrHue: getAvrHues(corners, matrixes, colorCombs[matrix[j][i]], tresholds)
 	        })
 					foundColValues.add(matrix[j][i])
 	      }
