@@ -647,9 +647,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
   /////////////////
   // Game set up //
   /////////////////
-  var gamePromises = []
   socket.on('startGame', async function(data) {
-    gamePromises = []
+    var gamePromises = []
     playerColors = {}
     deleteWorld()
 

@@ -75,4 +75,6 @@ function merge(adj, L, R){
 
     }
 }
-export default merge
+module.exports = {
+    merge: merge
+}
