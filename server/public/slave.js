@@ -43,15 +43,15 @@ function sleep(ms){
 //listen for events from server
 
 socket.on('changeBackgroundColor',function(data){
-		cleanHTML()
-    document.body.style.backgroundColor = data.colorValue;
+	cleanHTML()
+	document.body.style.backgroundColor = data.colorValue;
 });
 
 // keep the latency between the server and slave
 var latency = 0;
 socket.on('pong', function(ms) {
-    latency += Math.min(latency*6/5 + 10,(ms - latency)/5)
-		socket.emit('update-latency', latency)
+	latency += Math.min(latency*6/5 + 10,(ms - latency)/5)
+	socket.emit('update-latency', latency)
 });
 
 // Sending number to slave (also usefull for angle of arrow!)
@@ -66,17 +66,17 @@ socket.on('slaveID', function (id) {
 	else{
 		var text ="th "
 	}
-    document.getElementById("slaveID").innerHTML = id+text;
+	document.getElementById("slaveID").innerHTML = id+text;
 })
 
 
 socket.on('drawLine', function(data){
-    draw(data.angle);
+	draw(data.angle);
 });
 
 socket.on('getDim', function (data, callback) {
-    cleanHTML()
-    callback({ height: window.innerHeight, width: window.innerWidth })
+	cleanHTML()
+	callback({ height: window.innerHeight, width: window.innerWidth })
 });
 
 socket.on('changeBackgroundOfAllSlaves', function(data, callback){
@@ -125,8 +125,8 @@ socket.on('connect',function(){
 });
 
 socket.on('changeBackgroundColor',function(data){
-    document.body.style.backgroundColor = data.colorValue;
-    document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
+	document.body.style.backgroundColor = data.colorValue;
+	document.getElementById('wrapper').setAttribute('class', 'hidden') //delete hidden to see everything
 });
 
 socket.on('SendingPicture', function(data){
@@ -138,7 +138,7 @@ socket.on('drawStar', function(data){
 });
 
 socket.on('drawLine', function(data){
-    draw(data.angle);
+	draw(data.angle);
 });
 
 
@@ -163,9 +163,9 @@ function createGrid(){
 	// hide scrollbar
 	document.body.style.overflow = 'hidden';
 	var numberOfrows=gridData.grid.length;
-    var numberOfColumns = gridData.grid[0].length;
+	var numberOfColumns = gridData.grid[0].length;
 	let width  = window.innerWidth
-    let height = window.innerHeight
+	let height = window.innerHeight
 	// this will make the border 50% of the size of the squares
 	let spaceTop = (height / (2*numberOfrows + 2)).toString() + "px"
 	let spaceSide = (width / (2*numberOfColumns + 2)).toString() + "px"
@@ -350,13 +350,13 @@ function broadcast(slaveCorners){
 		imgctx.drawImage(img,0,0,imgcanvas.width*widthMultiplier,imgcanvas.height*heightMultiplier);
 
 		tempctx.beginPath();
-	 	tempctx.moveTo(slaveCorners[0][0],slaveCorners[0][1]);
-	  	for (let i =1; i<slaveCorners.length; i++){
-	  		tempctx.lineTo(slaveCorners[i][0],slaveCorners[i][1]);
-	  	}
-	  	tempctx.lineTo(slaveCorners[0][0],slaveCorners[0][1]);
-	    tempctx.clip();
-	 	tempctx.drawImage(img,0,0, tempcanvas.width,tempcanvas.height);
+		tempctx.moveTo(slaveCorners[0][0],slaveCorners[0][1]);
+		for (let i =1; i<slaveCorners.length; i++){
+			tempctx.lineTo(slaveCorners[i][0],slaveCorners[i][1]);
+		}
+		tempctx.lineTo(slaveCorners[0][0],slaveCorners[0][1]);
+		tempctx.clip();
+		tempctx.drawImage(img,0,0, tempcanvas.width,tempcanvas.height);
 	}
 }
 
@@ -394,7 +394,7 @@ img.src ='/static/Colorgrid.jpg';
 
 socket.on('changeBackgroundColor',function(data){
 	cleanHTML()
-  document.body.style.backgroundColor = data.colorValue;
+	document.body.style.backgroundColor = data.colorValue;
 });
 
 socket.on('drawLine', function(data){
@@ -413,245 +413,245 @@ playerButton.addEventListener('click', function(){
 // Original version https://gist.github.com/LogIN-/e1e3feff907066a1b5ed
 // Modified to work with socket.io and to be able to adjust the time from the server
 (function() {
-		// offset in ms of time difference between server en slave
-		var offset = 0
-		// start time
-		var timer_start
-		// pointer to the interval for finishing animation
-		var finishAnimTimer = null
-    socket.on('startCountdown', function(data){
-			cleanHTML()
-			countdownTimer.style.display = 'block';
-			start_countdown(data)
-		})
-		socket.on('updateCountdown', function(data){
-			offset += ((new Date() - timer_start - (data + latency)) - offset)/5
-		})
-    function start_countdown(timeInSeconds){
-				timer_start = new Date()
-        var main_container = document.getElementById('svg_download_countdown')
-        var loader = document.getElementById('loader')
-       	var border = document.getElementById('border')
-				countdown.style.display = 'block';
-				// stop finishing animation if it's running
-				stopfinishAnimation()
-        var π = Math.PI
-          , total_seconds = timeInSeconds
-          , elipsed_seconds = 0
-          , refresh_rate = 25 // (100 / total_seconds) * 100
-          , α = 0
-          , last_loop = false
-          , scaleAnimation = 84;
-        InitiateCountDownLoop();
-        function InitiateCountDownLoop(){
-            drawCountdown();
-            if(Math.floor(elipsed_seconds) < total_seconds){
-                setTimeout(InitiateCountDownLoop, refresh_rate);
-            }else if(last_loop === false){
-                last_loop = true;
-                setTimeout(InitiateCountDownLoop, refresh_rate);
-            }else{
-                appendCountdownSeconds();
-                countdown.innerHTML = "Done";
-                adjustCountDownOffset();
-                startfinishAnimation();
-                return;
-            }
-        };
-        function drawCountdown() {
-            getElapsedSeconds();
-            if(last_loop === false){
-                α = ((elipsed_seconds * (360 / (total_seconds * 1000))) * 1000);
-                α %= 360;
-                var r = ( α * π / 180 )
-                , x = Math.round((Math.sin( r ) * 125) * 100) / 100
-                , y = Math.round((Math.cos( r ) * - 125) * 100) / 100
-                , mid = ( α > 180 ) ? 1 : 0
-                , anim = 'M 0 0 v -125 A 125 125 1 '
-                + mid + ' 1 '
-                +  x  + ' '
-                +  y  + ' z';
-            }else{
-                var anim = 'M 0 0 v -125 A 125 125 1 1 1 -0.1 -125 z';
-            }
-            loader.setAttribute( 'd', anim );
-            border.setAttribute( 'd', anim );
-            appendCountdownSeconds();
-        }; // drawCountdown END
-        function getElapsedSeconds(){
-            var timeDifference = (new Date() - timer_start - offset) / 1000;
-            elipsed_seconds = timeDifference;
-        }; // getElapsedSeconds END
-        function appendCountdownSeconds(){
-            countdown.textContent = (total_seconds - Math.floor(elipsed_seconds)).toString();
-            adjustCountDownOffset();
-        }; // appendCountdowSeconds END
-        function adjustCountDownOffset(){
-            var main_container_width = main_container.getAttribute("width");
-            var main_container_height = main_container.getAttribute("height");
-            var counter_width = countdown.getBBox().width;
-            var counter_height = countdown.getBBox().height;
-            var countdown_x = Math.round((main_container_width - counter_width) / 2);
-            var countdown_y = Math.round((main_container_height - counter_height) - (counter_height / 2));
-            countdown.setAttribute("x", countdown_x);
-            countdown.setAttribute("y", countdown_y);
-        };
-        function startfinishAnimation() {
-            if(finishAnimTimer == null) {
-                finishAnimTimer = setInterval(finishAnimation, 100);
-            }
-        };
-        function stopfinishAnimation() {
-            if(finishAnimTimer != null){
-                clearInterval(finishAnimTimer);
-                loader.setAttribute("transform", "translate(125, 125) scale(.84)");
-                finishAnimTimer = null;
-            }
-        };
-        function finishAnimation() {
-            var x = loader.getAttribute("transform");
-            if(scaleAnimation >= 84 & scaleAnimation < 95){
-                scaleAnimation = scaleAnimation + 1;
-            }else if(scaleAnimation == 95){
-                scaleAnimation = 84;
-            }
-            var transform = "translate(125, 125) scale(." + scaleAnimation + ")";
-            loader.setAttribute("transform", transform);
-        };
-    }; // start_countdown END
+	// offset in ms of time difference between server en slave
+	var offset = 0
+	// start time
+	var timer_start
+	// pointer to the interval for finishing animation
+	var finishAnimTimer = null
+	socket.on('startCountdown', function(data){
+		cleanHTML()
+		countdownTimer.style.display = 'block';
+		start_countdown(data)
+	})
+	socket.on('updateCountdown', function(data){
+		offset += ((new Date() - timer_start - (data + latency)) - offset)/5
+	})
+	function start_countdown(timeInSeconds){
+		timer_start = new Date()
+		var main_container = document.getElementById('svg_download_countdown')
+		var loader = document.getElementById('loader')
+		var border = document.getElementById('border')
+		countdown.style.display = 'block';
+		// stop finishing animation if it's running
+		stopfinishAnimation()
+		var π = Math.PI
+			, total_seconds = timeInSeconds
+			, elipsed_seconds = 0
+			, refresh_rate = 25 // (100 / total_seconds) * 100
+			, α = 0
+			, last_loop = false
+			, scaleAnimation = 84;
+		InitiateCountDownLoop();
+		function InitiateCountDownLoop(){
+			drawCountdown();
+			if(Math.floor(elipsed_seconds) < total_seconds){
+				setTimeout(InitiateCountDownLoop, refresh_rate);
+			}else if(last_loop === false){
+				last_loop = true;
+				setTimeout(InitiateCountDownLoop, refresh_rate);
+			}else{
+				appendCountdownSeconds();
+				countdown.innerHTML = "Done";
+				adjustCountDownOffset();
+				startfinishAnimation();
+				return;
+			}
+		};
+		function drawCountdown() {
+			getElapsedSeconds();
+			if(last_loop === false){
+				α = ((elipsed_seconds * (360 / (total_seconds * 1000))) * 1000);
+				α %= 360;
+				var r = ( α * π / 180 )
+					, x = Math.round((Math.sin( r ) * 125) * 100) / 100
+					, y = Math.round((Math.cos( r ) * - 125) * 100) / 100
+					, mid = ( α > 180 ) ? 1 : 0
+					, anim = 'M 0 0 v -125 A 125 125 1 '
+					+ mid + ' 1 '
+					+  x  + ' '
+					+  y  + ' z';
+			}else{
+				var anim = 'M 0 0 v -125 A 125 125 1 1 1 -0.1 -125 z';
+			}
+			loader.setAttribute( 'd', anim );
+			border.setAttribute( 'd', anim );
+			appendCountdownSeconds();
+		}; // drawCountdown END
+		function getElapsedSeconds(){
+			var timeDifference = (new Date() - timer_start - offset) / 1000;
+			elipsed_seconds = timeDifference;
+		}; // getElapsedSeconds END
+		function appendCountdownSeconds(){
+			countdown.textContent = (total_seconds - Math.floor(elipsed_seconds)).toString();
+			adjustCountDownOffset();
+		}; // appendCountdowSeconds END
+		function adjustCountDownOffset(){
+			var main_container_width = main_container.getAttribute("width");
+			var main_container_height = main_container.getAttribute("height");
+			var counter_width = countdown.getBBox().width;
+			var counter_height = countdown.getBBox().height;
+			var countdown_x = Math.round((main_container_width - counter_width) / 2);
+			var countdown_y = Math.round((main_container_height - counter_height) - (counter_height / 2));
+			countdown.setAttribute("x", countdown_x);
+			countdown.setAttribute("y", countdown_y);
+		};
+		function startfinishAnimation() {
+			if(finishAnimTimer == null) {
+				finishAnimTimer = setInterval(finishAnimation, 100);
+			}
+		};
+		function stopfinishAnimation() {
+			if(finishAnimTimer != null){
+				clearInterval(finishAnimTimer);
+				loader.setAttribute("transform", "translate(125, 125) scale(.84)");
+				finishAnimTimer = null;
+			}
+		};
+		function finishAnimation() {
+			var x = loader.getAttribute("transform");
+			if(scaleAnimation >= 84 & scaleAnimation < 95){
+				scaleAnimation = scaleAnimation + 1;
+			}else if(scaleAnimation == 95){
+				scaleAnimation = 84;
+			}
+			var transform = "translate(125, 125) scale(." + scaleAnimation + ")";
+			loader.setAttribute("transform", transform);
+		};
+	}; // start_countdown END
 })();
 
 
 /**********************************************
-  * Transformation and broadcasting function *
+ * Transformation and broadcasting function *
  **********************************************/
 
 (function() {
 	//
-  // This code was written by nickname MvG
-  //
-  // For the origin of the code see:
-  // @see http://jsfiddle.net/dFrHS/1/
-  //
-  // No license was connected to the written code below,
-  // but all credits belong to the rightful owner.
+	// This code was written by nickname MvG
+	//
+	// For the origin of the code see:
+	// @see http://jsfiddle.net/dFrHS/1/
+	//
+	// No license was connected to the written code below,
+	// but all credits belong to the rightful owner.
 
- 	/**
-   * Return the adjugate of a given matrix.
-   **/
- 	const adj = function(m) { // Compute the adjugate of m
- 		return [
- 			m[4]*m[8]-m[5]*m[7], m[2]*m[7]-m[1]*m[8], m[1]*m[5]-m[2]*m[4],
- 			m[5]*m[6]-m[3]*m[8], m[0]*m[8]-m[2]*m[6], m[2]*m[3]-m[0]*m[5],
- 			m[3]*m[7]-m[4]*m[6], m[1]*m[6]-m[0]*m[7], m[0]*m[4]-m[1]*m[3]
- 		];
- 	}
-
- 	/**
-   * Compute the product of two given matrices.
-   **/
- 	const multmm = function(a, b) { // multiply two matrices
- 		var c = Array(9);
- 		for (var i = 0; i != 3; ++i)
- 			for (var j = 0; j != 3; ++j) {
- 				var cij = 0;
- 				for (var k = 0; k != 3; ++k)
- 					cij += a[3*i + k]*b[3*k + j];
- 				c[3*i + j] = cij;
- 			}
- 		return c;
- 	}
-
- 	/**
-   * Compute the product of a given matrix and a given vector.
-   **/
- 	const multmv = function(m, v) { // multiply matrix and vector
- 		return [
- 			m[0]*v[0] + m[1]*v[1] + m[2]*v[2],
- 			m[3]*v[0] + m[4]*v[1] + m[5]*v[2],
- 			m[6]*v[0] + m[7]*v[1] + m[8]*v[2]
- 		];
- 	}
-
-  /**
-   * Compute the solution of the given system.
-   **/
- 	const basisToPoints = function(x1, y1, x2, y2, x3, y3, x4, y4) {
- 		var m = [
- 			x1, x2, x3,
- 			y1, y2, y3,
- 			1,  1,  1
- 		];
- 		var v = multmv(adj(m), [x4, y4, 1]);
- 		return multmm(m, [
- 			v[0], 0, 0,
- 			0, v[1], 0,
- 			0, 0, v[2]
- 		]);
- 	}
-
- 	/**
-   * Calculate the transformation matrix to transform given source points onto given destination points.
-   **/
- 	const general2DProjection = function(x1s, y1s, x1d, y1d, x2s, y2s, x2d, y2d,
- 			x3s, y3s, x3d, y3d, x4s, y4s, x4d, y4d) {
- 		var s = basisToPoints(x1s, y1s, x2s, y2s, x3s, y3s, x4s, y4s);
- 		var d = basisToPoints(x1d, y1d, x2d, y2d, x3d, y3d, x4d, y4d);
- 		return multmm(d, adj(s));
+	/**
+	 * Return the adjugate of a given matrix.
+	 **/
+	const adj = function(m) { // Compute the adjugate of m
+		return [
+			m[4]*m[8]-m[5]*m[7], m[2]*m[7]-m[1]*m[8], m[1]*m[5]-m[2]*m[4],
+			m[5]*m[6]-m[3]*m[8], m[0]*m[8]-m[2]*m[6], m[2]*m[3]-m[0]*m[5],
+			m[3]*m[7]-m[4]*m[6], m[1]*m[6]-m[0]*m[7], m[0]*m[4]-m[1]*m[3]
+		];
 	}
 
- 	/**
-   * Transform the given html element from a given point set to a rectangle.
-   **/
- 	function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
- 		var w = window.innerWidth, h = window.innerHeight;
- 		var t = general2DProjection(x1, y1, 0, 0, x2, y2, w, 0, x3, y3, 0, h, x4, y4, w, h);
- 		for(i = 0; i != 9; ++i) t[i] = t[i]/t[8];
- 		t = [t[0], t[3], 0, t[6],
- 		 		 t[1], t[4], 0, t[7],
- 		 		 0   , 0   , 1, 0   ,
- 		 		 t[2], t[5], 0, t[8]];
- 		t = "matrix3d(" + t.join(", ") + ")"; //setup the html 3D transformation.
- 		elt.style.transform = t;
- 	}
+	/**
+	 * Compute the product of two given matrices.
+	 **/
+	const multmm = function(a, b) { // multiply two matrices
+		var c = Array(9);
+		for (var i = 0; i != 3; ++i)
+			for (var j = 0; j != 3; ++j) {
+				var cij = 0;
+				for (var k = 0; k != 3; ++k)
+					cij += a[3*i + k]*b[3*k + j];
+				c[3*i + j] = cij;
+			}
+		return c;
+	}
+
+	/**
+	 * Compute the product of a given matrix and a given vector.
+	 **/
+	const multmv = function(m, v) { // multiply matrix and vector
+		return [
+			m[0]*v[0] + m[1]*v[1] + m[2]*v[2],
+			m[3]*v[0] + m[4]*v[1] + m[5]*v[2],
+			m[6]*v[0] + m[7]*v[1] + m[8]*v[2]
+		];
+	}
+
+	/**
+	 * Compute the solution of the given system.
+	 **/
+	const basisToPoints = function(x1, y1, x2, y2, x3, y3, x4, y4) {
+		var m = [
+			x1, x2, x3,
+			y1, y2, y3,
+			1,  1,  1
+		];
+		var v = multmv(adj(m), [x4, y4, 1]);
+		return multmm(m, [
+			v[0], 0, 0,
+			0, v[1], 0,
+			0, 0, v[2]
+		]);
+	}
+
+	/**
+	 * Calculate the transformation matrix to transform given source points onto given destination points.
+	 **/
+	const general2DProjection = function(x1s, y1s, x1d, y1d, x2s, y2s, x2d, y2d,
+										 x3s, y3s, x3d, y3d, x4s, y4s, x4d, y4d) {
+		var s = basisToPoints(x1s, y1s, x2s, y2s, x3s, y3s, x4s, y4s);
+		var d = basisToPoints(x1d, y1d, x2d, y2d, x3d, y3d, x4d, y4d);
+		return multmm(d, adj(s));
+	}
+
+	/**
+	 * Transform the given html element from a given point set to a rectangle.
+	 **/
+	function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
+		var w = window.innerWidth, h = window.innerHeight;
+		var t = general2DProjection(x1, y1, 0, 0, x2, y2, w, 0, x3, y3, 0, h, x4, y4, w, h);
+		for(i = 0; i != 9; ++i) t[i] = t[i]/t[8];
+		t = [t[0], t[3], 0, t[6],
+			t[1], t[4], 0, t[7],
+			0   , 0   , 1, 0   ,
+			t[2], t[5], 0, t[8]];
+		t = "matrix3d(" + t.join(", ") + ")"; //setup the html 3D transformation.
+		elt.style.transform = t;
+	}
 
 	function scaleCenter(center, refPicture, newPicture){
-	 	temp = {}
-	 	temp.x = center.x * newPicture.x / refPicture.x;
-	 	temp.y = center.y * newPicture.y / refPicture.y;
-	 	return temp
- 	}
+		temp = {}
+		temp.x = center.x * newPicture.x / refPicture.x;
+		temp.y = center.y * newPicture.y / refPicture.y;
+		return temp
+	}
 
- 	function scalePoints(corners, refPicture, newPicture) {
- 		temp = [{}, {}, {}, {}]
+	function scalePoints(corners, refPicture, newPicture) {
+		temp = [{}, {}, {}, {}]
 		for (let i in corners) {
 			temp[i].x = corners[i].x * newPicture.x / refPicture.x;
 			temp[i].y = corners[i].y * newPicture.y / refPicture.y;
 		}
 		return temp
- 	}
+	}
 
 	const transformSlave = function(myCanvas, corners, refPictureLength){
 		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
 		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
-				corners[2].x, corners[2].y, corners[1].x, corners[1].y);
- 	};
+			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
+	};
 
 
 	/********************
-	  * Image show-off *
+	 * Image show-off *
 	 ********************/
 
-	// Paste the given part of the given picture on the client canvas.
+		// Paste the given part of the given picture on the client canvas.
 	const pastePicture = function(myCanvas, picture, corners, refPictureLength){
-		myCanvas.width = picture.width;
-		myCanvas.height = picture.height;
-		ctx = myCanvas.getContext('2d');
+			myCanvas.width = picture.width;
+			myCanvas.height = picture.height;
+			ctx = myCanvas.getContext('2d');
 
-		ctx.drawImage(picture, 0, 0, myCanvas.width, myCanvas.height); // destination rectangle
+			ctx.drawImage(picture, 0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
-		transformSlave(myCanvas, corners, refPictureLength);
-	};
+			transformSlave(myCanvas, corners, refPictureLength);
+		};
 
 	socket.on('showPicture', async function(data){
 		cleanHTML()
@@ -669,73 +669,74 @@ playerButton.addEventListener('click', function(){
 
 
 	/********************
-	  * Video show-off *
+	 * Video show-off *
 	 ********************/
 
-	// Paste the given part of the given picture on the client canvas.
+		// Paste the given part of the given picture on the client canvas.
 	const pasteVideo = function(myCanvas, video, corners, refPictureLength){
-		myCanvas.width = video.videoWidth;
-		myCanvas.height = video.videoHeight;
-		transformSlave(myCanvas, corners, refPictureLength);
-	};
+			myCanvas.width = video.videoWidth;
+			myCanvas.height = video.videoHeight;
+			transformSlave(myCanvas, corners, refPictureLength);
+		};
 
 	// Draw the current frame of the video
 	const drawVideo = function(myCanvas, video) {
 		myCanvas.getContext('2d').drawImage(video, 0, 0, myCanvas.width, myCanvas.height);
-	}
+	};
 
 	socket.on('loadVideo', async function(data, callback){
-		cleanHTML()
-		video = document.createElement("video")
-		canvas.style.display = "block"
+		cleanHTML();
+		video = document.createElement("video");
+		canvas.style.display = "hidden";
 		document.body.style.backgroundColor = "black";
-		video.src = 'static/big_buck_bunny.mp4'
+		video.src = 'static/rainbow-720.mp4';
 		video.onloadeddata = async function() {
-			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-			await waitForBuffer(5)
+			// was pasteVideo;
+			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+			await waitForBuffer(5);
 			callback()
-		}
+		};
 
-		video.pause()
+		video.pause();
 		video.preload = "auto";
-		video.muted = true
-		video.style.display = "block"
-		video.style.visibility = "hidden"
-		video.currentTime = 0
-		document.body.appendChild(video)
+		video.muted = true;
+		video.style.display = "block";
+		//video.style.visibility = "hidden";
+		video.currentTime = 0;
+		document.body.appendChild(video);
 	});
 
 	socket.on('vidEnded', function(data, callback){
 		video.onended = function(){
-			callback()
+			callback();
 			clearInterval(vidBufferCheck);
-			clearInterval(vidDrawer);
+			//cancelAnimationFrame(vidDrawer);
 		}
-	})
+	});
 
 	socket.on('playVideo', function(maxLat){
-		console.log("playing video")
+		console.log("playing video");
 		setTimeout(() => {
-			video.play()
-			vidDrawer = setInterval(function(){
+			video.play();
+			/**vidDrawer = requestAnimationFrame(function(){
 				drawVideo(canvas, video)
-			}, 100/6)
-		}, maxLat - latency)
-	})
+			});*/
+		}, maxLat - latency);
+	});
 
 	socket.on('updateVideo', function(data){
-		let cTime = (data + latency)/1000
-		let lTime = video.currentTime
-		let offset = lTime - cTime
-		let newVidPBR = video.playbackRate + (1.0 - offset/5 - video.playbackRate)/3
+		let cTime = (data + latency)/1000;
+		let lTime = video.currentTime;
+		let offset = lTime - cTime;
+		let newVidPBR = video.playbackRate + (1.0 - offset/5 - video.playbackRate)/3;
 		video.playbackRate = newVidPBR
-	})
+	});
 
 	socket.on('pauseAt', function(time){
-		console.log('pausing at '+time)
-		video.pause()
-		video.currentTime = time
-	})
+		console.log('pausing at '+time);
+		video.pause();
+		video.currentTime = time;
+	});
 
 	socket.on('waitForBuffer', async function(data, callback){
 		await waitForBuffer(5)
@@ -748,7 +749,7 @@ playerButton.addEventListener('click', function(){
 			while (true){
 				if (video.buffered.length >= 1){
 					if (video.buffered.end(0) - video.currentTime >= sBuffered ||
-							video.buffered.end(0) - video.duration <= 0.1){
+						video.buffered.end(0) - video.duration <= 0.1){
 						resolve()
 						break
 					}
@@ -762,7 +763,7 @@ playerButton.addEventListener('click', function(){
 		const minBuffered = 1 // minimum number of seconds to buffer
 		vidBufferCheck = setInterval(async function(){
 			if (video.buffered.end(0) - video.currentTime < minBuffered ||
-					video.buffered.end(0) - video.duration > 0.1){
+				video.buffered.end(0) - video.duration > 0.1){
 				socket.emit('waitForBuffer', video.currentTime)
 			}
 		}, 200)
@@ -771,54 +772,54 @@ playerButton.addEventListener('click', function(){
 
 
 	/*****************************
-	  * Triangulation functions *
+	 * Triangulation functions *
 	 *****************************/
 
 	// Draw the given triangulation in the canvas
 	function drawTriangulation(centers, connections, refPictureLength) {
-	 	//Constants
-	 	const outerRadius = 20,
-	 				innerRadius = 7.5;
-	 	var rot = Math.PI / 2 * 3,
-	 			step = Math.PI / 5,
-	 			x,
-	 			y;
+		//Constants
+		const outerRadius = 20,
+			innerRadius = 7.5;
+		var rot = Math.PI / 2 * 3,
+			step = Math.PI / 5,
+			x,
+			y;
 
-	 	context.fillStyle = 'black';
-	 	context.lineWidth = 10;
+		context.fillStyle = 'black';
+		context.lineWidth = 10;
 
-	 	// Draw all centers
-	 	for (let centerId in centers) {
-	 		// Define center
-	 		center = centers[centerId]
-	 		center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
-	 		var cx = center.x;
-	 		var cy = center.y;
+		// Draw all centers
+		for (let centerId in centers) {
+			// Define center
+			center = centers[centerId]
+			center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
+			var cx = center.x;
+			var cy = center.y;
 
-	 		// Draw the star in the current center.
-	 		context.beginPath();
-	 		context.moveTo(cx, cy - outerRadius);
-	 		for (let i = 0; i < 5; i++) {
-	 			x = cx + Math.cos(rot) * outerRadius;
-	 			y = cy + Math.sin(rot) * outerRadius;
-	 			context.lineTo(x, y);
-	 			rot += step;
+			// Draw the star in the current center.
+			context.beginPath();
+			context.moveTo(cx, cy - outerRadius);
+			for (let i = 0; i < 5; i++) {
+				x = cx + Math.cos(rot) * outerRadius;
+				y = cy + Math.sin(rot) * outerRadius;
+				context.lineTo(x, y);
+				rot += step;
 
-	 			x = cx + Math.cos(rot) * innerRadius;
-	 			y = cy + Math.sin(rot) * innerRadius;
-	 			context.lineTo(x, y);
-	 			rot += step
-	 		}
-	 		context.lineTo(cx, cy - outerRadius);
-	 		context.closePath();
-	 		context.fill();
+				x = cx + Math.cos(rot) * innerRadius;
+				y = cy + Math.sin(rot) * innerRadius;
+				context.lineTo(x, y);
+				rot += step
+			}
+			context.lineTo(cx, cy - outerRadius);
+			context.closePath();
+			context.fill();
 
-	 		// Draw the lines between all connected centers.
-	 		for(let cnctPoint of connections[centerId]){
-	 			context.moveTo(cx, cy);	// start point
-	 			context.lineTo(cnctPoint[0], cnctPoint[1]); // end point
-	 			context.stroke(); // Make the line visible
-	 		}
+			// Draw the lines between all connected centers.
+			for(let cnctPoint of connections[centerId]){
+				context.moveTo(cx, cy);	// start point
+				context.lineTo(cnctPoint[0], cnctPoint[1]); // end point
+				context.stroke(); // Make the line visible
+			}
 		}
 	}
 
@@ -834,43 +835,43 @@ playerButton.addEventListener('click', function(){
 
 
 	/*********************
-	  * Snake functions *
+	 * Snake functions *
 	 *********************/
 
 	const drawSnake = function(snake) {
 		// Determine snake color.
 		colors = snake.colors
 		// Draw each segment of the snake.
-	  for (let part of snake.parts)
-	    drawSnakePart(part, snake.colors)
+		for (let part of snake.parts)
+			drawSnakePart(part, snake.colors)
 	}
 
 	const drawSnakePart = function(snakePart, colors) {
 		// Color the segments of the snake.
 		if (snakePart.name % 2 == 1 || snakePart.name == 0) context.fillStyle = colors.light;
-	  else context.fillStyle = colors.dark;
+		else context.fillStyle = colors.dark;
 
 		// Draw the given snake segment.
-	  context.beginPath();
-	  context.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) ,
-	          		snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
-	          		snakePart.size / 2, 0, 2 * Math.PI);
-	  context.fill();
+		context.beginPath();
+		context.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) ,
+			snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
+			snakePart.size / 2, 0, 2 * Math.PI);
+		context.fill();
 
 		// The snake's head isn't whole without eyes. Draw them on the first segment.
-	  if (snakePart.name == 0) {
-	    context.fillStyle = "#000000";
-	    context.beginPath();
-	    context.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-	            		snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-	            		snakePart.size / 6, 0, 2 * Math.PI);
-	    context.fill();
-	    context.beginPath();
-	    context.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-	            		snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-	            		snakePart.size / 6, 0, 2 * Math.PI);
-	    context.fill();
-	  }
+		if (snakePart.name == 0) {
+			context.fillStyle = "#000000";
+			context.beginPath();
+			context.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
+				snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+				snakePart.size / 6, 0, 2 * Math.PI);
+			context.fill();
+			context.beginPath();
+			context.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
+				snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
+				snakePart.size / 6, 0, 2 * Math.PI);
+			context.fill();
+		}
 	}
 
 	socket.on('createSnake', function(data){
@@ -887,8 +888,8 @@ playerButton.addEventListener('click', function(){
 	})
 
 	function updateS(snake) {
-	  context.clearRect(0, 0, canvas.width, canvas.height);
-	  drawSnake(snake);
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		drawSnake(snake);
 	}
 
 	socket.on('updateWorld', function(data){
@@ -896,9 +897,9 @@ playerButton.addEventListener('click', function(){
 	})
 
 	function updateW(world) {
-	  context.clearRect(0, 0, canvas.width, canvas.height);
+		context.clearRect(0, 0, canvas.width, canvas.height);
 		for (let snakeId in world.objects)
-      drawSnake(world.objects[snakeId]);
+			drawSnake(world.objects[snakeId]);
 	}
 
 	socket.on('stopSnake', function(){
