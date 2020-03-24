@@ -873,23 +873,23 @@ playerButton.addEventListener('click', function(){
 	  }
 	}
 
-	socket.on('createSnake', function(data){
-		cleanHTML()
-		canvas.style.display = "block";
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		canvas.width = data.picDim[1];
-		canvas.height = data.picDim[0];
-		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-	})
+	// socket.on('createSnake', function(data){
+	// 	cleanHTML()
+	// 	canvas.style.display = "block";
+	// 	context.clearRect(0, 0, canvas.width, canvas.height);
+	// 	canvas.width = data.picDim[1];
+	// 	canvas.height = data.picDim[0];
+	// 	transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+	// })
 
-	socket.on('updateSnake', function(data){
-		setTimeout(updateS, data.maxLat - latency, data.snake)
-	})
+	// socket.on('updateSnake', function(data){
+	// 	setTimeout(updateS, data.maxLat - latency, data.snake)
+	// })
 
-	function updateS(snake) {
-	  context.clearRect(0, 0, canvas.width, canvas.height);
-	  drawSnake(snake);
-	}
+	// function updateS(snake) {
+	//   context.clearRect(0, 0, canvas.width, canvas.height);
+	//   drawSnake(snake);
+	// }
 
 	socket.on('updateWorld', function(data){
 		setTimeout(updateW, data.maxLat - latency, data.world)
@@ -915,10 +915,13 @@ playerButton.addEventListener('click', function(){
 	 ***********************/
 
 	// Socket reactie om animatie klaar te maken
-	var maxFps
+	var maxFps, picDim, corners
 	socket.on('prepareAnimation', function (data, callback) {
 	    var clock = Date.now()
 			setupCanvas()
+			console.log("First got", data)
+			corners = data.corners;
+			picDim = data.picDim;
 			prepareAnimation(data.animation);
 	    stop = false
 	    frameCount = 0
@@ -933,9 +936,9 @@ playerButton.addEventListener('click', function(){
 		cleanHTML()
 		canvas.style.display = "block";
 		context.clearRect(0, 0, canvas.width, canvas.height);
-		canvas.width = 1500;
-		canvas.height = 600;
-		// transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+		canvas.width = picDim[1];
+		canvas.height = picDim[0];
+		// transformSlave(canvas, corners, {x: picDim[1], y: picDim[0]});
 	}
 
 	// Socket reactie om animatie te starten
@@ -958,7 +961,7 @@ playerButton.addEventListener('click', function(){
 
 	// initialize the timer variables and start the animation
 	function prepareAnimation(animation) {
-	    createWorld(animation)
+	    createObjects(animation);
 	    w1 = new Date()
 	    draw(0)
 	    w2 = new Date()
@@ -966,11 +969,17 @@ playerButton.addEventListener('click', function(){
 	    maxFps = 1000 / workload
 	}
 
+	var object;
+	function createObjects(animation) {
+		if (animation.type.equals("snake"))
+			snake = new Snake(animation.length, picDimensions[0] / 25, {x: 100, y:100}, {light: "#008000", dark: "#004000"})
+		else alert('Niet genoeg info')
+	}
+
 	// the animation loop calculates time elapsed since the last loop
 	// and only draws if your specified fps interval is achieved
 	var frameCount = 0;
 	var animation
-
 	function animate() {
 
 	    // request another frame
@@ -1004,63 +1013,11 @@ playerButton.addEventListener('click', function(){
 
 	    // console.log("correction: ", framesToCorrect)
 
-	    for (let i = 0; i < squares.length; i++) {
-	        let square = squares[i];
-	        square.draw(ctx);
-	        square.update(1);
-	        if (correction) square.update(correctionFactor);
-	    }
+
+      world.update(1);
+      if (correction) world.update(correctionFactor);
 
 	    frameCount++
 	}
-
-
-
-	var squares = []
-
-	function Square(coordinateX, coordinateY, maxSize) {
-	    this.posX = coordinateX;
-	    this.posY = coordinateY;
-	    this.size = 10;
-	    this.maxSize = maxSize;
-	    this.updateFactor = 1;
-	    this.color = "#FF0000"
-	}
-
-	Square.prototype.draw = function (ctx) {
-	    // Draw Circle
-	    context.fillStyle = this.color;
-	    context.fillRect(this.posX, this.posY, this.size, this.size)
-	};
-
-	var newSize
-	Square.prototype.update = function (frame = 0) {
-	  // console.log(this.size, frame)
-	    newSize = this.size + frame * this.updateFactor;
-	    if (newSize > this.maxSize) {
-	        newSize = 2 * this.maxSize - newSize
-	        this.updateFactor = -1
-	    } else if (newSize < 0) {
-	        newSize = -newSize
-	        this.updateFactor = 1
-	    }
-	    this.size = newSize
-	};
-
-	function createWorld(amt) {
-	    for (let i = 0; i < 32; i++) {
-
-	        // rad = window.width / amt ** (1 / 2);
-
-	        size = 1500 / 8
-
-	        posX = (size * i) % 1500;
-	        posY = size * Math.floor(i / 8);
-
-	        square = new Square(posX, posY, size);
-	        squares.push(square);
-	    }
-	}
-
 
 })()

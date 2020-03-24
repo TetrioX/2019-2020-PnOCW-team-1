@@ -68,7 +68,7 @@ var slaveIo = io.on('connection', function(socket){
         let promise = new Promise(function(resolve, reject) {
 
             slaveSockets[slave].emit('prepareAnimation', {
-              animation: ...,
+              animation: 30,
               timeSent: Date.now()
             },
             function(callBackData){

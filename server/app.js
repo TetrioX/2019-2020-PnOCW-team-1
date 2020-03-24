@@ -666,15 +666,21 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var synchroPromises = [];
     var slaveOffsets = {};
 
-    console.log('startAnimation')
+    console.log('startAnimation',new World())
 
     // Send all the data to slaves and wait for them to end their preparation.
     Object.keys(slaves).forEach(async function(slave, index) {
       let promise = new Promise(function(resolve, reject) {
         slaveSockets[slave].emit('prepareAnimation',
           {
-            animation: 30,
-            timeSent: Date.now()
+            animation: {
+              type: "snake",
+              path: [],
+              length: 40
+            },
+            corners: AllScreenPositions[slaves[slave]],
+            picDim: picDimensions,
+            timeSent: Date.now(),
           },
           function(callBackData){
             if (typeof callBackData.maxFps == 'number' &&
@@ -716,6 +722,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       dt: Date.now() - startTime
     });
   }
+
 
 
   /////////////////
