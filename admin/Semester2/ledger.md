@@ -41,3 +41,10 @@ Het verslag van ST1.1 werd afgewerkt.
  en deze werd gebruikt om de accuraatheid ervan te testen op verschillende browsers.
 - Team kleurenherkenning heeft verschillende filters geïmplementeerd en deze getest. 
 Er werd ook een algoritme geschreven om iteratief drempelwaarden te berekenen.
+
+## Team meeting 6 - 17/03/2020 (online)
+- Eerste online meeting
+- Vorige taken (ST1.2 en ST2.2) zijn afgerond.
+- Planning voor komende weken werd opgesteld (zie schedule).
+
+## Team meeting 7 - 24/03/2020 (online)
