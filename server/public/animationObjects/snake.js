@@ -110,8 +110,3 @@ let SnakePart = class {
     if (Math.abs(this.deviation) >= this.devMax) this.devSide *= -1;
   }
 }
-
-module.exports = {
-  Snake: Snake,
-  SnakePart: SnakePart
-}

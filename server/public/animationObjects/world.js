@@ -1,6 +1,3 @@
-const snake = require('./snake.js')
-const collision = require('./collision.js')  // asserting pre-conditions
-
 
 let World = class {
   constructor(dim) {
@@ -38,10 +35,4 @@ let World = class {
     for (let snakeId of collided)
       this.killSnake(snakeId)
   }
-}
-
-
-
-module.exports = {
-  World: World
 }
