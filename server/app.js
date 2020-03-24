@@ -666,7 +666,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var synchroPromises = [];
     var slaveOffsets = {};
 
-    console.log('startAnimation',new World())
+    console.log('startAnimation')
 
     // Send all the data to slaves and wait for them to end their preparation.
     Object.keys(slaves).forEach(async function(slave, index) {
@@ -700,6 +700,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     console.log("Prep done: ", slaves)
     startTime = Date.now() + maxLat * 2
+
+    return
 
     // d1 = Date.now()
     Object.keys(slaves).forEach(function(slave, index) {

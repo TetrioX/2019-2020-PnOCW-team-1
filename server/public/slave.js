@@ -918,10 +918,9 @@ playerButton.addEventListener('click', function(){
 	var maxFps, picDim, corners
 	socket.on('prepareAnimation', function (data, callback) {
 	    var clock = Date.now()
-			setupCanvas()
-			console.log("First got", data)
 			corners = data.corners;
 			picDim = data.picDim;
+			setupCanvas()
 			prepareAnimation(data.animation);
 	    stop = false
 	    frameCount = 0
@@ -971,8 +970,8 @@ playerButton.addEventListener('click', function(){
 
 	var object;
 	function createObjects(animation) {
-		if (animation.type.equals("snake"))
-			snake = new Snake(animation.length, picDimensions[0] / 25, {x: 100, y:100}, {light: "#008000", dark: "#004000"})
+		if (animation.type === "snake")
+ 			snake = new Snake(animation.length, picDim[0] / 25, {x: 100, y:100}, {light: "#008000", dark: "#004000"})
 		else alert('Niet genoeg info')
 	}
 
