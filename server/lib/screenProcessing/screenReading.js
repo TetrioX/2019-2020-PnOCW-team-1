@@ -642,7 +642,7 @@ function allElementsOfNoise(firstElement, matrix, noise) {
 	* value a screen square
 	@param {Float[[]]} tresholds the hue tresholds
 	*/
-function getScreens(matrixes, screens, colorCombs, tresholds=null) {
+function getScreens(matrixes, screens, colorCombs, tresholds=null, foundScreenSquares=[]) {
 	// make a matrix with the same dimensions as the joined matrix to store noise
 	//let noiseMatrix = []
 	//for (row of matrix){
@@ -657,8 +657,6 @@ function getScreens(matrixes, screens, colorCombs, tresholds=null) {
 	let matrix = joinMatrixes(matrixes, tresholds, nbOfColors)
   let foundColValues = new Set([0])
   let noise = new Set()
-	// an array of all valide screen squares
-	let foundScreenSquares = []
 	// iterate through the matrix with j the y value and i the x value
 	for (let j = 0; j < matrix.length; j++){
 		for (let i = 0; i < matrix[0].length; i++){
