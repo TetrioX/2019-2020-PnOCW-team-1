@@ -2,10 +2,6 @@ node_modules/
 
 Pictures/
 
-image-*.png
-
-*diff-*.png
-
 debug/
 
 config.json
