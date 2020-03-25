@@ -9,6 +9,7 @@ const readImage = require('../readImage.js')
 let verbose = argv.verbose;
 let getScreen = argv['get-screen']
 let useImages = argv['use-images']
+let iters = argv['iters']
 
 if (require.main === module) {
   if(argv._.length < 1) {
@@ -29,6 +30,9 @@ function parseJsonFile(path){
 async function runTestCase(paths) {
   for (let path of paths){
     if(verbose > 1) console.log("---starting test case---")
+    if(!iters){
+      iters = 0
+    }
     if (useImages){
       images = []
       for (let i = 0; i < useImages; i++){
@@ -38,11 +42,12 @@ async function runTestCase(paths) {
     } else matrixes = parseJsonFile(path + '/matrixes.json')
     colorCombs = parseJsonFile(path + '/colorCombs.json')
     screens = parseJsonFile(path + '/screens.json')
-    let squares = screenReading.getScreens(matrixes, screens, colorCombs)
-    if(verbose >= 1) console.log("squares:", squares)
+    let squares = screenReading.getScreens(matrixes, screens, colorCombs, iters)
+    if(verbose > 1) console.log("squares:", squares)
+    else if (verbose) console.log("found " + squares.length/(iters + 1) + " squares")
     if (getScreen){
       let screenPositions = screenReading.getScreenFromSquares(squares, screens)
-      if(verbose >= 1) console.log("squares:", screenPositions)
+      if(verbose) console.log("screens:", screenPositions)
     }
   }
   return
