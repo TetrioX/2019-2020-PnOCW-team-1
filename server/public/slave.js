@@ -672,18 +672,6 @@ playerButton.addEventListener('click', function(){
 	 * Video show-off *
 	 ********************/
 
-		// Paste the given part of the given picture on the client canvas.
-	const pasteVideo = function(myCanvas, video, corners, refPictureLength){
-			myCanvas.width = video.videoWidth;
-			myCanvas.height = video.videoHeight;
-			transformSlave(myCanvas, corners, refPictureLength);
-		};
-
-	// Draw the current frame of the video
-	const drawVideo = function(myCanvas, video) {
-		myCanvas.getContext('2d').drawImage(video, 0, 0, myCanvas.width, myCanvas.height);
-	};
-
 	socket.on('loadVideo', async function(data, callback){
 		cleanHTML();
 		video = document.createElement("video");
@@ -691,7 +679,8 @@ playerButton.addEventListener('click', function(){
 		document.body.style.backgroundColor = "black";
 		video.src = 'static/big_buck_bunny.mp4';
 		video.onloadeddata = async function() {
-			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+			// was pasteVideo;
+			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			await waitForBuffer(5);
 			callback()
 		};
@@ -700,7 +689,6 @@ playerButton.addEventListener('click', function(){
 		video.preload = "auto";
 		video.muted = true;
 		video.style.display = "block";
-		video.style.visibility = "hidden";
 		video.currentTime = 0;
 		document.body.appendChild(video);
 	});
@@ -709,7 +697,6 @@ playerButton.addEventListener('click', function(){
 		video.onended = function(){
 			callback();
 			clearInterval(vidBufferCheck);
-			clearInterval(vidDrawer);
 		}
 	});
 
@@ -717,9 +704,6 @@ playerButton.addEventListener('click', function(){
 		console.log("playing video");
 		setTimeout(() => {
 			video.play();
-			vidDrawer = requestAnimationFrame(function(){
-				drawVideo(canvas, video)
-			});
 		}, maxLat - latency);
 	});
 
@@ -738,9 +722,9 @@ playerButton.addEventListener('click', function(){
 	});
 
 	socket.on('waitForBuffer', async function(data, callback){
-		await waitForBuffer(5)
+		await waitForBuffer(5);
 		resolve()
-	})
+	});
 
 	// returns a promise that waits for a certain amount of seconds to be buffered (sBuffered)
 	function waitForBuffer(sBuffered){
@@ -749,7 +733,7 @@ playerButton.addEventListener('click', function(){
 				if (video.buffered.length >= 1){
 					if (video.buffered.end(0) - video.currentTime >= sBuffered ||
 						video.buffered.end(0) - video.duration <= 0.1){
-						resolve()
+						resolve();
 						break
 					}
 				}
@@ -757,18 +741,6 @@ playerButton.addEventListener('click', function(){
 			}
 		})
 	}
-
-	function startBufferCheck(){
-		const minBuffered = 1 // minimum number of seconds to buffer
-		vidBufferCheck = setInterval(async function(){
-			if (video.buffered.end(0) - video.currentTime < minBuffered ||
-				video.buffered.end(0) - video.duration > 0.1){
-				socket.emit('waitForBuffer', video.currentTime)
-			}
-		}, 200)
-	}
-
-
 
 	/*****************************
 	 * Triangulation functions *
