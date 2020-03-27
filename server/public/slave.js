@@ -689,7 +689,7 @@ playerButton.addEventListener('click', function(){
 		video = document.createElement("video");
 		canvas.style.display = "hidden";
 		document.body.style.backgroundColor = "black";
-		video.src = 'static/rainbow-720.mp4';
+		video.src = 'static/big_buck_bunny.mp4';
 		video.onloadeddata = async function() {
 			// was pasteVideo;
 			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
