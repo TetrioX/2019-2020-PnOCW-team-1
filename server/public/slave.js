@@ -691,8 +691,7 @@ playerButton.addEventListener('click', function(){
 		document.body.style.backgroundColor = "black";
 		video.src = 'static/big_buck_bunny.mp4';
 		video.onloadeddata = async function() {
-			// was pasteVideo;
-			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			await waitForBuffer(5);
 			callback()
 		};
@@ -701,7 +700,7 @@ playerButton.addEventListener('click', function(){
 		video.preload = "auto";
 		video.muted = true;
 		video.style.display = "block";
-		//video.style.visibility = "hidden";
+		video.style.visibility = "hidden";
 		video.currentTime = 0;
 		document.body.appendChild(video);
 	});
@@ -710,7 +709,7 @@ playerButton.addEventListener('click', function(){
 		video.onended = function(){
 			callback();
 			clearInterval(vidBufferCheck);
-			//cancelAnimationFrame(vidDrawer);
+			clearInterval(vidDrawer);
 		}
 	});
 
@@ -718,9 +717,9 @@ playerButton.addEventListener('click', function(){
 		console.log("playing video");
 		setTimeout(() => {
 			video.play();
-			/**vidDrawer = requestAnimationFrame(function(){
+			vidDrawer = requestAnimationFrame(function(){
 				drawVideo(canvas, video)
-			});*/
+			});
 		}, maxLat - latency);
 	});
 
