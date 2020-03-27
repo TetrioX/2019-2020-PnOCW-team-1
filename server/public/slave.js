@@ -687,11 +687,11 @@ playerButton.addEventListener('click', function(){
 	socket.on('loadVideo', async function(data, callback){
 		cleanHTML()
 		video = document.createElement("video")
-		canvas.style.display = "block"
+		canvas.style.display = "hidden"
 		document.body.style.backgroundColor = "black";
 		video.src = 'static/big_buck_bunny.mp4'
 		video.onloadeddata = async function() {
-			pasteVideo(canvas, video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			await waitForBuffer(5)
 			callback()
 		}
@@ -700,7 +700,7 @@ playerButton.addEventListener('click', function(){
 		video.preload = "auto";
 		video.muted = true
 		video.style.display = "block"
-		video.style.visibility = "hidden"
+		//video.style.visibility = "hidden"
 		video.currentTime = 0
 		document.body.appendChild(video)
 	});
@@ -709,7 +709,7 @@ playerButton.addEventListener('click', function(){
 		video.onended = function(){
 			callback()
 			clearInterval(vidBufferCheck);
-			clearInterval(vidDrawer);
+			//clearInterval(vidDrawer);
 		}
 	})
 
@@ -717,10 +717,10 @@ playerButton.addEventListener('click', function(){
 		console.log("playing video")
 		setTimeout(() => {
 			video.play()
-			vidDrawer = setInterval(function(){
+			/**vidDrawer = setInterval(function(){
 				drawVideo(canvas, video)
 			}, 100/6)
-		}, maxLat - latency)
+		*/}, maxLat - latency)
 	})
 
 	socket.on('updateVideo', function(data){
