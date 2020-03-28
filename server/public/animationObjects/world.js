@@ -1,4 +1,3 @@
-
 let World = class {
   constructor(dim) {
     this.dimensions = dim

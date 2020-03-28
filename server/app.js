@@ -654,7 +654,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
   socket.on('startAnimation', async function() {
 
     AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}],
+                    '5': [{x: 700, y: 0}, {x: 1000, y: 250}, {x: 500, y: 500}, {x: 500, y: 0}]}
     picDimensions = [500, 1000]
 
     if (Object.keys(AllScreenPositions).length < 1) {
@@ -701,7 +702,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
     console.log("Prep done: ", slaves)
     startTime = Date.now() + maxLat * 2
 
-    return
+    getPath()
+
+    return;
 
     // d1 = Date.now()
     Object.keys(slaves).forEach(function(slave, index) {
@@ -725,6 +728,51 @@ var masterIo = io.of('/master').on('connect', function(socket){
     });
   }
 
+  var slavesPassed, centers, connections;
+  function getPath(){
+    centers = screenorientation.getScreenCenters(AllScreenPositions)
+    connections = delaunay.getConnections(centers)
+
+    // Update result of connections
+    Object.keys(connections).forEach((slave, j) => {
+      for (let i = 0; i < connections[slave].length; i++)
+        connections[slave][i] = connectSlave(connections[slave][i])
+    });
+
+    // Start with lowest slave.
+    slavesPassed = Object.keys(AllScreenPositions)
+    const firstSlave = Object.keys(AllScreenPositions)[0];
+    console.log("first slave data ", slavesPassed, " ", centers[firstSlave])
+    path = []
+
+    getConnection(firstSlave)
+    console.log(path)
+
+  }
+
+  function connectSlave(pos) {
+    for (slave in centers)
+      if (pos[0] == centers[slave].x && pos[1] == centers[slave].y)
+        return slave
+  }
+
+  var path;
+  function getConnection(node) {
+    if (path.length > 10) return
+    var randInt = Math.floor(Math.random() * connections[node].length)
+    var nextNode = connections[node][randInt];
+    var direction = angleBetweenPoints(centers[node], centers[nextNode])
+    console.log("data: ", randInt, " ", nextNode, " ", direction)
+    path.push({
+      pos: centers[node],
+      dir: direction
+    })
+    getConnection(nextNode)
+  }
+
+  function angleBetweenPoints(point1, point2) {
+      return Math.atan2(point2.x - point1.x, point2.y - point1.y);
+  };
 
 
   /////////////////
