@@ -692,6 +692,7 @@ playerButton.addEventListener('click', function(){
 		video.src = 'static/big_buck_bunny.mp4'
 		video.onloadeddata = async function() {
 			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+			console.log("test");
 			await waitForBuffer(5)
 			callback()
 		}
