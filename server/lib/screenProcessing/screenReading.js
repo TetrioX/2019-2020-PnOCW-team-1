@@ -7,9 +7,28 @@
 
 const assert = require('assert')  // asserting pre-conditions
 const vctcalc = require('./vectorCalculation.js')
+/*
+const defaultTresholds = {
+	1: [351.3, 52.5],
+	4: [52.5, 88.0],
+	2: [88.0, 150.7],
+	6: [150.7, 204.0],
+	3: [204.0, 271.9],
+	5: [271.9, 351.3]
+}
+*/
+const defaultTresholds = {
+	1: [317, 45],
+	4: [45, 100],
+	2: [100, 160],
+	6: [160, 200],
+	3: [200, 240],
+	5: [240, 317]
+}
 
-// TODO
-const colorValues = {}
+const sRange = [20, 101]
+const lRange = [10, 90]
+
 
 const screenReading = function(buffer, dimensions) {
 
@@ -55,12 +74,22 @@ const createMatrix = function(buffer, dimensions) {
 	return matrix
 }
 
-function joinMatrixes(matrixes, nbOfColors){
-	let result = matrixes[0]
-	for (let j = 0; j < result.length; j++){
-		for (let i = 0; i < result[0].length; i++){
-			for (let m = 1; m < matrixes.length; m++){
-				result[j][i] += matrixes[m][j][i] * (nbOfColors + 1) ** m
+function joinMatrixes(matrixes, tresholds, nbOfColors, offsets=[]){
+	let result = []
+	for (let j = 0; j < matrixes[0].length; j++){
+		result.push([])
+		for (let i = 0; i < matrixes[0][0].length; i++){
+			result[j].push(0)
+			let offset = 0
+			for(elem of offsets) {
+				if (inQuadrilateral({x:i, y:j}, elem.corners)) {
+					offset = elem.offset
+					break;
+				}
+			}
+			for (let m = 0; m < matrixes.length; m++){
+				matrixes[m][j][i][0] = (matrixes[m][j][i][0] - offset + 360)%360 //updated hsl value
+				result[j][i] += getColorValueFromHsl(matrixes[m][j][i], tresholds) * (nbOfColors + 1) ** m
 			}
 		}
 	}
@@ -81,9 +110,95 @@ function colorToValue(colorString) {
 function colorToValueList(list, nbOfColors) {
 	let result = 0
   for (let i in list) {
-      result += colorToValue(list[i]) * (nbOfColors + 1) ** i
+    result += colorToValue(list[i]) * (nbOfColors + 1) ** i
   }
 	return result
+}
+
+/**
+ * returns true if the value is in the given range and false otherwise.
+ * range is defined as between the values if the first edge one is smaller.
+ * otherwise the range is defined outside the 2 values.
+ */
+function inRange(value, range) {
+	if (range[0] <= range[1]){
+		if (range[0] <= value && value < range[1]){
+			return true;
+		}
+	} else {
+		if (range[0] <= value || value < range[1]){
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * returns the average angle between 2 given angles.
+ * the first angle is the smaller angle and the second the bigger.
+ * @param{flaot} ang1 the first angle
+ * @param{flaot} ang2 the second angle
+ */
+function getAvrAngle(ang1, ang2) {
+	if (ang1 <= ang2) {
+		return (ang1 + ang2)/2
+	} else {
+		return ((ang1 + ang2 + 360)/2)%360
+	}
+}
+
+/**
+ * calculates offsets based on the already found squares
+ */
+function calculateTreshOffsets(squares, screens, matrixes, tresholds){
+	let screenCorners = getScreenFromSquares(squares, screens)
+	let offsets = {}
+	for (let square of squares) {
+		if (!(square.square.screen in offsets)){
+			offsets[square.square.screen] = []
+		}
+		for (let m = 0; m < matrixes.length; m++){
+			let firstElem = square.corners.corners[0]
+			let color = getColorValueFromHsl(matrixes[m][firstElem.y][firstElem.x], tresholds)
+			let tresh = tresholds[color]
+			let refDegree = getAvrAngle(tresh[0], tresh[1])
+			let avr = 0
+			for (pos of square.corners.corners) {
+				avr += (matrixes[m][pos.y][pos.x][0] - refDegree + 180)%360
+			}
+			avr = avr/square.corners.corners.length - 180
+			offsets[square.square.screen].push(avr)
+		}
+	}
+	result = []
+	for (let screen of Object.keys(offsets)) {
+		result.push({
+			offset: offsets[screen].reduce((a, b) => a + b, 0) / offsets[screen].length,
+			corners: screenCorners[screen]
+		})
+	}
+	return result
+}
+
+function inQuadrilateral(pos, corners) {
+	ang = 0
+	for (let i=0; i < 4; i++) {
+		ang += Math.acos(getCosinus(pos, corners[i], corners[(i + 1)%4]))
+	}
+	// if sum of angles is 360 degree then point is in circle
+	return (ang >= 2 * Math.PI - 0.1) // 0.1 is for float error
+}
+
+function getColorValueFromHsl(hsl, tresholds) {
+	if (!inRange(hsl[1], sRange) || !inRange(hsl[2], lRange)){
+		return 0
+	}
+	for (i in tresholds) {
+		if (inRange(hsl[0], tresholds[i])) {
+			return parseInt(i);
+		}
+	}
+	return 0;
 }
 
 /**
@@ -573,17 +688,15 @@ function allElementsOfNoise(firstElement, matrix, noise) {
 
 /** returns the screens of the given matrixes
 	*
-	* @param {Integer[[[]]]} matrixes list of matrixes that include a color value
+	* @param {Float[[[]]]} matrixes list of matrixes that include a hue value
 	*	for each pixel
 	* @param {Object} screens an object with as key a screen square and as value the
 	* color value on that location of the screen
 	* @param {Object} colorCombs an object with as key a color value and as
 	* value a screen square
-	* @param {Integer} nbOfColors number of colors used
+	@param {Float[[]]} tresholds the hue tresholds
 	*/
-function getScreens(matrixes, screens, colorCombs, nbOfColors) {
-	// join the matrixes in 1 matrix
-	let matrix = joinMatrixes(matrixes, nbOfColors)
+function getScreens(matrixes, screens, colorCombs, iters=0, tresholds=null, foundScreenSquares=[], offsets=[]) {
 	// make a matrix with the same dimensions as the joined matrix to store noise
 	//let noiseMatrix = []
 	//for (row of matrix){
@@ -591,11 +704,13 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	//}
 	// a set of all colors that have been checked
 	// 0 is the value for noise and shouldn't be checked
-
+	if (tresholds === null) {
+		tresholds = defaultTresholds
+	}
+	let nbOfColors = Object.keys(tresholds).length
+	let matrix = joinMatrixes(matrixes, tresholds, nbOfColors, offsets)
   let foundColValues = new Set([0])
   let noise = new Set()
-	// an array of all valide screen squares
-	let foundScreenSquares = []
 	// iterate through the matrix with j the y value and i the x value
 	for (let j = 0; j < matrix.length; j++){
 		for (let i = 0; i < matrix[0].length; i++){
@@ -626,7 +741,8 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 	      if (!cornersOrientated.corners.some((value) => {return value === null})) {
 	        foundScreenSquares.push({
 	          corners: cornersOrientated,
-	          square: colorCombs[matrix[j][i]]
+	          square: colorCombs[matrix[j][i]],
+						border: border
 	        })
 					foundColValues.add(matrix[j][i])
 	      }
@@ -637,7 +753,13 @@ function getScreens(matrixes, screens, colorCombs, nbOfColors) {
 			}
 		}
 	}
-	return foundScreenSquares
+	if (iters <= 0){
+		return foundScreenSquares
+	} else {
+		let offsets = calculateTreshOffsets(foundScreenSquares, screens, matrixes, tresholds)
+		return getScreens(matrixes, screens, colorCombs, iters - 1, tresholds, foundScreenSquares, offsets)
+	}
+
 }
 
 // returns a list with the best possible screens it can recognize from the calculated squares
@@ -831,10 +953,6 @@ function getCorners(rand){
 	}
 	return rand[i%rand.length];
 	}
-    // Distance between a and b
-	function getSqrDist(a, b){
-	return (a.x - b.x)**2 + (a.y - b.y)**2;
-	}
     // Returns the corner with the lowest angle
 	function getCornersWithMinimumAngle(angles){
 		let result = []
@@ -863,16 +981,9 @@ function getCorners(rand){
 	  let avgAngle = 0;
     // Apply the cosinus rule four times using the distance
 	for (let j = distance - nbOfAngles + 1; j <= distance; j++) {
-    // Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
-    let aSqrt = getSqrDist(getRand(i + j), getRand(i - j));
-    let bSqrt = getSqrDist(getRand(i), getRand(i + j));
-    let cSqrt = getSqrDist(getRand(i), getRand(i - j));
-    let b = Math.sqrt(bSqrt);
-    let c = Math.sqrt(cSqrt);
-
     // We don't need to do Math.acos() since if a < b then acos(a) > acos(b)
     // and we'll be comparing them relative to each other
-    avgAngle += (bSqrt + cSqrt - aSqrt)/(2 * b * c);
+    avgAngle += getCosinus(getRand(i), getRand(i + j), getRand(i - j));
 	}
 	// We don't have to devide the average since we'll only be comparing them
 	// to each other
@@ -883,6 +994,22 @@ function getCorners(rand){
 	let corners = []
 
 	return getCornersWithMinimumAngle(angles)
+}
+
+
+// Distance between a and b
+function getSqrDist(a, b){
+return (a.x - b.x)**2 + (a.y - b.y)**2;
+}
+
+function getCosinus(point, from, to) {
+	// Law of Cosinus a**2 = b**2 + c**2 -2*b*c*cos(angle)
+	let aSqrt = getSqrDist(from, to);
+	let bSqrt = getSqrDist(point, to);
+	let cSqrt = getSqrDist(point, from);
+	let b = Math.sqrt(bSqrt);
+	let c = Math.sqrt(cSqrt);
+	return (bSqrt + cSqrt - aSqrt)/(2 * b * c);
 }
 /*
 function getSquares(matrix){

@@ -17,13 +17,13 @@ const pixelColor = function(color) {
 	h = hsl[0]
 	s = hsl[1]
 	l = hsl[2]
-
-    if (l < 10 || l > 90) {
-        return 0
-    }
-    if (s < 20) {
-        return 0
-    }
+  if (l < 10 || l > 90) {
+      return null
+  }
+  if (s < 20) {
+      return null
+  }
+	return h;
 
 	if (h >= 317 || h < 45) //rood
 		return 1

@@ -4,7 +4,7 @@ var fs = fs = require('fs');
 var ss = require('socket.io-stream');
 // const scrnrec = require('../screenProcessing/screenRecognitionDirect.js')
 const scrnread = require('./lib/screenProcessing/screenReading.js')
-const imgprcssrgb = require('./lib/ImageProcessingHSL/imageProcessingHSL.js')
+const imgprcss = require('./lib/screenProcessing/readImage.js')
 const screenorientation = require('./lib/screenOrientation/orientationCalculation.js')
 const delaunay = require('./lib/triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('./lib/triangulate_divide_and_conquer/geometry.js')
@@ -338,13 +338,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
           fs.writeFile(debugPath+`/image-${i}.png`, pictures[i], (err) => {if (err) console.log(err)});
         }
       }
-      let matrixes = await imgprcssrgb.doImgDiff(pictures, false, false)
-      matrixes = matrixes.matrix
+      let matrixes = await imgprcss.getImagesHslMatrix(pictures)
       if (saveDebugFiles) {
           fs.writeFile(debugPath+`/matrixes.json`, JSON.stringify(matrixes), (err) => {if (err) console.log(err)})
       }
       picDimensions = [matrixes[0].length, matrixes[0][0].length]
-      let squares = scrnread.getScreens(matrixes, screens, colorCombs, possibleColors.length)
+      let squares = scrnread.getScreens(matrixes, screens, colorCombs)
       console.log(squares)
       let result = scrnread.getScreenFromSquares(squares, screens)
       socket.emit('drawCircles', result)

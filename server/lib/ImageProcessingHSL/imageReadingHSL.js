@@ -25,15 +25,12 @@ precision = 30 // reference number to determine difference precision
  */
 const imageReading = function(buff, toBuff, channel, scale=true) {
     assert(buff.length == channel * toBuff.length)
-	if (scale){
-    var scaleValue = 255 / 6
-  } else{
-    var scaleValue = 1
-  }
 	for(let i = 0; i < buff.length; i += channel) {
     rgb = new Array(buff[i], buff[i+1], buff[i+2])
-
-		k = clrdis.pixelColor(rgb)
+    k = clrdis.pixelColor(rgb)
+    if (scale) {
+      k *= 255 / 6
+    }
     /*
      switch (k) {
        case 1 :
@@ -59,7 +56,7 @@ const imageReading = function(buff, toBuff, channel, scale=true) {
          break;
      }
     */
-	toBuff[i/channel] = k * scaleValue
+	toBuff[i/channel] = k
     }
 }
 
