@@ -692,7 +692,6 @@ playerButton.addEventListener('click', function(){
 		video.src = 'static/big_buck_bunny.mp4'
 		video.onloadeddata = async function() {
 			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-			console.log("test");
 			await waitForBuffer(5)
 			callback()
 		}
@@ -700,7 +699,7 @@ playerButton.addEventListener('click', function(){
 		video.pause()
 		video.preload = "auto";
 		video.muted = true
-		//video.style.display = "block"
+		video.style.display = "block"
 		//video.style.visibility = "hidden"
 		video.currentTime = 0
 		document.body.appendChild(video)

@@ -287,7 +287,7 @@ new Promise(function(resolve, reject){
 		secondEntirePage.style.display=""
 		screenrecognitionvideo.setAttribute('autoplay', '');
 		screenrecognitionvideo.setAttribute('muted', '');
-		//screenrecognitionvideo.setAttribute('playsinline', '');
+		screenrecognitionvideo.setAttribute('playsinline', '');
 
 
 		navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
