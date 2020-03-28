@@ -837,13 +837,15 @@ playerButton.addEventListener('click', function(){
 			drawSnake(world.objects[snakeId]);
 	}
 
-	socket.on('stopSnake', function(){
+	socket.on('clearAll', function(){
 		cleanHTML()
 		// show the start page again.
 		wrapper.style.display = "block"
 		// show scroll bar again
 		document.body.style.overflow = 'visible';
 		video.style.display = 'none';
+
+		window.cancelAnimationFrame(animation);
 	})
 
 	/***********************
@@ -906,8 +908,10 @@ playerButton.addEventListener('click', function(){
 
 	var world;
 	function createObjects(animation) {
-		if (animation.type === "snake")
- 			world = new Snake(animation.length, picDim[0] / 25, {x: 100, y:100}, {light: "#008000", dark: "#004000"})
+		if (animation.type === "snake"){
+ 			world = new Snake(animation.length, picDim[0] / 25, animation.path[0].pos, {light: "#008000", dark: "#004000"})
+			world.cachePath(animation.path)
+		}
 		else alert('Niet genoeg info')
 	}
 

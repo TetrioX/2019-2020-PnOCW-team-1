@@ -27,6 +27,12 @@ let Snake = class {
       part.cacheNewDirection(newDir, pos)
   }
 
+  cachePath(path){
+    // console.log("snake: ", path)
+    for (let part of this.parts)
+      part.cachePath(path)
+  }
+
   update(dt) {
     let res = false;
     for (let part of this.parts){
@@ -56,7 +62,7 @@ let SnakePart = class {
       this.devSide = 1;
       this.cycleTime = 1000 / originalSize;
       this.headPos = this.Pos;
-      this.vel = 20 / 1000;
+      this.vel = 100 / 1000;
   }
 
   newDir = [];
@@ -74,11 +80,20 @@ let SnakePart = class {
     this.newDir.shift()
     this.startPos.shift()
     if (this.newDir.length < 1) this.newDirCached = false;
+    if (this.newDir.length < 1 && this.path.length > 0) this.cachePath(this.path)
     return true;
   }
 
+  path = [];
+  cachePath(path){
+    this.path = path;
+    for (let i = 0; i < path.length; i++)
+      this.cacheNewDirection(path[i].dir, path[i].pos);
+    // console.log("part: ", this.name, " ", path, " ", this.newDirCached)
+  }
+
   checkStartPosPassed(pos) {
-    // console.log("check", this.name, " ", this.dir, " ", this.pos, " ", this.startPos)
+    // console.log("check", this.name, " ", this.dir, " ", this.pos, " ", this.startPos[0])
     if (this.dir >= 0 && this.dir < Math.PI / 2 && pos.x >= this.startPos[0].x && pos.y >= this.startPos[0].y)
       return true;
     else if (this.dir >= Math.PI / 2 && this.dir <= Math.PI && pos.x <= this.startPos[0].x && pos.y >= this.startPos[0].y)

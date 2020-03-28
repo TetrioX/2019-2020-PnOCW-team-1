@@ -620,10 +620,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
   //   }, 100/3) // 33 fps, gekozen door de normale
   // });
   //
-  // socket.on('stopSnake', function(){
-  //   clearInterval(snakeUpdater);
-  //   slaveIo.emit('stopSnake')
-  // })
+  socket.on('stopSnake', function(){
+    clearAll()
+  })
   //
   //
   // function changeSnakeDirection(snake) {
@@ -650,7 +649,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
   // }
 
   // Run the animation showoff
-  socket.on('startAnimation', async function() {
+  socket.on('startAnimation', async function(data) {
 
     AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
                        '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}],
@@ -662,11 +661,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
       return;
     }
 
+    clearAll()
+
     var maxLat = 0, maxFps = 60;
     var synchroPromises = [];
     var slaveOffsets = {};
 
     console.log('startAnimation')
+    getPath()
 
     // Send all the data to slaves and wait for them to end their preparation.
     Object.keys(slaves).forEach(async function(slave, index) {
@@ -675,8 +677,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
           {
             animation: {
               type: "snake",
-              path: [],
-              length: 40
+              path: path,
+              length: data.size
             },
             corners: AllScreenPositions[slaves[slave]],
             picDim: picDimensions,
@@ -701,10 +703,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
     console.log("Prep done: ", slaves)
     startTime = Date.now() + maxLat * 2
 
-    getPath()
-
-    return;
-
     // d1 = Date.now()
     Object.keys(slaves).forEach(function(slave, index) {
       slaveSockets[slave].emit('startAnimation', {
@@ -727,7 +725,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     });
   }
 
-  var slavesPassed, centers, connections;
+  var slavesPassed, centers, connections, firstSlave;
   function getPath(){
     centers = screenorientation.getScreenCenters(AllScreenPositions)
     connections = delaunay.getConnections(centers)
@@ -739,14 +737,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
     });
 
     // Start with lowest slave.
-    slavesPassed = Object.keys(AllScreenPositions)
-    const firstSlave = Object.keys(AllScreenPositions)[0];
+    slavesPassed = new Set(Object.keys(AllScreenPositions))
+    firstSlave = Object.keys(AllScreenPositions)[0];
     console.log("first slave data ", slavesPassed, " ", centers[firstSlave])
     path = []
 
     getConnection(firstSlave)
-    console.log(path)
 
+    return path;
   }
 
   function connectSlave(pos) {
@@ -757,20 +755,21 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   var path;
   function getConnection(node) {
-    if (path.length > 10) return
+    if (slavesPassed.size < 1 && node === firstSlave) return
     var randInt = Math.floor(Math.random() * connections[node].length)
     var nextNode = connections[node][randInt];
     var direction = angleBetweenPoints(centers[node], centers[nextNode])
-    console.log("data: ", randInt, " ", nextNode, " ", direction)
     path.push({
       pos: centers[node],
       dir: direction
     })
+    slavesPassed.delete(node)
+    // console.log("data: ", randInt, " ", nextNode, " ", direction, " ", slavesPassed)
     getConnection(nextNode)
   }
 
   function angleBetweenPoints(point1, point2) {
-      return Math.atan2(point2.x - point1.x, point2.y - point1.y);
+      return Math.atan2(point2.y - point1.y, point2.x - point1.x);
   };
 
 
