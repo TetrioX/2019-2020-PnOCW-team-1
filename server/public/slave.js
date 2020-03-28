@@ -700,7 +700,7 @@ playerButton.addEventListener('click', function(){
 		video.pause()
 		video.preload = "auto";
 		video.muted = true
-		video.style.display = "block"
+		//video.style.display = "block"
 		//video.style.visibility = "hidden"
 		video.currentTime = 0
 		document.body.appendChild(video)
