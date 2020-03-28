@@ -30,6 +30,7 @@ function cleanHTML(){
 	countdownTimer.style.display = "none"
 	entirePage.style.display = "none"
 	canvas.style.display = "none"
+	video.style.display = "none"
 	clearInterval(vidBufferCheck);
 	clearInterval(vidDrawer);
 	video.src = ""
