@@ -74,22 +74,21 @@ const createMatrix = function(buffer, dimensions) {
 	return matrix
 }
 
-function joinMatrixes(matrixes, tresholds, nbOfColors, offsets=[]){
+function joinMatrixes(matrixes, tresholds, nbOfColors, screenTresh=[]){
 	let result = []
 	for (let j = 0; j < matrixes[0].length; j++){
 		result.push([])
 		for (let i = 0; i < matrixes[0][0].length; i++){
 			result[j].push(0)
-			let offset = 0
-			for(elem of offsets) {
+			let currTresh = tresholds
+			for(elem of screenTresh) {
 				if (inQuadrilateral({x:i, y:j}, elem.corners)) {
-					offset = elem.offset
+					currTresh = elem.tresh
 					break;
 				}
 			}
 			for (let m = 0; m < matrixes.length; m++){
-				matrixes[m][j][i][0] = (matrixes[m][j][i][0] - offset + 360)%360 //updated hsl value
-				result[j][i] += getColorValueFromHsl(matrixes[m][j][i], tresholds) * (nbOfColors + 1) ** m
+				result[j][i] += getColorValueFromHsl(matrixes[m][j][i], currTresh) * (nbOfColors + 1) ** m
 			}
 		}
 	}
@@ -155,7 +154,14 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
 	let offsets = {}
 	for (let square of squares) {
 		if (!(square.square.screen in offsets)){
-			offsets[square.square.screen] = []
+			offsets[square.square.screen] = {
+				1: [0],
+				2: [0],
+				3: [0],
+				4: [0],
+				5: [0],
+				6: [0]
+			}
 		}
 		for (let m = 0; m < matrixes.length; m++){
 			let firstElem = square.corners.corners[0]
@@ -167,13 +173,37 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
 				avr += (matrixes[m][pos.y][pos.x][0] - refDegree + 180)%360
 			}
 			avr = avr/square.corners.corners.length - 180
-			offsets[square.square.screen].push(avr)
+			offsets[square.square.screen][color].push(avr)
 		}
 	}
-	result = []
+	let result = []
 	for (let screen of Object.keys(offsets)) {
+		let averages = {
+			1: 0,
+			2: 0,
+			3: 0,
+			4: 0,
+			5: 0,
+			6: 0
+		}
+		for (let color of Object.keys(offsets[screen])) { // calc average for each color of the screen
+			for (val of offsets[screen][color]) {
+				averages[color] += val
+			}
+			 averages[color] = averages[color]/offsets[screen][color].length
+		}
+		// updating treshods
+		newTresholds = JSON.parse(JSON.stringify(tresholds)) // copy
+		let colors = [1, 4, 2, 6, 3, 5] // color order
+    for (let i in colors){
+        next = (parseInt(i) + 1)%colors.length
+        diff = (averages[colors[i]] - averages[colors[next]])*0.5
+        newBound = (newTresholds[colors[i]][1] - diff + 360)%360
+        newTresholds[colors[i]][1] = newBound
+        newTresholds[colors[next]][0] = newBound
+			}
 		result.push({
-			offset: offsets[screen].reduce((a, b) => a + b, 0) / offsets[screen].length,
+			tresh: newTresholds,
 			corners: screenCorners[screen]
 		})
 	}
@@ -696,7 +726,7 @@ function allElementsOfNoise(firstElement, matrix, noise) {
 	* value a screen square
 	@param {Float[[]]} tresholds the hue tresholds
 	*/
-function getScreens(matrixes, screens, colorCombs, iters=0, tresholds=null, foundScreenSquares=[], offsets=[]) {
+function getScreens(matrixes, screens, colorCombs, iters=0, tresholds=null, foundScreenSquares=null, screenTresh=[]) {
 	// make a matrix with the same dimensions as the joined matrix to store noise
 	//let noiseMatrix = []
 	//for (row of matrix){
@@ -707,8 +737,11 @@ function getScreens(matrixes, screens, colorCombs, iters=0, tresholds=null, foun
 	if (tresholds === null) {
 		tresholds = defaultTresholds
 	}
+	if (foundScreenSquares === null) {
+		foundScreenSquares = []
+	}
 	let nbOfColors = Object.keys(tresholds).length
-	let matrix = joinMatrixes(matrixes, tresholds, nbOfColors, offsets)
+	let matrix = joinMatrixes(matrixes, tresholds, nbOfColors, screenTresh)
   let foundColValues = new Set([0])
   let noise = new Set()
 	// iterate through the matrix with j the y value and i the x value
@@ -756,8 +789,8 @@ function getScreens(matrixes, screens, colorCombs, iters=0, tresholds=null, foun
 	if (iters <= 0){
 		return foundScreenSquares
 	} else {
-		let offsets = calculateTreshOffsets(foundScreenSquares, screens, matrixes, tresholds)
-		return getScreens(matrixes, screens, colorCombs, iters - 1, tresholds, foundScreenSquares, offsets)
+		let screenTresh = calculateTreshOffsets(foundScreenSquares, screens, matrixes, tresholds)
+		return getScreens(matrixes, screens, colorCombs, iters - 1, tresholds, foundScreenSquares, screenTresh)
 	}
 
 }
