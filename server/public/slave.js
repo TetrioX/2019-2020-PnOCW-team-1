@@ -693,8 +693,10 @@ playerButton.addEventListener('click', function(){
 			video.height = data.picDim[0];
 			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 
-			await waitForBuffer(5)
-			callback()
+			//await waitForBuffer(5)
+			setTimeout(() => {
+				callback()
+			}, 5000);
 		}
 
 		video.pause();
