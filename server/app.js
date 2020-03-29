@@ -519,7 +519,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		Object.keys(slaves).forEach(function(slave, index) {
       if (slaves[slave] in AllScreenPositions){
         videoPromises.push(new Promise(function(resolve, reject){
-          slaveSockets[slave].emit('lowaadVideo', {
+          slaveSockets[slave].emit('loadVideo', {
     				corners: AllScreenPositions[slaves[slave]],
     				picDim: picDimensions
     			}, function(callbackData){
