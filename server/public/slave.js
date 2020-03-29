@@ -697,7 +697,7 @@ playerButton.addEventListener('click', function(){
 			callback()
 		}
 
-		//video.pause();
+		video.pause();
 		video.preload = "auto";
 		video.muted = true;
 		video.currentTime = 0;
