@@ -27,7 +27,7 @@ const defaultTresholds = {
 }
 
 const sRange = [20, 101]
-const lRange = [10, 90]
+const lRange = [20, 80]
 
 
 const screenReading = function(buffer, dimensions) {
@@ -170,9 +170,9 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
 			let refDegree = getAvrAngle(tresh[0], tresh[1])
 			let avr = 0
 			for (pos of square.corners.corners) {
-				avr += (matrixes[m][pos.y][pos.x][0] - refDegree + 180)%360
+				avr += ((matrixes[m][pos.y][pos.x][0] - refDegree + 180)%360 - 180)**2
 			}
-			avr = avr/square.corners.corners.length - 180
+			avr = Math.sqrt(avr)/square.corners.corners.length
 			offsets[square.square.screen][color].push(avr)
 		}
 	}
@@ -197,8 +197,8 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
 		let colors = [1, 4, 2, 6, 3, 5] // color order
     for (let i in colors){
         next = (parseInt(i) + 1)%colors.length
-        diff = (averages[colors[i]] - averages[colors[next]])*0.5
-        newBound = (newTresholds[colors[i]][1] - diff + 360)%360
+        diff = (averages[colors[i]] - averages[colors[next]])
+        newBound = (newTresholds[colors[i]][1] + diff + 360)%360
         newTresholds[colors[i]][1] = newBound
         newTresholds[colors[next]][0] = newBound
 			}
@@ -216,7 +216,7 @@ function inQuadrilateral(pos, corners) {
 		ang += Math.acos(getCosinus(pos, corners[i], corners[(i + 1)%4]))
 	}
 	// if sum of angles is 360 degree then point is in circle
-	return (ang >= 2 * Math.PI - 0.1) // 0.1 is for float error
+	return (ang >= 2 * Math.PI - 0.02) // 0.02 is for float error
 }
 
 function getColorValueFromHsl(hsl, tresholds) {
@@ -726,7 +726,7 @@ function allElementsOfNoise(firstElement, matrix, noise) {
 	* value a screen square
 	@param {Float[[]]} tresholds the hue tresholds
 	*/
-function getScreens(matrixes, screens, colorCombs, iters=0, tresholds=null, foundScreenSquares=null, screenTresh=[]) {
+function getScreens(matrixes, screens, colorCombs, iters=1, tresholds=null, foundScreenSquares=null, screenTresh=[]) {
 	// make a matrix with the same dimensions as the joined matrix to store noise
 	//let noiseMatrix = []
 	//for (row of matrix){
