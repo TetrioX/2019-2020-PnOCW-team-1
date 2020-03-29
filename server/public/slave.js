@@ -746,8 +746,8 @@ playerButton.addEventListener('click', function(){
 		return new Promise(async function(resolve, reject){
 			while (true){
 				if (video.buffered.length >= 1){
-					if (video.buffered.end(0) - video.currentTime >= sBuffered ||
-							video.buffered.end(0) - video.duration <= 0.1){
+					if (video.buffered.end(0) - video.currentTime >= sBuffered /**||
+							video.buffered.end(0) - video.duration <= 0.1*/){
 						resolve()
 						break
 					}
