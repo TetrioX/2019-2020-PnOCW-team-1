@@ -724,13 +724,13 @@ playerButton.addEventListener('click', function(){
 		*/}, maxLat - latency)
 	})
 
-	socket.on('updateVideo', function(data){
+	/**socket.on('updateVideo', function(data){
 		let cTime = (data + latency)/1000
 		let lTime = video.currentTime
 		let offset = lTime - cTime
 		let newVidPBR = video.playbackRate + (1.0 - offset/5 - video.playbackRate)/3
 		video.playbackRate = newVidPBR
-	})
+	})*/
 
 	socket.on('pauseAt', function(time){
 		console.log('pausing at '+time)
@@ -738,10 +738,10 @@ playerButton.addEventListener('click', function(){
 		video.currentTime = time
 	})
 
-	socket.on('waitForBuffer', async function(data, callback){
+	/*socket.on('waitForBuffer', async function(data, callback){
 		await waitForBuffer(5)
 		resolve()
-	})
+	})*//
 
 	// returns a promise that waits for a certain amount of seconds to be buffered (sBuffered)
 	function waitForBuffer(sBuffered){

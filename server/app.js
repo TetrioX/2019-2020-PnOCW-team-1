@@ -231,11 +231,11 @@ async function resumeVideo(startTime){
     maxLat: maxLat
   })
   await sleep(maxLat)
-  resumeTime = new Date()
+  /**resumeTime = new Date()
   videoUpdater = setInterval(function(){
     let offset = startTime - resumeTime + Date.parse(new Date())
     slaveIo.emit('updateVideo', offset)
-  }, 200)
+  }, 200)*/
 }
 
 var masterIo = io.of('/master').on('connect', function(socket){
@@ -519,7 +519,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 		Object.keys(slaves).forEach(function(slave, index) {
       if (slaves[slave] in AllScreenPositions){
         videoPromises.push(new Promise(function(resolve, reject){
-          slaveSockets[slave].emit('loadVideo', {
+          slaveSockets[slave].emit('lowaadVideo', {
     				corners: AllScreenPositions[slaves[slave]],
     				picDim: picDimensions
     			}, function(callbackData){
@@ -759,7 +759,7 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
   socket.on('update-latency', function(lat){
     latSlaves[socket] = lat
   })
-  socket.on('waitForBuffer', function(time){
+  socket.on('uBuffer', function(time){
     console.log('wait for buffer')
     slaveIo.emit('pauseAt', time)
     socket.emit('waitForBuffer', null, resumeVideo(time*1000))
