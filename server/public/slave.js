@@ -7,32 +7,33 @@ var playerButton = document.getElementById("playerButton");
 var socketID = null;
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext('2d');
+var video = document.getElementById("video");
 var gridData = {
 	grid: [],
 	sideBorder: [],
 	cornBorder: []
-}
+};
 var entirePage = document.createElement('th');
-var countdown = document.getElementById('countdown')
-var countdownTimer = document.getElementById('timer')
-var wrapper = document.getElementById("wrapper")
+var countdown = document.getElementById('countdown');
+var countdownTimer = document.getElementById('timer');
+var wrapper = document.getElementById("wrapper");
 var length = 1000;
-var gridElements = []
-var video = document.createElement("video")
-let vidBufferCheck = null
-let vidDrawer = null
+var gridElements = [];
+let vidBufferCheck = null;
+let vidDrawer = null;
 
 function cleanHTML(){
-	removeGrid()
+	removeGrid();
 	document.body.style.overflow = 'hidden';
-	wrapper.style.display = "none"
-	countdown.style.display = "none"
-	countdownTimer.style.display = "none"
-	entirePage.style.display = "none"
-	canvas.style.display = "none"
+	wrapper.style.display = "none";
+	countdown.style.display = "none";
+	countdownTimer.style.display = "none";
+	entirePage.style.display = "none";
+	canvas.style.display = "none";
+	video.style.display = "none";
 	clearInterval(vidBufferCheck);
 	clearInterval(vidDrawer);
-	video.src = ""
+	video.src = "";
 	context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -631,9 +632,9 @@ playerButton.addEventListener('click', function(){
 		return temp
 	}
 
-	const transformSlave = function(myCanvas, corners, refPictureLength){
-		corners = scalePoints(corners, refPictureLength, {x: myCanvas.width, y: myCanvas.height})
-		transform2d(myCanvas, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
+	const transformSlave = function(elt, corners, refPictureLength){
+		corners = scalePoints(corners, refPictureLength, {x: elt.width, y: elt.height})
+		transform2d(elt, corners[3].x, corners[3].y, corners[0].x, corners[0].y,
 			corners[2].x, corners[2].y, corners[1].x, corners[1].y);
 	};
 
@@ -674,23 +675,20 @@ playerButton.addEventListener('click', function(){
 
 	socket.on('loadVideo', async function(data, callback){
 		cleanHTML();
-		video = document.createElement("video");
-		canvas.style.display = "hidden";
-		document.body.style.backgroundColor = "black";
 		video.src = 'static/big_buck_bunny.mp4';
 		video.onloadeddata = async function() {
-			// was pasteVideo;
+			video.width = data.picDim[1];
+			video.height = data.picDim[0];
 			transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
 			await waitForBuffer(5);
 			callback()
 		};
 
-		video.pause();
+		//video.pause();
 		video.preload = "auto";
 		video.muted = true;
-		video.style.display = "block";
 		video.currentTime = 0;
-		document.body.appendChild(video);
+		video.style.display = "block";
 	});
 
 	socket.on('vidEnded', function(data, callback){
