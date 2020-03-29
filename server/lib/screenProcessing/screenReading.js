@@ -176,7 +176,8 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
 			offsets[square.square.screen][color].push(avr)
 		}
 	}
-	let result = []
+	let screenTresh = []
+	let totalAverages = []
 	for (let screen of Object.keys(offsets)) {
 		let averages = {
 			1: 0,
@@ -186,13 +187,14 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
 			5: 0,
 			6: 0
 		}
+		totalAverages.push(averages)
 		for (let color of Object.keys(offsets[screen])) { // calc average for each color of the screen
 			for (val of offsets[screen][color]) {
 				averages[color] += val
 			}
 			 averages[color] = averages[color]/offsets[screen][color].length
 		}
-		// updating treshods
+		// updating  square treshods
 		newTresholds = JSON.parse(JSON.stringify(tresholds)) // copy
 		let colors = [1, 4, 2, 6, 3, 5] // color order
     for (let i in colors){
@@ -202,12 +204,37 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
         newTresholds[colors[i]][1] = newBound
         newTresholds[colors[next]][0] = newBound
 			}
-		result.push({
+		screenTresh.push({
 			tresh: newTresholds,
 			corners: screenCorners[screen]
 		})
 	}
-	return result
+	// calculating total averages
+	let averages = {
+		1: [0,0],
+		2: [0,0],
+		3: [0,0],
+		4: [0,0],
+		5: [0,0],
+		6: [0,0]
+	}
+	for (avers of totalAverages) {
+		for (color in avers){
+			averages[color][0] += avers[color]
+			averages[color][1] += 1
+		}
+	}
+	let colors = [1, 4, 2, 6, 3, 5] // color order
+	for (let i in colors){
+			next = (parseInt(i) + 1)%colors.length
+			avercur = averages[colors[i]][0]/averages[colors[i]][1]
+			averNext = averages[colors[next]][0]/averages[colors[next]][1]
+			diff = (avercur - averNext)
+			newBound = (tresholds[colors[i]][1] + diff + 360)%360
+			tresholds[colors[i]][1] = newBound
+			tresholds[colors[next]][0] = newBound
+		}
+	return screenTresh
 }
 
 function inQuadrilateral(pos, corners) {
@@ -735,7 +762,7 @@ function getScreens(matrixes, screens, colorCombs, iters=1, tresholds=null, foun
 	// a set of all colors that have been checked
 	// 0 is the value for noise and shouldn't be checked
 	if (tresholds === null) {
-		tresholds = defaultTresholds
+		tresholds = JSON.parse(JSON.stringify(defaultTresholds)) // copy
 	}
 	if (foundScreenSquares === null) {
 		foundScreenSquares = []
