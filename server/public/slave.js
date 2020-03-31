@@ -771,144 +771,220 @@ playerButton.addEventListener('click', function () {
     }
 
 
-    /*****************************
-     * Triangulation functions *
-     *****************************/
+	/*****************************
+	 * Triangulation functions *
+	 *****************************/
 
-    // Draw the given triangulation in the canvas
-    function drawTriangulation(centers, connections, refPictureLength) {
-        //Constants
-        const outerRadius = 20,
-            innerRadius = 7.5;
-        var rot = Math.PI / 2 * 3,
-            step = Math.PI / 5,
-            x,
-            y;
+	// Draw the given triangulation in the canvas
+	function drawTriangulation(centers, connections, refPictureLength) {
+		//Constants
+		const outerRadius = 20,
+			innerRadius = 7.5;
+		var rot = Math.PI / 2 * 3,
+			step = Math.PI / 5,
+			x,
+			y;
 
-        context.fillStyle = 'black';
-        context.lineWidth = 10;
+		context.fillStyle = 'black';
+		context.lineWidth = 10;
 
-        // Draw all centers
-        for (let centerId in centers) {
-            // Define center
-            center = centers[centerId]
-            center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
-            var cx = center.x;
-            var cy = center.y;
+		// Draw all centers
+		for (let centerId in centers) {
+			// Define center
+			center = centers[centerId]
+			center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
+			var cx = center.x;
+			var cy = center.y;
 
-            // Draw the star in the current center.
-            context.beginPath();
-            context.moveTo(cx, cy - outerRadius);
-            for (let i = 0; i < 5; i++) {
-                x = cx + Math.cos(rot) * outerRadius;
-                y = cy + Math.sin(rot) * outerRadius;
-                context.lineTo(x, y);
-                rot += step;
+			// Draw the star in the current center.
+			context.beginPath();
+			context.moveTo(cx, cy - outerRadius);
+			for (let i = 0; i < 5; i++) {
+				x = cx + Math.cos(rot) * outerRadius;
+				y = cy + Math.sin(rot) * outerRadius;
+				context.lineTo(x, y);
+				rot += step;
 
-                x = cx + Math.cos(rot) * innerRadius;
-                y = cy + Math.sin(rot) * innerRadius;
-                context.lineTo(x, y);
-                rot += step
-            }
-            context.lineTo(cx, cy - outerRadius);
-            context.closePath();
-            context.fill();
+				x = cx + Math.cos(rot) * innerRadius;
+				y = cy + Math.sin(rot) * innerRadius;
+				context.lineTo(x, y);
+				rot += step
+			}
+			context.lineTo(cx, cy - outerRadius);
+			context.closePath();
+			context.fill();
 
-            // Draw the lines between all connected centers.
-            for (let cnctPoint of connections[centerId]) {
-                context.moveTo(cx, cy);	// start point
-                context.lineTo(cnctPoint[0], cnctPoint[1]); // end point
-                context.stroke(); // Make the line visible
-            }
-        }
-    }
+			// Draw the lines between all connected centers.
+			for(let cnctPoint of connections[centerId]){
+				context.moveTo(cx, cy);	// start point
+				context.lineTo(cnctPoint[0], cnctPoint[1]); // end point
+				context.stroke(); // Make the line visible
+			}
+		}
+	}
 
-    socket.on('triangulate', function (data) {
-        cleanHTML()
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.style.display = "block"
-        canvas.width = data.picDim[1]
-        canvas.height = data.picDim[0]
-        transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
-        drawTriangulation(data.centers, data.connections, {x: data.picDim[1], y: data.picDim[0]})
-    });
+	socket.on('triangulate', function(data){
+		cleanHTML()
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		canvas.style.display = "block"
+		canvas.width = data.picDim[1]
+		canvas.height = data.picDim[0]
+		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
+		drawTriangulation(data.centers, data.connections, {x: data.picDim[1], y: data.picDim[0]})
+	});
 
 
-    /*********************
-     * Snake functions *
-     *********************/
+	/*********************
+	 * Snake functions *
+	 *********************/
 
-    const drawSnake = function (snake) {
-        // Determine snake color.
-        colors = snake.colors
-        // Draw each segment of the snake.
-        for (let part of snake.parts)
-            drawSnakePart(part, snake.colors)
-    }
+	// socket.on('createSnake', function(data){
+	// 	cleanHTML()
+	// 	canvas.style.display = "block";
+	// 	context.clearRect(0, 0, canvas.width, canvas.height);
+	// 	canvas.width = data.picDim[1];
+	// 	canvas.height = data.picDim[0];
+	// 	transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+	// })
 
-    const drawSnakePart = function (snakePart, colors) {
-        // Color the segments of the snake.
-        if (snakePart.name % 2 == 1 || snakePart.name == 0) context.fillStyle = colors.light;
-        else context.fillStyle = colors.dark;
+	// socket.on('updateSnake', function(data){
+	// 	setTimeout(updateS, data.maxLat - latency, data.snake)
+	// })
 
-        // Draw the given snake segment.
-        context.beginPath();
-        context.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir),
-            snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
-            snakePart.size / 2, 0, 2 * Math.PI);
-        context.fill();
+	// function updateS(snake) {
+	//   context.clearRect(0, 0, canvas.width, canvas.height);
+	//   drawSnake(snake);
+	// }
 
-        // The snake's head isn't whole without eyes. Draw them on the first segment.
-        if (snakePart.name == 0) {
-            context.fillStyle = "#000000";
-            context.beginPath();
-            context.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-                snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-                snakePart.size / 6, 0, 2 * Math.PI);
-            context.fill();
-            context.beginPath();
-            context.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-                snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-                snakePart.size / 6, 0, 2 * Math.PI);
-            context.fill();
-        }
-    }
+	socket.on('updateWorld', function(data){
+		setTimeout(updateW, data.maxLat - latency, data.world)
+	})
 
-    socket.on('createSnake', function (data) {
-        cleanHTML()
-        canvas.style.display = "block";
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = data.picDim[1];
-        canvas.height = data.picDim[0];
-        transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-    })
+	function updateW(world) {
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		for (let snakeId in world.objects)
+			drawSnake(world.objects[snakeId]);
+	}
 
-    socket.on('updateSnake', function (data) {
-        setTimeout(updateS, data.maxLat - latency, data.snake)
-    })
+	socket.on('clearAll', function(){
+		cleanHTML()
+		// show the start page again.
+		wrapper.style.display = "block"
+		// show scroll bar again
+		document.body.style.overflow = 'visible';
+		video.style.display = 'none';
 
-    function updateS(snake) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        drawSnake(snake);
-    }
+		window.cancelAnimationFrame(animation);
+	})
 
-    socket.on('updateWorld', function (data) {
-        setTimeout(updateW, data.maxLat - latency, data.world)
-    })
+	/***********************
+		* Animation showoff *
+	 ***********************/
 
-    function updateW(world) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        for (let snakeId in world.objects)
-            drawSnake(world.objects[snakeId]);
-    }
+	// Socket reactie om animatie klaar te maken
+	var maxFps, picDim, corners
+	socket.on('prepareAnimation', function (data, callback) {
+	    var clock = Date.now()
+			corners = data.corners;
+			picDim = data.picDim;
+			setupCanvas()
+			prepareAnimation(data.animation);
+	    stop = false
+	    frameCount = 0
+	    callback({
+	        lat: latency,
+	        offset: clock - data.timeSent - latency,
+	        maxFps: maxFps
+	    })
+	});
 
-    socket.on('stopSnake', function () {
-        cleanHTML()
-        // show the start page again.
-        wrapper.style.display = "block"
-        // show scroll bar again
-        document.body.style.overflow = 'visible';
-        video.style.display = 'none';
-    })
+	function setupCanvas() {
+		cleanHTML()
+		canvas.style.display = "block";
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		canvas.width = picDim[1];
+		canvas.height = picDim[0];
+		transformSlave(canvas, corners, {x: picDim[1], y: picDim[0]});
+	}
+
+	// Socket reactie om animatie te starten
+	var fps, fpsInterval, startTime, now, then, elapsed;
+	socket.on('startAnimation', function(data) {
+		console.log('Start')
+	  fpsInterval = 1000 / data.fps;
+	  then = data.startTime + data.offset
+	  startTime = then;
+	  frameCount = 0
+	  console.log("Start", then, " ", Date.now())
+	  animation = requestAnimationFrame(animate)
+	});
+
+	// Socket reaction on control of server side.
+	var framesToCorrect = 0
+	socket.on('atFrame', function (data) {
+	    framesToCorrect = Math.round((data.dt + latency) / fpsInterval) - frameCount
+	})
+
+	// initialize the timer variables and start the animation
+	function prepareAnimation(animation) {
+	    createObjects(animation);
+	    w1 = new Date()
+	    draw(0)
+	    w2 = new Date()
+	    workload = w2 - w1
+	    maxFps = 1000 / workload
+	}
+
+	var world;
+	function createObjects(animation) {
+		if (animation.type === "snake"){
+ 			world = new Snake(animation.length, picDim[0] / 25, animation.path[0].pos, {light: "#008000", dark: "#004000"})
+			world.cachePath(animation.path)
+		}
+		else alert('Niet genoeg info')
+	}
+
+	// the animation loop calculates time elapsed since the last loop
+	// and only draws if your specified fps interval is achieved
+	var frameCount = 0;
+	var animation
+	function animate() {
+
+	    // request another frame
+	    if (!stop) animation = requestAnimationFrame(animate);
+
+	    // calc elapsed time since last loop
+	    now = Date.now();
+	    elapsed = now - then;
+
+	    // if enough time has elapsed, draw the next frame
+	    if (elapsed > fpsInterval) {
+	        // Get ready for next frame by setting then=now, but also adjust for your
+	        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+	        then = now - (elapsed % fpsInterval);
+
+	        draw(fpsInterval);
+
+	    }
+	}
+
+	var scaling = 1
+	function draw(dt, ctx = context) {
+	    context.clearRect(0, 0, canvas.width, canvas.height);
+
+	    if (framesToCorrect) {
+	        var correctionFactor = framesToCorrect // > 0 ? 1 * scaling : -1 * scaling;
+	        frameCount += correctionFactor
+	        framesToCorrect -= correctionFactor
+	    } else var correction = 0
+
+	    // console.log("correction: ", framesToCorrect)
+
+			world.draw(context)
+      world.update(dt);
+			for (let i = 0; i < correctionFactor; i++) world.update(dt);
+
+	    frameCount++
+	}
 
 })()

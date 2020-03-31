@@ -5,8 +5,13 @@ socket.removeAllListeners()
 // Knop voor animatie te starten
 var button = document.getElementById("startAnimation");
 button.addEventListener('click', () => {
-    socket.emit('startAnimation');
+    // socket.emit('startAnimation');
+    load();
 });
+async function load() {
+let say = await import('./higherFps.js');
+say.hoi(); // Hello!
+}
 
 // Knop voor animatie te stoppen
 var buttonq = document.getElementById("stopAnimation");

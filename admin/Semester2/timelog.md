@@ -15,3 +15,13 @@
 > - Dennis
 > - Geert
 > - Simon T
+
+> **Task ST1.2**
+> - Xander 30h
+> - Simon C 25h
+> - Maxel 25h
+
+> **Task ST2.2**
+> - Dennis
+> - Geert
+> - Simon T
