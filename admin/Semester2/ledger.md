@@ -48,3 +48,11 @@ Er werd ook een algoritme geschreven om iteratief drempelwaarden te berekenen.
 - Planning voor komende weken werd opgesteld (zie schedule).
 
 ## Team meeting 7 - 24/03/2020 (online)
+- Video synchronisatie werd aangepast (is nu dezelfde als in vorige task).
+- Iteratief schermen herkennen geïmplementeerd (wanneer er een scherm herkent word
+ en deze heeft een bepaalde schijn, worden de drempelwaarden voor de volgende schermen
+  die het algoritme probeert te herkennen verschoven zodat deze schermen
+   beter herkent kunnen worden.).
+- Filters toegepast en het effect hiervan bestudeerd.
+
+## Team meeting 8 - 31/03/2020 (online)
