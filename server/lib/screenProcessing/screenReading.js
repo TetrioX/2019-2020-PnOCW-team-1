@@ -10,20 +10,20 @@ const vctcalc = require('./vectorCalculation.js')
 /*
 const defaultTresholds = {
 	1: [351.3, 52.5],
-	4: [52.5, 88.0],
-	2: [88.0, 150.7],
-	6: [150.7, 204.0],
-	3: [204.0, 271.9],
-	5: [271.9, 351.3]
+	2: [52.5, 88.0],
+	3: [88.0, 150.7],
+	4: [150.7, 204.0],
+	5: [204.0, 271.9],
+	6: [271.9, 351.3]
 }
 */
 const defaultTresholds = {
 	1: [317, 45],
-	4: [45, 100],
-	2: [100, 160],
-	6: [160, 200],
-	3: [200, 240],
-	5: [240, 317]
+	2: [45, 100],
+	3: [100, 160],
+	4: [160, 200],
+	5: [200, 240],
+	6: [240, 317]
 }
 
 const sRange = [20, 101]
@@ -97,11 +97,11 @@ function joinMatrixes(matrixes, tresholds, nbOfColors, screenTresh=[]){
 
 function colorToValue(colorString) {
   if (colorString == "red") { return 1 }
-  else if (colorString == "#00FF00") { return 2 }
-  else if (colorString == "blue") { return 3 }
-  else if (colorString == "#FFFF00") { return 4 }
-  else if (colorString == "#FF00FF") { return 5 }
-  else if (colorString == "#00FFFF") { return 6 }
+	else if (colorString == "#FFFF00") { return 2 }
+  else if (colorString == "#00FF00") { return 3 }
+	else if (colorString == "#00FFFF") { return 4 }
+  else if (colorString == "blue") { return 5 }
+  else if (colorString == "#FF00FF") { return 6 }
   else if (colorString == "black") { return 0 }
   else { throw new Error("The string is not a valid color") }
 }
@@ -196,7 +196,7 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
 		}
 		// updating  square treshods
 		newTresholds = JSON.parse(JSON.stringify(tresholds)) // copy
-		let colors = [1, 4, 2, 6, 3, 5] // color order
+		let colors = [1, 2, 3, 4, 5, 6] // color order
     for (let i in colors){
         next = (parseInt(i) + 1)%colors.length
         diff = (averages[colors[i]] - averages[colors[next]])
@@ -224,7 +224,7 @@ function calculateTreshOffsets(squares, screens, matrixes, tresholds){
 			averages[color][1] += 1
 		}
 	}
-	let colors = [1, 4, 2, 6, 3, 5] // color order
+	let colors = [1, 2, 3, 4, 5, 6] // color order
 	for (let i in colors){
 			next = (parseInt(i) + 1)%colors.length
 			avercur = averages[colors[i]][0]/averages[colors[i]][1]
