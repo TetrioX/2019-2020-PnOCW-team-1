@@ -284,9 +284,11 @@ new Promise(function(resolve, reject){
 	screenrecognitionbutton.addEventListener('click',function(){
 		socket.emit('clearAll');
 		entirePage.style.display="none";
-		secondEntirePage.style.display=""
+		secondEntirePage.style.display="";
+		screenrecognitionvideo = document.getElementById("screenrecognitionvideo");
 		screenrecognitionvideo.setAttribute('autoplay', '');
 		screenrecognitionvideo.setAttribute('muted', '');
+		screenrecognitionvideo.setAttribute('playsinline', '');
 
 
 		navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
