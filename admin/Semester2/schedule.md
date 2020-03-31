@@ -27,3 +27,10 @@
     - Synchronisatie optimaliseren (kijkend naar wetenschappelijke testen)
     - Kleurenherkenning optimaliseren
     - Code eventueel wat opkuisen
+    
+## Week 7 - 24/03/2020
+- Verdeling voor volgende task opgesteld:
+    - Xander en Simon C bekijken het gebruik van een gyroscoop in een smartphone.
+    - De rest bekijkt keypoint-tracking.
+
+## Week 8 - 31/03/2020

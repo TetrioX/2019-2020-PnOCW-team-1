@@ -284,9 +284,11 @@ new Promise(function(resolve, reject){
 	screenrecognitionbutton.addEventListener('click',function(){
 		socket.emit('clearAll');
 		entirePage.style.display="none";
-		secondEntirePage.style.display=""
+		secondEntirePage.style.display="";
+		screenrecognitionvideo = document.getElementById("screenrecognitionvideo");
 		screenrecognitionvideo.setAttribute('autoplay', '');
 		screenrecognitionvideo.setAttribute('muted', '');
+		screenrecognitionvideo.setAttribute('playsinline', '');
 
 
 		navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
@@ -442,7 +444,10 @@ new Promise(function(resolve, reject){
 	triangulationSnake.addEventListener('click', function(){
 		socket.emit('clearAll');
 		if (snakeLength)
-			socket.emit("startSnake", { size: snakeLength })
+			socket.emit("startAnimation", {
+				animation: triangulationSnake,
+				size: snakeLength
+			})
 		else alert('You gotta choose a length.')
 	})
 
@@ -458,10 +463,11 @@ new Promise(function(resolve, reject){
 
 	// players = [0, 1, 2]
 	gameSnake.addEventListener('click', function(){
-		socket.emit('clearAll');
-		if (snakeLength)
-			socket.emit("startGame", { size: snakeLength })
-		else alert('You gotta choose a length.')
+		alert('Not available')
+		// socket.emit('clearAll');
+		// if (snakeLength)
+		// 	socket.emit("startGame", { size: snakeLength })
+		// else alert('You gotta choose a length.')
 	})
 
 	triangulationSnakeStop.addEventListener('click', function(){

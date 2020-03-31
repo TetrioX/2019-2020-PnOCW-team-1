@@ -51,6 +51,14 @@
     transform-origin: 0 0;
 }
 
+#video {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    transform-origin: 0 0;
+    object-fit: cover;
+}
+
 .corner{
     background-color: black;
     position: absolute !important;
