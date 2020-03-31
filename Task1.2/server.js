@@ -68,7 +68,7 @@ var slaveIo = io.on('connection', function(socket){
         let promise = new Promise(function(resolve, reject) {
 
             slaveSockets[slave].emit('prepareAnimation', {
-              animation: ...,
+              animation: 30,
               timeSent: Date.now()
             },
             function(callBackData){
@@ -84,10 +84,8 @@ var slaveIo = io.on('connection', function(socket){
             })
 
           setTimeout(function() {
-            // if it takes longer than 0.5 seconds reject the promise
-            // deleteSlave(slaveSockets[slave])
             resolve()
-          }, 1000);
+          }, 2000);
         })
         synchroPromises.push(promise)
       })

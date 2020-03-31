@@ -807,59 +807,23 @@ playerButton.addEventListener('click', function(){
 	 * Snake functions *
 	 *********************/
 
-	const drawSnake = function(snake) {
-		// Determine snake color.
-		colors = snake.colors
-		// Draw each segment of the snake.
-		for (let part of snake.parts)
-			drawSnakePart(part, snake.colors)
-	}
+	// socket.on('createSnake', function(data){
+	// 	cleanHTML()
+	// 	canvas.style.display = "block";
+	// 	context.clearRect(0, 0, canvas.width, canvas.height);
+	// 	canvas.width = data.picDim[1];
+	// 	canvas.height = data.picDim[0];
+	// 	transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+	// })
 
-	const drawSnakePart = function(snakePart, colors) {
-		// Color the segments of the snake.
-		if (snakePart.name % 2 == 1 || snakePart.name == 0) context.fillStyle = colors.light;
-		else context.fillStyle = colors.dark;
+	// socket.on('updateSnake', function(data){
+	// 	setTimeout(updateS, data.maxLat - latency, data.snake)
+	// })
 
-		// Draw the given snake segment.
-		context.beginPath();
-		context.arc(snakePart.pos.x + snakePart.deviation * Math.sin(snakePart.dir) ,
-			snakePart.pos.y + snakePart.deviation * Math.cos(snakePart.dir),
-			snakePart.size / 2, 0, 2 * Math.PI);
-		context.fill();
-
-		// The snake's head isn't whole without eyes. Draw them on the first segment.
-		if (snakePart.name == 0) {
-			context.fillStyle = "#000000";
-			context.beginPath();
-			context.arc(snakePart.pos.x + snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-				snakePart.pos.y + snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-				snakePart.size / 6, 0, 2 * Math.PI);
-			context.fill();
-			context.beginPath();
-			context.arc(snakePart.pos.x - snakePart.size / 4 * Math.sin(snakePart.dir) + snakePart.deviation * Math.sin(snakePart.dir),
-				snakePart.pos.y - snakePart.size / 4 * Math.cos(snakePart.dir) + snakePart.deviation * Math.cos(snakePart.dir),
-				snakePart.size / 6, 0, 2 * Math.PI);
-			context.fill();
-		}
-	}
-
-	socket.on('createSnake', function(data){
-		cleanHTML()
-		canvas.style.display = "block";
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		canvas.width = data.picDim[1];
-		canvas.height = data.picDim[0];
-		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-	})
-
-	socket.on('updateSnake', function(data){
-		setTimeout(updateS, data.maxLat - latency, data.snake)
-	})
-
-	function updateS(snake) {
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		drawSnake(snake);
-	}
+	// function updateS(snake) {
+	//   context.clearRect(0, 0, canvas.width, canvas.height);
+	//   drawSnake(snake);
+	// }
 
 	socket.on('updateWorld', function(data){
 		setTimeout(updateW, data.maxLat - latency, data.world)
@@ -871,13 +835,125 @@ playerButton.addEventListener('click', function(){
 			drawSnake(world.objects[snakeId]);
 	}
 
-	socket.on('stopSnake', function(){
+	socket.on('clearAll', function(){
 		cleanHTML()
 		// show the start page again.
 		wrapper.style.display = "block"
 		// show scroll bar again
 		document.body.style.overflow = 'visible';
 		video.style.display = 'none';
+
+		window.cancelAnimationFrame(animation);
 	})
+
+	/***********************
+		* Animation showoff *
+	 ***********************/
+
+	// Socket reactie om animatie klaar te maken
+	var maxFps, picDim, corners
+	socket.on('prepareAnimation', function (data, callback) {
+	    var clock = Date.now()
+			corners = data.corners;
+			picDim = data.picDim;
+			setupCanvas()
+			prepareAnimation(data.animation);
+	    stop = false
+	    frameCount = 0
+	    callback({
+	        lat: latency,
+	        offset: clock - data.timeSent - latency,
+	        maxFps: maxFps
+	    })
+	});
+
+	function setupCanvas() {
+		cleanHTML()
+		canvas.style.display = "block";
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		canvas.width = picDim[1];
+		canvas.height = picDim[0];
+		transformSlave(canvas, corners, {x: picDim[1], y: picDim[0]});
+	}
+
+	// Socket reactie om animatie te starten
+	var fps, fpsInterval, startTime, now, then, elapsed;
+	socket.on('startAnimation', function(data) {
+		console.log('Start')
+	  fpsInterval = 1000 / data.fps;
+	  then = data.startTime + data.offset
+	  startTime = then;
+	  frameCount = 0
+	  console.log("Start", then, " ", Date.now())
+	  animation = requestAnimationFrame(animate)
+	});
+
+	// Socket reaction on control of server side.
+	var framesToCorrect = 0
+	socket.on('atFrame', function (data) {
+	    framesToCorrect = Math.round((data.dt + latency) / fpsInterval) - frameCount
+	})
+
+	// initialize the timer variables and start the animation
+	function prepareAnimation(animation) {
+	    createObjects(animation);
+	    w1 = new Date()
+	    draw(0)
+	    w2 = new Date()
+	    workload = w2 - w1
+	    maxFps = 1000 / workload
+	}
+
+	var world;
+	function createObjects(animation) {
+		if (animation.type === "snake"){
+ 			world = new Snake(animation.length, picDim[0] / 25, animation.path[0].pos, {light: "#008000", dark: "#004000"})
+			world.cachePath(animation.path)
+		}
+		else alert('Niet genoeg info')
+	}
+
+	// the animation loop calculates time elapsed since the last loop
+	// and only draws if your specified fps interval is achieved
+	var frameCount = 0;
+	var animation
+	function animate() {
+
+	    // request another frame
+	    if (!stop) animation = requestAnimationFrame(animate);
+
+	    // calc elapsed time since last loop
+	    now = Date.now();
+	    elapsed = now - then;
+
+	    // if enough time has elapsed, draw the next frame
+	    if (elapsed > fpsInterval) {
+	        // Get ready for next frame by setting then=now, but also adjust for your
+	        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+	        then = now - (elapsed % fpsInterval);
+
+	        draw(fpsInterval);
+
+	    }
+	}
+
+	var scaling = 1
+	function draw(dt, ctx = context) {
+	    context.clearRect(0, 0, canvas.width, canvas.height);
+
+	    if (framesToCorrect) {
+	        var correctionFactor = framesToCorrect // > 0 ? 1 * scaling : -1 * scaling;
+	        frameCount += correctionFactor
+	        framesToCorrect -= correctionFactor
+	    } else var correction = 0
+
+	    // console.log("correction: ", framesToCorrect)
+
+			world.draw(context)
+      world.update(dt);
+			for (let i = 0; i < correctionFactor; i++) world.update(dt);
+
+	    frameCount++
+	}
 
 })()
