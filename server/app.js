@@ -42,6 +42,7 @@ var server = app.listen(config.port, function(){
 // pingInterval is used to determine the latency
 var io = socket(server, {pingInterval: 200, pingTimeout: 600000});
 
+var masterSocket = null;
 var slaves = {}
 var slaveSockets = {}
 var playerColors = {}
@@ -214,6 +215,10 @@ app.use('/static', express.static(__dirname +  '/public'))
 io.of('/master').use(function(socket, next) {
   let passwd = socket.handshake.query.passwd
   if (passwd == config.masterPasswd){
+    if (masterSocket !== null) {
+      masterSocket.disconnect()
+    }
+    masterSocket = socket;
     next();
   } else{
      next(new Error("not authorized"));

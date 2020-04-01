@@ -530,4 +530,9 @@ new Promise(function(resolve, reject){
 		socket.emit('stopSnake')
 	})
 
+	socket.on('disconnect', function() {
+		alert("Was disconnected. Another user might have logged in as master.")
+		window.location.reload(false)
+	})
+
 })
