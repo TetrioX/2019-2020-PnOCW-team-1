@@ -265,7 +265,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
-      var nbOfColorCombs = Object.keys(slaves).length * 10
+      var nbOfColorCombs = Object.keys(slaves).length * 11
       // calculate how many pictues should be taken
       let nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
       let allColorCombinations = getColorComb(nbOfPictures)
@@ -655,11 +655,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   // Run the animation showoff
   socket.on('startAnimation', async function(data) {
-
-    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}],
-                    '5': [{x: 700, y: 0}, {x: 1000, y: 250}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
 
     if (Object.keys(AllScreenPositions).length < 1) {
       socket.emit('alert', 'Please do screen recognition first');
