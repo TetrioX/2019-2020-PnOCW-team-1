@@ -692,11 +692,8 @@ playerButton.addEventListener('click', function () {
             video.width = data.picDim[1];
             video.height = data.picDim[0];
             transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
-
-            //await waitForBuffer(5)
-            setTimeout(() => {
-                callback()
-            }, 5000);
+            await waitForBuffer(5)
+            callback()
         };
 
         video.pause();
@@ -742,7 +739,7 @@ playerButton.addEventListener('click', function () {
     /*socket.on('waitForBuffer', async function(data, callback){
         await waitForBuffer(5)
         resolve()
-    })*/ /
+    })*/
 
     // returns a promise that waits for a certain amount of seconds to be buffered (sBuffered)
     function waitForBuffer(sBuffered) {

@@ -536,16 +536,20 @@ var masterIo = io.of('/master').on('connect', function(socket){
     // start loading the video
 		Object.keys(slaves).forEach(function(slave, index) {
       if (slaves[slave] in AllScreenPositions){
+        let received = false;
         videoPromises.push(new Promise(function(resolve, reject){
           slaveSockets[slave].emit('loadVideo', {
     				corners: AllScreenPositions[slaves[slave]],
     				picDim: picDimensions
     			}, function(callbackData){
+            received = true;
             resolve()
           })
           setTimeout(function(){
-            deleteSlave(slaveSockets[slave])
-            resolve()
+            if (!received) {
+              deleteSlave(slaveSockets[slave])
+              resolve()
+            }
           }, 5000);
         }))
       }
