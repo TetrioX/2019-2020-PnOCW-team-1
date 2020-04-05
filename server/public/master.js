@@ -149,13 +149,6 @@ new Promise(function(resolve, reject){
 	  * Foto nemen functions *
 	 **************************/
 
-	var useCameraButton = document.getElementById('useCamBtn');
-	useCameraButton.addEventListener('click',function(){
-		socket.emit('clearAll');
-		console.log("Hoi")
-		document.getElementById("cameraDiv").style.display = "";
-	});
-
 	var video = document.getElementById('video');
 	var canvas = document.getElementById('canvas');
 	var startbutton = document.getElementById('startbutton');
