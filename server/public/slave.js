@@ -673,12 +673,21 @@ playerButton.addEventListener('click', function () {
      * Video show-off *
      ********************/
 
+<<<<<<< Updated upstream
         // Paste the given part of the given picture on the client canvas.
     const pasteVideo = function (myCanvas, video, corners, refPictureLength) {
             myCanvas.width = video.videoWidth;
             myCanvas.height = video.videoHeight;
             transformSlave(myCanvas, corners, refPictureLength);
         };
+=======
+		video.pause();
+		video.preload = "auto";
+		video.muted = true;
+		video.currentTime = 0;
+		video.style.display = "block";
+	});
+>>>>>>> Stashed changes
 
     // Draw the current frame of the video
     const drawVideo = function (myCanvas, video) {

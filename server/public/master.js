@@ -105,6 +105,23 @@ new Promise(function(resolve, reject){
 	    })
 	});
 
+	if (window.DeviceOrientationEvent){
+		console.log("ok?")
+		window.addEventListener('deviceorientation', handleOrientation, true);
+		document.getElementById('orientationsupport?').innerText = "Supported"; 
+	}
+
+
+	function handleOrientation(event){
+		console.log('handleOrientation')
+		document.getElementById("alpha").innerText = toString(event.alpha);
+		document.getElementById("beta").innerText= toString(event.beta);
+		document.getElementById("gamma").innerText = toString(event.gamma);
+	}
+		
+
+
+
 
 	/***********************************
 	  * Slave communication functions *
