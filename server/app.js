@@ -200,6 +200,10 @@ app.get('/player', function(req,res){
   res.sendFile(__dirname + '/public/player.html')
 })
 
+app.get('/admin', function(req,res){
+  res.sendFile(__dirname + '/public/admin.html')
+})
+
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
@@ -215,6 +219,20 @@ app.use('/static', express.static(__dirname +  '/public'))
 io.of('/master').use(function(socket, next) {
   let passwd = socket.handshake.query.passwd
   if (passwd == config.masterPasswd){
+    if (masterSocket !== null) {
+      masterSocket.disconnect()
+    }
+    masterSocket = socket;
+    next();
+  } else{
+     next(new Error("not authorized"));
+  }
+
+});
+
+io.of('/admin').use(function(socket, next) {
+  let passwd = socket.handshake.query.passwd
+  if (passwd == config.adminPasswd){
     if (masterSocket !== null) {
       masterSocket.disconnect()
     }
@@ -907,6 +925,42 @@ var playerIo = io.of('/player').on('connect', function(socket){
   })
 })
 
+
+/***************
+  * Admin IO  *
+ ***************/
+var exec = require('child_process').exec;
+
+var slaveIo = io.of('/admin').on('connect', function(socket){
+  socket.on("update", function(branch, callback){
+    exec("git fetch origin "+branch, function (error, stdout, stderr) {
+      if (stderr !== null){
+        callback(stderr)
+      } else {
+        exec("git checkout "+branch, function (error, stdout, stderr) {
+          if (stderr !== null){
+            callback(stderr)
+          } else {
+            exec("git checkout "+branch, function (error, stdout, stderr) {
+              if (stderr !== null){
+                callback(stderr)
+              } else {
+                exec("git pull", function (error, stdout, stderr) {
+                  if (stderr !== null){
+                    callback(stderr)
+                  } else {
+                    callback("changed to "+branch+".\nRestarting now")
+                    process.exit()
+                  }
+                })
+              }
+            })
+          } // so many callbacks :O
+        })
+      }
+    })
+  })
+})
 
 /********************
   * Grid functions *

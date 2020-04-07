@@ -1,4 +1,5 @@
 {
   "port": 8001,
-  "masterPasswd": ""
+  "masterPasswd": "",
+  "adminPasswd": ""
 }
