@@ -934,23 +934,25 @@ var exec = require('child_process').exec;
 var slaveIo = io.of('/admin').on('connect', function(socket){
   socket.on("update", function(branch, callback){
     exec("git fetch origin "+branch, function (error, stdout, stderr) {
-      if (stderr !== null){
+      if (error !== null){
         callback(stderr)
       } else {
         exec("git checkout "+branch, function (error, stdout, stderr) {
-          if (stderr !== null){
+          if (error !== null){
             callback(stderr)
           } else {
             exec("git checkout "+branch, function (error, stdout, stderr) {
-              if (stderr !== null){
+              if (error !== null){
                 callback(stderr)
               } else {
                 exec("git pull", function (error, stdout, stderr) {
-                  if (stderr !== null){
+                  if (error !== null){
                     callback(stderr)
                   } else {
-                    callback("changed to "+branch+".\nRestarting now")
-                    process.exit()
+                    callback("changed to "+branch+".\nRestarting in 3 seconds.")
+                    setTimeout(function(){
+                      process.exit()
+                    }, 3)
                   }
                 })
               }
