@@ -105,18 +105,17 @@ new Promise(function(resolve, reject){
 	    })
 	});
 
-	if (window.DeviceOrientationEvent){
-		console.log("ok?")
-		window.addEventListener('deviceorientation', handleOrientation(), true);
-		document.getElementById('orientationsupport?').innerText = "Supported"; 
-	}
+
+	window.addEventListener('deviceorientation', handleOrientation(event), true);
+		
 
 
 	function handleOrientation(event){
+		document.getElementById('orientationsupport?').innerText = "Supported"; 
 		console.log('handleOrientation')
 		document.getElementById("alpha").innerText = toString(event.alpha);
-		document.getElementById("beta").innerText= toString(event.beta);
-		document.getElementById("gamma").innerText = toString(event.gamma);
+		document.getElementById("beta").innerHTML= toString(event.beta);
+		document.getElementById("gamma").innerText = event.gamma;
 	}
 		
 
