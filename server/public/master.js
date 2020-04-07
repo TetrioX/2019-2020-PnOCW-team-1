@@ -106,17 +106,18 @@ new Promise(function(resolve, reject){
 	});
 
 
-	window.addEventListener('deviceorientation', handleOrientation(event), true);
-		
-
-
-	function handleOrientation(event){
+	window.addEventListener('deviceorientation', function(event){
 		document.getElementById('orientationsupport?').innerText = "Supported"; 
 		console.log('handleOrientation')
+		console.log('okll')
+		console.log(event)
 		document.getElementById("alpha").innerText = event.alpha.toString();
 		document.getElementById("beta").innerHTML= toString(event.beta);
 		document.getElementById("gamma").innerText = toString(event.gamma);
-	}
+	}, true);
+		
+
+
 		
 
 
