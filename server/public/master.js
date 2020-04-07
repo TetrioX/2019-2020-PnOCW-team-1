@@ -113,9 +113,9 @@ new Promise(function(resolve, reject){
 	function handleOrientation(event){
 		document.getElementById('orientationsupport?').innerText = "Supported"; 
 		console.log('handleOrientation')
-		document.getElementById("alpha").innerText = toString(event.alpha);
+		document.getElementById("alpha").innerText = event.alpha.toString();
 		document.getElementById("beta").innerHTML= toString(event.beta);
-		document.getElementById("gamma").innerText = event.gamma;
+		document.getElementById("gamma").innerText = toString(event.gamma);
 	}
 		
 
