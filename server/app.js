@@ -929,32 +929,26 @@ var playerIo = io.of('/player').on('connect', function(socket){
 /***************
   * Admin IO  *
  ***************/
-var exec = require('child_process').exec;
+var exec = require('child_process').execFile;
 
 var slaveIo = io.of('/admin').on('connect', function(socket){
   socket.on("update", function(branch, callback){
-    exec("git fetch origin "+branch, function (error, stdout, stderr) {
+    exec('git', ['fetch','origin',branch], function (error, stdout, stderr) {
       if (error !== null){
         callback(stderr)
       } else {
-        exec("git checkout "+branch, function (error, stdout, stderr) {
+        exec('git', ['checkout',branch], function (error, stdout, stderr) {
           if (error !== null){
             callback(stderr)
           } else {
-            exec("git checkout "+branch, function (error, stdout, stderr) {
+            exec('git', ['pull'], function (error, stdout, stderr) {
               if (error !== null){
                 callback(stderr)
               } else {
-                exec("git pull", function (error, stdout, stderr) {
-                  if (error !== null){
-                    callback(stderr)
-                  } else {
-                    callback("changed to "+branch+".\nRestarting in 3 seconds.")
-                    setTimeout(function(){
-                      process.exit()
-                    }, 3)
-                  }
-                })
+                callback("changed to "+branch+".\nRestarting in 2 seconds.")
+                setTimeout(function(){
+                  process.exit()
+                }, 2)
               }
             })
           } // so many callbacks :O
