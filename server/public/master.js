@@ -107,7 +107,7 @@ new Promise(function(resolve, reject){
 
 	if (window.DeviceOrientationEvent){
 		console.log("ok?")
-		window.addEventListener('deviceorientation', handleOrientation, true);
+		window.addEventListener('deviceorientation', handleOrientation(), true);
 		document.getElementById('orientationsupport?').innerText = "Supported"; 
 	}
 
