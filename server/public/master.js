@@ -112,8 +112,8 @@ new Promise(function(resolve, reject){
 		console.log('okll')
 		console.log(event)
 		document.getElementById("alpha").innerText = event.alpha.toString();
-		document.getElementById("beta").innerHTML= toString(event.beta);
-		document.getElementById("gamma").innerText = toString(event.gamma);
+		document.getElementById("beta").innerText= event.beta.toString();
+		document.getElementById("gamma").innerText = event.gamma.toString();
 	}, true);
 		
 
