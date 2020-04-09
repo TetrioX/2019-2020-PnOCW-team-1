@@ -219,10 +219,6 @@ app.use('/static', express.static(__dirname +  '/public'))
 io.of('/master').use(function(socket, next) {
   let passwd = socket.handshake.query.passwd
   if (passwd == config.masterPasswd){
-    if (masterSocket !== null) {
-      masterSocket.disconnect()
-    }
-    masterSocket = socket;
     next();
   } else{
      next(new Error("not authorized"));
@@ -261,6 +257,10 @@ async function resumeVideo(startTime){
 }
 
 var masterIo = io.of('/master').on('connect', function(socket){
+    if (masterSocket !== null) {
+      masterSocket.disconnect()
+    }
+    masterSocket = socket;
     socket.broadcast.emit('registerMaster')
     var imageIndex = 0;
     socket.emit('slaveSet', {
