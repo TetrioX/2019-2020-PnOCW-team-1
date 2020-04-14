@@ -870,7 +870,7 @@ function getScreenFromSquares(squares, screens) {
         var pointsX = []
         var pointsY = []
         for (let i = 0; i < n; i++) {
-            if (dist[i] <= avg - variance) {
+            if (dist[i] >= avg) {
                 pointsX.push(xCord[i])
                 pointsY.push(yCord[i])
             }
