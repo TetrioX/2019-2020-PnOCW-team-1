@@ -34,3 +34,11 @@
     - De rest bekijkt keypoint-tracking.
 
 ## Week 8 - 31/03/2020
+- Dennis bekijkt de mogelijkheid om het master device te kalibreren
+ voor de schermherkenning uitgevoerd zou worden.
+- Simon C onderzoekt of het mogelijk is om enkel via de hoeken 
+verkregen van de gyroscoop een goede trasnformatie te verkrijgen.
+- Simon T zorgt voor verdere bugfixes (tegen de dag van de demo).
+- Geert en Maxel proberen de transformatie van de schermen te verkrijgen 
+door bepaalde punten op het scherm te tracken.
+- Xander?
