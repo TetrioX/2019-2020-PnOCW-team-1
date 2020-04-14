@@ -228,11 +228,7 @@ io.of('/master').use(function(socket, next) {
 
 io.of('/admin').use(function(socket, next) {
   let passwd = socket.handshake.query.passwd
-  if (passwd == config.adminPasswd){
-    if (masterSocket !== null) {
-      masterSocket.disconnect()
-    }
-    masterSocket = socket;
+  if (passwd == config.adminPasswd){;
     next();
   } else{
      next(new Error("not authorized"));
@@ -244,16 +240,13 @@ io.of('/admin').use(function(socket, next) {
 var videoUpdater = null
 async function resumeVideo(startTime){
   clearInterval(videoUpdater)
+  console.log("starting video")
   let maxLat = Math.max(Object.values(latSlaves))
+  console.log("latency: ", maxLat)
   slaveIo.emit('playVideo', {
     maxLat: maxLat
   })
   await sleep(maxLat)
-  /**resumeTime = new Date()
-  videoUpdater = setInterval(function(){
-    let offset = startTime - resumeTime + Date.parse(new Date())
-    slaveIo.emit('updateVideo', offset)
-  }, 200)*/
 }
 
 var masterIo = io.of('/master').on('connect', function(socket){
@@ -544,10 +537,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
 	socket.on('broadcastVideo', async function(){
     clearInterval(videoUpdater)
-
-    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-    //                    '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    // picDimensions = [500, 1000]
 
     // send to each slave
     let videoPromises = []
@@ -931,7 +920,7 @@ var playerIo = io.of('/player').on('connect', function(socket){
  ***************/
 var exec = require('child_process').execFile;
 
-var slaveIo = io.of('/admin').on('connect', function(socket){
+var adminIo = io.of('/admin').on('connect', function(socket){
   socket.on("update", function(branch, callback){
     exec('git', ['fetch','origin',branch], function (error, stdout, stderr) {
       if (error !== null){
