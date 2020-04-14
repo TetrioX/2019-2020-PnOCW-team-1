@@ -25,3 +25,14 @@
 > - Dennis
 > - Geert
 > - Simon T
+
+> **Iterative development**
+> - Dennis
+> - Geert
+> - Simon T
+> - Xander
+> - Simon C
+> - Maxel
+
+> **New features**
+> 
