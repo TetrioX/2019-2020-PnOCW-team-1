@@ -711,7 +711,7 @@ playerButton.addEventListener('click', function () {
         }
     });
 
-    socket.on('playVideo', function (maxLat) {
+    socket.on('playVideoTest', function (maxLat) {
         console.log("playing video");
         setTimeout(() => {
             video.play();

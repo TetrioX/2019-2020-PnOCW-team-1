@@ -243,7 +243,7 @@ async function resumeVideo(startTime){
   console.log("starting video")
   let maxLat = Math.max(Object.values(latSlaves))
   console.log("latency: ", maxLat)
-  slaveIo.emit('playVideo', {
+  slaveIo.emit('playVideoTest', {
     maxLat: maxLat
   })
   await sleep(maxLat)
