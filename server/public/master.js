@@ -111,6 +111,7 @@ new Promise(function(resolve, reject){
 	 ***********************************/
 
 	function createSlaveButton(number,id) {
+		/*
 			var btn = document.createElement("BUTTON");
 			btn.innerHTML = "Change color of " + number;
 			entirePage.appendChild(btn);
@@ -121,6 +122,7 @@ new Promise(function(resolve, reject){
 					});
 			});
 			slaveButtons[id] = btn;
+		*/
 	}
 
 	function removeSlaveButton(slave) {
