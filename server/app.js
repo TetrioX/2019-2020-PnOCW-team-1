@@ -247,11 +247,6 @@ async function resumeVideo(startTime){
     maxLat: maxLat
   })
   await sleep(maxLat)
-  /**resumeTime = new Date()
-  videoUpdater = setInterval(function(){
-    let offset = startTime - resumeTime + Date.parse(new Date())
-    slaveIo.emit('updateVideo', offset)
-  }, 200)*/
 }
 
 var masterIo = io.of('/master').on('connect', function(socket){
@@ -925,7 +920,7 @@ var playerIo = io.of('/player').on('connect', function(socket){
  ***************/
 var exec = require('child_process').execFile;
 
-var slaveIo = io.of('/admin').on('connect', function(socket){
+var adminIo = io.of('/admin').on('connect', function(socket){
   socket.on("update", function(branch, callback){
     exec('git', ['fetch','origin',branch], function (error, stdout, stderr) {
       if (error !== null){
