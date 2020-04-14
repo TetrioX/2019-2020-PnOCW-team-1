@@ -242,6 +242,7 @@ async function resumeVideo(startTime){
   clearInterval(videoUpdater)
   console.log("starting video")
   let maxLat = Math.max(Object.values(latSlaves))
+  console.log("latency: ", maxLat)
   slaveIo.broadcast('playVideo', {
     maxLat: maxLat
   })
