@@ -76,6 +76,7 @@ const createMatrix = function(buffer, dimensions) {
 
 function joinMatrixes(matrixes, tresholds, nbOfColors, screenTresh=[]){
 	let result = []
+
 	for (let j = 0; j < matrixes[0].length; j++){
 		result.push([])
 		for (let i = 0; i < matrixes[0][0].length; i++){
@@ -869,7 +870,7 @@ function getScreenFromSquares(squares, screens) {
         var pointsX = []
         var pointsY = []
         for (let i = 0; i < n; i++) {
-            if (dist[i] <= avg + variance) {
+            if (dist[i] <= avg) {
                 pointsX.push(xCord[i])
                 pointsY.push(yCord[i])
             }
