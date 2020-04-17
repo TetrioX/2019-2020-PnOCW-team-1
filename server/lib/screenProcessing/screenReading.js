@@ -26,8 +26,8 @@ const defaultTresholds = {
 	6: [240, 317]
 }
 
-const sRange = [20, 101]
-const lRange = [20, 80]
+const sRange = [10, 101]
+const lRange = [5, 99]
 
 
 const screenReading = function(buffer, dimensions) {
@@ -1031,7 +1031,7 @@ function getCorners(rand){
 			c++
 		}
 		// stop when you have 4 corners and the last corner was significantly smaller than the previous one.
-		while (c < 4 || (currentAngle > -nbOfAngles/1.5 && result.length < 15))
+		while (c < 4 || (currentAngle > -nbOfAngles/1.5 && result.length < 10))
 		return result
 	}
 
