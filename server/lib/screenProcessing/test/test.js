@@ -10,7 +10,7 @@ const imgprcssrgb = require('../../ImageProcessingHSL/imageProcessingHSL.js')
 describe('findscreen', function() {
 
   // set timeout to 3 seconds
-  this.timeout(3000)
+  this.timeout(5000)
 
   // allowed pixel distance
   bwdelta = 3

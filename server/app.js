@@ -283,7 +283,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // number of color combinations we need
       var nbOfColorCombs = Object.keys(slaves).length * 11
       // calculate how many pictues should be taken
-      let nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
+      let nbOfPictures = Math.max(3, Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length)))
       let allColorCombinations = getColorComb(nbOfPictures)
       let screens = {}
       let colorCombs = {};

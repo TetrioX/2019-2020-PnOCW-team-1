@@ -28,34 +28,41 @@ function parseJsonFile(path){
 }
 
 async function runTestCase(paths, getScreen=false) {
-  let result = {};
-  for (let path of paths){
-    if(verbose > 1) console.log("---starting test case---")
-    if(!iters){
-      iters = 0
-    }
-    if (!useMatrix){
-      images = []
-      let i = 0
-      for (let file of fs.readdirSync(path)){
-        if (file.startsWith('image-')){
-          images.push(path+`/image-${i}.png`)
-          i++
-        }
+  let results = paths.map(function (path) {
+    return new Promise(async function(resolve, reject){
+      let result = {}
+      if(verbose > 1) console.log("---starting test case---")
+      if(!iters){
+        iters = 0
       }
-      matrixes = await readImage.getImagesHslMatrix(images)
-    } else matrixes = parseJsonFile(path + '/matrixes.json')
-    colorCombs = parseJsonFile(path + '/colorCombs.json')
-    screens = parseJsonFile(path + '/screens.json')
-    let squares = screenReading.getScreens(matrixes, screens, colorCombs, iters)
-    result.squares = squares;
-    if(verbose > 1) console.log("squares:", squares)
-    else if (verbose) console.log("found " + squares.length/(iters + 1) + " squares")
-    if (getScreen){
-      let screenPositions = screenReading.getScreenFromSquares(squares, screens)
-      result.screens = screenPositions;
-      if(verbose) console.log("screens:", screenPositions)
-    }
-  }
-  return result
+      if (!useMatrix){
+        images = []
+        let i = 0
+        for (let file of fs.readdirSync(path)){
+          if (file.startsWith('image-')){
+            images.push(path+`/image-${i}.png`)
+            i++
+          }
+        }
+        matrixes = await readImage.getImagesHslMatrix(images)
+      } else matrixes = parseJsonFile(path + '/matrixes.json')
+      result.matrixes = matrixes;
+      colorCombs = parseJsonFile(path + '/colorCombs.json')
+      result.colorCombs = colorCombs;
+      screens = parseJsonFile(path + '/screens.json')
+      result.screens = screens;
+      let squares = screenReading.getScreens(matrixes, screens, colorCombs, iters)
+      result.squares = squares;
+      if(verbose > 1) console.log("squares:", squares)
+      else if (verbose) console.log("found " + squares.length/(iters + 1) + " squares")
+      if (getScreen){
+        let screenPositions = screenReading.getScreenFromSquares(squares, screens)
+        result.screenPositions = screenPositions;
+        if(verbose) console.log("screens:", screenPositions)
+      }
+      resolve(result)
+    })
+  })
+  results =  await Promise.all(results)
+  return results
 }
