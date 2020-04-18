@@ -824,6 +824,7 @@ function getScreens(matrixes, screens, colorCombs, iters=1, tresholds=null, foun
 
 // returns a list with the best possible screens it can recognize from the calculated squares
 // This is not the best solution and could be in proofd in the future
+/*
 function getScreenFromSquares(squares, screens) {
 
     function array_Sum(t) {
@@ -914,6 +915,107 @@ function getScreenFromSquares(squares, screens) {
 		}
 	})
 	return results
+}
+*/
+
+function getScreenFromSquares(squares, screens) {
+	let vectors = {}
+	for (sq of squares) {
+		let screen = sq.square.screen
+		if (!(screen in vectors)) {
+			vectors[screen] = []
+		}
+		let corners = getFullSquare(sq)
+		let xPos = 1 + sq.square.col * 2
+		let yPos = 1 + sq.square.row * 2
+		vectors[screen].push(
+			[{x: xPos + 2, y:yPos}, corners[0]],
+			[{x: xPos + 2, y:yPos + 2}, corners[1]],
+			[{x: xPos, y:yPos + 2}, corners[2]],
+			[{x: xPos, y:yPos}, corners[3]])
+	}
+	let screenPositions = {}
+	for (screen of Object.keys(vectors)){
+		let yEnd = screens[screen].grid.length*2 + 2
+		let xEnd = screens[screen].grid[0].length*2 + 2
+		screenPositions[screen] = vctcalc.updateScreen(
+			[{x: xEnd, y:0}, {x: xEnd, y: yEnd}, {x: 0, y: yEnd}, {x:0, y:0}], vectors[screen])
+	}
+	return screenPositions
+}
+
+function getFullSquare(square){
+	// get the size of the square including the borders
+	//
+	//corner[3]|VTop-> |corner[0]
+	//	_______|_______|_______
+	//	 Vleft |current|	VRight
+	//     |   | square|    |
+	//	___V___|_______|____V__
+	//corner[2]|Vbot-> |corner[1]
+	//	       |       |
+	let corners = square.corners.corners
+	let borders = square.corners.border
+	// borders is an array with length 4 and each value is an array with
+	// the first value the border in the x derection and as second border the
+	// value in the y direction.
+	let vectorTop = {
+		x: corners[0].x - corners[3].x,
+		y: corners[0].y - corners[3].y
+	}
+	let normTop = Math.sqrt(vectorTop.x**2 + vectorTop.y**2)
+	let normVectorTop = {
+		x: vectorTop.x/normTop,
+		y: vectorTop.y/normTop
+	}
+	let vectorBot = {
+		x: corners[1].x - corners[2].x,
+		y: corners[1].y - corners[2].y
+	}
+	let normBot = Math.sqrt(vectorBot.x**2 + vectorBot.y**2)
+	let normVectorBot = {
+		x: vectorBot.x/normBot,
+		y: vectorBot.y/normBot
+	}
+	let vectorRight = {
+		x: corners[1].x - corners[0].x,
+		y: corners[1].y - corners[0].y
+	}
+	let normRight = Math.sqrt(vectorRight.x**2 + vectorRight.y**2)
+	let normVectorRight = {
+		x: vectorRight.x/normRight,
+		y: vectorRight.y/normRight
+	}
+	let vectorLeft = {
+		x: corners[2].x - corners[3].x + borders[3][0]/2 - borders[2][0]/2,
+		y: corners[2].y - corners[3].y + borders[2][1]/2 + borders[3][1]/2
+	}
+	let normLeft = Math.sqrt(vectorLeft.x**2 + vectorLeft.y**2)
+	let normVectorLeft = {
+		x: vectorLeft.x/normLeft,
+		y: vectorLeft.y/normLeft
+	}
+	// calculate how many times we have to add the vector to find the size of the screen
+	// 0.5 is used to take into account the border around the screens which is
+	// 50% the size of the blocks
+	return [
+		{
+			x: corners[0].x - borders[0][0]/2*normVectorTop.x - borders[0][1]/2*normVectorLeft.x,
+			y: corners[0].y - borders[0][0]/2*normVectorTop.y - borders[0][1]/2*normVectorLeft.y
+		}, // top right corner
+		{
+			x: corners[1].x + borders[1][0]/2*normVectorTop.x - borders[1][1]/2*normVectorRight.x,
+			y: corners[1].y + borders[1][0]/2*normVectorTop.y - borders[1][1]/2*normVectorRight.y
+		}, // bottem right corner
+		{
+			x: corners[2].x + borders[2][0]/2*normVectorBot.x + borders[2][1]/2*normVectorRight.x,
+			y: corners[2].y + borders[2][0]/2*normVectorBot.y + borders[2][1]/2*normVectorRight.y
+		}, //bottem left corner
+		{
+			x: corners[3].x - borders[3][0]/2*normVectorBot.x + borders[3][1]/2*normVectorLeft.x,
+			y: corners[3].y - borders[3][0]/2*normVectorBot.y + borders[3][1]/2*normVectorLeft.y
+		}, // top left corner
+	]
 }
 
 // returns the corners of the screen from a given square located in that screen
