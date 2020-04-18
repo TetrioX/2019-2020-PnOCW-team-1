@@ -77,19 +77,27 @@ function updateScreen(currentCorners, vectors, maxIters=10000, stepSize=0.01, ou
 			gf.push(val2)
 			// console.log(ga, gb, gc, gd, ge, gf)
 		}
-		// remove outliers
-		ga.sort()
-		gb.sort()
-		gc.sort()
-		gd.sort()
-		ge.sort()
-		gf.sort()
-		ga = ga.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
-		gb = gb.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
-		gc = gc.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
-		gd = gd.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
-		ge = ge.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
-		gf = gf.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
+		if (i > maxIters/2){
+			// remove outliers
+			ga.sort()
+			gb.sort()
+			gc.sort()
+			gd.sort()
+			ge.sort()
+			gf.sort()
+			ga = ga.slice(0, nbOfNonOutliers)
+			gb = gb.slice(0, nbOfNonOutliers)
+			gc = gc.slice(0, nbOfNonOutliers)
+			gd = gd.slice(0, nbOfNonOutliers)
+			ge = ge.slice(0, nbOfNonOutliers)
+			gf = gf.slice(0, nbOfNonOutliers)
+		}
+		ga = ga.reduce((a, b) => a + b, 0)
+		gb = gb.reduce((a, b) => a + b, 0)
+		gc = gc.reduce((a, b) => a + b, 0)
+		gd = gd.reduce((a, b) => a + b, 0)
+		ge = ge.reduce((a, b) => a + b, 0)
+		gf = gf.reduce((a, b) => a + b, 0)
 		let step = stepSize
 		// update values
 		a -= ga*step
@@ -119,11 +127,11 @@ const startWhiteHor = function(matrix, coordinate) {
 
 
 // tests
-
+/*
 currentCorners = [{x:5, y:5}, {x:10, y:10}, {x:10, y:5}, {x:5, y:10}]
 vectors = [[{x:1, y:1}, {x:2, y:2}], [{x:3, y:4}, {x:4, y:5}], [{x:10, y:1}, {x:11, y:2}]]
 console.log(updateScreen(currentCorners, vectors))
-
+*/
 
 
 module.exports = {
