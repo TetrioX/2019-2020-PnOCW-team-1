@@ -47,7 +47,7 @@ const firstWhite = function(matrix) {
     }
 }
 
-function updateScreen(currentCorners, vectors, maxIters=10000, stepSize=0.01, outlierRatio=0.5) {
+function updateScreen(currentCorners, vectors, outlierRatio=0.5, maxIters=10000, stepSize=0.01) {
 	nbOfNonOutliers = Math.max(4, vectors.length*(1-outlierRatio))
 	// x' = a*x + b*y + c
 	// y' = d*x + e*y + f
@@ -59,7 +59,7 @@ function updateScreen(currentCorners, vectors, maxIters=10000, stepSize=0.01, ou
 	let f = 0
 	let i = 0
 	while (i < maxIters){
-		// calculate log(cosh) gradient
+		// calculate log(cosh(a*x + b*y + c - x')) gradient
 		let ga = []
 		let gb = []
 		let gc = []
@@ -92,7 +92,7 @@ function updateScreen(currentCorners, vectors, maxIters=10000, stepSize=0.01, ou
 			ge = ge.slice(0, nbOfNonOutliers)
 			gf = gf.slice(0, nbOfNonOutliers)
 		}
-		ga = ga.reduce((a, b) => a + b, 0)
+		ga = ga.reduce((a, b) => a + b, 0) // sum
 		gb = gb.reduce((a, b) => a + b, 0)
 		gc = gc.reduce((a, b) => a + b, 0)
 		gd = gd.reduce((a, b) => a + b, 0)
