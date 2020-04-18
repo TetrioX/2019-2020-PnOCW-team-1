@@ -47,7 +47,8 @@ const firstWhite = function(matrix) {
     }
 }
 
-function updateScreen(currentCorners, vectors, maxIters=10000, stepSize=0.01) {
+function updateScreen(currentCorners, vectors, maxIters=10000, stepSize=0.01, outlierRatio=0.5) {
+	nbOfNonOutliers = Math.max(4, vectors.length*(1-outlierRatio))
 	// x' = a*x + b*y + c
 	// y' = d*x + e*y + f
 	let a = 1
@@ -59,24 +60,36 @@ function updateScreen(currentCorners, vectors, maxIters=10000, stepSize=0.01) {
 	let i = 0
 	while (i < maxIters){
 		// calculate log(cosh) gradient
-		let ga = 0
-		let gb = 0
-		let gc = 0
-		let gd = 0
-		let ge = 0
-		let gf = 0
+		let ga = []
+		let gb = []
+		let gc = []
+		let gd = []
+		let ge = []
+		let gf = []
 		for (vec of vectors){
 			val1 = Math.tanh(a*vec[0].x + b*vec[0].y + c - vec[1].x)
 			val2 = Math.tanh(d*vec[0].x + e*vec[0].y + f - vec[1].y)
-			ga += vec[0].x*val1
-			gb += vec[0].y*val1
-			gc += val1
-			gd += vec[0].x*val2
-			ge += vec[0].y*val2
-			gf += val2
+			ga.push(vec[0].x*val1)
+			gb.push(vec[0].y*val1)
+			gc.push(val1)
+			gd.push(vec[0].x*val2)
+			ge.push(vec[0].y*val2)
+			gf.push(val2)
 			// console.log(ga, gb, gc, gd, ge, gf)
 		}
-		let norm = Math.sqrt(ga**2 + gb**2 + gc**2 + gd**2 + ge**2 + gf**2)
+		// remove outliers
+		ga.sort()
+		gb.sort()
+		gc.sort()
+		gd.sort()
+		ge.sort()
+		gf.sort()
+		ga = ga.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
+		gb = gb.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
+		gc = gc.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
+		gd = gd.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
+		ge = ge.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
+		gf = gf.slice(0, nbOfNonOutliers).reduce((a, b) => a + b, 0)
 		let step = stepSize
 		// update values
 		a -= ga*step
@@ -106,11 +119,11 @@ const startWhiteHor = function(matrix, coordinate) {
 
 
 // tests
-/*
+
 currentCorners = [{x:5, y:5}, {x:10, y:10}, {x:10, y:5}, {x:5, y:10}]
 vectors = [[{x:1, y:1}, {x:2, y:2}], [{x:3, y:4}, {x:4, y:5}], [{x:10, y:1}, {x:11, y:2}]]
 console.log(updateScreen(currentCorners, vectors))
-*/
+
 
 
 module.exports = {
