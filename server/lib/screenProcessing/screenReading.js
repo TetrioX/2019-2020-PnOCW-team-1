@@ -1175,5 +1175,6 @@ module.exports = {
 	colorToValueList: colorToValueList,
 	getScreens: getScreens,
 	getScreenFromSquare: getScreenFromSquare,
-	getScreenFromSquares: getScreenFromSquares
+	getScreenFromSquares: getScreenFromSquares,
+	defaultTresholds: defaultTresholds
 };
