@@ -8,7 +8,7 @@ const readImage = require('../readImage.js')
 
 let verbose = argv.verbose;
 let getScreen = argv['get-screen']
-let useImages = argv['use-images']
+let useMatrix = argv['use-matrix']
 let iters = argv['iters']
 
 if (require.main === module) {
@@ -17,7 +17,7 @@ if (require.main === module) {
       console.log('runs the screen recognition test case in a given paths')
       console.log('test cases are run after each other.')
   } else {
-      let result = runTestCase(argv._, argv['same-size'])
+      let result = runTestCase(argv._, getScreen=getScreen)
   }
 }
 
@@ -27,28 +27,42 @@ function parseJsonFile(path){
   return JSON.parse(contents);
 }
 
-async function runTestCase(paths) {
-  for (let path of paths){
-    if(verbose > 1) console.log("---starting test case---")
-    if(!iters){
-      iters = 0
-    }
-    if (useImages){
-      images = []
-      for (let i = 0; i < useImages; i++){
-        images.push(path+`/image-${i}.png`)
+async function runTestCase(paths, getScreen=false) {
+  let results = paths.map(function (path) {
+    return new Promise(async function(resolve, reject){
+      let result = {}
+      if(verbose > 1) console.log("---starting test case---")
+      if(!iters){
+        iters = 0
       }
-      matrixes = await readImage.getImagesHslMatrix(images)
-    } else matrixes = parseJsonFile(path + '/matrixes.json')
-    colorCombs = parseJsonFile(path + '/colorCombs.json')
-    screens = parseJsonFile(path + '/screens.json')
-    let squares = screenReading.getScreens(matrixes, screens, colorCombs, iters)
-    if(verbose > 1) console.log("squares:", squares)
-    else if (verbose) console.log("found " + squares.length/(iters + 1) + " squares")
-    if (getScreen){
-      let screenPositions = screenReading.getScreenFromSquares(squares, screens)
-      if(verbose) console.log("screens:", screenPositions)
-    }
-  }
-  return
+      if (!useMatrix){
+        images = []
+        let i = 0
+        for (let file of fs.readdirSync(path)){
+          if (file.startsWith('image-')){
+            images.push(path+`/image-${i}.png`)
+            i++
+          }
+        }
+        matrixes = await readImage.getImagesHslMatrix(images)
+      } else matrixes = parseJsonFile(path + '/matrixes.json')
+      result.matrixes = matrixes;
+      colorCombs = parseJsonFile(path + '/colorCombs.json')
+      result.colorCombs = colorCombs;
+      screens = parseJsonFile(path + '/screens.json')
+      result.screens = screens;
+      let squares = screenReading.getScreens(matrixes, screens, colorCombs, iters)
+      result.squares = squares;
+      if(verbose > 1) console.log("squares:", squares)
+      else if (verbose) console.log("found " + squares.length/(iters + 1) + " squares")
+      if (getScreen){
+        let screenPositions = screenReading.getScreenFromSquares(squares, screens)
+        result.screenPositions = screenPositions;
+        if(verbose) console.log("screens:", screenPositions)
+      }
+      resolve(result)
+    })
+  })
+  results =  await Promise.all(results)
+  return results
 }
