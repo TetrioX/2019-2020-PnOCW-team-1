@@ -401,7 +401,6 @@ new Promise(function(resolve, reject){
 		var thirdEntirePage = document.getElementById('thirdEntirePage');
 		thirdEntirePage.style.display="";
 		visualfeedbackcanvas=document.getElementById("visualfeedback");
-		visualfeedbackcanvas.height = window.innerHeight;
 		visualfeedbackcanvas.width = window.innerWidth;
 
 
