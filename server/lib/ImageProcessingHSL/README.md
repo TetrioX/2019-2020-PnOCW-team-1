@@ -14,7 +14,7 @@ This will create a file `diff-*.png`
 
 ## testing
 
-### installinf dev dependencies
+### installing dev dependencies
 
 make sure you are in the task3 folder and run
 

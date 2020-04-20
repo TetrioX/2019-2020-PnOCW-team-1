@@ -11,10 +11,14 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "gaussian-blur": "0.0.0",
+    "jimp": "^0.9.6",
     "nodemon": "^2.0.2",
+    "python-shell": "^1.0.8",
     "sharp": "^0.24.0",
     "socket.io": "^2.3.0",
     "socket.io-stream": "^0.9.1",
+    "stackblur-canvas": "^2.2.0",
     "yargs": "^14.2.0"
   },
   "devDependencies": {
