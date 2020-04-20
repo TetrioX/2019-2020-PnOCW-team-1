@@ -402,6 +402,7 @@ new Promise(function(resolve, reject){
 		thirdEntirePage.style.display="";
 		visualfeedbackcanvas=document.getElementById("visualfeedback");
 		visualfeedbackcanvas.width = window.innerWidth;
+		visualfeedbackcanvas.height = window.innerHeight;
 
 
 		feedbackctx = visualfeedback.getContext('2d');
