@@ -283,13 +283,14 @@ new Promise(function(resolve, reject){
 		screenrecognitionvideo = document.getElementById("screenrecognitionvideo");
 		screenrecognitionvideo.setAttribute('autoplay', '');
 		screenrecognitionvideo.setAttribute('muted', '');
-		screenrecognitionvideo.setAttribute('playsinline', '');
+		//screenrecognitionvideo.setAttribute('playsinline', '');
 
 
-		navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
+		navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false})
 			.then(function (stream) {
 				screenrecognitionvideo.srcObject = stream;
 				screenrecognitionvideo.play();
+				screenrecognitionvideo.height=window.innerHeight
 			})
 			.catch(function (err) {
 				console.log("An error occurred: " + err);
@@ -400,8 +401,8 @@ new Promise(function(resolve, reject){
 		var thirdEntirePage = document.getElementById('thirdEntirePage');
 		thirdEntirePage.style.display="";
 		visualfeedbackcanvas=document.getElementById("visualfeedback");
-		visualfeedbackcanvas.height = resolutionHeight;
-		visualfeedbackcanvas.width = resolutionWidth;
+		visualfeedbackcanvas.height = window.innerHeight;
+		visualfeedbackcanvas.width = window.innerWidth;
 
 
 		feedbackctx = visualfeedback.getContext('2d');
