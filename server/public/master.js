@@ -286,7 +286,7 @@ new Promise(function(resolve, reject){
 		//screenrecognitionvideo.setAttribute('playsinline', '');
 
 
-		navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false})
+		navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
 			.then(function (stream) {
 				screenrecognitionvideo.srcObject = stream;
 				screenrecognitionvideo.play();
