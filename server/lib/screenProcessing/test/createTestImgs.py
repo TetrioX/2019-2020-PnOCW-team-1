@@ -65,4 +65,4 @@ def sharpen_image(img, amount):
     si = ImageEnhance.Sharpness(img).enhance(amount)
     return si
 for f in filters:
-    create_filtered_img('case16', f)
+    create_filtered_img('case17', f)

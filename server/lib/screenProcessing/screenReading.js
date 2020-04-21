@@ -17,7 +17,7 @@ const defaultTresholds = {
 	6: [271.9, 351.3]
 }
 */
-
+/*
 const defaultTresholds = {
 	1: [337, 30],
 	2: [45, 75],
@@ -28,7 +28,7 @@ const defaultTresholds = {
 }
 
 
-/*
+*/
 const defaultTresholds = {
 	1: [317, 45],
 	2: [45, 100],
@@ -37,7 +37,7 @@ const defaultTresholds = {
 	5: [200, 240],
 	6: [240, 317]
 }
-*/
+
 /*
 const defaultTresholds = {
 	1: [345, 10],
