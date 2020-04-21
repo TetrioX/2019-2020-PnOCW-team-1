@@ -17,6 +17,18 @@ const defaultTresholds = {
 	6: [271.9, 351.3]
 }
 */
+
+const defaultTresholds = {
+	1: [337, 30],
+	2: [45, 75],
+	3: [110, 160],
+	4: [170, 190],
+	5: [210, 250],
+	6: [280, 310]
+}
+
+
+/*
 const defaultTresholds = {
 	1: [317, 45],
 	2: [45, 100],
@@ -25,6 +37,17 @@ const defaultTresholds = {
 	5: [200, 240],
 	6: [240, 317]
 }
+*/
+/*
+const defaultTresholds = {
+	1: [345, 10],
+	2: [45, 68],
+	3: [110, 145],
+	4: [172, 188],
+	5: [220, 245],
+	6: [295, 305]
+}
+*/
 
 const sRange = [10, 101]
 const lRange = [5, 99]

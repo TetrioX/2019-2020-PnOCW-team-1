@@ -45,10 +45,7 @@ async function getImagesHslMatrix(imgs){
                         matrix[j].push([buff[pos], buff[pos + 1], buff[pos + 2]])
                     }
                 }
-                //console.log(matrix[220][850])
                 equalize(matrix);
-                //console.log('_____________________________________')
-                //console.log(matrix[220][850])
                 return matrix
             }
         ).catch(
