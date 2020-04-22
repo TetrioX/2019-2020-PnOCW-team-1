@@ -287,10 +287,11 @@ var masterIo = io.of('/master').on('connect', function(socket){
         let pic = await takeOnePicture()
         // TODO: update AllScreenPositions
         Object.keys(slaves).forEach(function(slave, index) {
-          slaveSockets[slave].emit('triangulate', {
+          slaveSockets[slave].emit('updateTransform', {
     				corners: AllScreenPositions[slaves[slave]]
           });
         })
+        oldPic = pic;
       }
     }
 
