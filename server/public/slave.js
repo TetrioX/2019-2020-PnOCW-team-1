@@ -639,6 +639,12 @@ playerButton.addEventListener('click', function () {
             corners[2].x, corners[2].y, corners[1].x, corners[1].y);
     };
 
+
+    let dimensions = null;
+    socket.on('updateTransform', async function(data) {
+      transformSlave(canvas, data.corners, dimensions);
+    })
+
     /********************
      * Image show-off *
      ********************/
@@ -655,6 +661,7 @@ playerButton.addEventListener('click', function () {
         };
 
     socket.on('showPicture', async function (data) {
+        dimensions = {x: data.picDim[1], y: data.picDim[0]}
         cleanHTML()
         console.log('drawing picture', data)
         canvas.style.display = "block"
@@ -662,7 +669,7 @@ playerButton.addEventListener('click', function () {
         var img = new Image()
 
         img.onload = function () {
-            pastePicture(canvas, img, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+            pastePicture(canvas, img, data.corners, dimensions);
         }
 
         img.src = 'data:image/jpeg;base64,' + data.picture;
@@ -686,12 +693,13 @@ playerButton.addEventListener('click', function () {
     };
 
     socket.on('loadVideo', async function (data, callback) {
+        dimensions = {x: data.picDim[1], y: data.picDim[0]}
         cleanHTML();
         video.src = 'static/big_buck_bunny.mp4';
         video.onloadeddata = async function () {
             video.width = data.picDim[1];
             video.height = data.picDim[0];
-            transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+            transformSlave(video, data.corners, dimensions);
             await waitForBuffer(5)
             callback()
         };
@@ -821,13 +829,14 @@ playerButton.addEventListener('click', function () {
 	}
 
 	socket.on('triangulate', function(data){
+    dimensions = {x: data.picDim[1], y: data.picDim[0]}
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block"
 		canvas.width = data.picDim[1]
 		canvas.height = data.picDim[0]
 		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
-		drawTriangulation(data.centers, data.connections, {x: data.picDim[1], y: data.picDim[0]})
+		drawTriangulation(data.centers, data.connections, dimensions)
 	});
 
 
@@ -901,7 +910,8 @@ playerButton.addEventListener('click', function () {
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.width = picDim[1];
 		canvas.height = picDim[0];
-		transformSlave(canvas, corners, {x: picDim[1], y: picDim[0]});
+    dimensions = {x: picDim[1], y: picDim[0]}
+		transformSlave(canvas, corners, dimensions);
 	}
 
 	// Socket reactie om animatie te starten
