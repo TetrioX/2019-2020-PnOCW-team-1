@@ -294,6 +294,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
               let meta = values[0]
               console.log(meta)
               let buff = values[1]
+              let array = new Uint8ClampedArray(buff)
+              console.log(array)
               let imageData = new ImageData(new Uint8ClampedArray(buff), meta.width, meta.height)
               console.log(imageData)
               return imageData
