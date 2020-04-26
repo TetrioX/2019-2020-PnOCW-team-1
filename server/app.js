@@ -289,15 +289,17 @@ var masterIo = io.of('/master').on('connect', function(socket){
         let pic = await takeOnePicture()
         let imageObjects = await Promise.all([oldPic, pic].map( img => {
           let sharpImage = sharp(img)
-          resolve(Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
+          Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
             values => {
               let meta = values[0]
               let buff = values[1]
-              resolve(new ImageData(new Uint8ClampedArray(buff), meta.width))
+              let imageData = new ImageData(new Uint8ClampedArray(buff), meta.width)
+              console.log(imageData)
+              return imageData
             }
           ).catch(
             err => console.log(err.message)
-          ))
+          )
         }))
         JSFeat.findVectors(await imageObjects[0], await imageObjects[1], AllScreenPositions)
         console.log('server', AllScreenPositions)
