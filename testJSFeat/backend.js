@@ -1,4 +1,7 @@
+let Script = require('vm').Script
 let jsfeat = require('jsfeat')
+let fs = require('fs')
+sandbox = function (files, /*optional*/sandbox) { var source, script, result; if (!(files instanceof Array)) { files = [files]; } source = files.map(function (file) { return fs.readFileSync(file, 'utf8'); }).join(''); if (!sandbox) { sandbox = {}; } script = new Script(source); result = script.runInNewContext(sandbox); return sandbox; }; var tracking = sandbox('../trackingjsTests/bower_components/tracking/build/tracking-min.js',{ navigator: {}, tracking: {}, window: {} }).tracking;
 
 var homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t);
 var match_mask = new jsfeat.matrix_t(500, 1, jsfeat.U8C1_t);
@@ -77,11 +80,9 @@ function findVectors(image1, image2, AllScreenPositions) {
     var blurRadius = 3;
     tracking.Fast.THRESHOLD = 30;
     tracking.Brief.N = descriptorLength;
-    var imageData1 = context.getImageData(0, 0, width1, height1);
-    var imageData2 = context.getImageData(width1, 0, width2, height2);
 
-    var gray1 = tracking.Image.grayscale(tracking.Image.blur(imageData1.data, width1, height1, blurRadius), width1, height1);
-    var gray2 = tracking.Image.grayscale(tracking.Image.blur(imageData2.data, width2, height2, blurRadius), width2, height2);
+    var gray1 = tracking.Image.grayscale(tracking.Image.blur(image1.data, width1, height1, blurRadius), width1, height1);
+    var gray2 = tracking.Image.grayscale(tracking.Image.blur(image2.data, width2, height2, blurRadius), width2, height2);
 
     var corners1 = tracking.Fast.findCorners(gray1, width1, height1);
     var corners2 = tracking.Fast.findCorners(gray2, width2, height2);
@@ -93,19 +94,6 @@ function findVectors(image1, image2, AllScreenPositions) {
     matches.sort(function (a, b) {
         return b.confidence - a.confidence;
     });
-
-    for (var i = 0; i < Math.min(matchesShown, matches.length); i++) {
-        var color = '#' + Math.floor(Math.random() * 16777215).toString(16);
-        context.fillStyle = color;
-        context.strokeStyle = color;
-        context.fillRect(matches[i].keypoint1[0], matches[i].keypoint1[1], 5, 5);
-        context.fillRect(matches[i].keypoint2[0] + width1, matches[i].keypoint2[1], 5, 5);
-        context.beginPath();
-        context.lineWidth = 3;
-        context.moveTo(matches[i].keypoint1[0], matches[i].keypoint1[1]);
-        context.lineTo(matches[i].keypoint2[0] + width1, matches[i].keypoint2[1]);
-        context.stroke();
-    }
 
     find_transform(matches, matches.length);
 
