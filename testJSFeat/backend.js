@@ -72,12 +72,6 @@ function findVectors(image1, image2, AllScreenPositions) {
     width2 = image2.width;
     height2 = image2.height;
 
-    canvas.width = width1 + width2;
-    canvas.height = Math.max(height1, height2);
-    var context = canvas.getContext('2d');
-    context.drawImage(image1, 0, 0, image1.width, image1.height, 0, 0, width1, height1);
-    context.drawImage(image2, 0, 0, image2.width, image2.height, width1, 0, width2, height2);
-
     var descriptorLength = 512;
     var matchesShown = 30;
     var blurRadius = 3;
@@ -119,6 +113,7 @@ function findVectors(image1, image2, AllScreenPositions) {
         newCorners = transformCorners(homo3x3, AllScreenPositions[key]);
         AllScreenPositions[key] = newCorners;
     }
+    console.log('backend', AllScreenPositions)
 }
 
 module.exports = {

@@ -293,19 +293,22 @@ var masterIo = io.of('/master').on('connect', function(socket){
             values => {
               let meta = values[0]
               let buff = values[1]
-              return new ImageData(new Uint8ClampedArray(buff), meta.width)
+              return {data: new Uint8ClampedArray(buff), width: meta.width,height: meta.height}
             }
           ).catch(
             err => console.log(err.message)
           )
         }))
-        JSFeat.findVectors(imageObjects[0], imageObjects[1], AllScreenPositions)
+        console.log(imageObjects)
+        JSFeat.findVectors(await imageObjects[0], await imageObjects[1], AllScreenPositions)
+        console.log('server', AllScreenPositions)
         Object.keys(slaves).forEach(function(slave, index) {
           slaveSockets[slave].emit('updateTransform', {
     				corners: AllScreenPositions[slaves[slave]]
           });
         })
         oldPic = pic;
+        await sleep(50)
       }
     }
 
