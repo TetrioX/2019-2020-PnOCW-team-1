@@ -32,6 +32,8 @@ var latSlaves = {}
 var picDimensions = [];
 var calibrationPicture;
 
+var trackingUpdater = null;
+
 
 //App setup
 var app = express();
@@ -42,6 +44,7 @@ var server = app.listen(config.port, function(){
 // pingInterval is used to determine the latency
 var io = socket(server, {pingInterval: 200, pingTimeout: 600000});
 
+var masterSocket = null;
 var slaves = {}
 var slaveSockets = {}
 var playerColors = {}
@@ -199,6 +202,10 @@ app.get('/player', function(req,res){
   res.sendFile(__dirname + '/public/player.html')
 })
 
+app.get('/admin', function(req,res){
+  res.sendFile(__dirname + '/public/admin.html')
+})
+
 app.get('', function(req,res){
 	res.sendFile(__dirname + '/public/slave.html')
 })
@@ -221,23 +228,34 @@ io.of('/master').use(function(socket, next) {
 
 });
 
+io.of('/admin').use(function(socket, next) {
+  let passwd = socket.handshake.query.passwd
+  if (passwd == config.adminPasswd){;
+    next();
+  } else{
+     next(new Error("not authorized"));
+  }
+
+});
+
 // variables/function needed for video by master and slave
 var videoUpdater = null
 async function resumeVideo(startTime){
   clearInterval(videoUpdater)
+  console.log("starting video")
   let maxLat = Math.max(Object.values(latSlaves))
+  console.log("latency: ", maxLat)
   slaveIo.emit('playVideo', {
     maxLat: maxLat
   })
   await sleep(maxLat)
-  /**resumeTime = new Date()
-  videoUpdater = setInterval(function(){
-    let offset = startTime - resumeTime + Date.parse(new Date())
-    slaveIo.emit('updateVideo', offset)
-  }, 200)*/
 }
 
 var masterIo = io.of('/master').on('connect', function(socket){
+    if (masterSocket !== null) {
+      masterSocket.disconnect()
+    }
+    masterSocket = socket;
     socket.broadcast.emit('registerMaster')
     var imageIndex = 0;
     socket.emit('slaveSet', {
@@ -263,11 +281,25 @@ var masterIo = io.of('/master').on('connect', function(socket){
       playerIo.emit('clearAll');
     }
 
+    async function updateScreens() {
+      let oldPic = calibrationPicture
+      while (true){
+        let pic = await takeOnePicture()
+        // TODO: update AllScreenPositions
+        Object.keys(slaves).forEach(function(slave, index) {
+          slaveSockets[slave].emit('updateTransform', {
+    				corners: AllScreenPositions[slaves[slave]]
+          });
+        })
+        oldPic = pic;
+      }
+    }
+
     async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
-      var nbOfColorCombs = Object.keys(slaves).length * 10
+      var nbOfColorCombs = Object.keys(slaves).length * 11
       // calculate how many pictues should be taken
-      let nbOfPictures = Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length))
+      let nbOfPictures = Math.max(3, Math.ceil(Math.log(nbOfColorCombs + possibleColors.length)/Math.log(possibleColors.length)))
       let allColorCombinations = getColorComb(nbOfPictures)
       let screens = {}
       let colorCombs = {};
@@ -350,6 +382,25 @@ var masterIo = io.of('/master').on('connect', function(socket){
       return result
     }
 
+    async function takeOnePicture(){
+      return new Promise(function(resolve, reject) {
+        ss(socket).emit('takeOnePicture', async function(stream){
+          resolve(new Promise(async function(resolve, reject) {
+            stream.setEncoding('utf-8') // we want to recieve a string
+            stream.on('data', async (chunk) => {
+              let image = await decodeBase64Image(chunk.toString())
+              resolve(image.data)
+            });
+            stream.on('error', (err) => reject(err))
+          }).catch((err) => reject(err)))
+        })
+        setTimeout(() => reject(new Error("Failed to take picture")), 5000);
+      }).catch(function(error) {
+        console.log(error)
+        // failed to retrieve the image
+        socket.emit('alert', "Retrieving one of the images timed out.")
+      })
+    }
 
     // takes a picture with i the current picture and n the total number of pictures
     // and pictues a list with all taken pictures
@@ -358,23 +409,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // loop untill break statement
       let i = 0
       while(true){
-        let picPromise = new Promise(function(resolve, reject) {
-          ss(socket).emit('takeOnePicture', async function(stream){
-            resolve(new Promise(async function(resolve, reject) {
-              stream.setEncoding('utf-8') // we want to recieve a string
-              stream.on('data', async (chunk) => {
-                let image = await decodeBase64Image(chunk.toString())
-                resolve(image.data)
-              });
-              stream.on('error', (err) => reject(err))
-            }).catch((err) => reject(err)))
-          })
-          setTimeout(() => reject(new Error("Failed to take picture")), 5000);
-        }).catch(function(error) {
-          console.log(error)
-          // failed to retrieve the image
-          socket.emit('alert', "Retrieving one of the images timed out.")
-        })
+        let picPromise = takeOnePicture()
         let pic = await picPromise
         pictures.push(pic)
         i += 1
@@ -405,6 +440,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }
 
     socket.on('changeBackgroundOfAllSlaves', async function(data){
+      clearTimeout(trackingUpdater)
       var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
       var screenKeys = Object.keys(screens)
       if (screenKeys.length == 0){
@@ -417,6 +453,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
       console.log(screens)
       AllScreenPositions = {...AllScreenPositions, ...screens};
+      trackingUpdater = setTimeout(updateScreens())
     });
 
     socket.on('upload-image', async function (data) {
@@ -430,6 +467,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     });
 
     socket.on('reset', function(data){
+      clearTimeout(trackingUpdater)
       AllScreenPositions = {}
       clearInterval(videoUpdater)
       clearInterval(countdownUpdater)
@@ -522,25 +560,25 @@ var masterIo = io.of('/master').on('connect', function(socket){
 	socket.on('broadcastVideo', async function(){
     clearInterval(videoUpdater)
 
-    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-    //                    '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    // picDimensions = [500, 1000]
-
     // send to each slave
     let videoPromises = []
     // start loading the video
 		Object.keys(slaves).forEach(function(slave, index) {
       if (slaves[slave] in AllScreenPositions){
+        let received = false;
         videoPromises.push(new Promise(function(resolve, reject){
           slaveSockets[slave].emit('loadVideo', {
     				corners: AllScreenPositions[slaves[slave]],
     				picDim: picDimensions
     			}, function(callbackData){
+            received = true;
             resolve()
           })
           setTimeout(function(){
-            deleteSlave(slaveSockets[slave])
-            resolve()
+            if (!received) {
+              deleteSlave(slaveSockets[slave])
+              resolve()
+            }
           }, 5000);
         }))
       }
@@ -655,11 +693,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   // Run the animation showoff
   socket.on('startAnimation', async function(data) {
-
-    AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-                       '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}],
-                    '5': [{x: 700, y: 0}, {x: 1000, y: 250}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    picDimensions = [500, 1000]
 
     if (Object.keys(AllScreenPositions).length < 1) {
       socket.emit('alert', 'Please do screen recognition first');
@@ -903,6 +936,38 @@ var playerIo = io.of('/player').on('connect', function(socket){
   })
 })
 
+
+/***************
+  * Admin IO  *
+ ***************/
+var exec = require('child_process').execFile;
+
+var adminIo = io.of('/admin').on('connect', function(socket){
+  socket.on("update", function(branch, callback){
+    exec('git', ['fetch','origin',branch], function (error, stdout, stderr) {
+      if (error !== null){
+        callback(stderr)
+      } else {
+        exec('git', ['checkout',branch], function (error, stdout, stderr) {
+          if (error !== null){
+            callback(stderr)
+          } else {
+            exec('git', ['pull'], function (error, stdout, stderr) {
+              if (error !== null){
+                callback(stderr)
+              } else {
+                callback("changed to "+branch+".\nRestarting in 2 seconds.")
+                setTimeout(function(){
+                  process.exit()
+                }, 2)
+              }
+            })
+          } // so many callbacks :O
+        })
+      }
+    })
+  })
+})
 
 /********************
   * Grid functions *

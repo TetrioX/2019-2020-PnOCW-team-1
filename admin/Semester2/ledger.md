@@ -56,3 +56,9 @@ Er werd ook een algoritme geschreven om iteratief drempelwaarden te berekenen.
 - Filters toegepast en het effect hiervan bestudeerd.
 
 ## Team meeting 8 - 31/03/2020 (online)
+- Enkele bugfixes werden uitgevoerd (Er konden bijvoorbeeld voordien 
+twee masters zijn, nu is dit niet meer)
+- Er werd getest met de gyroscoop van een master device. 
+De verschillende hoekafwijkingen kunnen nu verkregen worden.
+- In verband met keypoint-tracking werd er getest met tracking.js. 
+Verder werd er nog besproken hoe we de verplaatsing van een scherm eenduidig kunnen bepalen.

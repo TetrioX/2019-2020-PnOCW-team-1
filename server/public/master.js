@@ -111,6 +111,7 @@ new Promise(function(resolve, reject){
 	 ***********************************/
 
 	function createSlaveButton(number,id) {
+		/*
 			var btn = document.createElement("BUTTON");
 			btn.innerHTML = "Change color of " + number;
 			entirePage.appendChild(btn);
@@ -121,6 +122,7 @@ new Promise(function(resolve, reject){
 					});
 			});
 			slaveButtons[id] = btn;
+		*/
 	}
 
 	function removeSlaveButton(slave) {
@@ -148,13 +150,6 @@ new Promise(function(resolve, reject){
 	/**************************
 	  * Foto nemen functions *
 	 **************************/
-
-	var useCameraButton = document.getElementById('useCamBtn');
-	useCameraButton.addEventListener('click',function(){
-		socket.emit('clearAll');
-		console.log("Hoi")
-		document.getElementById("cameraDiv").style.display = "";
-	});
 
 	var video = document.getElementById('video');
 	var canvas = document.getElementById('canvas');
@@ -528,6 +523,11 @@ new Promise(function(resolve, reject){
 		controlSnakePage.style.display="none";
 		socket.emit('clearAll');
 		socket.emit('stopSnake')
+	})
+
+	socket.on('disconnect', function() {
+		alert("Was disconnected. Another user might have logged in as master.")
+		window.location.reload(false)
 	})
 
 })
