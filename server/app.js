@@ -300,12 +300,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
           )
         }))
         JSFeat.findVectors(imageObjects[0], imageObjects[1], AllScreenPositions)
+        console.log('server', AllScreenPositions)
         Object.keys(slaves).forEach(function(slave, index) {
           slaveSockets[slave].emit('updateTransform', {
     				corners: AllScreenPositions[slaves[slave]]
           });
         })
         oldPic = pic;
+        await sleep(50)
       }
     }
 

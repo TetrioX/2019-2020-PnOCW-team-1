@@ -119,6 +119,7 @@ function findVectors(image1, image2, AllScreenPositions) {
         newCorners = transformCorners(homo3x3, AllScreenPositions[key]);
         AllScreenPositions[key] = newCorners;
     }
+    console.log('backend', AllScreenPositions)
 }
 
 module.exports = {
