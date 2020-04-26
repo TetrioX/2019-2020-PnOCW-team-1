@@ -289,7 +289,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
         let pic = await takeOnePicture()
         let imageObjects = await Promise.all([oldPic, pic].map( img => {
           let sharpImage = sharp(img)
-          Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
+          return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
             values => {
               let meta = values[0]
               let buff = values[1]
