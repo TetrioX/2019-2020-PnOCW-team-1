@@ -293,7 +293,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
             values => {
               let meta = values[0]
               let buff = values[1]
-              let imageData = new ImageData(new Uint8ClampedArray(buff), meta.width)
+              let imageData = new ImageData(new Uint8ClampedArray(buff), meta.width, meta.height)
               console.log(imageData)
               return imageData
             }
