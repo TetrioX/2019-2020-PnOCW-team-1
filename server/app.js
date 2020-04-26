@@ -2,6 +2,7 @@ var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
 var ss = require('socket.io-stream');
+var sharp = require('sharp')
 // const scrnrec = require('../screenProcessing/screenRecognitionDirect.js')
 const scrnread = require('./lib/screenProcessing/screenReading.js')
 const imgprcss = require('./lib/screenProcessing/readImage.js')

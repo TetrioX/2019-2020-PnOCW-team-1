@@ -1,4 +1,4 @@
-let sharp = require('sharp')
+let jsfeat = require('jsfeat')
 
 var homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t);
 var match_mask = new jsfeat.matrix_t(500, 1, jsfeat.U8C1_t);
@@ -48,7 +48,7 @@ function find_transform(matches, count) {
     return good_cnt;
 }
 
-console.log(homo3x3.data);
+// console.log(homo3x3.data);
 
 function transformCorners(M, oldCorners) {
     var pt = oldCorners;
