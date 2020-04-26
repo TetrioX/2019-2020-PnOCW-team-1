@@ -292,6 +292,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
             values => {
               let meta = values[0]
+              console.log(meta)
               let buff = values[1]
               let imageData = new ImageData(new Uint8ClampedArray(buff), meta.width, meta.height)
               console.log(imageData)
