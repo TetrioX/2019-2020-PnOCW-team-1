@@ -292,20 +292,14 @@ var masterIo = io.of('/master').on('connect', function(socket){
           return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
             values => {
               let meta = values[0]
-              console.log(meta)
               let buff = values[1]
-              let array = new Uint8ClampedArray(buff)
-              console.log(array)
-              console.log(meta.width)
-              console.log(meta.height)
-              let imageData = new ImageData(new Uint8ClampedArray(buff), meta.width, meta.height)
-              console.log(imageData)
-              return imageData
+              return {data: new Uint8ClampedArray(buff), width: meta.width,height: meta.height}
             }
           ).catch(
             err => console.log(err.message)
           )
         }))
+        console.log(imageObjects)
         JSFeat.findVectors(await imageObjects[0], await imageObjects[1], AllScreenPositions)
         console.log('server', AllScreenPositions)
         Object.keys(slaves).forEach(function(slave, index) {
