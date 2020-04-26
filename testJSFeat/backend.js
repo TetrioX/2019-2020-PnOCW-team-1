@@ -117,20 +117,7 @@ function render_screen_shape(ctx, shiftx) {
     ctx.lineWidth = 4;
     ctx.stroke();
 }
-function findVectors(image1,image2, AllScreenPositions) {
-  images = [image1, image2]
-  let imageObjects = await Promise.all(images.map( img => {
-    let sharpImage = sharp(img)
-    return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
-      values => {
-        let meta = values[0]
-        let buff = values[1]
-        return new ImageData(new Uint8ClampedArray(buff), meta.width)
-      }
-    ).catch(
-      err => console.log(err.message)
-    )
-  }))
+function findVectors(imageObject,imageScene, AllScreenPositions) {
   imageObject = imageObjects[0]
   imageScene = imageObjects[1]
   colsObject = imageObject.width;

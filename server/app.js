@@ -10,6 +10,7 @@ const delaunay = require('./lib/triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('./lib/triangulate_divide_and_conquer/geometry.js')
 var snakeJs = require('./lib/SnakeLogic/snake.js')
 var worldJs = require('./lib/SnakeLogic/world.js')
+var JSFeat = require('../testJSFeat/backend.js')
 
 // load config file
 const config = require('./config.json');
@@ -285,7 +286,19 @@ var masterIo = io.of('/master').on('connect', function(socket){
       let oldPic = calibrationPicture
       while (true){
         let pic = await takeOnePicture()
-        // TODO: update AllScreenPositions
+        let imageObjects = await Promise.all([oldPic, pic].map( img => {
+          let sharpImage = sharp(img)
+          return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
+            values => {
+              let meta = values[0]
+              let buff = values[1]
+              return new ImageData(new Uint8ClampedArray(buff), meta.width)
+            }
+          ).catch(
+            err => console.log(err.message)
+          )
+        }))
+        JSFeat.findVectors(imageObjects[0], imageObjects[1], AllScreenPositions)
         Object.keys(slaves).forEach(function(slave, index) {
           slaveSockets[slave].emit('updateTransform', {
     				corners: AllScreenPositions[slaves[slave]]
