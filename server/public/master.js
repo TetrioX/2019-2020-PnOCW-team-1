@@ -115,7 +115,6 @@ new Promise(function(resolve, reject){
 	 masterorientationdiv =document.getElementById("masterorientation");
 	 realor = document.getElementById("realor");
 	 relativeor = document.getElementById("relativeor")
-	 var relativeorientation = 0;
 	 var realorientation =0;
 
 	 orientationbutton.addEventListener('click',function(){
@@ -134,9 +133,6 @@ new Promise(function(resolve, reject){
 		 		realorientation = 80 ;	
 		 	},false)
 	 	}
-	 console.log(zerobuttonvar)
-	 console.log(relativeorientation)
-	 console.log(realorientation)
 	 })
 
 	
@@ -149,6 +145,17 @@ new Promise(function(resolve, reject){
 		 	realor.innerText = realorientation.toString();
 		 },false);
 	}
+
+	window.addEventListener('deviceorientation', function(data){
+		document.getElementById('orientationsupport?').innerText = "Supported"; 
+		console.log('handleOrientation')
+		console.log('okll')
+		console.log(event)
+		document.getElementById("alpha").innerText = data.alpha.toString();
+		document.getElementById("beta").innerText= data.beta.toString();
+		document.getElementById("gamma").innerText = data.gamma.toString();
+	}, true);
+
 	
 
 
