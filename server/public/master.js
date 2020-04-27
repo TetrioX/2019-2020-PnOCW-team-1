@@ -131,7 +131,7 @@ new Promise(function(resolve, reject){
 		 	zerobutton.onclick ="";
 		 	window.addEventListener('deviceorientation', function(event){
 		 	realorientation = event.alpha;	
-		 	},true)
+		 	},false)
 	 	}
 	 	
 	 })
@@ -142,7 +142,7 @@ new Promise(function(resolve, reject){
 	 	relativeorientation=event.alpha-realorientation
 	 	relativeor.innerText = relativeorientation.toString();
 	 	realor.innerText = realorientation.toString();
-	 },true);
+	 },false);
 	
 
 
