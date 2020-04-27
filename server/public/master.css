@@ -16,10 +16,16 @@
 
 #passwordPage{
     margin-top: 100px;
+
 }
 
 #alertdiv{
 	border: 1px solid #d41919;
+}
+
+.border{
+  margin:10px;
+  padding:10px;
 }
 
 
@@ -201,4 +207,8 @@ h1{
 
 .border{
 	border: 3px !important;
+}
+
+.btn{
+  margin: 5px;
 }
