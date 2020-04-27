@@ -129,8 +129,8 @@ new Promise(function(resolve, reject){
 	 		zerobuttonvar =true
 	 		masterorientationdiv.style.display=""
 		 	zerobutton.onclick ="";
-		 	window.addEventListener('deviceorientation', function(event){
-		 		realorientation = 80 ;	
+		 	window.addEventListener('deviceorientation', function(calibration){
+		 		realorientation = calibration.alpha;	
 		 	},false)
 	 	}
 	 })
