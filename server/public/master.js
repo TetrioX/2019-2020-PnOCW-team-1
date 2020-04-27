@@ -127,12 +127,12 @@ new Promise(function(resolve, reject){
 	 zerobutton.addEventListener('click',function(){
 	 	zerobutton.onclick ="";
 	 	masterorientationdiv.style.display=""
-		 	window.addEventListener('deviceorientation', function(calibration){
-		 		while (update = true){
+		 window.addEventListener('deviceorientation', function(calibration){
+			 while (update == true){
 		 			realorientation = calibration.alpha;
-		 			update = false;
-		 		}		
-		 	},false)
+		 	update = false;
+		 	}		
+		 },false)
 	
 
 	 	}
