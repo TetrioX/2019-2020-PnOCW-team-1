@@ -131,7 +131,7 @@ new Promise(function(resolve, reject){
 
 	window.addEventListener('deviceorientation', function(event){
 	 	relativeorientation=event.alpha-realorientation
-	 	masterorientationdiv.innerText = relativeorientation.toString();
+	 	masterorientationdiv.innerText = relativeorientation.toString()+realorientation.toString();
 	 },true);
 	
 
