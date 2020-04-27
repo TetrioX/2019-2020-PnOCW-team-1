@@ -123,31 +123,38 @@ new Promise(function(resolve, reject){
 	 	fourtentirepage.style.display="";
 	 })
 
-	 var update = true;
-	 zerobutton.addEventListener('click',function(){
-	 	zerobutton.onclick ="";
-	 	masterorientationdiv.style.display=""
-		 window.addEventListener('deviceorientation', function(calibration){
-			 while (update == true){
-		 			realorientation = calibration.alpha;
-		 			update = false;
-		 	}	
-		 		
-		 },false)
 
-	 })
+	zerobutton.addEventListener('click',calibrateOrientation)
 	
-
-	
-	 if (window.DeviceOrientationEvent) {
+	if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
-		 	relativeorientation=event.alpha-realorientation
-		 	console.log("rel: "+relativeorientation)
-		 	console.log("real: "+realorientation)
-		 	relativeor.innerText = relativeorientation.toString();
-		 	realor.innerText = realorientation.toString();
+		 	alfa = event.alpha
+			printRelativeOrientation(alfa)
 		 },false);
 	}
+
+	
+	function calibrateOrientation(){
+
+		var update = true;
+		zerobutton.onclick ="";
+	 	masterorientationdiv.style.display=""
+		window.addEventListener('deviceorientation', function(calibration){
+			while (update == true){
+		 		realorientation = calibration.alpha;
+		 		update = false;
+		 	}		
+		},false)
+	}
+
+	function printRelativeOrientation(alfa){
+		relativeorientation=Math.round(event.alpha-realorientation)
+		relativeor.innerText = relativeorientation.toString();
+		realor.innerText = Math.round(realorientation).toString();
+	}
+
+	
+
 
 	window.addEventListener('deviceorientation', function(data){
 		document.getElementById('orientationsupport?').innerText = "Supported"; 

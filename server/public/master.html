@@ -188,14 +188,17 @@
 			<button id="changePageButton3" class="btn btn-dark">Home</button>
 		</div>
 	</div>
-	<div id="fourthEntirePage" style="display: none;">
+	<div id="fourthEntirePage" style="display: none;" class="mx-auto col-12 col-sm-12 col-md-8 col-lg-4 border border-lg border-dark rounded">
 		<div>
 			<p>Point your camera to the <strong>center </strong>of the slave screens, and hold it <strong>still</strong>!</p>
 			<p>Press 'Calibrate Orientation' if you are in the good position. </p>
 		</div>
+		<hr>
 		<div id="masterorientation" style="display: none">
-			<p id="relativeor"></p>
-			<p id= "realor"></p>
+			Your angle with the Slaves is:
+			<p class="angle"id="relativeor"></p>
+			The master was calibrated on angle:
+			<p class="angle"id= "realor"></p>
 		</div>
 		<button class="btn btn-dark" id="zeroorientation">Calibrate Orientation</button>
 	</div>
