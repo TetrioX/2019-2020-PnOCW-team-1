@@ -117,25 +117,21 @@ new Promise(function(resolve, reject){
 	 relativeor = document.getElementById("relativeor")
 	 var realorientation =0;
 
+
 	 orientationbutton.addEventListener('click',function(){
 	 	entirePage.style.display="none";
 	 	fourtentirepage.style.display="";
 	 })
 
-	 zerobuttonvar = false;
+	 var update = true;
 	 zerobutton.addEventListener('click',function(){
-	 	console.log('test')
-	 	if(zerobuttonvar==false){
-	 		zerobuttonvar =true
-	 		masterorientationdiv.style.display=""
-		 	zerobutton.onclick ="";
-		 	update =true;
+	 	zerobutton.onclick ="";
+	 	masterorientationdiv.style.display=""
 		 	window.addEventListener('deviceorientation', function(calibration){
 		 		while update = true{
 		 			realorientation = calibration.alpha;
 		 			update = false;
-		 		}
-		 			
+		 		}		
 		 	},false)
 	
 
