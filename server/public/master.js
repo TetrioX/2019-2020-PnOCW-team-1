@@ -125,38 +125,36 @@ new Promise(function(resolve, reject){
 
 	 zerobuttonvar = false;
 	 zerobutton.addEventListener('click',function(){
+	 	console.log('test')
 	 	if(zerobuttonvar==false){
 	 		zerobuttonvar =true
 	 		masterorientationdiv.style.display=""
 		 	zerobutton.onclick ="";
 		 	window.addEventListener('deviceorientation', function(event){
-		 	realorientation = event.alpha;	
+		 		realorientation = 80 ;	
 		 	},false)
 	 	}
-	 	
+	 console.log(zerobuttonvar)
+	 console.log(relativeorientation)
+	 console.log(realorientation)
 	 })
 
 	
-
-	window.addEventListener('deviceorientation', function(event){
-	 	relativeorientation=event.alpha-realorientation
-	 	relativeor.innerText = relativeorientation.toString();
-	 	realor.innerText = realorientation.toString();
-	 },false);
+	 if (window.DeviceOrientationEvent) {
+		window.addEventListener('deviceorientation', function(event){
+		 	relativeorientation=event.alpha-realorientation
+		 	console.log("rel: "+relativeorientation)
+		 	console.log("real: "+realorientation)
+		 	relativeor.innerText = relativeorientation.toString();
+		 	realor.innerText = realorientation.toString();
+		 },false);
+	}
 	
 
 
 
 
-	window.addEventListener('deviceorientation', function(event){
-		document.getElementById('orientationsupport?').innerText = "Supported"; 
-		console.log('handleOrientation')
-		console.log('okll')
-		console.log(event)
-		document.getElementById("alpha").innerText = event.alpha.toString();
-		document.getElementById("beta").innerText= event.beta.toString();
-		document.getElementById("gamma").innerText = event.gamma.toString();
-	}, true);
+	
 	
 
 
