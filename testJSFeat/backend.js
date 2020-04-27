@@ -102,7 +102,7 @@ function findVectors(image1, image2, AllScreenPositions) {
     find_transform(matches, matches.length);
 
     for (const [key, value] of Object.entries(AllScreenPositions)) {
-        newCorners = transformCorners(homo3x3, AllScreenPositions[key]);
+        newCorners = transformCorners(homo3x3.data, AllScreenPositions[key]);
         AllScreenPositions[key] = newCorners;
     }
     console.log('backend', AllScreenPositions)
