@@ -113,6 +113,8 @@ function findVectors(image1, image2, AllScreenPositions) {
         newCorners = transformCorners(homo3x3, AllScreenPositions[key]);
         AllScreenPositions[key] = newCorners;
     }
+    console.log('matrix', homo3x3)
+    console.log('match_mask', match_mask)
     console.log('backend', AllScreenPositions)
 }
 
