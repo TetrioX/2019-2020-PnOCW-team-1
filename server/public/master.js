@@ -121,12 +121,17 @@ new Promise(function(resolve, reject){
 	 	fourtentirepage.style.display="";
 	 })
 
+	 zerobuttonvar = false;
 	 zerobutton.addEventListener('click',function(){
-	 	masterorientationdiv.style.display=""
-	 	zerobutton.onclick ="";
-	 	window.addEventListener('deviceorientation', function(event){
-	 	realorientation = event.alpha;	
-	 	},true)
+	 	if(zerobuttonvar==false){
+	 		zerobuttonvar =true
+	 		masterorientationdiv.style.display=""
+		 	zerobutton.onclick ="";
+		 	window.addEventListener('deviceorientation', function(event){
+		 	realorientation = event.alpha;	
+		 	},true)
+	 	}
+	 	
 	 })
 
 	
