@@ -122,16 +122,20 @@ new Promise(function(resolve, reject){
 	 })
 
 	 zerobutton.addEventListener('click',function(){
+	 	zerobutton.disabled = true;
+	 	masterorientationdiv.style.display=""
 	 	window.addEventListener('deviceorientation', function(event){
 	 	realorientation = event.alpha;	
 	 	},true)
 	 })
 
-	window.addEventListener('deviceorientation', function(event){
+	if(masterorientationdiv.style.display=""){
+		window.addEventListener('deviceorientation', function(event){
 	 	relativeorientation=event.alpha-realorientation
 	 	masterorientationdiv.innerText = relativeorientation.toString();
 	 },true);
-
+	}
+	
 
 
 
