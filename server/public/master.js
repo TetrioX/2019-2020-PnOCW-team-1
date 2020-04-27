@@ -125,7 +125,7 @@ new Promise(function(resolve, reject){
 	 	masterorientationdiv.style.display=""
 	 	zerobutton.onclick ="";
 	 	window.addEventListener('deviceorientation', function(event){
-	 	var realorientation = event.alpha;	
+	 	realorientation = event.alpha;	
 	 	},true)
 	 })
 
