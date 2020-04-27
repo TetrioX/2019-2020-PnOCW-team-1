@@ -3,7 +3,9 @@ let jsfeat = require('jsfeat')
 let fs = require('fs')
 sandbox = function (files, /*optional*/sandbox) { var source, script, result; if (!(files instanceof Array)) { files = [files]; } source = files.map(function (file) { return fs.readFileSync(file, 'utf8'); }).join(''); if (!sandbox) { sandbox = {}; } script = new Script(source); result = script.runInNewContext(sandbox); return sandbox; }; var tracking = sandbox('../trackingjsTests/bower_components/tracking/build/tracking-min.js',{ navigator: {}, tracking: {}, window: {} }).tracking;
 
+// Homography matrix
 var homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t);
+// all mathces will be marked as good (1) or bad (0)
 var match_mask = new jsfeat.matrix_t(500, 1, jsfeat.U8C1_t);
 
 function find_transform(matches, count) {
