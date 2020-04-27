@@ -56,7 +56,6 @@ function find_transform(matches, count) {
 function transformCorners(M, oldCorners) {
     var pt = oldCorners;
     var z = 0.0, i = 0, px = 0.0, py = 0.0;
-
     for (; i < 4; ++i) {
         px = M[0] * pt[i].x + M[1] * pt[i].y + M[2];
         py = M[3] * pt[i].x + M[4] * pt[i].y + M[5];
@@ -98,10 +97,9 @@ function findVectors(image1, image2, AllScreenPositions) {
     find_transform(matches, matches.length);
 
     for (const [key, value] of Object.entries(AllScreenPositions)) {
-        newCorners = transformCorners(homo3x3, AllScreenPositions[key]);
+        newCorners = transformCorners(homo3x3.data, AllScreenPositions[key]);
         AllScreenPositions[key] = newCorners;
     }
-    console.log('backend', AllScreenPositions)
 }
 
 module.exports = {
