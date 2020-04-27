@@ -130,13 +130,13 @@ new Promise(function(resolve, reject){
 		 window.addEventListener('deviceorientation', function(calibration){
 			 while (update == true){
 		 			realorientation = calibration.alpha;
-		 	update = false;
-		 	}		
+		 			update = false;
+		 	}	
+		 		
 		 },false)
-	
 
-	 	}
 	 })
+	
 
 	
 	 if (window.DeviceOrientationEvent) {
