@@ -124,10 +124,11 @@ new Promise(function(resolve, reject){
 	 zerobutton.addEventListener('click',function(){
 	 	masterorientationdiv.style.display=""
 	 	window.addEventListener('deviceorientation', function(event){
-	 	const = realorientation = event.alpha;	
+	 	let orientation = event.alpha;	
 	 	},true)
 	 })
 
+	const realorientation =orientation;
 
 	window.addEventListener('deviceorientation', function(event){
 	 	relativeorientation=event.alpha-realorientation
