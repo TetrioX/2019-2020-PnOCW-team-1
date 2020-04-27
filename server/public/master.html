@@ -147,15 +147,6 @@
 			<div>
 				<button id="orientationbutton" class="btn btn-outline-info"">Calibrate Orientation</button>
 			</div>
-			<div id ="orientationz">
-				The Alfa-orientation is: <span id="alpha"></span> degrees				
-			</div>
-			<div id ="orientationx">
-				The Betha-orientation is: <span id="beta"></span> degrees				
-			</div>
-			<div id ="orientationy">
-				The Gamma-orientation is: <span id="gamma"></span> degrees				
-			</div>
 		
 		</div>	
 	</div>
@@ -194,6 +185,10 @@
 			<p>Press 'Calibrate Orientation' if you are in the good position. </p>
 		</div>
 		<hr>
+		<div id="currentanglediv">
+			Your <strong>current</strong> angle is:
+			<p class="angle" id="currentangle"></p>
+		</div>
 		<div id="masterorientation" style="display: none">
 			Your angle with the Slaves is:
 			<p class="angle"id="relativeor"></p>

@@ -139,6 +139,7 @@ new Promise(function(resolve, reject){
 		var update = true;
 		zerobutton.onclick ="";
 	 	masterorientationdiv.style.display=""
+	 	document.getElementById("currentanglediv").style.display="none"
 		window.addEventListener('deviceorientation', function(calibration){
 			while (update == true){
 		 		realorientation = calibration.alpha;
@@ -153,17 +154,10 @@ new Promise(function(resolve, reject){
 		realor.innerText = Math.round(realorientation).toString();
 	}
 
-	
-
-
 	window.addEventListener('deviceorientation', function(data){
-		document.getElementById('orientationsupport?').innerText = "Supported"; 
-		console.log('handleOrientation')
-		console.log('okll')
-		console.log(event)
-		document.getElementById("alpha").innerText = data.alpha.toString();
-		document.getElementById("beta").innerText= data.beta.toString();
-		document.getElementById("gamma").innerText = data.gamma.toString();
+		document.getElementById('orientationsupport?').innerText = "Gyroscoop is supported"; 
+		document.getElementById("currentangle").innerText = Math.round(data.alpha).toString();
+		
 	}, true);
 
 	
