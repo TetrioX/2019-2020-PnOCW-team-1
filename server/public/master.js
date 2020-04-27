@@ -114,7 +114,7 @@ new Promise(function(resolve, reject){
 	 zerobutton = document.getElementById("zeroorientation");
 	 masterorientationdiv =document.getElementById("masterorientation");
 	 var relativeorientation = 0;
-	 
+	 var realorientation =0;
 
 	 orientationbutton.addEventListener('click',function(){
 	 	entirePage.style.display="none";
@@ -125,7 +125,7 @@ new Promise(function(resolve, reject){
 	 	masterorientationdiv.style.display=""
 	 	zerobutton.onclick ="";
 	 	window.addEventListener('deviceorientation', function(event){
-	 	const realorientation = event.alpha;	
+	 	var realorientation = event.alpha;	
 	 	},true)
 	 })
 
