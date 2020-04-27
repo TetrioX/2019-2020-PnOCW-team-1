@@ -57,6 +57,8 @@ function transformCorners(M, oldCorners) {
     var pt = oldCorners;
     var z = 0.0, i = 0, px = 0.0, py = 0.0;
     for (; i < 4; ++i) {
+        console.log('pt', pt)
+        console.log('M[0]', M[0])
         px = M[0] * pt[i].x + M[1] * pt[i].y + M[2];
         py = M[3] * pt[i].x + M[4] * pt[i].y + M[5];
         z = M[6] * pt[i].x + M[7] * pt[i].y + M[8];
