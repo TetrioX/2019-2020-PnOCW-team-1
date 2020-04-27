@@ -106,6 +106,19 @@ new Promise(function(resolve, reject){
 	});
 
 
+
+	window.addEventListener('deviceorientation', function(event){
+		document.getElementById('orientationsupport?').innerText = "Supported"; 
+		console.log('handleOrientation')
+		console.log('okll')
+		console.log(event)
+		document.getElementById("alpha").innerText = event.alpha.toString();
+		document.getElementById("beta").innerText= event.beta.toString();
+		document.getElementById("gamma").innerText = event.gamma.toString();
+	}, true);
+
+
+
 	/***********************************
 	  * Slave communication functions *
 	 ***********************************/
