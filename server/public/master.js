@@ -132,7 +132,8 @@ new Promise(function(resolve, reject){
 		 	window.addEventListener('deviceorientation', function(calibration){
 		 		realorientation = calibration.alpha;	
 		 	},false)
-		 	const fixedorientation = realorientation;
+		 	window.removeEventListener('deviceorientation', function(calibration))
+
 	 	}
 	 })
 
