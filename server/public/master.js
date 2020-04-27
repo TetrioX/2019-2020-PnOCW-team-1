@@ -113,6 +113,8 @@ new Promise(function(resolve, reject){
 	 fourtentirepage = document.getElementById("fourthEntirePage");
 	 zerobutton = document.getElementById("zeroorientation");
 	 masterorientationdiv =document.getElementById("masterorientation");
+	 realor = document.getElementById("realor");
+	 relativeor = document.getElementById("relativeor")
 	 var relativeorientation = 0;
 	 var realorientation =0;
 
@@ -138,7 +140,8 @@ new Promise(function(resolve, reject){
 
 	window.addEventListener('deviceorientation', function(event){
 	 	relativeorientation=event.alpha-realorientation
-	 	masterorientationdiv.innerText = relativeorientation.toString();
+	 	relativeor.innerText = relativeorientation.toString();
+	 	realor.innerText = realorientation.toString();
 	 },true);
 	
 
