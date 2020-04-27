@@ -129,12 +129,11 @@ new Promise(function(resolve, reject){
 	 	},true)
 	 })
 
-	if(masterorientationdiv.style.display=""){
-		window.addEventListener('deviceorientation', function(event){
+
+	window.addEventListener('deviceorientation', function(event){
 	 	relativeorientation=event.alpha-realorientation
 	 	masterorientationdiv.innerText = relativeorientation.toString();
 	 },true);
-	}
 	
 
 
