@@ -105,9 +105,38 @@ new Promise(function(resolve, reject){
 	    })
 	});
 
+	/***********************************
+	  * Orientation functions *
+	 ***********************************/
 
+	 orientationbutton = document.getElementById("orientationbutton");
+	 fourtentirepage = document.getElementById("fourthEntirePage");
+	 zerobutton = document.getElementById("zeroorientation");
+	 masterorientationdiv =document.getElementById("masterorientation");
+	 var relativeorientation = 0;
+	 var realorientation = 0;
+
+	 orientationbutton.addEventListener('click',function(){
+	 	entirePage.style.display="none";
+	 	fourtentirepage.style.display="";
+	 })
+
+	 zerobutton.addEventListener('click',function(){
+	 	window.addEventListener('deviceorientation', function(event){
+	 	realorientation = event.alpha;	
+	 	},true)
+	 })
 
 	window.addEventListener('deviceorientation', function(event){
+	 	relativeorientation=event.alpha-realorientation
+	 	masterorientationdiv.innerText.relativeorientation.toString();
+	 },true);
+
+
+
+
+
+	/*window.addEventListener('deviceorientation', function(event){
 		document.getElementById('orientationsupport?').innerText = "Supported"; 
 		console.log('handleOrientation')
 		console.log('okll')
@@ -116,7 +145,7 @@ new Promise(function(resolve, reject){
 		document.getElementById("beta").innerText= event.beta.toString();
 		document.getElementById("gamma").innerText = event.gamma.toString();
 	}, true);
-
+	*/
 
 
 	/***********************************

@@ -138,9 +138,14 @@
 			</div>
 			<button type="button" id="snakeButton" class="btn btn-outline-success">Go to snake.</button>
 		</div>
+
+
 		<div class="border border-lg border-primary rounded">
 			<div id = orientationsupport?>
 				This device doesnt support orientation
+			</div>
+			<div>
+				<button id="orientationbutton" class="btn btn-outline-info"">Calibrate Orientation</button>
 			</div>
 			<div id ="orientationz">
 				The Alfa-orientation is: <span id="alpha"></span> degrees				
@@ -183,7 +188,16 @@
 			<button id="changePageButton3" class="btn btn-dark">Home</button>
 		</div>
 	</div>
-
+	<div id="fourthEntirePage" style="display: none;">
+		<div>
+			<p>Point your camera to the <strong>center </strong>of the slave screens, and hold it <strong>still</strong>!</p>
+			<p>Press 'Calibrate Orientation' if you are in the good position. </p>
+		</div>
+		<div id="masterorientation">
+			
+		</div>
+		<button class="btn btn-dark" id="zeroorientation">Calibrate Orientation</button>
+	</div>
 
 	<div id="controlSnakePage" style="display:none">
 			<canvas id="positionCanvas"></canvas>
