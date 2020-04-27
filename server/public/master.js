@@ -123,18 +123,17 @@ new Promise(function(resolve, reject){
 
 	 zerobutton.addEventListener('click',function(){
 	 	masterorientationdiv.style.display=""
+	 	zerobutton.onclick ="";
 	 	window.addEventListener('deviceorientation', function(event){
-	 	let orientation = event.alpha;	
+	 	const realorientation = event.alpha;	
 	 	},true)
-
-	 	const realorientation =orientation;
 	 })
 
 	
 
 	window.addEventListener('deviceorientation', function(event){
 	 	relativeorientation=event.alpha-realorientation
-	 	masterorientationdiv.innerText = relativeorientation.toString()+realorientation.toString();
+	 	masterorientationdiv.innerText = relativeorientation.toString();
 	 },true);
 	
 
