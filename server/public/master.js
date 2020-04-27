@@ -129,14 +129,14 @@ new Promise(function(resolve, reject){
 
 	window.addEventListener('deviceorientation', function(event){
 	 	relativeorientation=event.alpha-realorientation
-	 	masterorientationdiv.innerText.relativeorientation.toString();
+	 	masterorientationdiv.innerText = relativeorientation.toString();
 	 },true);
 
 
 
 
 
-	/*window.addEventListener('deviceorientation', function(event){
+	window.addEventListener('deviceorientation', function(event){
 		document.getElementById('orientationsupport?').innerText = "Supported"; 
 		console.log('handleOrientation')
 		console.log('okll')
@@ -145,7 +145,7 @@ new Promise(function(resolve, reject){
 		document.getElementById("beta").innerText= event.beta.toString();
 		document.getElementById("gamma").innerText = event.gamma.toString();
 	}, true);
-	*/
+	
 
 
 	/***********************************
