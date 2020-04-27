@@ -129,10 +129,15 @@ new Promise(function(resolve, reject){
 	 		zerobuttonvar =true
 	 		masterorientationdiv.style.display=""
 		 	zerobutton.onclick ="";
+		 	update =true;
 		 	window.addEventListener('deviceorientation', function(calibration){
-		 		realorientation = calibration.alpha;	
+		 		while update = true{
+		 			realorientation = calibration.alpha;
+		 			update = false;
+		 		}
+		 			
 		 	},false)
-		 	window.removeEventListener('deviceorientation', function(calibration))
+	
 
 	 	}
 	 })
@@ -140,11 +145,11 @@ new Promise(function(resolve, reject){
 	
 	 if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
-		 	relativeorientation=event.alpha-fixedorientation
+		 	relativeorientation=event.alpha-realorientation
 		 	console.log("rel: "+relativeorientation)
 		 	console.log("real: "+realorientation)
 		 	relativeor.innerText = relativeorientation.toString();
-		 	realor.innerText = fixedorientation.toString();
+		 	realor.innerText = realorientation.toString();
 		 },false);
 	}
 
