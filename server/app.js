@@ -299,12 +299,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
             err => console.log(err.message)
           )
         }))
-<<<<<<< HEAD
         console.log(imageObjects)
         JSFeat.findVectors(await imageObjects[0], await imageObjects[1], AllScreenPositions)
-=======
-        JSFeat.findVectors(imageObjects[0], imageObjects[1], AllScreenPositions)
->>>>>>> cd36640... test
         console.log('server', AllScreenPositions)
         Object.keys(slaves).forEach(function(slave, index) {
           slaveSockets[slave].emit('updateTransform', {
