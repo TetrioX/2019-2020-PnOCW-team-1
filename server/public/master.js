@@ -126,9 +126,11 @@ new Promise(function(resolve, reject){
 	 	window.addEventListener('deviceorientation', function(event){
 	 	let orientation = event.alpha;	
 	 	},true)
+
+	 	const realorientation =orientation;
 	 })
 
-	const realorientation =orientation;
+	
 
 	window.addEventListener('deviceorientation', function(event){
 	 	relativeorientation=event.alpha-realorientation
