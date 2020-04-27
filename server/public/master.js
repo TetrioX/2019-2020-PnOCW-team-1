@@ -132,17 +132,18 @@ new Promise(function(resolve, reject){
 		 	window.addEventListener('deviceorientation', function(calibration){
 		 		realorientation = calibration.alpha;	
 		 	},false)
+		 	const fixedorientation = realorientation;
 	 	}
 	 })
 
 	
 	 if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
-		 	relativeorientation=event.alpha-realorientation
+		 	relativeorientation=event.alpha-fixedorientation
 		 	console.log("rel: "+relativeorientation)
 		 	console.log("real: "+realorientation)
 		 	relativeor.innerText = relativeorientation.toString();
-		 	realor.innerText = realorientation.toString();
+		 	realor.innerText = fixedorientation.toString();
 		 },false);
 	}
 
