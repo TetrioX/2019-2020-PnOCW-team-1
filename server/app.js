@@ -285,6 +285,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
     async function updateScreens() {
       let oldPic = calibrationPicture
+      let origScreenPositions = AllScreenPositions
       while (true){
         let pic = await takeOnePicture()
         let imageObjects = await Promise.all([oldPic, pic].map( img => {
@@ -300,6 +301,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           )
         }))
         console.log(imageObjects)
+        AllScreenPositions = JSON.parse(JSON.stringify(origScreenPositions))
         JSFeat.findVectors(await imageObjects[0], await imageObjects[1], AllScreenPositions)
         console.log('server', AllScreenPositions)
         Object.keys(slaves).forEach(function(slave, index) {
