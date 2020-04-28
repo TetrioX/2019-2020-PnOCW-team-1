@@ -307,7 +307,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     				corners: AllScreenPositions[slaves[slave]]
           });
         })
-        oldPic = pic;
+        // oldPic = pic; uncomment to base on previous pic (add errors)
         await sleep(50)
       }
     }
