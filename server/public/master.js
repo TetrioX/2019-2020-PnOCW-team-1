@@ -160,7 +160,18 @@ new Promise(function(resolve, reject){
 		
 	}, true);
 
-	
+	homebutton5 =document.getElementById('4home');
+	homebutton5.addEventListener('click',function(){
+		entirePage.style.display="";
+		fourtentirepage.style.display="none";
+		removeCalibration();
+	})
+
+	function removeCalibration(){
+		document.getElementById("currentanglediv").style.display=""
+		masterorientationdiv.style.display="none";
+		realorientation = 0;
+	}
 
 
 
@@ -496,7 +507,7 @@ new Promise(function(resolve, reject){
 	snakeButton.addEventListener('click', function(){
 		socket.emit('clearAll');
 		entirePage.style.display="none";
-		snakeEntirePage.style.display="block";
+		snakeEntirePage.style.display="";
 		window.scrollTo(0, 0);
 	})
 
