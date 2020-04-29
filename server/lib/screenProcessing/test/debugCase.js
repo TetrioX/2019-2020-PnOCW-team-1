@@ -17,6 +17,8 @@ if (require.main === module) {
       console.log('runs the screen recognition test case in a given paths')
       console.log('test cases are run after each other.')
   } else {
+    console.log(argv._)
+    console.log(typeof  argv._)
       let result = runTestCase(argv._, getScreen=getScreen)
   }
 }
@@ -28,7 +30,9 @@ function parseJsonFile(path){
 }
 
 async function runTestCase(paths, getScreen=false) {
+  console.log('paths= ', paths)
   let results = paths.map(function (path) {
+    console.log('path= ', path, typeof path)
     return new Promise(async function(resolve, reject){
       let result = {}
       if(verbose > 1) console.log("---starting test case---")
@@ -53,7 +57,10 @@ async function runTestCase(paths, getScreen=false) {
       result.screens = screens;
       let squares = screenReading.getScreens(matrixes, screens, colorCombs, iters)
       result.squares = squares;
-      if(verbose > 1) console.log("squares:", squares)
+      if(verbose > 1){
+        console.log('nb squares found: ', squares.length)
+        //console.log("squares:", squares)
+      }
       else if (verbose) console.log("found " + squares.length/(iters + 1) + " squares")
       if (getScreen){
         let screenPositions = screenReading.getScreenFromSquares(squares, screens)
