@@ -9,7 +9,7 @@ var homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t);
 var match_mask = new jsfeat.matrix_t(500, 1, jsfeat.U8C1_t);
 
 function find_transform(matches, count) {
-    // motion kernel
+    // motion kernel (Used later to compute homography)
     var mm_kernel = new jsfeat.motion_model.homography2d();
     // ransac params
     var num_model_points = 4;
@@ -27,7 +27,7 @@ function find_transform(matches, count) {
         screen_xy[i] = {"x": m.keypoint2[0], "y": m.keypoint2[1]};
     }
 
-    // estimate motion
+    // estimate motion with ransac
     var ok = false;
     ok = jsfeat.motion_estimator.ransac(ransac_param, mm_kernel,
         pattern_xy, screen_xy, count, homo3x3, match_mask, 1000);
@@ -55,6 +55,7 @@ function find_transform(matches, count) {
 
 // console.log(homo3x3.data);
 
+// Multiplies the given matrix with the given points
 function transformCorners(M, oldCorners) {
     var pt = oldCorners;
     var z = 0.0, i = 0, px = 0.0, py = 0.0;
@@ -69,6 +70,7 @@ function transformCorners(M, oldCorners) {
     return pt;
 }
 
+// Searches matches between two images and updates AllScreenPositions
 function findVectors(image1, image2, AllScreenPositions) {
     width1 = image1.width;
     height1 = image1.height;
@@ -76,21 +78,26 @@ function findVectors(image1, image2, AllScreenPositions) {
     width2 = image2.width;
     height2 = image2.height;
 
+    // Parameters for Fast & Brief algorithms
     var descriptorLength = 512;
     var matchesShown = 30;
     var blurRadius = 3;
     tracking.Fast.THRESHOLD = 30;
     tracking.Brief.N = descriptorLength;
 
+    // Set images to grayscale
     var gray1 = tracking.Image.grayscale(tracking.Image.blur(image1.data, width1, height1, blurRadius), width1, height1);
     var gray2 = tracking.Image.grayscale(tracking.Image.blur(image2.data, width2, height2, blurRadius), width2, height2);
 
+    // find corners on the two images
     var corners1 = tracking.Fast.findCorners(gray1, width1, height1);
     var corners2 = tracking.Fast.findCorners(gray2, width2, height2);
 
+    // find descriptors of images
     var descriptors1 = tracking.Brief.getDescriptors(gray1, width1, corners1);
     var descriptors2 = tracking.Brief.getDescriptors(gray2, width2, corners2);
 
+    // Matches are found using Brief
     var matches = tracking.Brief.reciprocalMatch(corners1, descriptors1, corners2, descriptors2);
     matches.sort(function (a, b) {
         return b.confidence - a.confidence;
