@@ -23,13 +23,13 @@ async function main(){
             console.log('test cases are run after each other.')
         } else {
             tresholdPaths = fs.readdirSync(tresholdPath)
-            for (let j = 0; j < tresholdPaths.length; j++) {
+            for (let j = 5; j < tresholdPaths.length; j++) {
                 let tresholds = parseJsonFile(tresholdPath + '/' + tresholdPaths[j])
                 getCasesPaths(argv._.toString())
-                for (let i = 0; i < testcases.length; i++) {
+                for (let i = 20; i < testcases.length; i++) {
                     var currentCase = argv._ + '/' + testcases[i]
                     console.log('current case: ', currentCase)
-                    let result = await runTestCase(currentCase, tresholds, getScreen = getScreen, i, j)
+                    let result = await runTestCase(currentCase, tresholds, getScreen = getScreen, testcases[i], j)
                 }
             }
         }
@@ -37,13 +37,13 @@ async function main(){
 }
 function createNewRanges(){
     let n = fs.readdirSync(tresholdPath).length
-    const tresholds = {
-        1: [337, 30],
-        2: [45, 75],
-        3: [110, 160],
-        4: [170, 190],
-        5: [210, 250],
-        6: [280, 310]
+    let tresholds = {
+        1: [320, 30],
+        2: [35, 70],
+        3: [85, 172],
+        4: [172, 200],
+        5: [200, 265],
+        6: [275, 320]
     }
     fs.writeFile(tresholdPath + '/tresholds' +  n.toString() + '.json', JSON.stringify(tresholds), (err) => {if (err) console.log(err)})
 }
@@ -51,7 +51,9 @@ function createNewRanges(){
 function writeToJson(tresh, cse, scr, sq){
     fs.readFile('./results/results.json', function readFileCallback(err, data){
         if (err){
-            console.log(err);
+            console.log('Whoooops error, this is the data variable: ',data)
+            console.log('aaaand this is the type of the data variable: ',typeof data)
+            console.log('aaaaand this is the error it gives: ', err);
         } else{
             var dct = JSON.parse(data);
             if( !(tresh in  dct)){
@@ -74,6 +76,7 @@ function writeToJson(tresh, cse, scr, sq){
 
 function getCasesPaths(folder){
     testcases = fs.readdirSync(folder)
+    removeElemFromArray(testcases, '.DS_Store')
 }
 function getTresholdPaths(folder){
     tresholdPaths = fs
@@ -82,7 +85,13 @@ function parseJsonFile(path){
     var contents = fs.readFileSync(path);
     return JSON.parse(contents);
 }
-
+function removeElemFromArray(arr, elem){
+    for(var i = arr.length - 1; i >= 0; i--) {
+        if(arr[i] === elem) {
+            arr.splice(i, 1);
+        }
+    }
+}
 function runTestCase(paths, tresholds, getScreen=false, caseNb, treshNb) {
     let path = paths;
     //let results = paths.map(function (path) {
@@ -123,8 +132,8 @@ function runTestCase(paths, tresholds, getScreen=false, caseNb, treshNb) {
                     'nb screens found': Object.keys(screenPositions).length
                 }
                 writeToJson(treshNb, caseNb, Object.keys(screenPositions).length, squares.length)
-                console.log('tresh number: ', treshNb,)
-                console.log('results: ', endResults)
+                console.log('tresh number: ', treshNb)
+                //console.log('results: ', endResults)
             }
             resolve(result)
         })
@@ -132,3 +141,4 @@ function runTestCase(paths, tresholds, getScreen=false, caseNb, treshNb) {
 }
 
 main()
+//createNewRanges()
