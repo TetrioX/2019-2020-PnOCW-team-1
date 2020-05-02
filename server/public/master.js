@@ -152,6 +152,7 @@ new Promise(function(resolve, reject){
 		relativeorientation=Math.round(event.alpha-realorientation)
 		relativeor.innerText = relativeorientation.toString();
 		realor.innerText = Math.round(realorientation).toString();
+		return relativeorientation
 	}
 
 	window.addEventListener('deviceorientation', function(data){
@@ -172,6 +173,20 @@ new Promise(function(resolve, reject){
 		masterorientationdiv.style.display="none";
 		realorientation = 0;
 	}
+
+	var show3dbutton = document.getElementById('show3D');
+	show3dbutton.addEventListener('click',function(){
+		if (window.DeviceOrientationEvent) {
+		window.addEventListener('deviceorientation', function(event){
+		 	alfa = event.alpha
+			orientation = printRelativeOrientation(alfa)
+			socket.emit('animationorientation',{
+					orientation : orientation;
+			})
+		 },false);
+	}
+
+	})
 
 
 

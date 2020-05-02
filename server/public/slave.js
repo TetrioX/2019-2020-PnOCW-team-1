@@ -17,6 +17,7 @@ var entirePage = document.createElement('th');
 var countdown = document.getElementById('countdown');
 var countdownTimer = document.getElementById('timer');
 var wrapper = document.getElementById("wrapper");
+var renderdiv = document.getElementById('3dscenerender');
 var length = 1000;
 var gridElements = [];
 let vidBufferCheck = null;
@@ -25,6 +26,7 @@ let vidDrawer = null;
 function cleanHTML() {
     removeGrid();
     document.body.style.overflow = 'hidden';
+    renderdiv.style.display = 'none'
     wrapper.style.display = "none";
     countdown.style.display = "none";
     countdownTimer.style.display = "none";
@@ -152,6 +154,46 @@ socket.on('drawImage', function (data) {
 masterButton.addEventListener('click', function () {
     window.location.href = "/master";
 });
+
+
+//3D scene functions
+
+socket.on('animationorientation',function(data){
+    console.log(data.orientation)
+})
+
+animate3dscene();
+function animate3dscene(){
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderdiv.appendChild( renderer.domElement );
+
+    var geometry = new THREE.BoxGeometry();
+    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    var cube = new THREE.Mesh( geometry, material );
+    scene.add( cube );
+
+    camera.position.z = 5;
+
+    var animate = function () {
+        requestAnimationFrame( animate );
+
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+
+        renderer.render( scene, camera );
+    };
+
+    animate();
+}
+
+
+
+
+
 
 //functions
 function createGrid() {
@@ -985,3 +1027,6 @@ playerButton.addEventListener('click', function () {
 	}
 
 })()
+
+
+
