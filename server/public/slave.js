@@ -186,8 +186,8 @@ camera.position.z = 5;
 var animate = function () {
     requestAnimationFrame( animate );
     console.log('animating')
-    cube.rotation.x += 0.01;
-    cube.rotation.y = animationorientation;
+    cube.rotation.x = 0;
+    cube.rotation.y = animationorientation*3.1415/180;
 
     renderer.render( scene, camera );
 };
