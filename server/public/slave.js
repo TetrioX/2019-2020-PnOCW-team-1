@@ -61,7 +61,7 @@ function init() {
     //
 
     camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 10000 );
-    camera.position.y = 300;
+   
     camera.target = new THREE.Vector3( 0, 150, 0 );
 
     scene = new THREE.Scene();
@@ -138,7 +138,7 @@ function render() {
 
     theta += 0.1;
 
-    camera.position.x = 50;
+    camera.position.x = 0;
     camera.position.z = 500;
 
     camera.lookAt( camera.target );
