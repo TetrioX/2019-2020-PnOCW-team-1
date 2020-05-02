@@ -180,7 +180,7 @@ new Promise(function(resolve, reject){
 				window.addEventListener('deviceorientation', function(event){
 					console.log('sent')
 		 			animationorientation =-Math.round(event.alpha-realorientation)
-		 			console.log()
+		 			console.log(animationorientation);
 		 			socket.emit('animationorientation', {
 						orientation :animationorientation
 		 			})
