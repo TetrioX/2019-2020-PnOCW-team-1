@@ -870,10 +870,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
     clearAll()
   });
 
-
-
-});
-
   socket.on('animationorientation',function(data){
     console.log('test')
     console.log(data.orientation)
@@ -881,6 +877,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
       orientation: data.orientation
     })
   })
+
+
+
+
+});
+
 
 /***************
   * Slave Io *
