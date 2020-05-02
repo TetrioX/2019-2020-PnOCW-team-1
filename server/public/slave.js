@@ -158,39 +158,42 @@ masterButton.addEventListener('click', function () {
 
 //3D scene functions
 
+var animationorientation = 0
+
 socket.on('animationorientation',function(data){
     console.log('test')
     console.log(data.orientation)
-    animationorientation(data.orientation);
+    animationorientation = data.orientation
+    
 })
 
 
-function animate3dscene(orientation){
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-    var renderer = new THREE.WebGLRenderer();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    renderdiv.appendChild( renderer.domElement );
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-    var geometry = new THREE.BoxGeometry();
-    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    var cube = new THREE.Mesh( geometry, material );
-    scene.add( cube );
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderdiv.appendChild( renderer.domElement );
 
-    camera.position.z = 5;
+var geometry = new THREE.BoxGeometry();
+var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var cube = new THREE.Mesh( geometry, material );
+scene.add( cube );
 
-    var animate = function () {
-        requestAnimationFrame( animate );
+camera.position.z = 5;
 
-        cube.rotation.x =orientation;
-        cube.rotation.y += 0.01;
+var animate = function () {
+    requestAnimationFrame( animate );
+    console.log('animating')
+    cube.rotation.x += 0.01;
+    cube.rotation.y = animationorientation;
 
-        renderer.render( scene, camera );
-    };
+    renderer.render( scene, camera );
+};
 
-    animate();
-}
+animate();
+
 
 
 
