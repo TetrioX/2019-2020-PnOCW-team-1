@@ -179,10 +179,10 @@ new Promise(function(resolve, reject){
 			if (window.DeviceOrientationEvent) {
 				window.addEventListener('deviceorientation', function(event){
 					console.log('sent')
-		 			animationorientation =-(event.alpha-realorientation)
+		 			animationorientation =-Math.round(event.alpha-realorientation)
+		 			console.log()
 		 			socket.emit('animationorientation', {
-
-		 			orientation :orientation
+						orientation :animationorientation
 		 			})
 			
 		 		},false);

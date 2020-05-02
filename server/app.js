@@ -872,6 +872,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   socket.on('animationorientation',function(data){
     console.log('test')
+    console.log('data.orientation')
     socket.emit('animationorientation',{
       orientation: data.orientation
     })
