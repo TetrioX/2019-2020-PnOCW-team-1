@@ -27,7 +27,7 @@ let vidDrawer = null;
 function cleanHTML() {
     removeGrid();
     document.body.style.overflow = 'hidden';
-    renderdiv.style.display = 'none'
+ 
     wrapper.style.display = "none";
     countdown.style.display = "none";
     countdownTimer.style.display = "none";
