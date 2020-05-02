@@ -138,8 +138,8 @@ function render() {
 
     theta += 0.1;
 
-    camera.position.x = 5;
-    camera.position.z = 5;
+    camera.position.x = 50;
+    camera.position.z = 50;
 
     camera.lookAt( camera.target );
 
