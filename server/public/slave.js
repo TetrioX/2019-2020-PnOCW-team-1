@@ -139,7 +139,7 @@ function render() {
 
     theta += 0.1;
 
-    camera.position.x = 600*Math.sin( animationorientation*3.1415/180);
+    camera.position.x = -600*Math.sin( animationorientation*3.1415/180);
     camera.position.z = 500;
 
     camera.lookAt( camera.target );
