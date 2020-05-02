@@ -77,13 +77,12 @@ function init() {
     light.position.set( - 1, - 1, - 1 ).normalize();
     scene.add( light );
 
-    var animationorientation = 0;
     var loader = new GLTFLoader();
     loader.load( "./static/Horse.glb", function ( gltf ) {
 
         mesh = gltf.scene.children[ 0 ];
         mesh.scale.set( 1.5, 1.5, 1.5 );
-        mesh.rotation.y = animationorientation*3.1415/180;
+       
         scene.add( mesh );
        
         mixer = new THREE.AnimationMixer( mesh );
@@ -140,7 +139,7 @@ function render() {
 
     theta += 0.1;
 
-    camera.position.x = 0;
+    camera.position.x = 600*Math.sin( animationorientation*3.1415/180);
     camera.position.z = 500;
 
     camera.lookAt( camera.target );
