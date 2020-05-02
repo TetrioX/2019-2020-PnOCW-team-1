@@ -109,6 +109,8 @@ new Promise(function(resolve, reject){
 	  * Orientation functions *
 	 ***********************************/
 
+	 /*
+
 	 orientationbutton = document.getElementById("orientationbutton");
 	 fourtentirepage = document.getElementById("fourthEntirePage");
 	 zerobutton = document.getElementById("zeroorientation");
@@ -173,8 +175,10 @@ new Promise(function(resolve, reject){
 		masterorientationdiv.style.display="none";
 		realorientation = 0;
 	}
+	*/
 
 	var show3dbutton = document.getElementById('show3D');
+
 	show3dbutton.addEventListener('click',function(){
 		if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
@@ -184,8 +188,7 @@ new Promise(function(resolve, reject){
 					orientation : orientation;
 			})
 		 },false);
-	}
-
+		}
 	})
 
 
