@@ -61,7 +61,7 @@ function init() {
     //
 
     camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 10000 );
-   
+    camera.position.y = 250;
     camera.target = new THREE.Vector3( 0, 150, 0 );
 
     scene = new THREE.Scene();
@@ -77,13 +77,14 @@ function init() {
     light.position.set( - 1, - 1, - 1 ).normalize();
     scene.add( light );
 
+    var animationorientation = 0;
     var loader = new GLTFLoader();
     loader.load( "./static/Horse.glb", function ( gltf ) {
 
         mesh = gltf.scene.children[ 0 ];
         mesh.scale.set( 1.5, 1.5, 1.5 );
         scene.add( mesh );
-
+        loader.rotation.y = animationorientation*3.1415/180;
         mixer = new THREE.AnimationMixer( mesh );
 
         mixer.clipAction( gltf.animations[ 0 ] ).setDuration( 1 ).play();
