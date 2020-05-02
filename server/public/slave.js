@@ -40,6 +40,17 @@ function cleanHTML() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+var animationorientation = 0
+
+socket.on('animationorientation',function(data){
+    renderdiv.style.display ="";
+    cleanHTML();
+    console.log(data.orientation)
+    animationorientation = data.orientation
+    
+})
+
+
 
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r115/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r115/build/three.module.js';
@@ -56,7 +67,7 @@ animate();
 function init() {
 
     container = document.createElement( 'div' );
-    document.body.appendChild( container );
+    renderdiv.appendChild( container );
 
     //
 
@@ -278,14 +289,6 @@ masterButton.addEventListener('click', function () {
 
 //3D scene functions
 
-var animationorientation = 0
-
-socket.on('animationorientation',function(data){
-    console.log('test')
-    console.log(data.orientation)
-    animationorientation = data.orientation
-    
-})
 
 
 /*
