@@ -83,8 +83,9 @@ function init() {
 
         mesh = gltf.scene.children[ 0 ];
         mesh.scale.set( 1.5, 1.5, 1.5 );
+        mesh.rotation.y = animationorientation*3.1415/180;
         scene.add( mesh );
-        loader.rotation.y = animationorientation*3.1415/180;
+       
         mixer = new THREE.AnimationMixer( mesh );
 
         mixer.clipAction( gltf.animations[ 0 ] ).setDuration( 1 ).play();
