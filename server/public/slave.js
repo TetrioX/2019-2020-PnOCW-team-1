@@ -159,11 +159,13 @@ masterButton.addEventListener('click', function () {
 //3D scene functions
 
 socket.on('animationorientation',function(data){
+    console.log('test')
     console.log(data.orientation)
+    animationorientation(data.orientation);
 })
 
-animate3dscene();
-function animate3dscene(){
+
+function animate3dscene(orientation){
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
@@ -181,7 +183,7 @@ function animate3dscene(){
     var animate = function () {
         requestAnimationFrame( animate );
 
-        cube.rotation.x += 0.01;
+        cube.rotation.x =orientation;
         cube.rotation.y += 0.01;
 
         renderer.render( scene, camera );
