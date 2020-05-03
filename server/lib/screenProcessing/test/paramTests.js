@@ -6,7 +6,8 @@ const fs = require('fs')
 const screenReading = require('../screenReading.js');
 const readImage = require('../readImage.js')
 const tresholdPath = './tresholds'
-
+const resultPath = './results/results0.json'
+const { performance } = require('perf_hooks');
 let verbose = argv.verbose;
 let getScreen = argv['get-screen']
 let useMatrix = argv['use-matrix']
@@ -23,13 +24,14 @@ async function main(){
             console.log('test cases are run after each other.')
         } else {
             tresholdPaths = fs.readdirSync(tresholdPath)
-            for (let j = 5; j < tresholdPaths.length; j++) {
+            for (let j = 10; j < tresholdPaths.length; j++) {
                 let tresholds = parseJsonFile(tresholdPath + '/' + tresholdPaths[j])
                 getCasesPaths(argv._.toString())
-                for (let i = 20; i < testcases.length; i++) {
+                for (let i = 0; i < testcases.length; i++) {
                     var currentCase = argv._ + '/' + testcases[i]
                     console.log('current case: ', currentCase)
                     let result = await runTestCase(currentCase, tresholds, getScreen = getScreen, testcases[i], j)
+
                 }
             }
         }
@@ -39,17 +41,17 @@ function createNewRanges(){
     let n = fs.readdirSync(tresholdPath).length
     let tresholds = {
         1: [320, 30],
-        2: [35, 70],
-        3: [85, 172],
-        4: [172, 200],
-        5: [200, 265],
+        2: [31, 77],
+        3: [80, 174],
+        4: [174, 200],
+        5: [200, 270],
         6: [275, 320]
     }
     fs.writeFile(tresholdPath + '/tresholds' +  n.toString() + '.json', JSON.stringify(tresholds), (err) => {if (err) console.log(err)})
 }
 
-function writeToJson(tresh, cse, scr, sq){
-    fs.readFile('./results/results.json', function readFileCallback(err, data){
+function writeToJson(tresh, cse, scr, sq, tme){
+    fs.readFile(resultPath, function readFileCallback(err, data){
         if (err){
             console.log('Whoooops error, this is the data variable: ',data)
             console.log('aaaand this is the type of the data variable: ',typeof data)
@@ -62,11 +64,12 @@ function writeToJson(tresh, cse, scr, sq){
             var newElement = {
                 "caseNB": cse,
                 "screensFound": scr,
-                "squaresFound": sq
+                "squaresFound": sq,
+                "time":tme
             }
             if( dct[tresh].filter(csnb => csnb.caseNB === cse).length == 0) {
                 dct[tresh].push(newElement);
-                fs.writeFile('./results/results.json', JSON.stringify(dct), (err) => {
+                fs.writeFile(resultPath, JSON.stringify(dct), (err) => {
                     if (err) console.log(err)
                 })
             }
@@ -117,6 +120,7 @@ function runTestCase(paths, tresholds, getScreen=false, caseNb, treshNb) {
             result.colorCombs = colorCombs;
             screens = parseJsonFile(path + '/screens.json')
             result.screens = screens;
+            let t0 = performance.now()
             let squares = screenReading.getScreens(matrixes, screens, colorCombs, iters, tresholds)
             result.squares = squares;
             if(verbose > 1){
@@ -126,12 +130,13 @@ function runTestCase(paths, tresholds, getScreen=false, caseNb, treshNb) {
             else if (verbose) console.log("found " + squares.length/(iters + 1) + " squares")
             if (getScreen) {
                 let screenPositions = screenReading.getScreenFromSquares(squares, screens)
+                let t1 = performance.now()
                 result.screenPositions = screenPositions;
                 var endResults = {
                     'nb squares found': squares.length,
                     'nb screens found': Object.keys(screenPositions).length
                 }
-                writeToJson(treshNb, caseNb, Object.keys(screenPositions).length, squares.length)
+                writeToJson(treshNb, caseNb, Object.keys(screenPositions).length, squares.length,t1-t0)
                 console.log('tresh number: ', treshNb)
                 //console.log('results: ', endResults)
             }

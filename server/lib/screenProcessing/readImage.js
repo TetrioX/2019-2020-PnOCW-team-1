@@ -1,6 +1,8 @@
 const sharp = require('sharp')    // image processing
 
-async function getImagesHslMatrix2(imgs){
+
+
+async function getImagesHslMatrix(imgs){
   return await Promise.all(imgs.map( img => {
     let sharpImage = sharp(img)
     return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
@@ -23,11 +25,10 @@ async function getImagesHslMatrix2(imgs){
   }))
 }
 
-async function getImagesHslMatrix(imgs){
+async function getImagesHslMatrix2(imgs){
 
     return await Promise.all(imgs.map( img => {
         let sharpImage = sharp(img)
-
         return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
             values => {
                 let meta = values[0]
