@@ -659,8 +659,9 @@ playerButton.addEventListener('click', function () {
         canvas.style.display = "block"
         document.body.style.backgroundColor = "black"; // This is for smoother picture monitoring. Else white borders are possible.
 
-        corners = data.corners
-        picDim = data.picDim
+        element = canvas;
+        corners = data.corners;
+        picDim = data.picDim;
 
         var img = new Image()
 
@@ -677,19 +678,24 @@ playerButton.addEventListener('click', function () {
      ********************/
 
         // Paste the given part of the given picture on the client canvas.
-    const pasteVideo = function (myCanvas, video, corners, refPictureLength) {
-            myCanvas.width = video.videoWidth;
-            myCanvas.height = video.videoHeight;
-            transformSlave(myCanvas, corners, refPictureLength);
-        };
+    // const pasteVideo = function (myCanvas, video, corners, refPictureLength) {
+    //         myCanvas.width = video.videoWidth;
+    //         myCanvas.height = video.videoHeight;
+    //         transformSlave(myCanvas, corners, refPictureLength);
+    //     };
 
     // Draw the current frame of the video
-    const drawVideo = function (myCanvas, video) {
-        myCanvas.getContext('2d').drawImage(video, 0, 0, myCanvas.width, myCanvas.height);
-    };
+    // const drawVideo = function (myCanvas, video) {
+    //     myCanvas.getContext('2d').drawImage(video, 0, 0, myCanvas.width, myCanvas.height);
+    // };
 
     socket.on('loadVideo', async function (data, callback) {
         cleanHTML();
+
+        element = video;
+  			corners = data.corners;
+  			picDim = data.picDim;
+
         video.src = 'static/big_buck_bunny.mp4';
         video.onloadeddata = async function () {
             video.width = data.picDim[1];
@@ -829,6 +835,11 @@ playerButton.addEventListener('click', function () {
 		canvas.style.display = "block"
 		canvas.width = data.picDim[1]
 		canvas.height = data.picDim[0]
+
+    element = canvas;
+    corners = data.corners;
+    picDim = data.picDim;
+
 		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
 		drawTriangulation(data.centers, data.connections, {x: data.picDim[1], y: data.picDim[0]})
 	});
@@ -882,9 +893,10 @@ playerButton.addEventListener('click', function () {
 	 ***********************/
 
 	// Socket reactie om animatie klaar te maken
-	var maxFps, picDim, corners
+	var maxFps, element, picDim, corners
 	socket.on('prepareAnimation', function (data, callback) {
 	    var clock = Date.now()
+      element = canvas;
 			corners = data.corners;
 			picDim = data.picDim;
 			setupCanvas()
