@@ -613,7 +613,6 @@ playerButton.addEventListener('click', function () {
             0, 0, 1, 0,
             t[2], t[5], 0, t[8]];
         t = "matrix3d(" + t.join(", ") + ")"; //setup the html 3D transformation.
-        console.log(t)
         elt.style.transform = t;
     }
 
@@ -659,6 +658,11 @@ playerButton.addEventListener('click', function () {
         console.log('drawing picture', data)
         canvas.style.display = "block"
         document.body.style.backgroundColor = "black"; // This is for smoother picture monitoring. Else white borders are possible.
+
+        transformElement = canvas;
+        corners = data.corners;
+        picDim = data.picDim;
+
         var img = new Image()
 
         img.onload = function () {
@@ -674,19 +678,24 @@ playerButton.addEventListener('click', function () {
      ********************/
 
         // Paste the given part of the given picture on the client canvas.
-    const pasteVideo = function (myCanvas, video, corners, refPictureLength) {
-            myCanvas.width = video.videoWidth;
-            myCanvas.height = video.videoHeight;
-            transformSlave(myCanvas, corners, refPictureLength);
-        };
+    // const pasteVideo = function (myCanvas, video, corners, refPictureLength) {
+    //         myCanvas.width = video.videoWidth;
+    //         myCanvas.height = video.videoHeight;
+    //         transformSlave(myCanvas, corners, refPictureLength);
+    //     };
 
     // Draw the current frame of the video
-    const drawVideo = function (myCanvas, video) {
-        myCanvas.getContext('2d').drawImage(video, 0, 0, myCanvas.width, myCanvas.height);
-    };
+    // const drawVideo = function (myCanvas, video) {
+    //     myCanvas.getContext('2d').drawImage(video, 0, 0, myCanvas.width, myCanvas.height);
+    // };
 
     socket.on('loadVideo', async function (data, callback) {
         cleanHTML();
+
+        transformElement = video;
+  			corners = data.corners;
+  			picDim = data.picDim;
+
         video.src = 'static/big_buck_bunny.mp4';
         video.onloadeddata = async function () {
             video.width = data.picDim[1];
@@ -826,6 +835,11 @@ playerButton.addEventListener('click', function () {
 		canvas.style.display = "block"
 		canvas.width = data.picDim[1]
 		canvas.height = data.picDim[0]
+
+    transformElement = canvas;
+    corners = data.corners;
+    picDim = data.picDim;
+
 		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
 		drawTriangulation(data.centers, data.connections, {x: data.picDim[1], y: data.picDim[0]})
 	});
@@ -879,9 +893,10 @@ playerButton.addEventListener('click', function () {
 	 ***********************/
 
 	// Socket reactie om animatie klaar te maken
-	var maxFps, picDim, corners
+	var maxFps, transformElement, picDim, corners
 	socket.on('prepareAnimation', function (data, callback) {
 	    var clock = Date.now()
+      transformElement = canvas;
 			corners = data.corners;
 			picDim = data.picDim;
 			setupCanvas()
@@ -983,5 +998,42 @@ playerButton.addEventListener('click', function () {
 
 	    frameCount++
 	}
+
+
+  /***********************
+		* Gyroscope *
+	 ***********************/
+   // var basisHoekpunten;
+   // socket.on("startCalibrating", function(data){
+   //   console.log("prepare: ", data)
+   //
+   //   context.strokeRect(100, 100, 500, 500)
+   //
+   //   picDim = data.picDim;
+   //   corners = data.corners;
+   //   setupCanvas()
+   //
+   // })
+
+   socket.on("updateCalibration", function(alpha){
+     // t1 = Date.now()
+     updateTransformationMatrix(alpha)
+     // console.log(Date.now() - t1)
+   })
+
+   function updateTransformationMatrix(alpha) {
+      th = alpha * Math.PI/180
+
+      const f = 4322;
+
+      result = []
+      for (point of corners) {
+        x = f * (point.x - picDim[1]/2) * Math.cos(th) / (f + (point.x - picDim[1]/2) * Math.sin(th)) + picDim[1]/2;
+        y = picDim[0]/2 - f * (picDim[0]/2 - point.y) / (f + (point.x - picDim[1]/2) * Math.sin(th))
+        result.push({x: x, y: y});
+      }
+
+      transformSlave(transformElement, result, {x: picDim[1], y: picDim[0]})
+    }
 
 })()
