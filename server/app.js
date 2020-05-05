@@ -810,12 +810,12 @@ var masterIo = io.of('/master').on('connect', function(socket){
       //   })
       // })
 
-    alpha = 0
-    setInterval(function(){
-      alpha += 1
-      if (alpha == 90) alpha = 0;
-      slaveIo.emit("updateCalibration", alpha)
-    }, 33)
+    // alpha = 0
+    // setInterval(function(){
+    //   alpha += 1
+    //   if (alpha == 90) alpha = 0;
+    //   slaveIo.emit("updateCalibration", alpha)
+    // }, 33)
 
     // var gamePromises = []
     // playerColors = {}
@@ -888,6 +888,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   socket.on('changeSnakeDirection', function(data){
     changeSnakeDirectionGame(data.playerId, data.direction)
+  })
+
+  socket.on('updateAlpha', function(alpha){
+    slaveIo.emit("updateCalibration", alpha)
   })
 
   socket.on('clearAll', function() {
