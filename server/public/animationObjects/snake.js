@@ -1,5 +1,6 @@
 let Snake = class {
   constructor(size, partSize, headPos, colors) {
+    this.parts = [];
     for (let i = 0; i < size; i++) {
       let pos = {x: headPos.x - partSize / 3 * i, y: headPos.y}
       let part;
@@ -10,8 +11,6 @@ let Snake = class {
     this.colors = colors;
     this.headPos = headPos;
   }
-
-  parts = []
 
   changeDirection(newDir) {
     console.log("ye")
