@@ -11,7 +11,7 @@ const delaunay = require('./lib/triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('./lib/triangulate_divide_and_conquer/geometry.js')
 var snakeJs = require('./lib/SnakeLogic/snake.js')
 var worldJs = require('./lib/SnakeLogic/world.js')
-var JSFeat = require('../testJSFeat/backend.js')
+//var JSFeat = require('../testJSFeat/backend.js')
 
 // load config file
 const config = require('./config.json');
@@ -283,6 +283,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       playerIo.emit('clearAll');
     }
 
+    /**
     async function updateScreens() {
       let oldPic = calibrationPicture
       while (true){
@@ -310,7 +311,19 @@ var masterIo = io.of('/master').on('connect', function(socket){
         oldPic = pic;
         await sleep(50)
       }
-    }
+    }**/
+
+  socket.on('updateScreens', function(data){
+    AllScreenPositions = data;
+    console.log('server', AllScreenPositions)
+    Object.keys(slaves).forEach(function(slave, index) {
+      slaveSockets[slave].emit('updateTransform', {
+        corners: AllScreenPositions[slaves[slave]]
+      });
+    })
+  })
+
+
 
     async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
@@ -470,7 +483,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
       console.log(screens)
       AllScreenPositions = {...AllScreenPositions, ...screens};
-      trackingUpdater = setTimeout(updateScreens())
+      //trackingUpdater = setTimeout(updateScreens())
     });
 
     socket.on('upload-image', async function (data) {

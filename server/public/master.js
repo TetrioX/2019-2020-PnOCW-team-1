@@ -66,6 +66,9 @@ new Promise(function(resolve, reject){
 	var countdownSeconds = countdownPicker.valueAsNumber;
 	var snakeLength = snakeLengthPicker.valueAsNumber;
 
+	var screenPositions;
+	var screenUpdater;
+
 	var angle = 0;
 
 	rowPicker.addEventListener('input', function(){
@@ -310,6 +313,7 @@ new Promise(function(resolve, reject){
 
 	makeGridButton.addEventListener('click',function(){
 		socket.emit('clearAll');
+		clearInterval(screenUpdater);
 		socket.emit('changeBackgroundOfAllSlaves',{
 			numberOfRows:numberOfRows,
 			numberOfColumns:numberOfColumns
@@ -369,6 +373,8 @@ new Promise(function(resolve, reject){
 
 	socket.on('drawCircles', function (data) {
 		socket.emit('clearAll');
+		screenPositions = data;
+		screenUpdater = setTimeout(updateScreens);
 	    //reference: https://stackoverflow.com/questions/1484506/random-color-generator
 	    function getRandomColor() {
 	        var letters = '0123456789ABCDEF';
@@ -423,6 +429,32 @@ new Promise(function(resolve, reject){
 		entirePage.style.display="";
 		thirdEntirePage.style.display="none"
 	})
+
+	/****************************
+	 * Tracker Update functions *
+	 ****************************/
+
+	async function updateScreens() {
+		let firstPic = await takeTrackingPicture();
+		while (true){
+			let pic = await takeTrackingPicture();
+			let imageObjects = [firstPic, pic];
+			// console.log(imageObjects)
+			let allScreenPositions;
+			JSFeat.findVectors(await imageObjects[0], await imageObjects[1], allScreenPositions)
+			socket.emit('updateScreens', allScreenPositions);
+			await sleep(50)
+		}
+	}
+
+	function takeTrackingPicture() {
+		var context = canvas.getContext('2d');
+		canvas.width = video.videoWidth;
+		canvas.height = video.videoHeight;
+		context.drawImage(video, 0, 0);
+		return ctx.ImageData;
+	}
+
 
 
 	/*********************
