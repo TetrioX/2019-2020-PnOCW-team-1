@@ -672,6 +672,10 @@ var masterIo = io.of('/master').on('connect', function(socket){
   // Run the animation showoff
   socket.on('startAnimation', async function(data) {
 
+    // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    //                      '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    //   picDimensions = [500, 1000]
+
     if (Object.keys(AllScreenPositions).length < 1) {
       socket.emit('alert', 'Please do screen recognition first');
       return;
@@ -793,73 +797,93 @@ var masterIo = io.of('/master').on('connect', function(socket){
   // Game set up //
   /////////////////
   socket.on('startGame', async function(data) {
-    var gamePromises = []
-    playerColors = {}
-    deleteWorld()
-
-    playerColors[0] = {light: "#666666", dark: "#333333"};
-
-    Object.keys(players).forEach(async function(player, index) {
-      let promise = new Promise(function(resolve, reject) {
-        playerSockets[player].emit('setupGame', null, function(callBackData){
-          playerColors[player] = callBackData.colors;
-          playerSockets[player].emit('startGame')
-          resolve()
-        })
-        setTimeout(function() {
-          // if it takes longer than 0.5 seconds reject the promise
-          deletePlayer(playerSockets[player])
-          resolve()
-        }, 60 * 1000);
-      })
-      gamePromises.push(promise)
-    })
-    await Promise.all(gamePromises);
-    socket.emit('startGame')
-
-
-    // Game start
 
     // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
-    //                    '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
-    // picDimensions = [500, 1000]
+    //                      '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    //   picDimensions = [500, 1000]
 
-    clearInterval(snakeUpdater)
-    createWorld();
+      // Object.keys(slaves).forEach(function(slave, index) {
+      //   console.log(slaves[slave])
+      //   slaveSockets[slave].emit("startCalibrating", {
+      //     corners: AllScreenPositions[slaves[slave]],
+      //     picDim: picDimensions
+      //   })
+      // })
 
-    console.log(playerColors)
+    alpha = 0
+    setInterval(function(){
+      alpha += 1
+      if (alpha == 90) alpha = 0;
+      slaveIo.emit("updateCalibration", alpha)
+    }, 33)
 
-    for (let playerId in playerColors) {
-      startY = Math.floor(Math.random() * picDimensions[0])
-      var snake = new snakeJs.Snake(data.size, picDimensions[0] / 75, {x: 1, y: startY}, playerColors[playerId])
-      world.addSnake(snake, playerId)
-    }
-
-    Object.keys(slaves).forEach(function(slave, index) {
-      slaveSockets[slave].emit('createSnake', {
-        corners: AllScreenPositions[slaves[slave]],
-        picDim: picDimensions,
-      });
-    })
-
-    snakeUpdater = setInterval(function(){
-      slaveIo.emit('updateWorld', {
-        maxLat: Math.max(Object.values(latSlaves)),
-        world: world
-      })
-      if (world == null) clearInterval(snakeUpdater)
-      else world.updateWorld(30)
-      for (let plId in world.objects) {
-        if (plId == 0) socket.emit('updatePosition', {
-          headPos : world.objects[plId].headPos,
-          dim: world.dimensions
-        })
-        else playerSockets[plId].emit('updatePosition', {
-          headPos : world.objects[plId].headPos,
-          dim: world.dimensions
-        })
-      }
-    }, 1000/60) // 60 fps, gekozen door de normale
+    // var gamePromises = []
+    // playerColors = {}
+    // deleteWorld()
+    //
+    // playerColors[0] = {light: "#666666", dark: "#333333"};
+    //
+    // Object.keys(players).forEach(async function(player, index) {
+    //   let promise = new Promise(function(resolve, reject) {
+    //     playerSockets[player].emit('setupGame', null, function(callBackData){
+    //       playerColors[player] = callBackData.colors;
+    //       playerSockets[player].emit('startGame')
+    //       resolve()
+    //     })
+    //     setTimeout(function() {
+    //       // if it takes longer than 0.5 seconds reject the promise
+    //       deletePlayer(playerSockets[player])
+    //       resolve()
+    //     }, 60 * 1000);
+    //   })
+    //   gamePromises.push(promise)
+    // })
+    // await Promise.all(gamePromises);
+    // socket.emit('startGame')
+    //
+    //
+    // // Game start
+    //
+    // // AllScreenPositions = {'3': [{x: 500, y: 0}, {x: 500, y: 500}, {x: 0, y: 500}, {x: 0, y: 0}],
+    // //                    '4': [{x: 1000, y: 0}, {x: 1000, y: 500}, {x: 500, y: 500}, {x: 500, y: 0}]}
+    // // picDimensions = [500, 1000]
+    //
+    // clearInterval(snakeUpdater)
+    // createWorld();
+    //
+    // console.log(playerColors)
+    //
+    // for (let playerId in playerColors) {
+    //   startY = Math.floor(Math.random() * picDimensions[0])
+    //   var snake = new snakeJs.Snake(data.size, picDimensions[0] / 75, {x: 1, y: startY}, playerColors[playerId])
+    //   world.addSnake(snake, playerId)
+    // }
+    //
+    // Object.keys(slaves).forEach(function(slave, index) {
+    //   slaveSockets[slave].emit('createSnake', {
+    //     corners: AllScreenPositions[slaves[slave]],
+    //     picDim: picDimensions,
+    //   });
+    // })
+    //
+    // snakeUpdater = setInterval(function(){
+    //   slaveIo.emit('updateWorld', {
+    //     maxLat: Math.max(Object.values(latSlaves)),
+    //     world: world
+    //   })
+    //   if (world == null) clearInterval(snakeUpdater)
+    //   else world.updateWorld(30)
+    //   for (let plId in world.objects) {
+    //     if (plId == 0) socket.emit('updatePosition', {
+    //       headPos : world.objects[plId].headPos,
+    //       dim: world.dimensions
+    //     })
+    //     else playerSockets[plId].emit('updatePosition', {
+    //       headPos : world.objects[plId].headPos,
+    //       dim: world.dimensions
+    //     })
+    //   }
+    // }, 1000/60) // 60 fps, gekozen door de normale
   })
 
   socket.on('changeSnakeDirection', function(data){
