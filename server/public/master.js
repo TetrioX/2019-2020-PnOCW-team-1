@@ -146,7 +146,7 @@ new Promise(function(resolve, reject){
 		 		update = false;
 		 	}
 
-			socket.emit('updateAlpha', event.alpha)	
+			socket.emit('updateAlpha', Math.round(event.alpha-realorientation))	
 		},false)
 	}
 
