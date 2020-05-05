@@ -105,6 +105,80 @@ new Promise(function(resolve, reject){
 	    })
 	});
 
+	/***********************************
+	  * Orientation functions *
+	 ***********************************/
+
+	 orientationbutton = document.getElementById("orientationbutton");
+	 fourtentirepage = document.getElementById("fourthEntirePage");
+	 zerobutton = document.getElementById("zeroorientation");
+	 masterorientationdiv =document.getElementById("masterorientation");
+	 realor = document.getElementById("realor");
+	 relativeor = document.getElementById("relativeor")
+	 var realorientation =0;
+
+
+	 orientationbutton.addEventListener('click',function(){
+	 	entirePage.style.display="none";
+	 	fourtentirepage.style.display="";
+	 })
+
+
+	zerobutton.addEventListener('click',calibrateOrientation)
+	
+	if (window.DeviceOrientationEvent) {
+		window.addEventListener('deviceorientation', function(event){
+		 	alfa = event.alpha
+			printRelativeOrientation(alfa)
+		 },false);
+	}
+
+	
+	function calibrateOrientation(){
+
+		var update = true;
+		zerobutton.onclick ="";
+	 	masterorientationdiv.style.display=""
+	 	document.getElementById("currentanglediv").style.display="none"
+		window.addEventListener('deviceorientation', function(calibration){
+			while (update == true){
+		 		realorientation = calibration.alpha;
+		 		update = false;
+		 	}		
+		},false)
+	}
+
+	function printRelativeOrientation(alfa){
+		relativeorientation=Math.round(event.alpha-realorientation)
+		relativeor.innerText = relativeorientation.toString();
+		realor.innerText = Math.round(realorientation).toString();
+	}
+
+	window.addEventListener('deviceorientation', function(data){
+		document.getElementById('orientationsupport?').innerText = "Gyroscoop is supported"; 
+		document.getElementById("currentangle").innerText = Math.round(data.alpha).toString();
+		
+	}, true);
+
+	homebutton5 =document.getElementById('4home');
+	homebutton5.addEventListener('click',function(){
+		entirePage.style.display="";
+		fourtentirepage.style.display="none";
+		removeCalibration();
+	})
+
+	function removeCalibration(){
+		document.getElementById("currentanglediv").style.display=""
+		masterorientationdiv.style.display="none";
+		realorientation = 0;
+	}
+
+
+
+
+	
+	
+
 
 	/***********************************
 	  * Slave communication functions *
@@ -283,13 +357,14 @@ new Promise(function(resolve, reject){
 		screenrecognitionvideo = document.getElementById("screenrecognitionvideo");
 		screenrecognitionvideo.setAttribute('autoplay', '');
 		screenrecognitionvideo.setAttribute('muted', '');
-		screenrecognitionvideo.setAttribute('playsinline', '');
+		//screenrecognitionvideo.setAttribute('playsinline', '');
 
 
 		navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false})
 			.then(function (stream) {
 				screenrecognitionvideo.srcObject = stream;
 				screenrecognitionvideo.play();
+				screenrecognitionvideo.height=window.innerHeight
 			})
 			.catch(function (err) {
 				console.log("An error occurred: " + err);
@@ -400,8 +475,8 @@ new Promise(function(resolve, reject){
 		var thirdEntirePage = document.getElementById('thirdEntirePage');
 		thirdEntirePage.style.display="";
 		visualfeedbackcanvas=document.getElementById("visualfeedback");
-		visualfeedbackcanvas.height = resolutionHeight;
-		visualfeedbackcanvas.width = resolutionWidth;
+		visualfeedbackcanvas.width = window.innerWidth;
+		visualfeedbackcanvas.height = window.innerHeight;
 
 
 		feedbackctx = visualfeedback.getContext('2d');
@@ -432,7 +507,7 @@ new Promise(function(resolve, reject){
 	snakeButton.addEventListener('click', function(){
 		socket.emit('clearAll');
 		entirePage.style.display="none";
-		snakeEntirePage.style.display="block";
+		snakeEntirePage.style.display="";
 		window.scrollTo(0, 0);
 	})
 
