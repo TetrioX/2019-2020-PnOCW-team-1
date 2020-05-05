@@ -23,6 +23,29 @@ async function getImagesHslMatrix(imgs){
   }))
 }
 
+async function getImagesGrayscaleMatrix(imgs){
+  return await Promise.all(imgs.map( img => {
+    let sharpImage = sharp(img)
+    return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
+      values => {
+        let meta = values[0]
+        let buff = values[1]
+        let matrix = []
+        for (let j = 0; j < meta.height; j++) {
+          matrix.push([])
+          for (let i = 0; i < meta.width; i++) {
+            let pos = meta.channels*(i + j*meta.width)
+            matrix[j].push(rgb2grayscale(buff[pos], buff[pos + 1], buff[pos + 2]))
+          }
+        }
+        return matrix
+      }
+    ).catch(
+      err => console.log(err.message)
+    )
+  }))
+}
+
 /*
 * Converts an RGB color to HSL
 * Parameters
@@ -65,7 +88,15 @@ function rgb2hsl(r1, g1, b1){
 
     return [H, S, L];
 }
+// Y' =  0.2126R + 0.7152G + 0.0722B
+function rgb2grayscale(r1, g1, b1){
+  r1 /= 255;
+  g1 /= 255;
+  b1 /= 255;
+  return Math.round((r1*0.2126 + g1*0.7152 + b1*0.0722)*100)
+}
 
 module.exports = {
-  getImagesHslMatrix: getImagesHslMatrix
+  getImagesHslMatrix: getImagesHslMatrix,
+  getImagesGrayscaleMatrix: getImagesGrayscaleMatrix
 }
