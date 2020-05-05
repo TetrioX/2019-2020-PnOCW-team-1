@@ -659,7 +659,7 @@ playerButton.addEventListener('click', function () {
         canvas.style.display = "block"
         document.body.style.backgroundColor = "black"; // This is for smoother picture monitoring. Else white borders are possible.
 
-        element = canvas;
+        transformElement = canvas;
         corners = data.corners;
         picDim = data.picDim;
 
@@ -692,7 +692,7 @@ playerButton.addEventListener('click', function () {
     socket.on('loadVideo', async function (data, callback) {
         cleanHTML();
 
-        element = video;
+        transformElement = video;
   			corners = data.corners;
   			picDim = data.picDim;
 
@@ -836,7 +836,7 @@ playerButton.addEventListener('click', function () {
 		canvas.width = data.picDim[1]
 		canvas.height = data.picDim[0]
 
-    element = canvas;
+    transformElement = canvas;
     corners = data.corners;
     picDim = data.picDim;
 
@@ -893,10 +893,10 @@ playerButton.addEventListener('click', function () {
 	 ***********************/
 
 	// Socket reactie om animatie klaar te maken
-	var maxFps, element, picDim, corners
+	var maxFps, transformElement, picDim, corners
 	socket.on('prepareAnimation', function (data, callback) {
 	    var clock = Date.now()
-      element = canvas;
+      transformElement = canvas;
 			corners = data.corners;
 			picDim = data.picDim;
 			setupCanvas()
@@ -1033,7 +1033,7 @@ playerButton.addEventListener('click', function () {
         result.push({x: x, y: y});
       }
 
-      transformSlave(canvas, result, {x: picDim[1], y: picDim[0]})
+      transformSlave(transformElement, result, {x: picDim[1], y: picDim[0]})
     }
 
 })()
