@@ -632,8 +632,8 @@ var masterIo = io.of('/master').on('connect', function(socket){
   })
 
   socket.on("drawStickers", async function(data, callback){
-    await Promise.all(slaves.map( slave => new Promise(function(reslove, reject){
-      slave.emit("drawStickers", null, function(callbackData){
+    await Promise.all(Object.keys(slaves).map( slave => new Promise(function(resolve, reject){
+      slaveSockets[slave].emit("drawStickers", null, function(callbackData){
         resolve()
       })
       setTimeout(resolve, 2000)

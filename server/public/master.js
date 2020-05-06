@@ -548,6 +548,9 @@ new Promise(function(resolve, reject){
 	 ****************************/
 
 	async function updateScreens() {
+		if (Object.keys(screenPositions).length == 0){
+			return
+		}
 		let stickerLocations
 		// copy of screenPositions so tracking can base on original positions
 		let AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
@@ -564,7 +567,7 @@ new Promise(function(resolve, reject){
 		while (true){
 			if (trackingOption = TrackingOptions.none) {
 				if (!useGyroscope){
-					clearInterval(screenUpdater)
+					break
 				}
 			} else if (trackingOption = TrackingOptions.sticker) {
 				let newStickerLocations = findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture())
