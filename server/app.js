@@ -2,6 +2,7 @@ var express = require('express');
 var socket = require('socket.io');
 var fs = fs = require('fs');
 var ss = require('socket.io-stream');
+var sharp = require('sharp')
 // const scrnrec = require('../screenProcessing/screenRecognitionDirect.js')
 const scrnread = require('./lib/screenProcessing/screenReading.js')
 const imgprcss = require('./lib/screenProcessing/readImage.js')
@@ -10,6 +11,7 @@ const delaunay = require('./lib/triangulate_divide_and_conquer/delaunay.js')
 const geometry = require('./lib/triangulate_divide_and_conquer/geometry.js')
 var snakeJs = require('./lib/SnakeLogic/snake.js')
 var worldJs = require('./lib/SnakeLogic/world.js')
+//var JSFeat = require('../testJSFeat/backend.js')
 
 // load config file
 const config = require('./config.json');
@@ -31,6 +33,8 @@ AllScreenPositions = {}
 var latSlaves = {}
 var picDimensions = [];
 var calibrationPicture;
+
+var trackingUpdater = null;
 
 
 //App setup
@@ -279,6 +283,48 @@ var masterIo = io.of('/master').on('connect', function(socket){
       playerIo.emit('clearAll');
     }
 
+    /**
+    async function updateScreens() {
+      let oldPic = calibrationPicture
+      while (true){
+        let pic = await takeOnePicture()
+        let imageObjects = await Promise.all([oldPic, pic].map( img => {
+          let sharpImage = sharp(img)
+          return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
+            values => {
+              let meta = values[0]
+              let buff = values[1]
+              return {data: new Uint8ClampedArray(buff), width: meta.width,height: meta.height}
+            }
+          ).catch(
+            err => console.log(err.message)
+          )
+        }))
+        console.log(imageObjects)
+        JSFeat.findVectors(await imageObjects[0], await imageObjects[1], AllScreenPositions)
+        console.log('server', AllScreenPositions)
+        Object.keys(slaves).forEach(function(slave, index) {
+          slaveSockets[slave].emit('updateTransform', {
+    				corners: AllScreenPositions[slaves[slave]]
+          });
+        })
+        oldPic = pic;
+        await sleep(50)
+      }
+    }**/
+
+  socket.on('updateScreens', function(data){
+    AllScreenPositions = data;
+    console.log('server', AllScreenPositions)
+    Object.keys(slaves).forEach(function(slave, index) {
+      slaveSockets[slave].emit('updateTransform', {
+        corners: AllScreenPositions[slaves[slave]]
+      });
+    })
+  })
+
+
+
     async function calibrate(numberOfRows, numberOfColumns){
       // number of color combinations we need
       var nbOfColorCombs = Object.keys(slaves).length * 11
@@ -366,6 +412,25 @@ var masterIo = io.of('/master').on('connect', function(socket){
       return result
     }
 
+    async function takeOnePicture(){
+      return new Promise(function(resolve, reject) {
+        ss(socket).emit('takeOnePicture', async function(stream){
+          resolve(new Promise(async function(resolve, reject) {
+            stream.setEncoding('utf-8') // we want to recieve a string
+            stream.on('data', async (chunk) => {
+              let image = await decodeBase64Image(chunk.toString())
+              resolve(image.data)
+            });
+            stream.on('error', (err) => reject(err))
+          }).catch((err) => reject(err)))
+        })
+        setTimeout(() => reject(new Error("Failed to take picture")), 5000);
+      }).catch(function(error) {
+        console.log(error)
+        // failed to retrieve the image
+        socket.emit('alert', "Retrieving one of the images timed out.")
+      })
+    }
 
     // takes a picture with i the current picture and n the total number of pictures
     // and pictues a list with all taken pictures
@@ -374,23 +439,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       // loop untill break statement
       let i = 0
       while(true){
-        let picPromise = new Promise(function(resolve, reject) {
-          ss(socket).emit('takeOnePicture', async function(stream){
-            resolve(new Promise(async function(resolve, reject) {
-              stream.setEncoding('utf-8') // we want to recieve a string
-              stream.on('data', async (chunk) => {
-                let image = await decodeBase64Image(chunk.toString())
-                resolve(image.data)
-              });
-              stream.on('error', (err) => reject(err))
-            }).catch((err) => reject(err)))
-          })
-          setTimeout(() => reject(new Error("Failed to take picture")), 5000);
-        }).catch(function(error) {
-          console.log(error)
-          // failed to retrieve the image
-          socket.emit('alert', "Retrieving one of the images timed out.")
-        })
+        let picPromise = takeOnePicture()
         let pic = await picPromise
         pictures.push(pic)
         i += 1
@@ -421,6 +470,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     }
 
     socket.on('changeBackgroundOfAllSlaves', async function(data){
+      clearTimeout(trackingUpdater)
       var screens = await calibrate(data.numberOfRows, data.numberOfColumns)
       var screenKeys = Object.keys(screens)
       if (screenKeys.length == 0){
@@ -433,6 +483,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
       console.log(screens)
       AllScreenPositions = {...AllScreenPositions, ...screens};
+      //trackingUpdater = setTimeout(updateScreens())
     });
 
     socket.on('upload-image', async function (data) {
@@ -446,6 +497,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
     });
 
     socket.on('reset', function(data){
+      clearTimeout(trackingUpdater)
       AllScreenPositions = {}
       clearInterval(videoUpdater)
       clearInterval(countdownUpdater)
