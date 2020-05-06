@@ -3,59 +3,50 @@ const sharp = require('sharp')    // image processing
 let ri = require("../screenProcessing/readImage.js");
 let sc = require("../screenProcessing/screenReading");
 
-main();
+findNewPointsFromLocationLastPoints([{x:531,y:899},{x:3221,y:1107},{x:479,y:3053},{x:3249,y:3007}],"IMG_20200504_145407.jpg");
 
-// 1,2,3,4,5,6,7,8,9,10,11,12
-async function main(){
+async function findNewPointsFromLocationLastPoints(lastFound,img){
     //Linksboven, Rechtsboven, Linksonder, Rechtsonder -> Locatie vorige foto
-    lastFound = [{x:531,y:899},{x:3221,y:1107},{x:479,y:3053},{x:3249,y:3007}]
     size = 400
-    // afb om op te tekenen
-    img = "test12.jpg"
-    imageMatrixes = await ri.getImagesHslMatrix([img]);
     imageMatrixesGray = await ri.getImagesGrayscaleMatrix([img]);
-    
-    /// [[[h,s,l],[h,s,l],...],
-    //   [ ... ], ...        ],
-    //   [  ...              ]]
-    // mee werken maar gebruik maken van sc.defaultTresholds
-    HslImageMatrix = imageMatrixes[0];
-    let nbOfColors = Object.keys(sc.defaultTresholds).length;
-
-    // [[1,..],[,,]...]
-    // kleuren van 1->6 met 1 = rood
-    // gebruiken? want je kan ook met hsl imagematrix werken
-    colorValueMatrix = sc.joinMatrixes(imageMatrixes,sc.defaultTresholds,nbOfColors);
-
-    //  [[0,100,...],
-    //   [ ...     ],
-    //   [ ...     ]]
-    // mee werken maar gebruik maken van sc.defaultTresholds
     grayImageMatrix = imageMatrixesGray[0];
-    let result = createContrastMatrixAndAvg(grayImageMatrix);
-    contrastMatrix = result.matrix;
-    contrastValue = result.avg;
+    let showpoints = []
+    for (testPoint of lastFound){
+        subMatrixGray = creatSubMatrixAroundPoint(grayImageMatrix,testPoint,size)
 
-    // Hiermee teken je op u afb
-    //listOfPoints = [{x:0,y:0},{x:1,y:1},{x:2,y:2},{x:3,y:3}]
-    points = findMarker2(grayImageMatrix,contrastMatrix,contrastValue)
-    console.log(points)
-    if(points == null){console.log("null als result")}
-    //console.log(points)
-    printOnImage(img,points); 
+        let result = createContrastMatrixAndAvg(subMatrixGray);
+        contrastMatrix = result.matrix;
+        contrastValue = result.avg;
+    
+        points = findMarker2(subMatrixGray,contrastMatrix,contrastValue)
+        points = relativeToAbsolutePoint(grayImageMatrix,points,testPoint,size)
+        if(points == null){console.log("null als result")}
+        showpoints = showpoints.concat(points)
+    }
+    printOnImage(img,showpoints); 
+    console.log(showpoints)
     //printOnImage(img,testfunction(grayImageMatrix,contrastMatrix,contrastValue))
+    return showpoints
+}
+const relativeToAbsolutePoint = function (matrix,transfers,point,size){
+    result = []
+    let startpoint= absoluteStartPointAroundPoint(matrix,point,size)
+    for (t of transfers){
+        result.push({x: (startpoint.x + t.x),y: (startpoint.y + t.y)})
+    }
+    return result
 }
 
 const creatSubMatrixAroundPoint = function (matrix,point,size){
     let subMatrix = []
     let startPoint = absoluteStartPointAroundPoint(matrix,point,size)
     let endPoint = absoluteEndPointAroundPoint(matrix,point,size)
-    let horizontalSize = endPoint.x-startPoint.x
-    let verticalSize = endPoint.y-startPoint.y
-    for(row=0;row<=verticalSize;row++){
+    let horizontalSize = endPoint.x-startPoint.x+1
+    let verticalSize = endPoint.y-startPoint.y+1
+    for(row=0;row<verticalSize;row++){
         subMatrix.push([])
-        for(col=0;col<=horizontalSize;col++){
-            subMatrix[row][col] = subMatrix[startPoint.y + row][startPoint.x + col]
+        for(col=0;col<horizontalSize;col++){
+            subMatrix[row][col] = matrix[startPoint.y + row][startPoint.x + col]
         }
     }
     return subMatrix
@@ -120,8 +111,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
             }
         }
     }
-    console.log(listOfPoints)
-    console.log("/////////////////////")
+    //console.log(listOfPoints)
     //printOnImage2(img,listOfPoints)
     //check above and below contrast
     for(point of listOfPoints){
@@ -158,7 +148,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
     }
     //avg point
     point = findCenter(finalList)
-    return finalList
+    return [point]
 }
 
 const distanceIsClose = function (d1,d2){
@@ -166,20 +156,35 @@ const distanceIsClose = function (d1,d2){
 }
 
 //checkCenterColor
-const findCenter = function (border){
-    let gemX = 0;
-    let gemY = 0;
-    for(let pixel of border){
-        gemX = gemX + pixel.x
-        gemY = gemY + pixel.y
+const findCenter = function (coord){
+    let listX = []
+    let listY = []
+    for(let pixel of coord){
+        listX.push(pixel.x)
+        listY.push(pixel.y)
     }
-    gemX = Math.round(gemX/border.length)
-    gemY = Math.round(gemY/border.length)
-    return {x:gemX,y:gemY}
+    return {x:median(listX),y:median(listY)}
 }
 
-//grayscale above 60 = white
-//grayscale below 50 = black
+// modifies original list !!
+// ref: https://stackoverflow.com/questions/45309447/calculating-median-javascript
+function median(values){
+    if(values.length ===0) return 0;
+  
+    values.sort(function(a,b){
+      return a-b;
+    });
+  
+    var half = Math.floor(values.length / 2);
+  
+    if (values.length % 2)
+      return values[half];
+  
+    return (values[half - 1] + values[half]) / 2.0;
+  }
+
+//grayscale above value = white
+//grayscale below value = black
 const testfunction = function (matrix, contrastMatrix,value) {
     pointlist = []
     for(row=0;row<matrix.length;row++){
@@ -211,8 +216,6 @@ const getContrastNeighbors = function (matrix,x,y) {
     return contrast
 }
 
-//const borderCheckNeighbors = function (border,color,nextToColor){
-
 async function printOnImage(img,listOfPoints){
     let sharpImage = sharp(img)
     return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
@@ -221,9 +224,9 @@ async function printOnImage(img,listOfPoints){
         let buff = values[1]
         for (point of listOfPoints) {
             let pos = meta.channels*(point.x + point.y*meta.width)
-            buff[pos] = 0;
+            buff[pos] = 255;
             buff[pos+1] = 255;
-            buff[pos+2] = 0;
+            buff[pos+2] = 255;
         }
         output_meta = { raw: { width: meta.width, height: meta.height, channels: meta.channels } }
         sharp(buff,output_meta).toFile("resultImage.jpg")
