@@ -517,8 +517,9 @@ new Promise(function(resolve, reject){
 		while (true){
 			let pic = takeTrackingPicture();
 			// console.log(imageObjects)
-			findVectors(firstPic, pic, screenPositions)
-			socket.emit('updateScreens', screenPositions);
+			let AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
+			findVectors(firstPic, pic, AllScreenPositions)
+			socket.emit('updateScreens', AllScreenPositions);
 			await sleep(50)
 		}
 	}
