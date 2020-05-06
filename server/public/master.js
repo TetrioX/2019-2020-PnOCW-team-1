@@ -448,8 +448,6 @@ new Promise(function(resolve, reject){
 
 	socket.on('drawCircles', function (data) {
 		socket.emit('clearAll');
-		screenPositions = data;
-		screenUpdater = setTimeout(updateScreens);
 	    //reference: https://stackoverflow.com/questions/1484506/random-color-generator
 	    function getRandomColor() {
 	        var letters = '0123456789ABCDEF';
@@ -473,6 +471,9 @@ new Promise(function(resolve, reject){
 	        }
 	    }
 	;
+
+		screenPositions = data;
+		screenUpdater = setTimeout(updateScreens);
 
 	});
 
