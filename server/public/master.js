@@ -3,7 +3,6 @@ var userspassword = document.getElementById('masterpassword');
 var passwordbutton = document.getElementById('passwordbutton');
 var entirePage =document.getElementById('entirePage');
 
-
 new Promise(function(resolve, reject){
 
 	userspassword.focus();
@@ -72,6 +71,28 @@ new Promise(function(resolve, reject){
 	var screenUpdater;
 
 	var angle = 0;
+
+	var TrackingOptions = {
+		none: 0,
+		sticker: 1,
+		keypoint: 2
+	}
+	var trackingOption = TrackingOptions.none //default
+	var trackingBoxes = document.getElementById("tracking")
+	trackingBoxes[TrackingOptions.none].addEventListener( 'change', function() {
+		trackingOption = TrackingOptions.none
+	})
+	trackingBoxes[TrackingOptions.sticker].addEventListener( 'change', function() {
+		trackingOption = TrackingOptions.sticker
+	})
+	trackingBoxes[TrackingOptions.keypoint].addEventListener( 'change', function() {
+		trackingOption = TrackingOptions.keyPoint
+	})
+	var gyroCehckbox = document.getElementById("gyroscoop")
+	checkgyroCehckboxbox.addEventListener( 'change', function() {
+    useGyroscope = this.checked
+});
+	var useGyroscope = gyroCehckbox.checked; // when tracking interpolate with gyro
 
 	rowPicker.addEventListener('input', function(){
 		numberOfRows = rowPicker.valueAsNumber
