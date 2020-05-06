@@ -7,8 +7,11 @@ main();
 
 // 1,2, ,4, ,6,7, ,9, , , ,
 async function main(){
+    //Linksboven, Rechtsboven, Linksonder, Rechtsonder -> Locatie vorige foto
+    lastFound = [{x:531,y:899},{x:3221,y:1107},{x:479,y:3053},{x:3249,y:3007}]
+    size = 400
     // afb om op te tekenen
-    img = "test12.jpg"
+    img = "IMG_20200504_145407.jpg"
     imageMatrixes = await ri.getImagesHslMatrix([img]);
     imageMatrixesGray = await ri.getImagesGrayscaleMatrix([img]);
     
@@ -18,7 +21,7 @@ async function main(){
     // mee werken maar gebruik maken van sc.defaultTresholds
     HslImageMatrix = imageMatrixes[0];
     let nbOfColors = Object.keys(sc.defaultTresholds).length;
-
+    
     // [[1,..],[,,]...]
     // kleuren van 1->6 met 1 = rood
     // gebruiken? want je kan ook met hsl imagematrix werken
@@ -39,6 +42,37 @@ async function main(){
     //console.log(points)
     printOnImage(img,points); 
     printOnImage(img,testfunction(grayImageMatrix,contrastMatrix))
+}
+
+const creatSubMatrixAroundPoint = function (matrix,point,size){
+    let subMatrix = []
+    let startPoint = absoluteStartPointAroundPoint(matrix,point,size)
+    let endPoint = absoluteEndPointAroundPoint(matrix,point,size)
+    let horizontalSize = endPoint.x-startPoint.x
+    let verticalSize = endPoint.y-startPoint.y
+    for(row=0;row<=verticalSize;row++){
+        subMatrix.push([])
+        for(col=0;col<=horizontalSize;col++){
+            subMatrix[row][col] = subMatrix[startPoint.y + row][startPoint.x + col]
+        }
+    }
+    return subMatrix
+}
+
+const absoluteStartPointAroundPoint = function (matrix, point, size){
+    let startHor = point.x-size/2
+    if (startHor<=0){startHor=0}
+    let startVer = point.y-size/2
+    if (startVer<=0){startHor=0}
+    return {x:startHor,y:startVer}
+}
+
+const absoluteEndPointAroundPoint = function (matrix, point, size){
+    let stopHor = point.x+size/2-1
+    if (stopHor<matrix.length){startHor=matrix.length-1}
+    let stopVer = point.y+size/2-1
+    if (stopVer<matrix[0].length){startHor=matrix[0].length-1}
+    return {x:stopHor,y:stopVer}
 }
 
 const createContrastMatrix = function (matrix) {
