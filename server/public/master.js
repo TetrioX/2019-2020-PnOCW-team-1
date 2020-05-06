@@ -79,7 +79,7 @@ new Promise(function(resolve, reject){
 		keypoint: 2
 	}
 	var trackingOption = TrackingOptions.none //default
-	var trackingBoxes = document.getElementById("tracking")
+	var trackingBoxes = document.getElementById("tracking").children
 	trackingBoxes[TrackingOptions.none].addEventListener( 'change', function() {
 		trackingOption = TrackingOptions.none
 	})
