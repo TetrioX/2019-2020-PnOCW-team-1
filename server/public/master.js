@@ -513,14 +513,12 @@ new Promise(function(resolve, reject){
 	 ****************************/
 
 	async function updateScreens() {
-		let firstPic = await takeTrackingPicture();
+		let firstPic = takeTrackingPicture();
 		while (true){
-			let pic = await takeTrackingPicture();
-			let imageObjects = [firstPic, pic];
+			let pic = takeTrackingPicture();
 			// console.log(imageObjects)
-			let allScreenPositions;
-			findVectors(await imageObjects[0], await imageObjects[1], allScreenPositions)
-			socket.emit('updateScreens', allScreenPositions);
+			findVectors(firstPic, pic, screenPositions)
+			socket.emit('updateScreens', screenPositions);
 			await sleep(50)
 		}
 	}
@@ -530,7 +528,7 @@ new Promise(function(resolve, reject){
 		canvas.width = video.videoWidth;
 		canvas.height = video.videoHeight;
 		context.drawImage(video, 0, 0);
-		return context.ImageData;
+		return context.getImageData(0, 0, canvas.width, canvas.height);
 	}
 
 	// Homography matrix
