@@ -82,6 +82,7 @@ new Promise(function(resolve, reject){
 	var trackingBoxes = document.getElementById("tracking").children
 	trackingBoxes[TrackingOptions.none].addEventListener( 'change', function() {
 		trackingOption = TrackingOptions.none
+		socket.emit("removeStickers")
 	})
 	trackingBoxes[TrackingOptions.sticker].addEventListener( 'change', function() {
 		trackingOption = TrackingOptions.sticker
@@ -95,6 +96,7 @@ new Promise(function(resolve, reject){
 		if (calibrated){
 			setTimeout(updateScreens)
 		}
+		socket.emit("removeStickers")
 	})
 	var gyroCehckbox = document.getElementById("gyroscoop")
 	gyroCehckbox.addEventListener( 'change', function() {
@@ -423,6 +425,7 @@ new Promise(function(resolve, reject){
 
 	makeGridButton.addEventListener('click',function(){
 		socket.emit('clearAll');
+		socket.emit("removeStickers")
 		clearInterval(screenUpdater);
 		socket.emit('changeBackgroundOfAllSlaves',{
 			numberOfRows:numberOfRows,
