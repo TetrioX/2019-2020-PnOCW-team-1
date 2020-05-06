@@ -520,7 +520,7 @@ new Promise(function(resolve, reject){
 			let imageObjects = [firstPic, pic];
 			// console.log(imageObjects)
 			let allScreenPositions;
-			JSFeat.findVectors(await imageObjects[0], await imageObjects[1], allScreenPositions)
+			jsfeat.findVectors(await imageObjects[0], await imageObjects[1], allScreenPositions)
 			socket.emit('updateScreens', allScreenPositions);
 			await sleep(50)
 		}
