@@ -128,7 +128,7 @@ new Promise(function(resolve, reject){
 
 
 	zerobutton.addEventListener('click',calibrateOrientation)
-	
+
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
 		 	alfa = event.alpha
@@ -136,7 +136,7 @@ new Promise(function(resolve, reject){
 		 },false);
 	}
 
-	
+
 	function calibrateOrientation(){
 
 		var update = true;
@@ -147,7 +147,7 @@ new Promise(function(resolve, reject){
 			while (update == true){
 		 		realorientation = calibration.alpha;
 		 		update = false;
-		 	}		
+		 	}
 		},false)
 	}
 
@@ -158,9 +158,9 @@ new Promise(function(resolve, reject){
 	}
 
 	window.addEventListener('deviceorientation', function(data){
-		document.getElementById('orientationsupport?').innerText = "Gyroscoop is supported"; 
+		document.getElementById('orientationsupport?').innerText = "Gyroscoop is supported";
 		document.getElementById("currentangle").innerText = Math.round(data.alpha).toString();
-		
+
 	}, true);
 
 	homebutton5 =document.getElementById('4home');
@@ -179,8 +179,8 @@ new Promise(function(resolve, reject){
 
 
 
-	
-	
+
+
 
 
 	/***********************************
@@ -528,7 +528,7 @@ new Promise(function(resolve, reject){
 		canvas.width = video.videoWidth;
 		canvas.height = video.videoHeight;
 		context.drawImage(video, 0, 0);
-		return ctx.ImageData;
+		return context.ImageData;
 	}
 
 
