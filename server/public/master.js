@@ -97,7 +97,7 @@ new Promise(function(resolve, reject){
 		}
 	})
 	var gyroCehckbox = document.getElementById("gyroscoop")
-	checkgyroCehckboxbox.addEventListener( 'change', function() {
+	gyroCehckbox.addEventListener( 'change', function() {
     useGyroscope = this.checked
 });
 	var useGyroscope = gyroCehckbox.checked; // when tracking interpolate with gyro
