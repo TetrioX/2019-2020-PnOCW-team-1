@@ -17,6 +17,7 @@ var entirePage = document.createElement('th');
 var countdown = document.getElementById('countdown');
 var countdownTimer = document.getElementById('timer');
 var wrapper = document.getElementById("wrapper");
+var stickers = document.getElementById("stickers")
 var length = 1000;
 var gridElements = [];
 let vidBufferCheck = null;
@@ -67,6 +68,14 @@ socket.on('slaveID', function (id) {
     document.getElementById("slaveID").innerHTML = id + text;
 })
 
+socket.on("drawStickers", function(data, callback){
+  stickers.style.display = "block"
+  callback()
+})
+
+socket.on("removeStickers", function(){
+  stickers.style.display = "none"
+})
 
 socket.on('drawLine', function (data) {
     draw(data.angle);

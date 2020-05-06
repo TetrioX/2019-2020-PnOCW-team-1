@@ -69,8 +69,9 @@ new Promise(function(resolve, reject){
 
 	var screenPositions;
 	var screenUpdater;
+	var startPic
 
-	var angle = 0;
+	// tracking options
 
 	var TrackingOptions = {
 		none: 0,
@@ -78,21 +79,31 @@ new Promise(function(resolve, reject){
 		keypoint: 2
 	}
 	var trackingOption = TrackingOptions.none //default
-	var trackingBoxes = document.getElementById("tracking")
+	var trackingBoxes = document.getElementById("tracking").children
 	trackingBoxes[TrackingOptions.none].addEventListener( 'change', function() {
 		trackingOption = TrackingOptions.none
+		socket.emit("removeStickers")
 	})
 	trackingBoxes[TrackingOptions.sticker].addEventListener( 'change', function() {
 		trackingOption = TrackingOptions.sticker
+		if (calibrated){
+			alert("WARNING: sticker tracking might faile when the camera has mooved after screen recognition. If it doesn't work please run screen recognition again")
+			setTimeout(updateScreens)
+		}
 	})
 	trackingBoxes[TrackingOptions.keypoint].addEventListener( 'change', function() {
 		trackingOption = TrackingOptions.keyPoint
+		if (calibrated){
+			setTimeout(updateScreens)
+		}
+		socket.emit("removeStickers")
 	})
 	var gyroCehckbox = document.getElementById("gyroscoop")
-	checkgyroCehckboxbox.addEventListener( 'change', function() {
+	gyroCehckbox.addEventListener( 'change', function() {
     useGyroscope = this.checked
 });
 	var useGyroscope = gyroCehckbox.checked; // when tracking interpolate with gyro
+	var calibrated = false;
 
 	rowPicker.addEventListener('input', function(){
 		numberOfRows = rowPicker.valueAsNumber
@@ -143,6 +154,7 @@ new Promise(function(resolve, reject){
 	 var relativeor = document.getElementById("relativeor")
 	 var realorientation =0;
 
+	 var angle = 0;
 
 	 orientationbutton.addEventListener('click',function(){
 	 	entirePage.style.display="none";
@@ -413,6 +425,7 @@ new Promise(function(resolve, reject){
 
 	makeGridButton.addEventListener('click',function(){
 		socket.emit('clearAll');
+		socket.emit("removeStickers")
 		clearInterval(screenUpdater);
 		socket.emit('changeBackgroundOfAllSlaves',{
 			numberOfRows:numberOfRows,
@@ -498,6 +511,8 @@ new Promise(function(resolve, reject){
 	;
 
 		screenPositions = data;
+		calibrated = true
+		startPic = takeTrackingPicture();
 		screenUpdater = setTimeout(updateScreens);
 
 	});
@@ -536,21 +551,105 @@ new Promise(function(resolve, reject){
 	 ****************************/
 
 	async function updateScreens() {
-		let firstPic = takeTrackingPicture();
+		if (Object.keys(screenPositions).length == 0){
+			return
+		}
+		let stickerLocations
+		// copy of screenPositions so tracking can base on original positions
+		let AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
+		if (trackingOption = TrackingOptions.sticker) {
+			// draw stickers
+			stickerProm = new Promise(function(resolve, reject) {
+				socket.emit("drawStickers", null, function(callbackData) {
+					resolve()
+				})
+			})
+			stickerLocations = calculateStickerLocations(screenPositions)
+			await stickerProm
+		}
 		while (true){
-			let pic = takeTrackingPicture();
-			// console.log(imageObjects)
-			let AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
-			findVectors(firstPic, pic, AllScreenPositions)
-			socket.emit('updateScreens', AllScreenPositions);
-			await sleep(50)
+			if (trackingOption = TrackingOptions.none) {
+				if (!useGyroscope){
+					break
+				}
+			} else if (trackingOption = TrackingOptions.sticker) {
+				let newStickerLocations = findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture())
+				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
+				socket.emit('updateScreens', AllScreenPositions);
+			} else if (trackingOption = TrackingOptions.tracking) {
+				let pic = takeTrackingPicture();
+				// console.log(imageObjects)
+				AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
+				findVectors(startPic, pic, AllScreenPositions)
+				socket.emit('updateScreens', AllScreenPositions);
+			}
 		}
 	}
 
+	function calculateStickerLocations(screenPositions){
+		stickerLocations = {}
+		for (screen of Object.keys(screenPositions)){
+			corners = screenPositions[screen]
+			let vectorTop = {
+				x: corners[0].x - corners[3].x,
+				y: corners[0].y - corners[3].y
+			}
+			let vectorBot = {
+				x: corners[1].x - corners[2].x,
+				y: corners[1].y - corners[2].y
+			}
+			let vectorRight = {
+				x: corners[1].x - corners[0].x,
+				y: corners[1].y - corners[0].y
+			}
+			let vectorLeft = {
+				x: corners[2].x - corners[3].x,
+				y: corners[2].y - corners[3].y
+			}
+			let scale = 0.05
+			stickerLocations[screen] = [
+				{
+					x: corners[0].x + vectorTop.x*scale,
+					y: corners[0].y + vectorLeft.y*scale
+				},
+				{
+					x: corners[1].x - vectorTop.x*scale,
+					y: corners[1].y + vectorRight.y*scale
+				},
+				{
+					x: corners[2].x - vectorBot.x*scale,
+					y: corners[2].y - vectorLeft.y*scale
+				},
+				{
+					x: corners[3].x - vectorTop.x*scale,
+					y: corners[3].y + vectorLeft.y*scale
+				}
+			]
+		}
+		return stickerLocations
+	}
+
+	function updateStickerPositions(oldStickerLocations, newStickerLocations, AllScreenPositions){
+		for (screen of Object.keys(AllScreenPositions)){
+			// define matches
+			matches = {keypoint1:[], keypoint2:[]}
+			for (let i=0; i<4; i++){
+				matches.keypoint1.append(oldStickerLocations[screen].x)
+				matches.keypoint1.append(oldStickerLocations[screen].y)
+				matches.keypoint2.append(newStickerLocations[screen].x)
+				matches.keypoint2.append(newStickerLocations[screen].y)
+			}
+			find_transform(matches, matches.length);
+			AllScreenPositions[key] = transformCorners(homo3x3.data, AllScreenPositions[key]);
+		}
+
+	}
+
 	function takeTrackingPicture() {
-		var context = canvas.getContext('2d');
+		let canvas = document.createElement('canvas');
 		canvas.width = video.videoWidth;
 		canvas.height = video.videoHeight;
+		let context = canvas.getContext('2d');
 		context.drawImage(video, 0, 0);
 		return context.getImageData(0, 0, canvas.width, canvas.height);
 	}
