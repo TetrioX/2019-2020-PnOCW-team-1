@@ -3,7 +3,7 @@ var userspassword = document.getElementById('masterpassword');
 var passwordbutton = document.getElementById('passwordbutton');
 var entirePage =document.getElementById('entirePage');
 
-import * as JSFeat from "/static/scripts/trackingjs/build/tracking-min.js"
+import * as jsfeat from "/static/scripts/trackingjs/build/tracking-min.js"
 
 new Promise(function(resolve, reject){
 
@@ -115,12 +115,12 @@ new Promise(function(resolve, reject){
 	  * Orientation functions *
 	 ***********************************/
 
-	 orientationbutton = document.getElementById("orientationbutton");
-	 fourtentirepage = document.getElementById("fourthEntirePage");
-	 zerobutton = document.getElementById("zeroorientation");
-	 masterorientationdiv =document.getElementById("masterorientation");
-	 realor = document.getElementById("realor");
-	 relativeor = document.getElementById("relativeor")
+	 var orientationbutton = document.getElementById("orientationbutton");
+	 var fourtentirepage = document.getElementById("fourthEntirePage");
+	 var zerobutton = document.getElementById("zeroorientation");
+	 var masterorientationdiv =document.getElementById("masterorientation");
+	 var realor = document.getElementById("realor");
+	 var relativeor = document.getElementById("relativeor")
 	 var realorientation =0;
 
 
@@ -166,7 +166,7 @@ new Promise(function(resolve, reject){
 
 	}, true);
 
-	homebutton5 =document.getElementById('4home');
+	var homebutton5 =document.getElementById('4home');
 	homebutton5.addEventListener('click',function(){
 		entirePage.style.display="";
 		fourtentirepage.style.display="none";
@@ -244,8 +244,8 @@ new Promise(function(resolve, reject){
 
 
 	function choosePictureResolution(value){
-		resolutionWidth = resolutions[selectResolution.value][0];
-		resolutionHeight = resolutions[selectResolution.value][1];
+		var resolutionWidth = resolutions[selectResolution.value][0];
+		var resolutionHeight = resolutions[selectResolution.value][1];
 		console.log( resolutionWidth,'x', resolutionHeight );
 		navigator.mediaDevices.getUserMedia({
 		    video: {
@@ -484,12 +484,12 @@ new Promise(function(resolve, reject){
 		secondEntirePage.style.display="none";
 		var thirdEntirePage = document.getElementById('thirdEntirePage');
 		thirdEntirePage.style.display="";
-		visualfeedbackcanvas=document.getElementById("visualfeedback");
+		var visualfeedbackcanvas=document.getElementById("visualfeedback");
 		visualfeedbackcanvas.width = window.innerWidth;
 		visualfeedbackcanvas.height = window.innerHeight;
 
 
-		feedbackctx = visualfeedback.getContext('2d');
+		var feedbackctx = visualfeedback.getContext('2d');
 
 		var feedbackimage=new Image();
 		var CircelPicture = canvas.toDataURL();
@@ -520,7 +520,7 @@ new Promise(function(resolve, reject){
 			let imageObjects = [firstPic, pic];
 			// console.log(imageObjects)
 			let allScreenPositions;
-			JSFeat.findVectors(await imageObjects[0], await imageObjects[1], allScreenPositions)
+			jsfeat.findVectors(await imageObjects[0], await imageObjects[1], allScreenPositions)
 			socket.emit('updateScreens', allScreenPositions);
 			await sleep(50)
 		}
