@@ -2,6 +2,9 @@ var passwordPage = document.getElementById('passwordPage');
 var userspassword = document.getElementById('masterpassword');
 var passwordbutton = document.getElementById('passwordbutton');
 var entirePage =document.getElementById('entirePage');
+
+import * as JSFeat from "/static/scripts/trackingjs/build/tracking-min.js"
+
 new Promise(function(resolve, reject){
 
 	userspassword.focus();
