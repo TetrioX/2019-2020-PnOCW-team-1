@@ -5,13 +5,13 @@ let sc = require("../screenProcessing/screenReading");
 
 main();
 
-// 1,2, ,4, ,6,7, ,9, , , ,
+// 1,2,3,4,5,6,7,8,9,10,11,12
 async function main(){
     //Linksboven, Rechtsboven, Linksonder, Rechtsonder -> Locatie vorige foto
     lastFound = [{x:531,y:899},{x:3221,y:1107},{x:479,y:3053},{x:3249,y:3007}]
     size = 400
     // afb om op te tekenen
-    img = "IMG_20200504_145407.jpg"
+    img = "test12.jpg"
     imageMatrixes = await ri.getImagesHslMatrix([img]);
     imageMatrixesGray = await ri.getImagesGrayscaleMatrix([img]);
     
@@ -21,7 +21,7 @@ async function main(){
     // mee werken maar gebruik maken van sc.defaultTresholds
     HslImageMatrix = imageMatrixes[0];
     let nbOfColors = Object.keys(sc.defaultTresholds).length;
-    
+
     // [[1,..],[,,]...]
     // kleuren van 1->6 met 1 = rood
     // gebruiken? want je kan ook met hsl imagematrix werken
@@ -32,16 +32,18 @@ async function main(){
     //   [ ...     ]]
     // mee werken maar gebruik maken van sc.defaultTresholds
     grayImageMatrix = imageMatrixesGray[0];
-    contrastMatrix = createContrastMatrix(grayImageMatrix);
+    let result = createContrastMatrixAndAvg(grayImageMatrix);
+    contrastMatrix = result.matrix;
+    contrastValue = result.avg;
 
     // Hiermee teken je op u afb
     //listOfPoints = [{x:0,y:0},{x:1,y:1},{x:2,y:2},{x:3,y:3}]
-    points = findMarker2(grayImageMatrix,contrastMatrix)
+    points = findMarker2(grayImageMatrix,contrastMatrix,contrastValue)
     console.log(points)
     if(points == null){console.log("null als result")}
     //console.log(points)
     printOnImage(img,points); 
-    printOnImage(img,testfunction(grayImageMatrix,contrastMatrix))
+    //printOnImage(img,testfunction(grayImageMatrix,contrastMatrix,contrastValue))
 }
 
 const creatSubMatrixAroundPoint = function (matrix,point,size){
@@ -75,18 +77,21 @@ const absoluteEndPointAroundPoint = function (matrix, point, size){
     return {x:stopHor,y:stopVer}
 }
 
-const createContrastMatrix = function (matrix) {
+const createContrastMatrixAndAvg = function (matrix) {
+    let avgGrayscale = 0
     let newMatrix = []
     for(row=0;row<matrix.length;row++){
         newMatrix.push([])
         for(col=0;col<matrix[0].length;col++){
             newMatrix[row][col] = getContrastNeighbors(matrix,col,row)
+            avgGrayscale += matrix[row][col]
         }
     }
-    return newMatrix
+    avgGrayscale /= matrix.length*matrix[0].length
+    return {matrix:newMatrix,avg:avgGrayscale}
 }
 
-const findMarker2 = function (matrix,contrastMatrix) {
+const findMarker2 = function (matrix,contrastMatrix,value) {
     let listOfPoints = []
     let finalList = []
     let d = 6; //needs to be even
@@ -99,14 +104,14 @@ const findMarker2 = function (matrix,contrastMatrix) {
             if(contrastMatrix[row][col]>10){
                 //finding first border
                 //check if white before contrast and black after
-                if((matrix[row][col-d/2]>50 || matrix[row][col-d]>50) && (matrix[row][col+d/2]<50 || matrix[row][col+d]<50)){
+                if((matrix[row][col-d/2]>value || matrix[row][col-d]>value) && (matrix[row][col+d/2]<value || matrix[row][col+d]<value)){
                     leftX = col
                     //listOfPoints.push({x:col,y:row})
                 }  
                 //second border
                 else {
                     //check if black before contrast and white after
-                    if(leftX!=null && (matrix[row][col-d/2]<50 || matrix[row][col-d]<50) && (matrix[row][col+d/2]>50 || matrix[row][col+d]>50)){
+                    if(leftX!=null && (matrix[row][col-d/2]<value || matrix[row][col-d]<value) && (matrix[row][col+d/2]>value || matrix[row][col+d]>value)){
                         let avgX = Math.round((col+leftX)/2)          
                         listOfPoints.push({x:avgX,y:row,distance:col-leftX})
                         leftX = null
@@ -117,16 +122,17 @@ const findMarker2 = function (matrix,contrastMatrix) {
     }
     console.log(listOfPoints)
     console.log("/////////////////////")
+    //printOnImage2(img,listOfPoints)
     //check above and below contrast
     for(point of listOfPoints){
         //check below
         let belowY = null
-        let col = point.y
+        let col = point.x
         for(let row=point.y-1;row<matrix.length-d;row++){
             //find contrast color
             if(contrastMatrix[row][col]>10){
                 //check if black before contrast and white after
-                if((matrix[row-d/2][col]<50 || matrix[row-d][col]<50) && (matrix[row+d/2][col]>50 || matrix[row+d][col]>50)){
+                if((matrix[row-d/2][col]<value || matrix[row-d][col]<value) && (matrix[row+d/2][col]>value || matrix[row+d][col]>value)){
                     belowY = row
                     break;
                 }
@@ -138,10 +144,10 @@ const findMarker2 = function (matrix,contrastMatrix) {
                 //find contrast color
                 if(contrastMatrix[row][col]>10){
                     //check if black before contrast and white after
-                    if((matrix[row+d/2][col]<50 || matrix[row+d][col]<50) && (matrix[row-d/2][col]>50 || matrix[row-d][col]>50)){
+                    if((matrix[row+d/2][col]<value || matrix[row+d][col]<value) && (matrix[row-d/2][col]>value || matrix[row-d][col]>value)){
                         let distance = belowY - row
                         let avgY = Math.round((row+belowY)/2)
-                        if(matrix[avgY][point.x]<50 && distanceIsClose(distance,point.distance)){
+                        if(matrix[avgY][point.x]<value && distanceIsClose(distance,point.distance)){
                             finalList.push({x:point.x,y:avgY})
                         }
                         break;
@@ -174,11 +180,11 @@ const findCenter = function (border){
 
 //grayscale above 60 = white
 //grayscale below 50 = black
-const testfunction = function (matrix, contrastMatrix) {
+const testfunction = function (matrix, contrastMatrix,value) {
     pointlist = []
     for(row=0;row<matrix.length;row++){
         for(col=0;col<matrix[0].length;col++){
-            if(contrastMatrix[row][col]>10){
+            if(matrix[row][col]<value){
                 pointlist.push({x:col,y:row})
             }   
         }
