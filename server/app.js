@@ -631,6 +631,20 @@ var masterIo = io.of('/master').on('connect', function(socket){
     clearInterval(videoUpdater)
   })
 
+  socket.on("drawStickers", async function(data, callback){
+    await Promise.all(slaves.map( slave => new Promise(function(reslove, reject){
+      slave.emit("drawStickers", null, function(callbackData){
+        resolve()
+      })
+      setTimeout(resolve, 2000)
+    })))
+    callback()
+  })
+
+  socket.on("removeStickers", function(){
+    slaveIo.emit("removeStickers")
+  })
+
   ///////////////
   // Countdown //
   ///////////////

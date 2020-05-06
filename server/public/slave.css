@@ -83,3 +83,21 @@
     bottom: 0;
     right:0;
 }
+
+.sticker-border{
+  position: fixed;
+  width:10vw;
+  height: 10vh;
+  z-index:1;
+  background-color: #000000;
+}
+
+.sticker-center{
+  width:4vw;
+  height: 4vh;
+  top:3vh;
+  left:3vw;
+  position:relative;
+  z-index:2;
+  background-color: #ffffff;
+}

@@ -5,31 +5,34 @@ async function findNewPointsFromLocationLastPoints(lastFound,img){
     size = 400
     imageMatrixesGray = await getImagesGrayscaleMatrix([img]);
     grayImageMatrix = imageMatrixesGray[0];
-    let showpoints = []
-    for (testPoint of lastFound){
-        subMatrixGray = creatSubMatrixAroundPoint(grayImageMatrix,testPoint,size)
+    let newPoints = {}
+    for (screen of Object.keys(lastFound)){
+      newPoints[screen] = []
+      for (testPoint of lastFound[screen]){
+          subMatrixGray = creatSubMatrixAroundPoint(grayImageMatrix,testPoint,size)
 
-        let result = createContrastMatrixAndAvg(subMatrixGray);
-        contrastMatrix = result.matrix;
-        contrastValue = result.avg;
+          let result = createContrastMatrixAndAvg(subMatrixGray);
+          contrastMatrix = result.matrix;
+          contrastValue = result.avg;
 
-        points = findMarker2(subMatrixGray,contrastMatrix,contrastValue)
-        points = relativeToAbsolutePoint(grayImageMatrix,points,testPoint,size)
-        if(points == null){console.log("null als result")}
-        showpoints = showpoints.concat(points)
+          point = findMarker2(subMatrixGray,contrastMatrix,contrastValue)
+          if (point === null){
+            // couldn't find new screen
+            delete newPoints[screen]
+            break
+          }
+          point = relativeToAbsolutePoint(grayImageMatrix,points,testPoint,size)
+          newPoints[screen].append(point)
+      }
     }
     printOnImage(img,showpoints);
     console.log(showpoints)
     //printOnImage(img,testfunction(grayImageMatrix,contrastMatrix,contrastValue))
     return showpoints
 }
-const relativeToAbsolutePoint = function (matrix,transfers,point,size){
-    result = []
+const relativeToAbsolutePoint = function (matrix,transfer,point,size){
     let startpoint= absoluteStartPointAroundPoint(matrix,point,size)
-    for (t of transfers){
-        result.push({x: (startpoint.x + t.x),y: (startpoint.y + t.y)})
-    }
-    return result
+    return {x: (startpoint.x + transfer.x),y: (startpoint.y + transfer.y)}
 }
 
 const creatSubMatrixAroundPoint = function (matrix,point,size){
@@ -142,8 +145,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
         }
     }
     //avg point
-    point = findCenter(finalList)
-    return [point]
+    return findCenter(finalList)
 }
 
 const distanceIsClose = function (d1,d2){
@@ -164,7 +166,7 @@ const findCenter = function (coord){
 // modifies original list !!
 // ref: https://stackoverflow.com/questions/45309447/calculating-median-javascript
 function median(values){
-    if(values.length ===0) return 0;
+    if(values.length ===0) return null;
 
     values.sort(function(a,b){
       return a-b;
