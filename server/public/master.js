@@ -171,6 +171,8 @@ new Promise(function(resolve, reject){
 		 		realorientation = calibration.alpha;
 		 		update = false;
 		 	}
+
+			socket.emit('updateAlpha', Math.round(event.alpha-realorientation))
 		},false)
 	}
 
