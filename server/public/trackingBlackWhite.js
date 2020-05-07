@@ -3,7 +3,7 @@
 async function findNewPointsFromLocationLastPoints(lastFound,img){
     //Linksboven, Rechtsboven, Linksonder, Rechtsonder -> Locatie vorige foto
     grayImageMatrix = await getImagesGrayscaleMatrix(img);
-    size = Math.min(grayImageMatrix.length, grayImageMatrix[0].length)/5
+    size = Math.min(grayImageMatrix.length, grayImageMatrix[0].length)/6
     let newPoints = {}
     for (screen of Object.keys(lastFound)){
       newPoints[screen] = []
@@ -12,7 +12,7 @@ async function findNewPointsFromLocationLastPoints(lastFound,img){
 
           let result = createContrastMatrixAndAvg(subMatrixGray);
           contrastMatrix = result.matrix;
-          contrastValue = (result.avg + 50)/2;
+          contrastValue = result.avg;
 
           point = findMarker2(subMatrixGray,contrastMatrix,contrastValue)
           if (point.x == null){
@@ -145,7 +145,8 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
 }
 
 const distanceIsClose = function (d1,d2){
-    return (d1<1.25*d2 && d2<1.25*d1 && d1>20 && d2>20 && d1<200 && d2<200)
+  return true
+    // return (d1<1.25*d2 && d2<1.25*d1 && d1>20 && d2>20 && d1<200 && d2<200)
 }
 
 //checkCenterColor
@@ -173,7 +174,7 @@ function median(values){
     if (values.length % 2)
       return values[half];
 
-    return (values[half - 1] + values[half]) / 2.0;
+    return (values[half + 1] + values[half]) / 2.0;
   }
 
 //grayscale above value = white
