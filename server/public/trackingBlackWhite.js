@@ -3,7 +3,7 @@
 async function findNewPointsFromLocationLastPoints(lastFound,img){
     //Linksboven, Rechtsboven, Linksonder, Rechtsonder -> Locatie vorige foto
     grayImageMatrix = await getImagesGrayscaleMatrix(img);
-    size = Math.min(grayImageMatrix.length, grayImageMatrix[0].length)/8
+    size = Math.min(grayImageMatrix.length, grayImageMatrix[0].length)/5
     let newPoints = {}
     for (screen of Object.keys(lastFound)){
       newPoints[screen] = []
@@ -12,7 +12,7 @@ async function findNewPointsFromLocationLastPoints(lastFound,img){
 
           let result = createContrastMatrixAndAvg(subMatrixGray);
           contrastMatrix = result.matrix;
-          contrastValue = result.avg;
+          contrastValue = (result.avg + 50)/2;
 
           point = findMarker2(subMatrixGray,contrastMatrix,contrastValue)
           if (point.x == null){
@@ -199,9 +199,9 @@ const getContrastNeighbors = function (matrix,x,y) {
     ]
     let count = 0
     for(i of angles){
-        if(0<=y+i.y+d*4 && 0<=x+i.x+d*4 && y+i.y+d*4<matrix.length && x+i.x+d*4<matrix[0].length){
-            contrast += Math.abs(matrix[y+i.y+d*2][x+i.x+d*2]-matrix[y][x])
-            contrast += Math.abs(matrix[y+i.y+d*4][x+i.x+d*4]-matrix[y][x])
+        if(0<=y+i.y*d*2 && 0<=x+i.x*d*2 && y+i.y*d*2<matrix.length && x+i.x*d*2<matrix[0].length){
+            contrast += Math.abs(matrix[y+i.y*d][x+i.x*d]-matrix[y][x])
+            contrast += Math.abs(matrix[y+i.y*d*2][x+i.x*d*2]-matrix[y][x])
             count += 2
         }
     }

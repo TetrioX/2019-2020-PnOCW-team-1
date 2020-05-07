@@ -379,9 +379,6 @@ new Promise(function(resolve, reject){
 						colorValue: '#ffffff',
 						id: key
 						});
-
-
-
 		}
 		await sleep(1000);
 			// console.log(key, " ", data.slaves[key])
