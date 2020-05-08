@@ -587,7 +587,7 @@ new Promise(function(resolve, reject){
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
-			await sleep(10)
+			await sleep(50)
 		}
 	}
 

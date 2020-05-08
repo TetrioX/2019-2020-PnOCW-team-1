@@ -72,7 +72,9 @@ const createContrastMatrixAndAvg = function (matrix) {
             avgGrayscale += matrix[row][col]
         }
     }
-    avgGrayscale /= matrix.length*matrix[0].length
+    if (matrix.length > 0){
+      avgGrayscale /= matrix.length*matrix[0].length
+    }
     return {matrix:newMatrix,avg:avgGrayscale}
 }
 
@@ -145,7 +147,9 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
 }
 
 const distanceIsClose = function (d1,d2){
-    return (d1<1.25*d2 && d2<1.25*d1 && d1>20 && d2>20 && d1<200 && d2<200)
+  console.log(d1, d2)
+  return (d1<2*d2 && d2<2*d1)
+    // return (d1<1.25*d2 && d2<1.25*d1 && d1>20 && d2>20 && d1<200 && d2<200)
 }
 
 //checkCenterColor
