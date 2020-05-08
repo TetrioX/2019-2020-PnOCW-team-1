@@ -390,7 +390,7 @@ new Promise(function(resolve, reject){
 
 	makeGridButton.addEventListener('click',function(){
 		socket.emit('clearAll');
-		clearInterval(screenUpdater);
+		// clearInterval(screenUpdater);
 		socket.emit('changeBackgroundOfAllSlaves',{
 			numberOfRows:numberOfRows,
 			numberOfColumns:numberOfColumns
@@ -475,8 +475,6 @@ new Promise(function(resolve, reject){
 	;
 
 		screenPositions = data;
-		screenUpdater = setTimeout(updateScreens);
-
 	});
 
 	socket.on('showVisualFeedback',function(){
@@ -534,7 +532,7 @@ new Promise(function(resolve, reject){
 
 	// Homography matrix
 	var homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t);
-// all mathces will be marked as good (1) or bad (0)
+	// all mathces will be marked as good (1) or bad (0)
 	var match_mask = new jsfeat.matrix_t(500, 1, jsfeat.U8C1_t);
 
 	function find_transform(matches, count) {
@@ -582,9 +580,9 @@ new Promise(function(resolve, reject){
 		return good_cnt;
 	}
 
-// console.log(homo3x3.data);
+	// console.log(homo3x3.data);
 
-// Multiplies the given matrix with the given points
+	// Multiplies the given matrix with the given points
 	function transformCorners(M, oldCorners) {
 		var pt = oldCorners;
 		var z = 0.0, i = 0, px = 0.0, py = 0.0;
@@ -599,7 +597,7 @@ new Promise(function(resolve, reject){
 		return pt;
 	}
 
-// Searches matches between two images and updates AllScreenPositions
+	// Searches matches between two images and updates AllScreenPositions
 	function findVectors(image1, image2, AllScreenPositions) {
 		width1 = image1.width;
 		height1 = image1.height;
@@ -639,6 +637,18 @@ new Promise(function(resolve, reject){
 			AllScreenPositions[key] = newCorners;
 		}
 	}
+
+	var checkbox = document.getElementById("perspective tracking");
+
+	checkbox.addEventListener( 'change', function() {
+		if(checkbox.checked) {
+			// Checkbox is checked
+			screenUpdater = setTimeout(updateScreens);
+		} else {
+			// Checkbox is unchecked
+			clearInterval(screenUpdater);
+		}
+	});
 
 
 
