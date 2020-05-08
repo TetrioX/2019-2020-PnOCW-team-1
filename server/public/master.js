@@ -567,9 +567,7 @@ new Promise(function(resolve, reject){
 					resolve()
 				})
 			})
-			stickerLocations = calculateStickerLocations(screenPositions)
-			console.log("start sticker: "+stickerLocations)
-			await stickerProm
+			stickerLocations = calculateStickerLocations(screenPositions, await stickerProm)
 		}
 		while (true){
 			if (trackingOption == TrackingOptions.none) {
@@ -589,11 +587,11 @@ new Promise(function(resolve, reject){
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
-			await sleep(100)
+			await sleep(10)
 		}
 	}
 
-	function calculateStickerLocations(screenPositions){
+	function calculateStickerLocations(screenPositions, screenRatios){
 		stickerLocations = {}
 		for (screen of Object.keys(screenPositions)){
 			corners = screenPositions[screen]
@@ -613,23 +611,24 @@ new Promise(function(resolve, reject){
 				x: corners[2].x - corners[3].x,
 				y: corners[2].y - corners[3].y
 			}
-			let scale = 0.05
+			let yscale = 0.05
+			let xscale = screenRatios[screen]*yscale
 			stickerLocations[screen] = [
 				{
-					x: corners[0].x - vectorTop.x*scale,
-					y: corners[0].y + vectorRight.y*scale
+					x: corners[0].x - vectorTop.x*xscale,
+					y: corners[0].y + vectorRight.y*yscale
 				},
 				{
-					x: corners[1].x - vectorBot.x*scale,
-					y: corners[1].y - vectorRight.y*scale
+					x: corners[1].x - vectorBot.x*xscale,
+					y: corners[1].y - vectorRight.y*yscale
 				},
 				{
-					x: corners[2].x + vectorBot.x*scale,
-					y: corners[2].y - vectorLeft.y*scale
+					x: corners[2].x + vectorBot.x*xscale,
+					y: corners[2].y - vectorLeft.y*yscale
 				},
 				{
-					x: corners[3].x + vectorTop.x*scale,
-					y: corners[3].y + vectorLeft.y*scale
+					x: corners[3].x + vectorTop.x*xscale,
+					y: corners[3].y + vectorLeft.y*yscale
 				}
 			]
 		}

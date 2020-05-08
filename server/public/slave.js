@@ -70,7 +70,9 @@ socket.on('slaveID', function (id) {
 
 socket.on("drawStickers", function(data, callback){
   stickers.style.display = "block"
-  callback()
+  const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+  callback(vh/vw)
 })
 
 socket.on("removeStickers", function(){
