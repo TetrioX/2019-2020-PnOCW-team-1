@@ -3,7 +3,7 @@
 async function findNewPointsFromLocationLastPoints(lastFound,img){
     //Linksboven, Rechtsboven, Linksonder, Rechtsonder -> Locatie vorige foto
     grayImageMatrix = await getImagesGrayscaleMatrix(img);
-    size = Math.min(grayImageMatrix.length, grayImageMatrix[0].length)/6
+    size = Math.min(grayImageMatrix.length, grayImageMatrix[0].length)/10
     let newPoints = {}
     for (screen of Object.keys(lastFound)){
       newPoints[screen] = []
