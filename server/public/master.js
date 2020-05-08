@@ -646,8 +646,8 @@ new Promise(function(resolve, reject){
 			screenUpdater = setTimeout(updateScreens);
 		} else {
 			// Checkbox is unchecked
-			console.log(unchecked);
-			clearInterval(screenUpdater);
+			console.log("unchecked");
+			clearTimeout(screenUpdater);
 		}
 	});
 
