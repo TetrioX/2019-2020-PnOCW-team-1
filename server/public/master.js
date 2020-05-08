@@ -568,7 +568,6 @@ new Promise(function(resolve, reject){
 					resolve(callbackData)
 				})
 			})
-			stickerLocations = calculateStickerLocations(screenPositions, screenRatios)
 		}
 		while (true){
 			if (trackingOption == TrackingOptions.none) {
@@ -576,6 +575,7 @@ new Promise(function(resolve, reject){
 					break
 				}
 			} else if (trackingOption == TrackingOptions.sticker) {
+				stickerLocations = calculateStickerLocations(screenPositions, screenRatios)
 				let newStickerLocations = await findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture())
 				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
@@ -610,7 +610,7 @@ new Promise(function(resolve, reject){
 				x: corners[2].x - corners[3].x,
 				y: corners[2].y - corners[3].y
 			}
-			let yscale = 0.05
+			let yscale = 0.06
 			let xscale = screenRatios[screen]*yscale
 			stickerLocations[screen] = [
 				{
