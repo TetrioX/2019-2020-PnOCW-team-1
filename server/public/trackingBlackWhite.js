@@ -147,7 +147,6 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
 }
 
 const distanceIsClose = function (d1,d2){
-  console.log(d1, d2)
   return (d1<2*d2 && d2<2*d1)
     // return (d1<1.25*d2 && d2<1.25*d1 && d1>20 && d2>20 && d1<200 && d2<200)
 }

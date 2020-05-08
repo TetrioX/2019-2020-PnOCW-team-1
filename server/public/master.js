@@ -577,6 +577,7 @@ new Promise(function(resolve, reject){
 			} else if (trackingOption == TrackingOptions.sticker) {
 				stickerLocations = calculateStickerLocations(AllScreenPositions, screenRatios)
 				let newStickerLocations = await findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture())
+				console.log(newStickerLocations)
 				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			} else if (trackingOption == TrackingOptions.tracking) {
