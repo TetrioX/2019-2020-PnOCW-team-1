@@ -562,12 +562,12 @@ new Promise(function(resolve, reject){
 		let AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
 		if (trackingOption == TrackingOptions.sticker) {
 			// draw stickers
-			stickerProm = new Promise(function(resolve, reject) {
+			screenRatios = await new Promise(function(resolve, reject) {
 				socket.emit("drawStickers", null, function(callbackData) {
-					resolve()
+					resolve(callbackData)
 				})
 			})
-			stickerLocations = calculateStickerLocations(screenPositions, await stickerProm)
+			stickerLocations = calculateStickerLocations(screenPositions, screenRatios)
 		}
 		while (true){
 			if (trackingOption == TrackingOptions.none) {

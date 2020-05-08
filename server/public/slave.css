@@ -86,15 +86,15 @@
 
 .sticker-border{
   position: fixed;
-  width:10vh;
-  height: 10vh;
+  width:12vh;
+  height: 12vh;
   z-index:1;
   background-color: #ffffff;
 }
 
 .sticker-center{
-  width:4vh;
-  height: 4vh;
+  width:6vh;
+  height: 6vh;
   top:3vh;
   left:3vh;
   position:relative;
