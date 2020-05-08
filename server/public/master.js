@@ -568,6 +568,7 @@ new Promise(function(resolve, reject){
 					resolve(callbackData)
 				})
 			})
+			stickerLocations = calculateStickerLocations(screenPositions, screenRatios)
 		}
 		while (true){
 			if (trackingOption == TrackingOptions.none) {
@@ -575,7 +576,6 @@ new Promise(function(resolve, reject){
 					break
 				}
 			} else if (trackingOption == TrackingOptions.sticker) {
-				stickerLocations = calculateStickerLocations(screenPositions, screenRatios)
 				let newStickerLocations = await findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture())
 				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
@@ -586,7 +586,7 @@ new Promise(function(resolve, reject){
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
-			await sleep(25)
+			await sleep(30)
 		}
 	}
 
