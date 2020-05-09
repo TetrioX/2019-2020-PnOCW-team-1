@@ -601,9 +601,9 @@ new Promise(function(resolve, reject){
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
-			if (updateAngle){
-				updateRealAngle = true;
-			}
+			// if (updateAngle){
+			// 	updateRealAngle = true;
+			// }
 			await sleep(25) // prevents freezing master
 		}
 	}
