@@ -181,7 +181,7 @@ new Promise(function(resolve, reject){
 		 	alfa = event.alpha
 			printRelativeOrientation(alfa)
 			if (updateAngle) {
-				if(!cnsdf++) alert("Ye")
+				if(!(cnsdf++ + 5)%10) alert("Ye")
 				newAlpha = Math.sign(event.alpha-realorientation) == 1? Math.round((event.alpha-realorientation+90) % 180 - 90) : Math.round((event.alpha-realorientation-90) % 180 + 90)
 				socket.emit('updateAlpha', Math.round(((event.alpha-realorientation+360)%360 + 90)%180 - 90))
 			}
