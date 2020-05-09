@@ -17,13 +17,13 @@ async function findNewPointsFromLocationLastPoints(lastFound,img){
         let result = createContrastMatrixAndAvg(subMatrixGray);
         contrastMatrix = result.matrix;
         contrastValue = result.avg;
-    
+
         points = findMarker2(subMatrixGray,contrastMatrix,contrastValue)
         points = relativeToAbsolutePoint(grayImageMatrix,points,testPoint,size)
         if(points == null){console.log("null als result")}
         showpoints = showpoints.concat(points)
     }
-    printOnImage(img,showpoints); 
+    printOnImage(img,showpoints);
     console.log(showpoints)
     //printOnImage(img,testfunction(grayImageMatrix,contrastMatrix,contrastValue))
     return showpoints
@@ -98,15 +98,15 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
                 if((matrix[row][col-d/2]>value || matrix[row][col-d]>value) && (matrix[row][col+d/2]<value || matrix[row][col+d]<value)){
                     leftX = col
                     //listOfPoints.push({x:col,y:row})
-                }  
+                }
                 //second border
                 else {
                     //check if black before contrast and white after
                     if(leftX!=null && (matrix[row][col-d/2]<value || matrix[row][col-d]<value) && (matrix[row][col+d/2]>value || matrix[row][col+d]>value)){
-                        let avgX = Math.round((col+leftX)/2)          
+                        let avgX = Math.round((col+leftX)/2)
                         listOfPoints.push({x:avgX,y:row,distance:col-leftX})
                         leftX = null
-                    }  
+                    }
                 }
             }
         }
@@ -118,7 +118,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
         //check below
         let belowY = null
         let col = point.x
-        for(let row=point.y-1;row<matrix.length-d;row++){
+        for(let row=point.y+1;row<matrix.length-d;row++){
             //find contrast color
             if(contrastMatrix[row][col]>10){
                 //check if black before contrast and white after
@@ -130,7 +130,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
         }
         if(belowY!=null){
             //check above
-            for(let row=point.y+1;row>=d;row--){
+            for(let row=point.y-1;row>=d;row--){
                 //find contrast color
                 if(contrastMatrix[row][col]>10){
                     //check if black before contrast and white after
@@ -170,16 +170,16 @@ const findCenter = function (coord){
 // ref: https://stackoverflow.com/questions/45309447/calculating-median-javascript
 function median(values){
     if(values.length ===0) return 0;
-  
+
     values.sort(function(a,b){
       return a-b;
     });
-  
+
     var half = Math.floor(values.length / 2);
-  
+
     if (values.length % 2)
       return values[half];
-  
+
     return (values[half - 1] + values[half]) / 2.0;
   }
 
@@ -191,7 +191,7 @@ const testfunction = function (matrix, contrastMatrix,value) {
         for(col=0;col<matrix[0].length;col++){
             if(matrix[row][col]<value){
                 pointlist.push({x:col,y:row})
-            }   
+            }
         }
     }
     return pointlist
@@ -235,7 +235,7 @@ async function printOnImage(img,listOfPoints){
     err => console.log(err.message)
     )
   }
-  
+
   async function printOnImage2(img,listOfPoints){
     let sharpImage = sharp(img)
     return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
@@ -274,4 +274,3 @@ async function printOnImage(img,listOfPoints){
     err => console.log(err.message)
     )
   }
-
