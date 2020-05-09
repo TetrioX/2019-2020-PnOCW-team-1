@@ -175,11 +175,13 @@ new Promise(function(resolve, reject){
 
 
 	// var updateAngle = false;
+	var cnsdf = 0;
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
 		 	alfa = event.alpha
 			printRelativeOrientation(alfa)
 			if (updateAngle) {
+				if(!cnsdf++) alert("Ye")
 				newAlpha = Math.sign(event.alpha-realorientation) == 1? Math.round((event.alpha-realorientation+90) % 180 - 90) : Math.round((event.alpha-realorientation-90) % 180 + 90)
 				socket.emit('updateAlpha', Math.round(((event.alpha-realorientation+360)%360 + 90)%180 - 90))
 			}
@@ -589,7 +591,7 @@ new Promise(function(resolve, reject){
 				stickerLocations = calculateStickerLocations(AllScreenPositions, screenRatios)
 				let newStickerLocations = {}
 				newStickerLocations = await findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture()).catch(alert("error in finding stickers:\n"+error.message)) // TODO: remove catch for demo
-				console.log(newStickerLocations)
+				// console.log(newStickerLocations)
 				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			} else if (trackingOption == TrackingOptions.tracking) {
