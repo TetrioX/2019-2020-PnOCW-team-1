@@ -197,6 +197,7 @@ new Promise(function(resolve, reject){
 		while (updateRealAngle){
 			realorientation = calibration.alpha;
 			updateRealAngle = false;
+			alert('realorientation:', realorientation )
 		}
 
 	},false)
