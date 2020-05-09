@@ -580,7 +580,7 @@ new Promise(function(resolve, reject){
 				})
 			})
 		}
-		screenUpdater = setInterval( function() {
+		screenUpdater = setInterval( async function() {
 			if (updateAngle){
 				updateRealAngle = true;
 			}
