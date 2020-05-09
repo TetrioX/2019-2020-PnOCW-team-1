@@ -576,12 +576,12 @@ new Promise(function(resolve, reject){
 				}
 			} else if (trackingOption == TrackingOptions.sticker) {
 				stickerLocations = calculateStickerLocations(AllScreenPositions, screenRatios)
-				let newStickerLocations
+				let newStickerLocations = {}
 				try{
 					newStickerLocations = await findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture())
 				}
 				catch{
-					alert("error")
+					alert("finding stickers error") //TODO: remove for Demo
 				}
 				console.log(newStickerLocations)
 				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
