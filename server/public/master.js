@@ -585,7 +585,7 @@ new Promise(function(resolve, reject){
 				updateRealAngle = true;
 			}
 			if (trackingOption == TrackingOptions.none) {
-					break
+					clearInterval(screenUpdater)
 			} else if (trackingOption == TrackingOptions.sticker) {
 				stickerLocations = calculateStickerLocations(AllScreenPositions, screenRatios)
 				let newStickerLocations = {}
