@@ -179,7 +179,7 @@ new Promise(function(resolve, reject){
 		window.addEventListener('deviceorientation', function(event){
 		 	alfa = event.alpha
 			printRelativeOrientation(alfa)
-			if (updateAngle) socket.emit('updateAlpha', Math.round(event.alpha-realorientation))
+			if (updateAngle) socket.emit('updateAlpha', Math.round((event.alpha-realorientation+180) % 180 - 180))
 		 },false);
 	}
 
@@ -197,7 +197,6 @@ new Promise(function(resolve, reject){
 		while (updateRealAngle){
 			realorientation = calibration.alpha;
 			updateRealAngle = false;
-			alert('realorientation:', realorientation )
 		}
 
 	},false)

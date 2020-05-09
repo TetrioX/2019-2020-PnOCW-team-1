@@ -1035,7 +1035,7 @@ playerButton.addEventListener('click', function () {
 
    socket.on("updateCalibration", async function(alpha){
      // t1 = Date.now()
-     updateTransformationMatrix(alpha)
+     if (corners) updateTransformationMatrix(alpha)
      // console.log(Date.now() - t1)
    })
 
