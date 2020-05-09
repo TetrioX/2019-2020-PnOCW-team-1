@@ -106,12 +106,12 @@ new Promise(function(resolve, reject){
 	})
 	var gyroCehckbox = document.getElementById("gyroscoop")
 	gyroCehckbox.addEventListener( 'change', function() {
-    useGyroscope = this.checked
-		if (trackingOption == TrackingOptions.none && useGyroscope) {
+    updateAngle = this.checked
+		if (trackingOption == TrackingOptions.none && updateAngle) {
 			setTimeout(updateScreens)
 		}
 });
-	var useGyroscope = gyroCehckbox.checked; // when tracking interpolate with gyro
+	var updateAngle = gyroCehckbox.checked; // when tracking interpolate with gyro
 	var calibrated = false;
 
 	rowPicker.addEventListener('input', function(){
@@ -174,7 +174,7 @@ new Promise(function(resolve, reject){
 	zerobutton.addEventListener('click',calibrateOrientation)
 
 
-	var updateAngle = false;
+	// var updateAngle = false;
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
 		 	alfa = event.alpha
@@ -577,16 +577,11 @@ new Promise(function(resolve, reject){
 			})
 		}
 		while (true){
-			if (!updateAngle && useGyroscope){
-				updateAngle = true
-			}
-			if (updateAngle && !useGyroscope){
-				updateAngle = false
+			if (updateAngle && trackingOption){
+				updateRealAngle = true;
 			}
 			if (trackingOption == TrackingOptions.none) {
-				if (!useGyroscope){
 					break
-				}
 			} else if (trackingOption == TrackingOptions.sticker) {
 				stickerLocations = calculateStickerLocations(AllScreenPositions, screenRatios)
 				let newStickerLocations = {}
@@ -601,9 +596,6 @@ new Promise(function(resolve, reject){
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
-			// if (updateAngle){
-			// 	updateRealAngle = true;
-			// }
 			await sleep(25) // prevents freezing master
 		}
 	}
