@@ -529,7 +529,7 @@ new Promise(function(resolve, reject){
 		screenPositions = data;
 		calibrated = true
 		startPic = takeTrackingPicture();
-		screenUpdater = setTimeout(updateScreens);
+		updateScreens();
 
 	});
 
@@ -582,7 +582,7 @@ new Promise(function(resolve, reject){
 				})
 			})
 		}
-		while (true){
+		screenUpdater = setInterval( function() {
 			if (updateAngle){
 				updateRealAngle = true;
 			}
@@ -602,8 +602,7 @@ new Promise(function(resolve, reject){
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
-			await sleep(25) // prevents freezing master
-		}
+		}, 30)
 	}
 
 	function calculateStickerLocations(screenPositions, screenRatios){
