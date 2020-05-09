@@ -67,7 +67,7 @@ new Promise(function(resolve, reject){
 	var countdownSeconds = countdownPicker.valueAsNumber;
 	var snakeLength = snakeLengthPicker.valueAsNumber;
 
-	var screenPositions;
+	var screenPositions = {};
 	var screenUpdater;
 	var startPic
 
@@ -107,6 +107,9 @@ new Promise(function(resolve, reject){
 	var gyroCehckbox = document.getElementById("gyroscoop")
 	gyroCehckbox.addEventListener( 'change', function() {
     useGyroscope = this.checked
+		if (trackingOption == TrackingOptions.none && useGyroscope) {
+			setTimeout(updateScreens)
+		}
 });
 	var useGyroscope = gyroCehckbox.checked; // when tracking interpolate with gyro
 	var calibrated = false;
@@ -569,7 +572,16 @@ new Promise(function(resolve, reject){
 				})
 			})
 		}
+		let gyroStarted = false
 		while (true){
+			if (!gyroStarted && useGyroscope){
+				// TODO: start gyro
+				gyroStarted = true
+			}
+			if (gyroStarted && !useGyroscope){
+				//TODO: stop gyro
+				gyroStarted = false
+			}
 			if (trackingOption == TrackingOptions.none) {
 				if (!useGyroscope){
 					break
@@ -588,7 +600,10 @@ new Promise(function(resolve, reject){
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
-			await sleep(30)
+			if (gyroStarted){
+				// TODO: recalibrate gyro
+			}
+			await sleep(25) // prevents freezing master
 		}
 	}
 
