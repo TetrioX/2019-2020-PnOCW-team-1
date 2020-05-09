@@ -173,29 +173,33 @@ new Promise(function(resolve, reject){
 
 	zerobutton.addEventListener('click',calibrateOrientation)
 
+
+	var updateAngle = false;
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
 		 	alfa = event.alpha
 			printRelativeOrientation(alfa)
+			if (updateAngle) socket.emit('updateAlpha', Math.round(event.alpha-realorientation))
 		 },false);
 	}
 
-
+	var updateRealAngle = false;
 	function calibrateOrientation(){
 
-		var update = true;
+		updateRealAngle = true;
 		zerobutton.onclick ="";
 	 	masterorientationdiv.style.display=""
 	 	document.getElementById("currentanglediv").style.display="none"
-		window.addEventListener('deviceorientation', function(calibration){
-			while (update == true){
-		 		realorientation = calibration.alpha;
-		 		update = false;
-		 	}
 
-			socket.emit('updateAlpha', Math.round(event.alpha-realorientation))
-		},false)
 	}
+
+	window.addEventListener('deviceorientation', function(calibration){
+		while (updateRealAngle){
+			realorientation = calibration.alpha;
+			updateRealAngle = false;
+		}
+
+	},false)
 
 	function printRelativeOrientation(alfa){
 		relativeorientation=Math.round(event.alpha-realorientation)
@@ -572,15 +576,12 @@ new Promise(function(resolve, reject){
 				})
 			})
 		}
-		let gyroStarted = false
 		while (true){
-			if (!gyroStarted && useGyroscope){
-				// TODO: start gyro
-				gyroStarted = true
+			if (!updateAngle && useGyroscope){
+				updateAngle = true
 			}
-			if (gyroStarted && !useGyroscope){
-				//TODO: stop gyro
-				gyroStarted = false
+			if (updateAngle && !useGyroscope){
+				updateAngle = false
 			}
 			if (trackingOption == TrackingOptions.none) {
 				if (!useGyroscope){
@@ -600,8 +601,8 @@ new Promise(function(resolve, reject){
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
-			if (gyroStarted){
-				// TODO: recalibrate gyro
+			if (updateAngle){
+				updateRealAngle = true;
 			}
 			await sleep(25) // prevents freezing master
 		}
