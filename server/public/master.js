@@ -179,7 +179,7 @@ new Promise(function(resolve, reject){
 		window.addEventListener('deviceorientation', function(event){
 		 	alfa = event.alpha
 			printRelativeOrientation(alfa)
-			if (updateAngle) socket.emit('updateAlpha', Math.round((event.alpha-realorientation+180) % 180 - 180))
+			if (updateAngle) socket.emit('updateAlpha', Math.round((event.alpha-realorientation+90) % 180 - 90))
 		 },false);
 	}
 
