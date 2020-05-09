@@ -578,7 +578,7 @@ new Promise(function(resolve, reject){
 			})
 		}
 		while (true){
-			if (updateAngle && trackingOption){
+			if (updateAngle){
 				updateRealAngle = true;
 			}
 			if (trackingOption == TrackingOptions.none) {
