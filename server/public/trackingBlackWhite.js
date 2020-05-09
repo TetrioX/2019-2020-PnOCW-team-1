@@ -114,7 +114,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
         //check below
         let belowY = null
         let col = point.x
-        for(let row=point.y-1;row<matrix.length-d;row++){
+        for(let row=point.y;row<matrix.length-d;row++){
             //find contrast color
             if(contrastMatrix[row][col]>10){
                 //check if black before contrast and white after
@@ -126,7 +126,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
         }
         if(belowY!=null){
             //check above
-            for(let row=point.y+1;row>=d;row--){
+            for(let row=point.y;row>=d;row--){
                 //find contrast color
                 if(contrastMatrix[row][col]>10){
                     //check if black before contrast and white after
