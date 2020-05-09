@@ -78,8 +78,14 @@ new Promise(function(resolve, reject){
 		sticker: 1,
 		keypoint: 2
 	}
-	var trackingOption = TrackingOptions.none //default
 	var trackingBoxes = document.getElementById("tracking").children
+	trackingOption = null
+	for (let i=0; i< trackingBoxes.length; i++){
+		if (trackingBoxes[i].checked){
+			trackingOption = i
+			break
+		}
+	}
 	trackingBoxes[TrackingOptions.none].addEventListener( 'change', function() {
 		trackingOption = TrackingOptions.none
 		socket.emit("removeStickers")
@@ -373,9 +379,6 @@ new Promise(function(resolve, reject){
 						colorValue: '#ffffff',
 						id: key
 						});
-
-
-
 		}
 		await sleep(1000);
 			// console.log(key, " ", data.slaves[key])
@@ -554,39 +557,47 @@ new Promise(function(resolve, reject){
 		if (Object.keys(screenPositions).length == 0){
 			return
 		}
+		let screenRatios
 		let stickerLocations
 		// copy of screenPositions so tracking can base on original positions
 		let AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
-		if (trackingOption = TrackingOptions.sticker) {
+		if (trackingOption == TrackingOptions.sticker) {
 			// draw stickers
-			stickerProm = new Promise(function(resolve, reject) {
+			screenRatios = await new Promise(function(resolve, reject) {
 				socket.emit("drawStickers", null, function(callbackData) {
-					resolve()
+					resolve(callbackData)
 				})
 			})
-			stickerLocations = calculateStickerLocations(screenPositions)
-			await stickerProm
 		}
 		while (true){
-			if (trackingOption = TrackingOptions.none) {
+			if (trackingOption == TrackingOptions.none) {
 				if (!useGyroscope){
 					break
 				}
-			} else if (trackingOption = TrackingOptions.sticker) {
-				let newStickerLocations = findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture())
+			} else if (trackingOption == TrackingOptions.sticker) {
+				stickerLocations = calculateStickerLocations(AllScreenPositions, screenRatios)
+				let newStickerLocations = {}
+				try{
+					newStickerLocations = await findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture())
+				}
+				catch{
+					alert("finding stickers error") //TODO: remove for Demo
+				}
+				console.log(newStickerLocations)
 				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
-			} else if (trackingOption = TrackingOptions.tracking) {
+			} else if (trackingOption == TrackingOptions.tracking) {
 				let pic = takeTrackingPicture();
 				// console.log(imageObjects)
 				AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
 				findVectors(startPic, pic, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
 			}
+			await sleep(30)
 		}
 	}
 
-	function calculateStickerLocations(screenPositions){
+	function calculateStickerLocations(screenPositions, screenRatios){
 		stickerLocations = {}
 		for (screen of Object.keys(screenPositions)){
 			corners = screenPositions[screen]
@@ -606,23 +617,24 @@ new Promise(function(resolve, reject){
 				x: corners[2].x - corners[3].x,
 				y: corners[2].y - corners[3].y
 			}
-			let scale = 0.05
+			let yscale = 0.06
+			let xscale = screenRatios[screen]*yscale
 			stickerLocations[screen] = [
 				{
-					x: corners[0].x + vectorTop.x*scale,
-					y: corners[0].y + vectorLeft.y*scale
+					x: corners[0].x - vectorTop.x*xscale,
+					y: corners[0].y + vectorRight.y*yscale
 				},
 				{
-					x: corners[1].x - vectorTop.x*scale,
-					y: corners[1].y + vectorRight.y*scale
+					x: corners[1].x - vectorBot.x*xscale,
+					y: corners[1].y - vectorRight.y*yscale
 				},
 				{
-					x: corners[2].x - vectorBot.x*scale,
-					y: corners[2].y - vectorLeft.y*scale
+					x: corners[2].x + vectorBot.x*xscale,
+					y: corners[2].y - vectorLeft.y*yscale
 				},
 				{
-					x: corners[3].x - vectorTop.x*scale,
-					y: corners[3].y + vectorLeft.y*scale
+					x: corners[3].x + vectorTop.x*xscale,
+					y: corners[3].y + vectorLeft.y*yscale
 				}
 			]
 		}
@@ -630,17 +642,16 @@ new Promise(function(resolve, reject){
 	}
 
 	function updateStickerPositions(oldStickerLocations, newStickerLocations, AllScreenPositions){
-		for (screen of Object.keys(AllScreenPositions)){
+		for (screen of Object.keys(newStickerLocations)){
 			// define matches
-			matches = {keypoint1:[], keypoint2:[]}
+			matches = []
 			for (let i=0; i<4; i++){
-				matches.keypoint1.append(oldStickerLocations[screen].x)
-				matches.keypoint1.append(oldStickerLocations[screen].y)
-				matches.keypoint2.append(newStickerLocations[screen].x)
-				matches.keypoint2.append(newStickerLocations[screen].y)
+				matches.push({keypoint1: [oldStickerLocations[screen][i].x, oldStickerLocations[screen][i].y],
+											keypoint2: [newStickerLocations[screen][i].x, newStickerLocations[screen][i].y]})
 			}
 			find_transform(matches, matches.length);
-			AllScreenPositions[key] = transformCorners(homo3x3.data, AllScreenPositions[key]);
+			AllScreenPositions[screen] = transformCorners(homo3x3.data, AllScreenPositions[screen]);
+			oldStickerLocations[screen] = newStickerLocations[screen]
 		}
 
 	}

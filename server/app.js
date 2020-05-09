@@ -632,13 +632,15 @@ var masterIo = io.of('/master').on('connect', function(socket){
   })
 
   socket.on("drawStickers", async function(data, callback){
+    screenRatios = {}
     await Promise.all(Object.keys(slaves).map( slave => new Promise(function(resolve, reject){
       slaveSockets[slave].emit("drawStickers", null, function(callbackData){
+        screenRatios[slaves[slave]] = callbackData
         resolve()
       })
       setTimeout(resolve, 2000)
     })))
-    callback()
+    callback(screenRatios)
   })
 
   socket.on("removeStickers", function(){

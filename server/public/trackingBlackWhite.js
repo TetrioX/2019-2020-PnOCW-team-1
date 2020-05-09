@@ -2,9 +2,8 @@
 
 async function findNewPointsFromLocationLastPoints(lastFound,img){
     //Linksboven, Rechtsboven, Linksonder, Rechtsonder -> Locatie vorige foto
-    size = 400
-    imageMatrixesGray = await getImagesGrayscaleMatrix([img]);
-    grayImageMatrix = imageMatrixesGray[0];
+    grayImageMatrix = await getImagesGrayscaleMatrix(img);
+    size = Math.min(grayImageMatrix.length, grayImageMatrix[0].length)/8
     let newPoints = {}
     for (screen of Object.keys(lastFound)){
       newPoints[screen] = []
@@ -16,19 +15,16 @@ async function findNewPointsFromLocationLastPoints(lastFound,img){
           contrastValue = result.avg;
 
           point = findMarker2(subMatrixGray,contrastMatrix,contrastValue)
-          if (point === null){
+          if (point.x == null){
             // couldn't find new screen
             delete newPoints[screen]
             break
           }
-          point = relativeToAbsolutePoint(grayImageMatrix,points,testPoint,size)
-          newPoints[screen].append(point)
+          point = relativeToAbsolutePoint(grayImageMatrix,point,testPoint,size)
+          newPoints[screen].push(point)
       }
     }
-    printOnImage(img,showpoints);
-    console.log(showpoints)
-    //printOnImage(img,testfunction(grayImageMatrix,contrastMatrix,contrastValue))
-    return showpoints
+    return newPoints
 }
 const relativeToAbsolutePoint = function (matrix,transfer,point,size){
     let startpoint= absoluteStartPointAroundPoint(matrix,point,size)
@@ -44,7 +40,7 @@ const creatSubMatrixAroundPoint = function (matrix,point,size){
     for(row=0;row<verticalSize;row++){
         subMatrix.push([])
         for(col=0;col<horizontalSize;col++){
-            subMatrix[row][col] = matrix[startPoint.y + row][startPoint.x + col]
+          subMatrix[row][col] = matrix[startPoint.y + row][startPoint.x + col]
         }
     }
     return subMatrix
@@ -54,16 +50,16 @@ const absoluteStartPointAroundPoint = function (matrix, point, size){
     let startHor = point.x-size/2
     if (startHor<=0){startHor=0}
     let startVer = point.y-size/2
-    if (startVer<=0){startHor=0}
-    return {x:startHor,y:startVer}
+    if (startVer<=0){startVer=0}
+    return {x:parseInt(startHor),y:parseInt(startVer)}
 }
 
 const absoluteEndPointAroundPoint = function (matrix, point, size){
     let stopHor = point.x+size/2-1
-    if (stopHor<matrix.length){startHor=matrix.length-1}
+    if (stopHor>=matrix[0].length){stopHor=matrix[0].length-1}
     let stopVer = point.y+size/2-1
-    if (stopVer<matrix[0].length){startHor=matrix[0].length-1}
-    return {x:stopHor,y:stopVer}
+    if (stopVer>=matrix.length){stopVer=matrix.length-1}
+    return {x:parseInt(stopHor),y:parseInt(stopVer)}
 }
 
 const createContrastMatrixAndAvg = function (matrix) {
@@ -76,7 +72,9 @@ const createContrastMatrixAndAvg = function (matrix) {
             avgGrayscale += matrix[row][col]
         }
     }
-    avgGrayscale /= matrix.length*matrix[0].length
+    if (matrix.length > 0){
+      avgGrayscale /= matrix.length*matrix[0].length
+    }
     return {matrix:newMatrix,avg:avgGrayscale}
 }
 
@@ -116,7 +114,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
         //check below
         let belowY = null
         let col = point.x
-        for(let row=point.y-1;row<matrix.length-d;row++){
+        for(let row=point.y+1;row<matrix.length-d;row++){
             //find contrast color
             if(contrastMatrix[row][col]>10){
                 //check if black before contrast and white after
@@ -128,7 +126,7 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
         }
         if(belowY!=null){
             //check above
-            for(let row=point.y+1;row>=d;row--){
+            for(let row=point.y-1;row>=d;row--){
                 //find contrast color
                 if(contrastMatrix[row][col]>10){
                     //check if black before contrast and white after
@@ -149,7 +147,8 @@ const findMarker2 = function (matrix,contrastMatrix,value) {
 }
 
 const distanceIsClose = function (d1,d2){
-    return (d1<1.25*d2 && d2<1.25*d1 && d1>20 && d2>20 && d1<200 && d2<200)
+  return (d1<2*d2 && d2<2*d1)
+    // return (d1<1.25*d2 && d2<1.25*d1 && d1>20 && d2>20 && d1<200 && d2<200)
 }
 
 //checkCenterColor
@@ -177,7 +176,7 @@ function median(values){
     if (values.length % 2)
       return values[half];
 
-    return (values[half - 1] + values[half]) / 2.0;
+    return (values[half + 1] + values[half]) / 2.0;
   }
 
 //grayscale above value = white
@@ -203,13 +202,13 @@ const getContrastNeighbors = function (matrix,x,y) {
     ]
     let count = 0
     for(i of angles){
-        if(0<=y+i.y+d*4 && 0<=x+i.x+d*4 && y+i.y+d*4<matrix.length && x+i.x+d*4<matrix[0].length){
-            contrast += Math.abs(matrix[y+i.y+d*2][x+i.x+d*2]-matrix[y][x])
-            contrast += Math.abs(matrix[y+i.y+d*4][x+i.x+d*4]-matrix[y][x])
+        if(0<=y+i.y*d*2 && 0<=x+i.x*d*2 && y+i.y*d*2<matrix.length && x+i.x*d*2<matrix[0].length){
+            contrast += Math.abs(matrix[y+i.y*d][x+i.x*d]-matrix[y][x])
+            contrast += Math.abs(matrix[y+i.y*d*2][x+i.x*d*2]-matrix[y][x])
             count += 2
         }
     }
-    contrast /= count
+    contrast /= Math.max(1, count)
     return contrast
 }
 

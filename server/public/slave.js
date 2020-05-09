@@ -70,7 +70,9 @@ socket.on('slaveID', function (id) {
 
 socket.on("drawStickers", function(data, callback){
   stickers.style.display = "block"
-  callback()
+  let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  let vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+  callback(vh/vw)
 })
 
 socket.on("removeStickers", function(){
@@ -649,9 +651,6 @@ playerButton.addEventListener('click', function () {
 
 
     let dimensions = null;
-    socket.on('updateTransform', async function(data) {
-      transformSlave(canvas, data.corners, dimensions);
-    })
 
     /********************
      * Image show-off *
@@ -1038,6 +1037,11 @@ playerButton.addEventListener('click', function () {
      // t1 = Date.now()
      updateTransformationMatrix(alpha)
      // console.log(Date.now() - t1)
+   })
+
+   socket.on('updateTransform', async function(data) {
+     corners = data.corners
+     transformSlave(transformElement, corners, {x: picDim[1], y: picDim[0]});
    })
 
    function updateTransformationMatrix(alpha) {
