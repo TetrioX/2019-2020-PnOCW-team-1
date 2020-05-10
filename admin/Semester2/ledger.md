@@ -62,3 +62,22 @@ twee masters zijn, nu is dit niet meer)
 De verschillende hoekafwijkingen kunnen nu verkregen worden.
 - In verband met keypoint-tracking werd er getest met tracking.js. 
 Verder werd er nog besproken hoe we de verplaatsing van een scherm eenduidig kunnen bepalen.
+
+## Team meeting 9 - 21/04/2020 (online)
+- Demo
+
+## Team meeting 10 - 28/04/2020 (online)
+- Hoeken van master device (uit gyroscoop) 
+kunnen verkregen worden en transformatiematrix kan opgesteld worden. Real time
+transformeren van images en dergelijke nog niet getest.
+- Sticker tracking (Geert): Hoeken kunnen meestal herkend worden. Nog kleine 
+bugs en werking in het geheel moet nog getest worden.
+- Keypoint tracking is geïmplementeerd en getest. Kwaliteit van transformatie 
+is ok (camera moet wel rustig bewogen worden). Implementatie is echter te traag: 
+uitrekenen van transformatie is snel maar het sturen van foto's naar server 
+zorgt voor sterke vertraging.
+
+## Team meeting 11 - 05/05/2020 (online)
+- Eerste versie van 3D scene is geïmplementeerd en werkt.
+- Keypoint tracking is sneller gemaakt
+- Deel met gyroscoop werkt vlot (met de nodige assumpties)
