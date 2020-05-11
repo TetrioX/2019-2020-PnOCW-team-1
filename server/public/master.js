@@ -176,11 +176,27 @@ new Promise(function(resolve, reject){
 
 	// var updateAngle = false;
 	var cnsdf = 0;
+	startGyro = 0
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
 		 	alfa = event.alpha
 			printRelativeOrientation(alfa)
 			if (updateAngle && Object.keys(screenPositions).length != 0) {
+				if (startGyro != 0 && calibrated){
+					let newTime = new Date()
+					if (trackingOption == TrackingOptions.none) {
+						benchmarks['solo']['gyro'].push(newTime - startGyro)
+						if (benchmarks['solo']['gyro'].length == 50){
+							alert("gyro solo done")
+							updateAngle = false
+						}
+					} else {
+						if (benchmarks['combo']['gyro'].length < 50){
+							benchmarks['combo']['gyro'].push(newTime - startGyro)
+						}
+					}
+					startGyro = newTime
+				}
 				newAlpha = Math.sign(event.alpha-realorientation) == 1? Math.round((event.alpha-realorientation+90) % 180 - 90) : Math.round((event.alpha-realorientation-90) % 180 + 90)
 				socket.emit('updateAlpha', Math.round(((event.alpha-realorientation+360)%360 + 90)%180 - 90))
 			}
@@ -579,8 +595,7 @@ new Promise(function(resolve, reject){
 				})
 			})
 		}
-		var benchmarks = {picture:[], tracking:[], matrix:[]}
-		trackingT = 0
+		var benchmarks = {solo: {keypoint: [], gyro: []}, combo: {keypoint: [], gyro: []}}
 		screenUpdater = setInterval( async function() {
 			let start = new Date()
 			if (updateAngle){
@@ -597,18 +612,23 @@ new Promise(function(resolve, reject){
 				socket.emit('updateScreens', AllScreenPositions);
 			} else if (trackingOption == TrackingOptions.tracking) {
 				let pic = takeTrackingPicture();
-				let pictureT = new Date()
-				benchmarks['picture'].push(pictureT - start)
 				// console.log(imageObjects)
 				AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
 				findVectors(startPic, pic, AllScreenPositions)
-				let matrixT = new Date()
-				benchmarks['tracking'].push(trackingT - pictureT)
-				benchmarks['matrix'].push(matrixT - trackingT)
 				socket.emit('updateScreens', AllScreenPositions);
-				if (benchmarks['picture'].length >= 100) {
-					socket.emit("save-json", benchmarks)
-					alert("benchmark done")
+				endT = new Date()
+				if (updateAngle){
+					benchmarks['combo']['keypoint'].push(endT - start)
+					if (benchmarks['solo']['keypoint'].length == 50) {
+						trackingOption == TrackingOptions.none
+					}
+				} else{
+					benchmarks['solo']['keypoint'].push(endT - start)
+					if (benchmarks['solo']['keypoint'].length == 50) {
+						socket.emit("save-json", benchmarks)
+						trackingOption == TrackingOptions.none
+						alert("benchmark done")
+					}
 				}
 			}
 		}, 30)
