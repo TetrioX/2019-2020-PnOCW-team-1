@@ -619,8 +619,8 @@ new Promise(function(resolve, reject){
 				endT = new Date()
 				if (updateAngle){
 					benchmarks['combo']['keypoint'].push(endT - start)
-					if (benchmarks['solo']['keypoint'].length == 50) {
-						trackingOption == TrackingOptions.none
+					if (benchmarks['combo']['keypoint'].length == 50) {
+						trackingOption = TrackingOptions.none
 					}
 				} else{
 					benchmarks['solo']['keypoint'].push(endT - start)
