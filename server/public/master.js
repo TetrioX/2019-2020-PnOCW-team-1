@@ -186,7 +186,7 @@ new Promise(function(resolve, reject){
 					let newTime = new Date()
 					if (trackingOption == TrackingOptions.none) {
 						benchmarks['solo']['gyro'].push(newTime - startGyro)
-						if (benchmarks['solo']['gyro'].length == 50){
+						if (benchmarks['solo']['gyro'].length >= 50){
 							alert("gyro solo done")
 							updateAngle = false
 						}
@@ -195,8 +195,8 @@ new Promise(function(resolve, reject){
 							benchmarks['combo']['gyro'].push(newTime - startGyro)
 						}
 					}
-					startGyro = newTime
 				}
+				startGyro = newTime
 				newAlpha = Math.sign(event.alpha-realorientation) == 1? Math.round((event.alpha-realorientation+90) % 180 - 90) : Math.round((event.alpha-realorientation-90) % 180 + 90)
 				socket.emit('updateAlpha', Math.round(((event.alpha-realorientation+360)%360 + 90)%180 - 90))
 			}
@@ -621,6 +621,7 @@ new Promise(function(resolve, reject){
 					benchmarks['combo']['keypoint'].push(endT - start)
 					if (benchmarks['combo']['keypoint'].length == 50) {
 						trackingOption = TrackingOptions.none
+						socket.emit("save-json", benchmarks)
 					}
 				} else{
 					benchmarks['solo']['keypoint'].push(endT - start)
