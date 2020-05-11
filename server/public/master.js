@@ -182,8 +182,8 @@ new Promise(function(resolve, reject){
 		 	alfa = event.alpha
 			printRelativeOrientation(alfa)
 			if (updateAngle && Object.keys(screenPositions).length != 0) {
-				if (startGyro != 0 && calibrated){
-					let newTime = new Date()
+				let newTime = new Date()
+				if (startGyro != 0){
 					if (trackingOption == TrackingOptions.none) {
 						benchmarks['solo']['gyro'].push(newTime - startGyro)
 						if (benchmarks['solo']['gyro'].length >= 50){
