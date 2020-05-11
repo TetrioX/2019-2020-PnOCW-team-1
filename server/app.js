@@ -258,6 +258,9 @@ var masterIo = io.of('/master').on('connect', function(socket){
       masterSocket.disconnect()
     }
     masterSocket = socket;
+    socket.on("save-json", function(data) {
+      fs.writeFile(debugPath+`/json.json`, JSON.stringify(data), (err) => {if (err) console.log(err)});
+    })
     socket.broadcast.emit('registerMaster')
     var imageIndex = 0;
     socket.emit('slaveSet', {

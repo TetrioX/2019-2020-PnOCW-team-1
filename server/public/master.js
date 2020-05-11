@@ -563,7 +563,6 @@ new Promise(function(resolve, reject){
 	/****************************
 	 * Tracker Update functions *
 	 ****************************/
-
 	async function updateScreens() {
 		if (Object.keys(screenPositions).length == 0){
 			return
@@ -580,7 +579,10 @@ new Promise(function(resolve, reject){
 				})
 			})
 		}
+		var benchmarks = {picture:[], tracking:[], matrix:[]}
+		trackingT = 0
 		screenUpdater = setInterval( async function() {
+			let start = new Date()
 			if (updateAngle){
 				updateRealAngle = true;
 			}
@@ -595,10 +597,19 @@ new Promise(function(resolve, reject){
 				socket.emit('updateScreens', AllScreenPositions);
 			} else if (trackingOption == TrackingOptions.tracking) {
 				let pic = takeTrackingPicture();
+				let pictureT = new Date()
+				benchmarks['picture'].push(pictureT - start)
 				// console.log(imageObjects)
 				AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
 				findVectors(startPic, pic, AllScreenPositions)
+				let matrixT = new Date()
+				benchmarks['tracking'].push(trackingT - pictureT)
+				benchmarks['matrix'].push(matrixT - trackingT)
 				socket.emit('updateScreens', AllScreenPositions);
+				if (benchmarks['picture'].length >= 100) {
+					socket.emit("save-json", benchmarks)
+					alert("benchmark done")
+				}
 			}
 		}, 30)
 	}
@@ -770,7 +781,7 @@ new Promise(function(resolve, reject){
 		matches.sort(function (a, b) {
 			return b.confidence - a.confidence;
 		});
-
+		trackingT = new Date()
 		find_transform(matches, matches.length);
 
 		for (const [key, value] of Object.entries(AllScreenPositions)) {
