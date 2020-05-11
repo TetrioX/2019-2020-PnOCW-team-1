@@ -579,6 +579,7 @@ new Promise(function(resolve, reject){
 	/****************************
 	 * Tracker Update functions *
 	 ****************************/
+	benchmarks = {solo: {keypoint: [], gyro: []}, combo: {keypoint: [], gyro: []}}
 	async function updateScreens() {
 		if (Object.keys(screenPositions).length == 0){
 			return
@@ -595,7 +596,6 @@ new Promise(function(resolve, reject){
 				})
 			})
 		}
-		var benchmarks = {solo: {keypoint: [], gyro: []}, combo: {keypoint: [], gyro: []}}
 		screenUpdater = setInterval( async function() {
 			let start = new Date()
 			if (updateAngle){
