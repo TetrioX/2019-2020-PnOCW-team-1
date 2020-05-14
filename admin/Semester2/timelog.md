@@ -35,4 +35,9 @@
 > - Maxel
 
 > **New features**
-> 
+> - Dennis
+> - Geert
+> - Simon T
+> - Xander
+> - Simon C
+> - Maxel

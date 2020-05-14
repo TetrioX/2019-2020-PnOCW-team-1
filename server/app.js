@@ -20,7 +20,7 @@ const { argv } = require('yargs')
                   .boolean('save-debug-files')
                   .default('grid-pause', 0)
 
-var saveDebugFiles = argv['save-debug-files']
+var saveDebugFiles = true;
 var gridPause = argv['grid-pause']
 var debugPath = './debug'
 var debugDirPromise = new Promise(function(resolve, reject){

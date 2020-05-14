@@ -37,8 +37,26 @@
 - Dennis bekijkt de mogelijkheid om het master device te kalibreren
  voor de schermherkenning uitgevoerd zou worden.
 - Simon C onderzoekt of het mogelijk is om enkel via de hoeken 
-verkregen van de gyroscoop een goede trasnformatie te verkrijgen.
+verkregen van de gyroscoop een goede transformatie te verkrijgen.
 - Simon T zorgt voor verdere bugfixes (tegen de dag van de demo).
 - Geert en Maxel proberen de transformatie van de schermen te verkrijgen 
 door bepaalde punten op het scherm te tracken.
-- Xander?
+- Xander zoekt een wiskundige formulering voor een transformatie indien 
+de hoeken (verkregen uit gyroscoop) gevonden zijn.
+
+## Week 9 - 21/04/2020
+- Demo
+
+## Week 10 - 28/04/2020
+- Dennis werkt verder aan kalibratie
+- Simon C implementeert 3D scene met three.js
+- Xander doet testen met wiskundige implementatie van perspectief transformatie
+- Maxel en Simon T implementeren perspective tracking met feature point detection 
+(keypoint detection & matching) en testen dit.
+- Geert implementeert alternatief algoritme: Dit probeert hoeken van de schermen
+ te vinden door te zoeken naar een zwart in wit vierkant (soort van digitale sticker)
+- Iedereen schrijft aan verslag (deadline deze avond)
+
+## Week 11 - 05/05/2020
+- Verder optimaliseren van implementaties + het integreren van deze.
+- Beginnen aan eindverslag
