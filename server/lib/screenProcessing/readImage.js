@@ -1,5 +1,7 @@
 const sharp = require('sharp')    // image processing
 
+
+
 async function getImagesHslMatrix(imgs){
   return await Promise.all(imgs.map( img => {
     let sharpImage = sharp(img)
@@ -22,6 +24,85 @@ async function getImagesHslMatrix(imgs){
     )
   }))
 }
+
+async function getImagesHslMatrix2(imgs){
+
+    return await Promise.all(imgs.map( img => {
+        let sharpImage = sharp(img)
+        return Promise.all([sharpImage.metadata(), sharpImage.withMetadata().raw().toBuffer()]).then(
+            values => {
+                let meta = values[0]
+                let buff = values[1]
+                let matrix = []
+                for (let j = 0; j < meta.height; j++) {
+                    matrix.push([])
+                    for (let i = 0; i < meta.width; i++) {
+                        let pos = meta.channels*(i + j*meta.width)
+
+                        matrix[j].push([buff[pos], buff[pos + 1], buff[pos + 2]])
+                    }
+                }
+                equalize(matrix);
+                return matrix
+            }
+        ).catch(
+            err => console.log(err.message)
+        )
+    }))
+}
+
+
+function equalize(matrix){
+    var level,ratio,val;
+    let height = matrix.length;
+    let width = matrix[0].length;
+    let n = width*height;
+    var mCopy = new Array(height)
+    for(var j=0;j<height;j++){
+        mCopy[j] = new Array(width);
+    }
+
+    var pdf = new Array(256);
+    for(i=0;i<256;i++){
+        pdf[i] = 0;
+    }
+    var z = 0;
+    for(var i=0;i<height;i++){
+        for(var j=0;j<width;j++){
+            var current = matrix[i][j];
+            val = Math.round(0.3*current[0]+0.59*current[1]+0.11*current[2]);
+            level = Math.min(255,Math.max(val,0));
+            mCopy[i][j] = level;
+            pdf[level]++;
+        }
+    }
+
+    var cdf = new Array(256);
+    cdf[0] = pdf[0];
+    for(i=1;i<256;i++) {
+        cdf[i] = cdf[i-1] + pdf[i];
+    }
+    for(i=0;i<256;i++) {
+        cdf[i] = cdf[i] / n * 255.0;
+    }
+
+    for (i=0;i<height;i++) {
+        for(j=0;j<width;j++){
+            level = mCopy[i][j];
+            //console.log(level)
+            ratio = cdf[level] / (level || 1);
+            //console.log(ratio);
+            var current = matrix[i][j]
+            var r =  Math.min(255, Math.max(Math.round(current[0] * ratio), 0));
+            var g = Math.min(255, Math.max(Math.round(current[1] * ratio), 0));
+            var b =  Math.min(255, Math.max(Math.round(current[2] * ratio), 0));
+            matrix[i][j] = rgb2hsl(r,g,b)
+        }
+    }
+
+    return matrix
+}
+
 
 /*
 * Converts an RGB color to HSL
