@@ -98,7 +98,7 @@ new Promise(function(resolve, reject){
 		}
 	})
 	trackingBoxes[TrackingOptions.keypoint].addEventListener( 'change', function() {
-		trackingOption = TrackingOptions.keyPoint
+		trackingOption = TrackingOptions.keypoint
 		if (calibrated){
 			setTimeout(updateScreens)
 		}
@@ -593,7 +593,7 @@ new Promise(function(resolve, reject){
 				// console.log(newStickerLocations)
 				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
 				socket.emit('updateScreens', AllScreenPositions);
-			} else if (trackingOption == TrackingOptions.tracking) {
+			} else if (trackingOption == TrackingOptions.keypoint) {
 				let pic = takeTrackingPicture();
 				// console.log(imageObjects)
 				AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
