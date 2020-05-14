@@ -48,7 +48,7 @@ def pickColor(file, pictureName, picNum, row):
     cnbp = 0
     sratio = min(100, int(pictureName[2]))
     nbOfColors = int(pictureName[4])
-    if (sratio < 100 and nbOfColors > 2) or (sratio < 50 and nbOfColors > 1):
+    if (sratio < 100 and nbOfColors > 2) or (sratio < 50 and nbOfColors >= 1):
         cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty(name,cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
         cv2.imshow(name, image)
