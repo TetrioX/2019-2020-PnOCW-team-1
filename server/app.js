@@ -88,7 +88,6 @@ function deletePlayer(socket) {
 function addPlayer(socket) {
     players[socket.id] = ++playerNumber
     playerSockets[socket.id] = socket
-    console.log("hello, ik ben ", playerNumber)
     socket.emit('playerID', {number: playerNumber, socket: socket.id})
 }
 
@@ -244,9 +243,7 @@ io.of('/admin').use(function(socket, next) {
 var videoUpdater = null
 async function resumeVideo(startTime){
   clearInterval(videoUpdater)
-  console.log("starting video")
   let maxLat = Math.max(Object.values(latSlaves))
-  console.log("latency: ", maxLat)
   slaveIo.emit('playVideo', {
     maxLat: maxLat
   })
@@ -315,7 +312,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
 
   socket.on('updateScreens', function(data){
     AllScreenPositions = data;
-    console.log('server', AllScreenPositions)
     Object.keys(slaves).forEach(function(slave, index) {
       slaveSockets[slave].emit('updateTransform', {
         corners: AllScreenPositions[slaves[slave]]
@@ -406,7 +402,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
       picDimensions = [matrixes[0].length, matrixes[0][0].length]
       let squares = scrnread.getScreens(matrixes, screens, colorCombs)
-      console.log(squares)
       let result = scrnread.getScreenFromSquares(squares, screens)
       socket.emit('drawCircles', result)
       return result
@@ -481,7 +476,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
         socket.emit('alert', "found these screens: "+screenKeys.toString() )
         socket.emit('showVisualFeedback');
       }
-      console.log(screens)
       AllScreenPositions = {...AllScreenPositions, ...screens};
       //trackingUpdater = setTimeout(updateScreens())
     });
@@ -565,7 +559,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
   })
 
 	const selectImage = function(selection) {
-		console.log(selection)
 		switch (selection) {
 			case "Colorgrid" :
 				return fs.readFileSync('./public/Colorgrid.jpg').toString('base64');
@@ -627,7 +620,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
       }
     })
     await Promise.all(vidEndedPromises)
-    console.log('all videos ended')
     clearInterval(videoUpdater)
   })
 
@@ -755,7 +747,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
     var synchroPromises = [];
     var slaveOffsets = {};
 
-    console.log('startAnimation')
     getPath()
 
     // Send all the data to slaves and wait for them to end their preparation.
@@ -788,7 +779,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
     // Wait for all slaves
     await Promise.all(synchroPromises);
 
-    console.log("Prep done: ", slaves)
     startTime = Date.now() + maxLat * 2
 
     // d1 = Date.now()
@@ -800,7 +790,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
       })
     })
 
-    console.log("MaxFps: ", maxFps)
     checkInterval = setInterval(checkFrame, checkInt * 1000 / maxFps);
 
   })
@@ -827,7 +816,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
     // Start with lowest slave.
     slavesPassed = new Set(Object.keys(AllScreenPositions))
     firstSlave = Object.keys(AllScreenPositions)[0];
-    console.log("first slave data ", slavesPassed, " ", centers[firstSlave])
     path = []
 
     getConnection(firstSlave)
@@ -967,8 +955,6 @@ var masterIo = io.of('/master').on('connect', function(socket){
   });
 
   socket.on('animationorientation',function(data){
-    console.log('test')
-    console.log(data.orientation)
     slaveIo.emit('animationorientation',{
       orientation: data.orientation
     })
@@ -1000,7 +986,6 @@ var slaveIo = io.of('/slave').on('connect', function(socket){
     latSlaves[socket] = lat
   })
   socket.on('uBuffer', function(time){
-    console.log('wait for buffer')
     slaveIo.emit('pauseAt', time)
     socket.emit('waitForBuffer', null, resumeVideo(time*1000))
   })
@@ -1093,7 +1078,6 @@ function createColorGrid(nbrows, nbcolumns, allColorCombinations, slaveID) {
  *********************/
 var world;
 function createWorld() {
-  console.log({x: picDimensions[1], y: picDimensions[0]})
   world = new worldJs.World({x: picDimensions[1], y: picDimensions[0]});
 }
 

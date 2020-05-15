@@ -206,7 +206,7 @@ new Promise(function(resolve, reject){
 	},false)
 
 	function printRelativeOrientation(alfa){
-		relativeorientation=Math.round(event.alpha-realorientation)
+		relativeorientation=Math.round(((event.alpha-realorientation+360)%360 + 90)%180 - 90)
 		relativeor.innerText = relativeorientation.toString();
 		realor.innerText = Math.round(realorientation).toString();
 	}
@@ -234,7 +234,7 @@ new Promise(function(resolve, reject){
 
 	show3dbutton = document.getElementById('show3D');
 	var deviceorientationHandler = function(event){
-		animationorientation =-Math.round(event.alpha-realorientation)
+		animationorientation =-Math.round(((event.alpha-realorientation+360)%360 + 90)%180 - 90)
 		socket.emit('animationorientation', {
 			orientation :animationorientation
 		})
