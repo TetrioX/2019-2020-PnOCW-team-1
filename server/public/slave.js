@@ -367,7 +367,7 @@ function createGrid() {
         entirePage.appendChild(row);
         gridElements.push(row)
 
-        for (j = 0; j < numberOfColumns; j++) {
+        for (let j = 0; j < numberOfColumns; j++) {
 
             var grid = document.createElement('div');
             grid.setAttribute("id", "grid" + i.toString() + j.toString());
