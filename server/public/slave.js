@@ -39,8 +39,8 @@ function cleanHTML() {
     clearInterval(vidDrawer);
     video.src = "";
     context.clearRect(0, 0, canvas.width, canvas.height);
-    for (let el of container.children){
-      el.remove
+    for (let el of renderdiv.children){
+      el.remove()
     }
 }
 
@@ -49,7 +49,6 @@ var animationorientation = 0
 socket.on('animationorientation',function(data){
     renderdiv.style.display ="";
     cleanHTML();
-    console.log(data.orientation)
     animationorientation = data.orientation
 
 })
@@ -59,7 +58,6 @@ socket.on('animationorientation',function(data){
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r115/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r115/build/three.module.js';
 
-console.log ('oke')
 
 var container, stats;
 var camera, scene, renderer;
@@ -266,7 +264,6 @@ socket.on('removeGrid', function (data) {
 
 socket.on('connect', function () {
     socketID = socket.id;
-    console.log(socketID);
 });
 
 socket.on('changeBackgroundColor', function (data) {
@@ -275,7 +272,6 @@ socket.on('changeBackgroundColor', function (data) {
 });
 
 socket.on('SendingPicture', function (data) {
-    console.log("picture recieved");
 });
 
 socket.on('drawStar', function (data) {
@@ -471,7 +467,6 @@ function draw(radianAngle) {
 //BROADCASTING IMAGES AND VIDEOS
 
 socket.on('broadcastingImage'), function (data) {
-    console.log('willBroadcast')
     var slaveCorners = [data[3], data[0], data[1], data[2]];
     broadcast(slaveCorners);
 }
@@ -792,7 +787,7 @@ playerButton.addEventListener('click', function () {
         var w = window.innerWidth, h = window.innerHeight;
         var t = general2DProjection(x1, y1, 0, 0, x2, y2, w, 0, x3, y3, 0, h, x4, y4, w, h);
         for (i = 0; i != 9; ++i) t[i] = t[i] / t[8];
-        t = [t[0], t[3], 0, t[6],
+        let t = [t[0], t[3], 0, t[6],
             t[1], t[4], 0, t[7],
             0, 0, 1, 0,
             t[2], t[5], 0, t[8]];
@@ -843,7 +838,6 @@ playerButton.addEventListener('click', function () {
     socket.on('showPicture', async function (data) {
         dimensions = {x: data.picDim[1], y: data.picDim[0]}
         cleanHTML()
-        console.log('drawing picture', data)
         canvas.style.display = "block"
         document.body.style.backgroundColor = "black"; // This is for smoother picture monitoring. Else white borders are possible.
 
@@ -910,7 +904,6 @@ playerButton.addEventListener('click', function () {
     });
 
     socket.on('playVideo', function (maxLat) {
-        console.log("playing video");
         setTimeout(() => {
             video.play();
             /**vidDrawer = setInterval(function(){
@@ -929,7 +922,6 @@ playerButton.addEventListener('click', function () {
 	})*/
 
     socket.on('pauseAt', function (time) {
-        console.log('pausing at ' + time);
         video.pause();
         video.currentTime = time
     })
@@ -1113,12 +1105,10 @@ playerButton.addEventListener('click', function () {
 	// Socket reactie om animatie te starten
 	var fps, fpsInterval, startTime, now, then, elapsed;
 	socket.on('startAnimation', function(data) {
-		console.log('Start')
 	  fpsInterval = 1000 / data.fps;
 	  then = data.startTime + data.offset
 	  startTime = then;
 	  frameCount = 0
-	  console.log("Start", then, " ", Date.now())
 	  animation = requestAnimationFrame(animate)
 	});
 
