@@ -442,7 +442,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           // promises that will be fulfilled once the screens have changed color
           let promises = []
           await sleep(Number(gridPause))
-          for (let slave of slaves) {
+          for (let slave of Object.keys(slaves)) {
             let promise = new Promise(function(resolve, reject) {
               slaveSockets[slave].emit('changeGrid', i, function(callBackData){
               // fulfill promise
