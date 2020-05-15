@@ -39,7 +39,7 @@ function cleanHTML() {
     clearInterval(vidDrawer);
     video.src = "";
     context.clearRect(0, 0, canvas.width, canvas.height);
-    renderdiv.style.display ="style: none";
+    renderdiv.style.display = "none"
 }
 
 var animationorientation = 0
