@@ -786,8 +786,8 @@ playerButton.addEventListener('click', function () {
     function transform2d(elt, x1, y1, x2, y2, x3, y3, x4, y4) {
         var w = window.innerWidth, h = window.innerHeight;
         var t = general2DProjection(x1, y1, 0, 0, x2, y2, w, 0, x3, y3, 0, h, x4, y4, w, h);
-        for (i = 0; i != 9; ++i) t[i] = t[i] / t[8];
-        let t = [t[0], t[3], 0, t[6],
+        for (let i = 0; i != 9; ++i) t[i] = t[i] / t[8];
+        t = [t[0], t[3], 0, t[6],
             t[1], t[4], 0, t[7],
             0, 0, 1, 0,
             t[2], t[5], 0, t[8]];
