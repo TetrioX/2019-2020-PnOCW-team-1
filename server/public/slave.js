@@ -45,8 +45,8 @@ function cleanHTML() {
 var animationorientation = 0
 
 socket.on('animationorientation',function(data){
-    renderdiv.style.display ="";
     cleanHTML();
+    renderdiv.style.display ="";
     animationorientation = data.orientation
 
 })
