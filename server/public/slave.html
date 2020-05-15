@@ -9,12 +9,17 @@
 	</title>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src=/static/scripts/socket.io-stream.js></script>
-
+	
+	
 
 </head>
 <body>
+
 <!-- 	<canvas id ="imgcanvas">imgcanvas</canvas>
 	<canvas id ="tempcanvas">testcanvas </canvas> -->
+
+
+	
 
 	<div id="wrapper">
 		<div class="container">
@@ -45,8 +50,11 @@
 	      <text id="countdown" fill="url(#gradient_01)" x="105" y="145">0</text>
 	    </svg>
 	</div>
+	<div id="3dscenerender" style="display: none"></div>
+	
+	
 
-	<script src="static/slave.js"></script>
+	<script type="module" src="static/slave.js"></script>
 	<script src="static/animationObjects/snake.js"></script>
 	<script src="static/animationObjects/world.js"></script>
 </body>

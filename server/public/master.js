@@ -175,6 +175,22 @@ new Promise(function(resolve, reject){
 		realorientation = 0;
 	}
 
+	show3dbutton = document.getElementById('show3D');
+	show3dbutton.addEventListener('click',function(){
+			console.log('sent')
+			if (window.DeviceOrientationEvent) {
+				window.addEventListener('deviceorientation', function(event){
+					console.log('sent')
+		 			animationorientation =-Math.round(event.alpha-realorientation)
+		 			console.log(animationorientation);
+		 			socket.emit('animationorientation', {
+						orientation :animationorientation
+		 			})
+			
+		 		},false);
+			}
+	});
+
 
 
 
