@@ -313,7 +313,6 @@ new Promise(function(resolve, reject){
 	function choosePictureResolution(value){
 		var resolutionWidth = resolutions[selectResolution.value][0];
 		var resolutionHeight = resolutions[selectResolution.value][1];
-		console.log( resolutionWidth,'x', resolutionHeight );
 		navigator.mediaDevices.getUserMedia({
 		    video: {
 		        width: resolutionWidth ,

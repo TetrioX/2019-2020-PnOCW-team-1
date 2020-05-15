@@ -794,7 +794,7 @@ playerButton.addEventListener('click', function () {
     }
 
     function scaleCenter(center, refPicture, newPicture) {
-        temp = {}
+        let temp = {}
         temp.x = center.x * newPicture.x / refPicture.x;
         temp.y = center.y * newPicture.y / refPicture.y;
         return temp
