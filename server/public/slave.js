@@ -808,7 +808,7 @@ playerButton.addEventListener('click', function () {
     }
 
     function scalePoints(corners, refPicture, newPicture) {
-        temp = [{}, {}, {}, {}]
+        let temp = [{}, {}, {}, {}]
         for (let i in corners) {
             temp[i].x = corners[i].x * newPicture.x / refPicture.x;
             temp[i].y = corners[i].y * newPicture.y / refPicture.y;
@@ -1223,7 +1223,7 @@ playerButton.addEventListener('click', function () {
       const f = 4322;
 
       let result = []
-      for (point of corners) {
+      for (let point of corners) {
         let x = f * (point.x - picDim[1]/2) * Math.cos(th) / (f + (point.x - picDim[1]/2) * Math.sin(th)) + picDim[1]/2;
         let y = picDim[0]/2 - f * (picDim[0]/2 - point.y) / (f + (point.x - picDim[1]/2) * Math.sin(th))
         result.push({x: x, y: y});
