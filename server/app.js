@@ -458,6 +458,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           })
           // wait untill all screens have changed
           await Promise.all(promises)
+          await sleep(Number(gridPause))
         }
         else break;
       }
