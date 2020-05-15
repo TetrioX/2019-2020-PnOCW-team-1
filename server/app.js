@@ -966,7 +966,19 @@ var masterIo = io.of('/master').on('connect', function(socket){
     clearAll()
   });
 
+  socket.on('animationorientation',function(data){
+    console.log('test')
+    console.log(data.orientation)
+    slaveIo.emit('animationorientation',{
+      orientation: data.orientation
+    })
+  })
+
+
+
+
 });
+
 
 /***************
   * Slave Io *

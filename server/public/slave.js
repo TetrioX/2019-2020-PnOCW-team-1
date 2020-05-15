@@ -1,6 +1,7 @@
 //make connection
 var socket = io('/slave');
 
+
 //listen for events from client
 var masterButton = document.getElementById("masterButton");
 var playerButton = document.getElementById("playerButton");
@@ -17,6 +18,7 @@ var entirePage = document.createElement('th');
 var countdown = document.getElementById('countdown');
 var countdownTimer = document.getElementById('timer');
 var wrapper = document.getElementById("wrapper");
+var renderdiv = document.getElementById('3dscenerender');
 var stickers = document.getElementById("stickers")
 var length = 1000;
 var gridElements = [];
@@ -26,6 +28,7 @@ let vidDrawer = null;
 function cleanHTML() {
     removeGrid();
     document.body.style.overflow = 'hidden';
+
     wrapper.style.display = "none";
     countdown.style.display = "none";
     countdownTimer.style.display = "none";
@@ -37,6 +40,136 @@ function cleanHTML() {
     video.src = "";
     context.clearRect(0, 0, canvas.width, canvas.height);
 }
+
+var animationorientation = 0
+
+socket.on('animationorientation',function(data){
+    renderdiv.style.display ="";
+    cleanHTML();
+    console.log(data.orientation)
+    animationorientation = data.orientation
+
+})
+
+
+
+import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r115/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r115/build/three.module.js';
+
+console.log ('oke')
+
+var container, stats;
+var camera, scene, renderer;
+var mesh, mixer;
+
+init();
+animate();
+
+function init() {
+
+    container = document.createElement( 'div' );
+    renderdiv.appendChild( container );
+
+    //
+
+    camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 10000 );
+    camera.position.y = 250;
+    camera.target = new THREE.Vector3( 0, 150, 0 );
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0xf0f0f0 );
+
+    //
+
+    var light = new THREE.DirectionalLight( 0xefefff, 1.5 );
+    light.position.set( 1, 1, 1 ).normalize();
+    scene.add( light );
+
+    var light = new THREE.DirectionalLight( 0xffefef, 1.5 );
+    light.position.set( - 1, - 1, - 1 ).normalize();
+    scene.add( light );
+
+    var loader = new GLTFLoader();
+    loader.load( "./static/Horse.glb", function ( gltf ) {
+
+        mesh = gltf.scene.children[ 0 ];
+        mesh.scale.set( 1.5, 1.5, 1.5 );
+
+        scene.add( mesh );
+
+        mixer = new THREE.AnimationMixer( mesh );
+
+        mixer.clipAction( gltf.animations[ 0 ] ).setDuration( 1 ).play();
+
+    } );
+
+    //
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+    renderer.outputEncoding = THREE.sRGBEncoding;
+
+    container.appendChild( renderer.domElement );
+
+    //
+
+
+    //
+
+    window.addEventListener( 'resize', onWindowResize, false );
+
+}
+
+function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
+//
+
+function animate() {
+
+    requestAnimationFrame( animate );
+
+    render();
+
+
+}
+
+var radius = 600;
+var theta = 0;
+
+var prevTime = Date.now();
+
+function render() {
+
+    theta += 0.1;
+
+    camera.position.x = -500*Math.sin( animationorientation*3.1415/180);
+    camera.position.z = 500;
+
+    camera.lookAt( camera.target );
+
+    if ( mixer ) {
+
+        var time = Date.now();
+
+        mixer.update( ( time - prevTime ) * 0.001 );
+
+        prevTime = time;
+
+    }
+
+    renderer.render( scene, camera );
+
+}
+
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -163,6 +296,43 @@ socket.on('drawImage', function (data) {
 masterButton.addEventListener('click', function () {
     window.location.href = "/master";
 });
+
+
+//3D scene functions
+
+
+
+/*
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderdiv.appendChild( renderer.domElement );
+
+var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+var cube = new THREE.Mesh( geometry, material );
+scene.add( cube );
+
+camera.position.z = 5;
+
+var animate = function () {
+    requestAnimationFrame( animate );
+    console.log('animating')
+    cube.rotation.x += 0.01;
+    cube.rotation.y = animationorientation*3.1415/180;
+
+    renderer.render( scene, camera );
+};
+
+animate();
+*/
+
+
+
+
+
 
 //functions
 function createGrid() {
