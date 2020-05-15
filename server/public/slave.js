@@ -247,7 +247,7 @@ socket.on('changeGrid', function (data, callback) {
 
 function removeGrid() {
     document.body.style.backgroundColor = 'white'
-    for (el of gridElements) {
+    for (let el of gridElements) {
         el.remove()
     }
     gridElements = []
@@ -360,7 +360,7 @@ function createGrid() {
         corner.style.backgroundColor = gridData.cornBorder[0];
         gridElements.push(corner)
     }
-    for (i = 0; i < numberOfrows; i++) {
+    for (let i = 0; i < numberOfrows; i++) {
         var row = document.createElement('div');
         row.setAttribute("class", "rowclass");
         row.setAttribute("id", i.toString());
