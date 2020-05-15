@@ -350,7 +350,7 @@ function createGrid() {
     entirePage.style.bottom = spaceTop
     entirePage.style.left = spaceSide
     entirePage.style.right = spaceSide
-    for (i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
         var corner = document.createElement('div');
         corner.setAttribute("class", "corner");
         corner.setAttribute("id", "corner" + i.toString());
@@ -383,11 +383,11 @@ function createGrid() {
 function updateGrid(c) {
     var numberOfrows = gridData.grid.length;
     var numberOfColumns = gridData.grid[0].length;
-    for (i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
         document.getElementById("corner" + i.toString()).style.backgroundColor = gridData.cornBorder[c];
     }
-    for (i = 0; i < numberOfrows; i++) {
-        for (j = 0; j < numberOfColumns; j++) {
+    for (let i = 0; i < numberOfrows; i++) {
+        for (let j = 0; j < numberOfColumns; j++) {
             document.getElementById("grid" + i.toString() + j.toString()).style.backgroundColor = gridData.grid[i][j][c];
         }
     }
@@ -515,7 +515,7 @@ function broadcast(slaveCorners) {
         //skew werkt voorlopig nog niet helemaal
 
         //var LeftBottomCorner =[slaveCorners[3][0]*widthMultiplier, slaveCorners[3][1]*heightMultiplier]
-        LeftBottomCorner = rotate_point(LeftTopcorner[0], LeftTopcorner[1], angle, LeftBottomCorner);
+        var LeftBottomCorner = rotate_point(LeftTopcorner[0], LeftTopcorner[1], angle, LeftBottomCorner);
         var horizontalskew = -(LeftBottomCorner[0] - LeftTopcorner[0]) / (LeftBottomCorner[1] - LeftTopcorner[1]);
         imgctx.translate(slaveCorners[0][0] * widthMultiplier, slaveCorners[0][1] * heightMultiplier);
         imgctx.transform(1, 0, horizontalskew, 1, 0, 0)
@@ -830,7 +830,7 @@ playerButton.addEventListener('click', function () {
     const pastePicture = function (myCanvas, picture, corners, refPictureLength) {
             myCanvas.width = picture.width;
             myCanvas.height = picture.height;
-            ctx = myCanvas.getContext('2d');
+            var ctx = myCanvas.getContext('2d');
 
             ctx.drawImage(picture, 0, 0, myCanvas.width, myCanvas.height); // destination rectangle
 
@@ -1080,7 +1080,7 @@ playerButton.addEventListener('click', function () {
 	 ***********************/
 
 	// Socket reactie om animatie klaar te maken
-	var maxFps, transformElement, picDim, corners
+	var maxFps, transformElement, picDim, corners, stop
 	socket.on('prepareAnimation', function (data, callback) {
 	    var clock = Date.now()
       transformElement = canvas;
@@ -1128,10 +1128,10 @@ playerButton.addEventListener('click', function () {
 	// initialize the timer variables and start the animation
 	function prepareAnimation(animation) {
 	    createObjects(animation);
-	    w1 = new Date()
+	    let w1 = new Date()
 	    draw(0)
-	    w2 = new Date()
-	    workload = w2 - w1
+	    let w2 = new Date()
+	    let workload = w2 - w1
 	    maxFps = 1000 / workload
 	}
 
@@ -1215,14 +1215,14 @@ playerButton.addEventListener('click', function () {
    })
 
    function updateTransformationMatrix(alpha) {
-      th = alpha * Math.PI/180
+      let th = alpha * Math.PI/180
 
       const f = 4322;
 
-      result = []
+      let result = []
       for (point of corners) {
-        x = f * (point.x - picDim[1]/2) * Math.cos(th) / (f + (point.x - picDim[1]/2) * Math.sin(th)) + picDim[1]/2;
-        y = picDim[0]/2 - f * (picDim[0]/2 - point.y) / (f + (point.x - picDim[1]/2) * Math.sin(th))
+        let x = f * (point.x - picDim[1]/2) * Math.cos(th) / (f + (point.x - picDim[1]/2) * Math.sin(th)) + picDim[1]/2;
+        let y = picDim[0]/2 - f * (picDim[0]/2 - point.y) / (f + (point.x - picDim[1]/2) * Math.sin(th))
         result.push({x: x, y: y});
       }
 
