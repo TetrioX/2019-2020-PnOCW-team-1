@@ -442,7 +442,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
           // promises that will be fulfilled once the screens have changed color
           let promises = []
           await sleep(Number(gridPause))
-          Object.keys(slaves).forEach(async function(slave, index) {
+          for (let slave of slaves) {
             let promise = new Promise(function(resolve, reject) {
               slaveSockets[slave].emit('changeGrid', i, function(callBackData){
               // fulfill promise
@@ -455,7 +455,7 @@ var masterIo = io.of('/master').on('connect', function(socket){
               }, 500);
             })
             promises.push(promise)
-          })
+          }
           // wait untill all screens have changed
           await Promise.all(promises)
           await sleep(Number(gridPause))
