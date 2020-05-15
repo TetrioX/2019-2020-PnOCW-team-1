@@ -976,7 +976,7 @@ playerButton.addEventListener('click', function () {
 		// Draw all centers
 		for (let centerId in centers) {
 			// Define center
-			center = centers[centerId]
+			let center = centers[centerId]
 			center = scaleCenter(center, refPictureLength, {x: canvas.width, y: canvas.height})
 			var cx = center.x;
 			var cy = center.y;
