@@ -39,9 +39,7 @@ function cleanHTML() {
     clearInterval(vidDrawer);
     video.src = "";
     context.clearRect(0, 0, canvas.width, canvas.height);
-    for (let el of renderdiv.children){
-      el.remove()
-    }
+    renderdiv.style.display ="style: none";
 }
 
 var animationorientation = 0
