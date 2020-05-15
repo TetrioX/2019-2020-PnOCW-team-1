@@ -9,6 +9,9 @@
 	</title>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src=/static/scripts/socket.io-stream.js></script>
+	<script src=/static/trackingBlackWhite.js></script>
+	<script src="/static/scripts/JSFeat/build/jsfeat-min.js"></script>
+	<script src="/static/scripts/trackingjs/build/tracking-min.js"></script>
 </head>
 <body>
 	<div id="passwordPage">
@@ -64,6 +67,19 @@
 			      <option value="4">SD (640 x 480)</option>
 			    </select>
   			</div>
+				<div id="tracking">
+					tracking:
+					<input type="radio" name="tracking" value="0" checked="true"> none
+					<input type="radio" name="tracking" value="1" style="display: none">
+					<input type="radio" name="tracking" value="2"> keypoint
+				</div>
+				<div>
+					<label class="switch">
+				  	<input type="checkbox" name="gyroscoop" id="gyroscoop" checked="false">
+				  	<span class="slider round"></span>
+						Gyroscoop
+					</label>
+				</div>
 			<form class="input" style="display: none;">
 				<input id="rowPicker" type="number" name="nbrows" min="1" max ="5" placeholder="Number of rows">
 			</form>
@@ -148,11 +164,11 @@
 			<div>
 				<button id="orientationbutton" class="btn btn-outline-warning">Calibrate Orientation</button>
 			</div>
-		
-		</div>	
+
+		</div>
 	</div>
 
-	
+
 
 	<div id="secondEntirePage" style="display: none;">
 		<video  id="screenrecognitionvideo"></video>

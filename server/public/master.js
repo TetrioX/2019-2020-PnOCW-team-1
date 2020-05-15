@@ -2,6 +2,7 @@ var passwordPage = document.getElementById('passwordPage');
 var userspassword = document.getElementById('masterpassword');
 var passwordbutton = document.getElementById('passwordbutton');
 var entirePage =document.getElementById('entirePage');
+
 new Promise(function(resolve, reject){
 
 	userspassword.focus();
@@ -66,7 +67,52 @@ new Promise(function(resolve, reject){
 	var countdownSeconds = countdownPicker.valueAsNumber;
 	var snakeLength = snakeLengthPicker.valueAsNumber;
 
-	var angle = 0;
+	var screenPositions = {};
+	var screenUpdater;
+	var startPic
+
+	// tracking options
+
+	var TrackingOptions = {
+		none: 0,
+		sticker: 1,
+		keypoint: 2
+	}
+	var trackingBoxes = document.getElementById("tracking").children
+	trackingOption = null
+	for (let i=0; i< trackingBoxes.length; i++){
+		if (trackingBoxes[i].checked){
+			trackingOption = i
+			break
+		}
+	}
+	trackingBoxes[TrackingOptions.none].addEventListener( 'change', function() {
+		trackingOption = TrackingOptions.none
+		socket.emit("removeStickers")
+	})
+	trackingBoxes[TrackingOptions.sticker].addEventListener( 'change', function() {
+		trackingOption = TrackingOptions.sticker
+		if (calibrated){
+			alert("WARNING: sticker tracking might faile when the camera has mooved after screen recognition. If it doesn't work please run screen recognition again")
+			setTimeout(updateScreens)
+		}
+	})
+	trackingBoxes[TrackingOptions.keypoint].addEventListener( 'change', function() {
+		trackingOption = TrackingOptions.keypoint
+		if (calibrated){
+			setTimeout(updateScreens)
+		}
+		socket.emit("removeStickers")
+	})
+	var gyroCehckbox = document.getElementById("gyroscoop")
+	gyroCehckbox.addEventListener( 'change', function() {
+    updateAngle = this.checked
+		if (trackingOption == TrackingOptions.none && updateAngle) {
+			setTimeout(updateScreens)
+		}
+});
+	var updateAngle = gyroCehckbox.checked; // when tracking interpolate with gyro
+	var calibrated = false;
 
 	rowPicker.addEventListener('input', function(){
 		numberOfRows = rowPicker.valueAsNumber
@@ -109,14 +155,15 @@ new Promise(function(resolve, reject){
 	  * Orientation functions *
 	 ***********************************/
 
-	 orientationbutton = document.getElementById("orientationbutton");
-	 fourtentirepage = document.getElementById("fourthEntirePage");
-	 zerobutton = document.getElementById("zeroorientation");
-	 masterorientationdiv =document.getElementById("masterorientation");
-	 realor = document.getElementById("realor");
-	 relativeor = document.getElementById("relativeor")
+	 var orientationbutton = document.getElementById("orientationbutton");
+	 var fourtentirepage = document.getElementById("fourthEntirePage");
+	 var zerobutton = document.getElementById("zeroorientation");
+	 var masterorientationdiv =document.getElementById("masterorientation");
+	 var realor = document.getElementById("realor");
+	 var relativeor = document.getElementById("relativeor")
 	 var realorientation =0;
 
+	 var angle = 0;
 
 	 orientationbutton.addEventListener('click',function(){
 	 	entirePage.style.display="none";
@@ -126,29 +173,37 @@ new Promise(function(resolve, reject){
 
 	zerobutton.addEventListener('click',calibrateOrientation)
 
+
+	// var updateAngle = false;
+	var cnsdf = 0;
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener('deviceorientation', function(event){
 		 	alfa = event.alpha
 			printRelativeOrientation(alfa)
+			if (updateAngle && Object.keys(screenPositions).length != 0) {
+				newAlpha = Math.sign(event.alpha-realorientation) == 1? Math.round((event.alpha-realorientation+90) % 180 - 90) : Math.round((event.alpha-realorientation-90) % 180 + 90)
+				socket.emit('updateAlpha', Math.round(((event.alpha-realorientation+360)%360 + 90)%180 - 90))
+			}
 		 },false);
 	}
 
-
+	var updateRealAngle = false;
 	function calibrateOrientation(){
 
-		var update = true;
+		updateRealAngle = true;
 		zerobutton.onclick ="";
 	 	masterorientationdiv.style.display=""
 	 	document.getElementById("currentanglediv").style.display="none"
-		window.addEventListener('deviceorientation', function(calibration){
-			while (update == true){
-		 		realorientation = calibration.alpha;
-		 		update = false;
-		 	}
 
-			socket.emit('updateAlpha', Math.round(event.alpha-realorientation))	
-		},false)
 	}
+
+	window.addEventListener('deviceorientation', function(calibration){
+		while (updateRealAngle){
+			realorientation = calibration.alpha;
+			updateRealAngle = false;
+		}
+
+	},false)
 
 	function printRelativeOrientation(alfa){
 		relativeorientation=Math.round(event.alpha-realorientation)
@@ -162,7 +217,7 @@ new Promise(function(resolve, reject){
 
 	}, true);
 
-	homebutton5 =document.getElementById('4home');
+	var homebutton5 =document.getElementById('4home');
 	homebutton5.addEventListener('click',function(){
 		entirePage.style.display="";
 		fourtentirepage.style.display="none";
@@ -256,8 +311,8 @@ new Promise(function(resolve, reject){
 
 
 	function choosePictureResolution(value){
-		resolutionWidth = resolutions[selectResolution.value][0];
-		resolutionHeight = resolutions[selectResolution.value][1];
+		var resolutionWidth = resolutions[selectResolution.value][0];
+		var resolutionHeight = resolutions[selectResolution.value][1];
 		console.log( resolutionWidth,'x', resolutionHeight );
 		navigator.mediaDevices.getUserMedia({
 		    video: {
@@ -351,9 +406,6 @@ new Promise(function(resolve, reject){
 						colorValue: '#ffffff',
 						id: key
 						});
-
-
-
 		}
 		await sleep(1000);
 			// console.log(key, " ", data.slaves[key])
@@ -403,6 +455,8 @@ new Promise(function(resolve, reject){
 
 	makeGridButton.addEventListener('click',function(){
 		socket.emit('clearAll');
+		socket.emit("removeStickers")
+		clearInterval(screenUpdater);
 		socket.emit('changeBackgroundOfAllSlaves',{
 			numberOfRows:numberOfRows,
 			numberOfColumns:numberOfColumns
@@ -486,18 +540,23 @@ new Promise(function(resolve, reject){
 	    }
 	;
 
+		screenPositions = data;
+		calibrated = true
+		startPic = takeTrackingPicture();
+		updateScreens();
+
 	});
 
 	socket.on('showVisualFeedback',function(){
 		secondEntirePage.style.display="none";
 		var thirdEntirePage = document.getElementById('thirdEntirePage');
 		thirdEntirePage.style.display="";
-		visualfeedbackcanvas=document.getElementById("visualfeedback");
+		var visualfeedbackcanvas=document.getElementById("visualfeedback");
 		visualfeedbackcanvas.width = window.innerWidth;
 		visualfeedbackcanvas.height = window.innerHeight;
 
 
-		feedbackctx = visualfeedback.getContext('2d');
+		var feedbackctx = visualfeedback.getContext('2d');
 
 		var feedbackimage=new Image();
 		var CircelPicture = canvas.toDataURL();
@@ -516,6 +575,226 @@ new Promise(function(resolve, reject){
 		entirePage.style.display="";
 		thirdEntirePage.style.display="none"
 	})
+
+	/****************************
+	 * Tracker Update functions *
+	 ****************************/
+
+	async function updateScreens() {
+		if (Object.keys(screenPositions).length == 0){
+			return
+		}
+		let screenRatios
+		let stickerLocations
+		// copy of screenPositions so tracking can base on original positions
+		let AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
+		if (trackingOption == TrackingOptions.sticker) {
+			// draw stickers
+			screenRatios = await new Promise(function(resolve, reject) {
+				socket.emit("drawStickers", null, function(callbackData) {
+					resolve(callbackData)
+				})
+			})
+		}
+		screenUpdater = setInterval( async function() {
+			if (updateAngle){
+				updateRealAngle = true;
+			}
+			if (trackingOption == TrackingOptions.none) {
+					clearInterval(screenUpdater)
+			} else if (trackingOption == TrackingOptions.sticker) {
+				stickerLocations = calculateStickerLocations(AllScreenPositions, screenRatios)
+				let newStickerLocations = {}
+				newStickerLocations = await findNewPointsFromLocationLastPoints(stickerLocations, takeTrackingPicture()).catch(alert("error in finding stickers:\n"+error.message)) // TODO: remove catch for demo
+				// console.log(newStickerLocations)
+				updateStickerPositions(stickerLocations, newStickerLocations, AllScreenPositions)
+				socket.emit('updateScreens', AllScreenPositions);
+			} else if (trackingOption == TrackingOptions.keypoint) {
+				let pic = takeTrackingPicture();
+				// console.log(imageObjects)
+				AllScreenPositions = JSON.parse(JSON.stringify(screenPositions))
+				findVectors(startPic, pic, AllScreenPositions)
+				socket.emit('updateScreens', AllScreenPositions);
+			}
+		}, 30)
+	}
+
+	function calculateStickerLocations(screenPositions, screenRatios){
+		stickerLocations = {}
+		for (screen of Object.keys(screenPositions)){
+			corners = screenPositions[screen]
+			let vectorTop = {
+				x: corners[0].x - corners[3].x,
+				y: corners[0].y - corners[3].y
+			}
+			let vectorBot = {
+				x: corners[1].x - corners[2].x,
+				y: corners[1].y - corners[2].y
+			}
+			let vectorRight = {
+				x: corners[1].x - corners[0].x,
+				y: corners[1].y - corners[0].y
+			}
+			let vectorLeft = {
+				x: corners[2].x - corners[3].x,
+				y: corners[2].y - corners[3].y
+			}
+			let yscale = 0.06
+			let xscale = screenRatios[screen]*yscale
+			stickerLocations[screen] = [
+				{
+					x: corners[0].x - vectorTop.x*xscale,
+					y: corners[0].y + vectorRight.y*yscale
+				},
+				{
+					x: corners[1].x - vectorBot.x*xscale,
+					y: corners[1].y - vectorRight.y*yscale
+				},
+				{
+					x: corners[2].x + vectorBot.x*xscale,
+					y: corners[2].y - vectorLeft.y*yscale
+				},
+				{
+					x: corners[3].x + vectorTop.x*xscale,
+					y: corners[3].y + vectorLeft.y*yscale
+				}
+			]
+		}
+		return stickerLocations
+	}
+
+	function updateStickerPositions(oldStickerLocations, newStickerLocations, AllScreenPositions){
+		for (screen of Object.keys(newStickerLocations)){
+			// define matches
+			matches = []
+			for (let i=0; i<4; i++){
+				matches.push({keypoint1: [oldStickerLocations[screen][i].x, oldStickerLocations[screen][i].y],
+											keypoint2: [newStickerLocations[screen][i].x, newStickerLocations[screen][i].y]})
+			}
+			find_transform(matches, matches.length);
+			AllScreenPositions[screen] = transformCorners(homo3x3.data, AllScreenPositions[screen]);
+			oldStickerLocations[screen] = newStickerLocations[screen]
+		}
+
+	}
+
+	function takeTrackingPicture() {
+		let canvas = document.createElement('canvas');
+		canvas.width = video.videoWidth;
+		canvas.height = video.videoHeight;
+		let context = canvas.getContext('2d');
+		context.drawImage(video, 0, 0);
+		return context.getImageData(0, 0, canvas.width, canvas.height);
+	}
+
+	// Homography matrix
+	var homo3x3 = new jsfeat.matrix_t(3, 3, jsfeat.F32C1_t);
+// all mathces will be marked as good (1) or bad (0)
+	var match_mask = new jsfeat.matrix_t(500, 1, jsfeat.U8C1_t);
+
+	function find_transform(matches, count) {
+		// motion kernel (Used later to compute homography)
+		var mm_kernel = new jsfeat.motion_model.homography2d();
+		// ransac params
+		var num_model_points = 4;
+		var reproj_threshold = 3;
+		var ransac_param = new jsfeat.ransac_params_t(num_model_points,
+			reproj_threshold, 0.5, 0.99);
+
+		var pattern_xy = [];
+		var screen_xy = [];
+
+		// construct correspondences
+		for (var i = 0; i < count; ++i) {
+			var m = matches[i];
+			pattern_xy[i] = {"x": m.keypoint1[0], "y": m.keypoint1[1]};
+			screen_xy[i] = {"x": m.keypoint2[0], "y": m.keypoint2[1]};
+		}
+
+		// estimate motion with ransac
+		var ok = false;
+		ok = jsfeat.motion_estimator.ransac(ransac_param, mm_kernel,
+			pattern_xy, screen_xy, count, homo3x3, match_mask, 1000);
+
+		var pattern_xy2 = [];
+		var screen_xy2 = [];
+		// extract good matches and re-estimate
+		var good_cnt = 0;
+		if (ok) {
+			for (var i = 0; i < count; ++i) {
+				if (match_mask.data[i]) {
+					pattern_xy2[good_cnt] = {"x": pattern_xy[i].x, "y": pattern_xy[i].y};
+					screen_xy2[good_cnt] = {"x": screen_xy[i].x, "y": screen_xy[i].y};
+					good_cnt++;
+				}
+			}
+			// run kernel directly with inliers only
+			mm_kernel.run(pattern_xy2, screen_xy2, homo3x3, good_cnt);
+		} else {
+			jsfeat.matmath.identity_3x3(homo3x3, 1.0);
+		}
+
+		return good_cnt;
+	}
+
+// console.log(homo3x3.data);
+
+// Multiplies the given matrix with the given points
+	function transformCorners(M, oldCorners) {
+		var pt = oldCorners;
+		var z = 0.0, i = 0, px = 0.0, py = 0.0;
+		for (; i < 4; ++i) {
+			px = M[0] * pt[i].x + M[1] * pt[i].y + M[2];
+			py = M[3] * pt[i].x + M[4] * pt[i].y + M[5];
+			z = M[6] * pt[i].x + M[7] * pt[i].y + M[8];
+			pt[i].x = px / z;
+			pt[i].y = py / z;
+		}
+
+		return pt;
+	}
+
+// Searches matches between two images and updates AllScreenPositions
+	function findVectors(image1, image2, AllScreenPositions) {
+		width1 = image1.width;
+		height1 = image1.height;
+
+		width2 = image2.width;
+		height2 = image2.height;
+
+		// Parameters for Fast & Brief algorithms
+		var descriptorLength = 512;
+		var matchesShown = 30;
+		var blurRadius = 3;
+		tracking.Fast.THRESHOLD = 30;
+		tracking.Brief.N = descriptorLength;
+
+		// Set images to grayscale
+		var gray1 = tracking.Image.grayscale(tracking.Image.blur(image1.data, width1, height1, blurRadius), width1, height1);
+		var gray2 = tracking.Image.grayscale(tracking.Image.blur(image2.data, width2, height2, blurRadius), width2, height2);
+
+		// find corners on the two images
+		var corners1 = tracking.Fast.findCorners(gray1, width1, height1);
+		var corners2 = tracking.Fast.findCorners(gray2, width2, height2);
+
+		// find descriptors of images
+		var descriptors1 = tracking.Brief.getDescriptors(gray1, width1, corners1);
+		var descriptors2 = tracking.Brief.getDescriptors(gray2, width2, corners2);
+
+		// Matches are found using Brief
+		var matches = tracking.Brief.reciprocalMatch(corners1, descriptors1, corners2, descriptors2);
+		matches.sort(function (a, b) {
+			return b.confidence - a.confidence;
+		});
+
+		find_transform(matches, matches.length);
+
+		for (const [key, value] of Object.entries(AllScreenPositions)) {
+			newCorners = transformCorners(homo3x3.data, AllScreenPositions[key]);
+			AllScreenPositions[key] = newCorners;
+		}
+	}
+
 
 
 	/*********************

@@ -19,6 +19,7 @@ var countdown = document.getElementById('countdown');
 var countdownTimer = document.getElementById('timer');
 var wrapper = document.getElementById("wrapper");
 var renderdiv = document.getElementById('3dscenerender');
+var stickers = document.getElementById("stickers")
 var length = 1000;
 var gridElements = [];
 let vidBufferCheck = null;
@@ -27,7 +28,7 @@ let vidDrawer = null;
 function cleanHTML() {
     removeGrid();
     document.body.style.overflow = 'hidden';
- 
+
     wrapper.style.display = "none";
     countdown.style.display = "none";
     countdownTimer.style.display = "none";
@@ -47,7 +48,7 @@ socket.on('animationorientation',function(data){
     cleanHTML();
     console.log(data.orientation)
     animationorientation = data.orientation
-    
+
 })
 
 
@@ -93,9 +94,9 @@ function init() {
 
         mesh = gltf.scene.children[ 0 ];
         mesh.scale.set( 1.5, 1.5, 1.5 );
-       
+
         scene.add( mesh );
-       
+
         mixer = new THREE.AnimationMixer( mesh );
 
         mixer.clipAction( gltf.animations[ 0 ] ).setDuration( 1 ).play();
@@ -200,6 +201,16 @@ socket.on('slaveID', function (id) {
     document.getElementById("slaveID").innerHTML = id + text;
 })
 
+socket.on("drawStickers", function(data, callback){
+  stickers.style.display = "block"
+  let vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  let vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+  callback(vh/vw)
+})
+
+socket.on("removeStickers", function(){
+  stickers.style.display = "none"
+})
 
 socket.on('drawLine', function (data) {
     draw(data.angle);
@@ -808,6 +819,9 @@ playerButton.addEventListener('click', function () {
             corners[2].x, corners[2].y, corners[1].x, corners[1].y);
     };
 
+
+    let dimensions = null;
+
     /********************
      * Image show-off *
      ********************/
@@ -824,6 +838,7 @@ playerButton.addEventListener('click', function () {
         };
 
     socket.on('showPicture', async function (data) {
+        dimensions = {x: data.picDim[1], y: data.picDim[0]}
         cleanHTML()
         console.log('drawing picture', data)
         canvas.style.display = "block"
@@ -836,7 +851,7 @@ playerButton.addEventListener('click', function () {
         var img = new Image()
 
         img.onload = function () {
-            pastePicture(canvas, img, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+            pastePicture(canvas, img, data.corners, dimensions);
         }
 
         img.src = 'data:image/jpeg;base64,' + data.picture;
@@ -860,6 +875,7 @@ playerButton.addEventListener('click', function () {
     // };
 
     socket.on('loadVideo', async function (data, callback) {
+        dimensions = {x: data.picDim[1], y: data.picDim[0]}
         cleanHTML();
 
         transformElement = video;
@@ -870,7 +886,7 @@ playerButton.addEventListener('click', function () {
         video.onloadeddata = async function () {
             video.width = data.picDim[1];
             video.height = data.picDim[0];
-            transformSlave(video, data.corners, {x: data.picDim[1], y: data.picDim[0]});
+            transformSlave(video, data.corners, dimensions);
             await waitForBuffer(5)
             callback()
         };
@@ -1000,6 +1016,7 @@ playerButton.addEventListener('click', function () {
 	}
 
 	socket.on('triangulate', function(data){
+    dimensions = {x: data.picDim[1], y: data.picDim[0]}
 		cleanHTML()
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.style.display = "block"
@@ -1011,7 +1028,7 @@ playerButton.addEventListener('click', function () {
     picDim = data.picDim;
 
 		transformSlave(canvas, data.corners, {x: data.picDim[1], y: data.picDim[0]})
-		drawTriangulation(data.centers, data.connections, {x: data.picDim[1], y: data.picDim[0]})
+		drawTriangulation(data.centers, data.connections, dimensions)
 	});
 
 
@@ -1086,7 +1103,8 @@ playerButton.addEventListener('click', function () {
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		canvas.width = picDim[1];
 		canvas.height = picDim[0];
-		transformSlave(canvas, corners, {x: picDim[1], y: picDim[0]});
+    dimensions = {x: picDim[1], y: picDim[0]}
+		transformSlave(canvas, corners, dimensions);
 	}
 
 	// Socket reactie om animatie te starten
@@ -1185,10 +1203,15 @@ playerButton.addEventListener('click', function () {
    //
    // })
 
-   socket.on("updateCalibration", function(alpha){
+   socket.on("updateCalibration", async function(alpha){
      // t1 = Date.now()
-     updateTransformationMatrix(alpha)
+     if (corners) updateTransformationMatrix(alpha)
      // console.log(Date.now() - t1)
+   })
+
+   socket.on('updateTransform', async function(data) {
+     corners = data.corners
+     transformSlave(transformElement, corners, {x: picDim[1], y: picDim[0]});
    })
 
    function updateTransformationMatrix(alpha) {
@@ -1207,6 +1230,3 @@ playerButton.addEventListener('click', function () {
     }
 
 })()
-
-
-

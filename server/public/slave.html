@@ -9,18 +9,28 @@
 	</title>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src=/static/scripts/socket.io-stream.js></script>
-	
-	
+
+
 
 </head>
 <body>
 
 <!-- 	<canvas id ="imgcanvas">imgcanvas</canvas>
 	<canvas id ="tempcanvas">testcanvas </canvas> -->
-
-
-	
-
+	<div id="stickers" style="display: none">
+		<div id="sticker-tl" class="sticker-border" style="left:0px; top:0px">
+			<div class="sticker-center"></div>
+		</div>
+		<div id="sticker-tr" class="sticker-border" style="right:0px; top:0px">
+			<div class="sticker-center"></div>
+		</div>
+		<div id="sticker-br" class="sticker-border" style="right:0px; bottom:0px">
+			<div class="sticker-center"></div>
+		</div>
+		<div id="sticker-bl" class="sticker-border" style="left:0px; bottom:0px">
+			<div class="sticker-center"></div>
+		</div>
+	</div>
 	<div id="wrapper">
 		<div class="container">
 			<div id="jumbotron">
@@ -51,8 +61,8 @@
 	    </svg>
 	</div>
 	<div id="3dscenerender" style="display: none"></div>
-	
-	
+
+
 
 	<script type="module" src="static/slave.js"></script>
 	<script src="static/animationObjects/snake.js"></script>
